@@ -1,7 +1,8 @@
 import { HashListFormat } from '@constants/hashlist.config';
 import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse, zHashlistListResponse } from '@generated/api/zod';
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -23,7 +24,6 @@ import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import {
   CRACKER_TYPE_FIELD_MAPPING,
@@ -49,7 +49,7 @@ export interface ApplyHashlistForm {
   changeDetection: ChangeDetectionStrategy.Default,
   standalone: false
 })
-export class ApplyHashlistComponent implements OnInit, OnDestroy {
+export class ApplyHashlistComponent implements OnInit {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
@@ -71,7 +71,6 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    * Constructor for the ApplyHashlistComponent.
    * Initializes and sets up necessary services, properties, and the form.
    *
-   * @param {UnsubscribeService} unsubscribeService - The service responsible for managing subscriptions.
    * @param {ChangeDetectorRef} changeDetectorRef - The reference to the Angular ChangeDetectorRef.
    * @param {AutoTitleService} titleService - The service responsible for setting the page title.
    * @param {ActivatedRoute} route - The Angular ActivatedRoute service for accessing route parameters.
@@ -79,7 +78,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    * @param {GlobalService} gs - The service providing global functionality.
    * @param {Router} router - The Angular Router service for navigation.
    */
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private changeDetectorRef = inject(ChangeDetectorRef);
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
@@ -97,7 +96,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    * Initializes the component by extracting and setting the user ID,
    */
   onInitialize() {
-    this.route.params.subscribe((params: Params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
       this.editedIndex = zIdRouteParams.parse(params).id;
       this.initForm();
     });
@@ -108,14 +107,6 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
     this.initForm();
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
   }
 
   /**
@@ -146,7 +137,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
     });
 
     //subscribe to changes to handle select cracker binary
-    this.form.controls.crackerBinaryId.valueChanges.subscribe((newvalue) => {
+    this.form.controls.crackerBinaryId.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((newvalue) => {
       if (newvalue !== null) {
         this.handleChangeBinary(newvalue);
       }
@@ -174,8 +165,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
       .addFilter({ field: 'format', operator: FilterType.EQUAL, value: HashListFormat.TEXT })
       .create();
 
-    const loadHashlistsSubscription$ = this.gs
+    this.gs
       .getAll(SERV.HASHLISTS, requestParams)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const hashlists: JHashlist[] = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
         this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
@@ -185,7 +177,6 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         }
         this.changeDetectorRef.detectChanges();
       });
-    this.unsubscribeService.add(loadHashlistsSubscription$);
   }
 
   /**
@@ -193,8 +184,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
    */
   loadCrackerSelectOptions() {
     // Load Cracker Types and Crackers Select Options
-    const loadCrackerTypesSubscription$ = this.gs
+    this.gs
       .getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
           new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
@@ -210,8 +202,9 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         const requestParams = new RequestParamBuilder()
           .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
           .create();
-        const loadCrackersSubscription$ = this.gs
+        this.gs
           .getAll(SERV.CRACKERS, requestParams)
+          .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe((response: ResponseWrapper) => {
             const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(
               response,
@@ -221,9 +214,7 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
             const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
             this.form.controls.crackerBinaryTypeId.patchValue(lastItem);
           });
-        this.unsubscribeService.add(loadCrackersSubscription$);
       });
-    this.unsubscribeService.add(loadCrackerTypesSubscription$);
   }
 
   /**
@@ -237,15 +228,15 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
     const requestParams = new RequestParamBuilder()
       .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
       .create();
-    const onChangeBinarySubscription$ = this.gs
+    this.gs
       .getAll(SERV.CRACKERS, requestParams)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
         this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
         const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
         this.form.controls.crackerBinaryTypeId.patchValue(lastItem);
       });
-    this.unsubscribeService.add(onChangeBinarySubscription$);
   }
 
   /**
@@ -261,12 +252,14 @@ export class ApplyHashlistComponent implements OnInit, OnDestroy {
         hashlistId: formValue.hashlistId,
         crackerVersionId: formValue.crackerBinaryTypeId
       };
-      const onSubmitSubscription$ = this.gs.chelper(SERV.HELPER, 'createSupertask', adaptedFormValue).subscribe(() => {
-        this.alert.showSuccessMessage('New Supertask created');
-        this.router.navigate(['tasks/show-tasks']);
-        this.isCreatingLoading = false;
-      });
-      this.unsubscribeService.add(onSubmitSubscription$);
+      this.gs
+        .chelper(SERV.HELPER, 'createSupertask', adaptedFormValue)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.alert.showSuccessMessage('New Supertask created');
+          this.router.navigate(['tasks/show-tasks']);
+          this.isCreatingLoading = false;
+        });
     } else {
       this.form.markAllAsTouched();
       this.form.updateValueAndValidity();

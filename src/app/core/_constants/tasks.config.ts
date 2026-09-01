@@ -1,17 +1,16 @@
-/**
- * How a task's keyspace is split into chunks, matching the `staticChunks` attribute.
- */
-export const StaticChunking = {
-  NO: 0,
+import { SelectOption } from '@src/app/shared/utils/forms';
+
+export const StaticChunkingMode = {
+  NONE: 0,
   FIXED_CHUNK_SIZE: 1,
   FIXED_NUMBER_OF_CHUNKS: 2
 } as const;
-export type StaticChunking = (typeof StaticChunking)[keyof typeof StaticChunking];
+export type StaticChunkingMode = (typeof StaticChunkingMode)[keyof typeof StaticChunkingMode];
 
-export const staticChunking = [
-  { id: StaticChunking.NO, name: 'No' },
-  { id: StaticChunking.FIXED_CHUNK_SIZE, name: 'Fixed chunk size' },
-  { id: StaticChunking.FIXED_NUMBER_OF_CHUNKS, name: 'Fixed number of chunks' }
+export const staticChunking: SelectOption<number>[] = [
+  { id: StaticChunkingMode.NONE, name: 'No' },
+  { id: StaticChunkingMode.FIXED_CHUNK_SIZE, name: 'Fixed chunk size' },
+  { id: StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS, name: 'Fixed number of chunks' }
 ];
 
 export const benchmarkType = [

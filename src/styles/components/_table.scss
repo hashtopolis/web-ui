@@ -251,7 +251,7 @@ table.hashtopolis-table {
 
       ht-table-editable {
         display: block;
-        flex: 1 1 auto;
+        flex: 0 1 auto;
         min-width: 0;
 
         // A column without an `editable` callback renders nothing here. Don't let
@@ -273,7 +273,7 @@ table.hashtopolis-table {
       width: 100%;
       gap: var(--space-xs);
       min-height: 32px;
-      min-width: 96px;
+      min-width: 32px;
 
       .mat-mdc-form-field {
         margin: 0;

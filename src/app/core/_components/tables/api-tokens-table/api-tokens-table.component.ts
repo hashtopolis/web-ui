@@ -1,7 +1,8 @@
 import { Observable, catchError, firstValueFrom, of } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { ApiTokenStatus, JApiToken, computeApiTokenStatus } from '@models/api-token.model';
@@ -30,7 +31,7 @@ import { formatUnixTimestamp, lastValidSecond } from '@src/app/shared/utils/date
   templateUrl: './api-tokens-table.component.html',
   standalone: false
 })
-export class ApiTokensTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ApiTokensTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: ApiTokensDataSource;
 
@@ -47,12 +48,6 @@ export class ApiTokensTableComponent extends BaseTableComponent implements OnIni
     this.dataSource.loadAll();
   }
 
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
-
   getColumns(): HTTableColumn[] {
     return [
       {
@@ -65,16 +60,16 @@ export class ApiTokensTableComponent extends BaseTableComponent implements OnIni
       {
         id: ApiTokensTableCol.VALID_FROM,
         dataKey: 'startValid',
-        render: (token: JApiToken) => formatUnixTimestamp(token.startValid, this.dateFormat),
+        render: (token: JApiToken) => formatUnixTimestamp(token.startValid, this.dateTimeFormat),
         isSortable: true,
-        export: async (token: JApiToken) => formatUnixTimestamp(token.startValid, this.dateFormat)
+        export: async (token: JApiToken) => formatUnixTimestamp(token.startValid, this.dateTimeFormat)
       },
       {
         id: ApiTokensTableCol.VALID_UNTIL,
         dataKey: 'endValid',
-        render: (token: JApiToken) => formatUnixTimestamp(lastValidSecond(token.endValid), this.dateFormat),
+        render: (token: JApiToken) => formatUnixTimestamp(lastValidSecond(token.endValid), this.dateTimeFormat),
         isSortable: true,
-        export: async (token: JApiToken) => formatUnixTimestamp(lastValidSecond(token.endValid), this.dateFormat)
+        export: async (token: JApiToken) => formatUnixTimestamp(lastValidSecond(token.endValid), this.dateTimeFormat)
       },
       {
         id: ApiTokensTableCol.STATUS,
@@ -160,8 +155,10 @@ export class ApiTokensTableComponent extends BaseTableComponent implements OnIni
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (!result?.action) {
           return;
         }
@@ -174,8 +171,7 @@ export class ApiTokensTableComponent extends BaseTableComponent implements OnIni
             void this.delete(token);
             break;
         }
-      })
-    );
+      });
   }
 
   private async revoke(token: JApiToken): Promise<void> {

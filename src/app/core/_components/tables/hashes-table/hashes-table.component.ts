@@ -1,6 +1,6 @@
 import { HashesViewType } from '@constants/hashes.config';
 
-import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
@@ -23,7 +23,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
   templateUrl: './hashes-table.component.html',
   standalone: false
 })
-export class HashesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class HashesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   @Input() id: number;
   @Input() dataType: HashesViewType;
   @Input() filterParam: string;
@@ -50,12 +50,6 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   filter(input: string) {
@@ -114,8 +108,8 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         id: HashesTableCol.TIMECRACKED,
         dataKey: 'timeCracked',
         isSortable: true,
-        render: (hash: JHash) => formatUnixTimestamp(hash.timeCracked, this.dateFormat),
-        export: async (hash: JHash) => formatUnixTimestamp(hash.timeCracked, this.dateFormat) + ''
+        render: (hash: JHash) => formatUnixTimestamp(hash.timeCracked, this.dateTimeFormat),
+        export: async (hash: JHash) => formatUnixTimestamp(hash.timeCracked, this.dateTimeFormat) + ''
       }
     ];
   }

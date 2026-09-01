@@ -1,7 +1,8 @@
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FileType, JFile } from '@models/file.model';
 
@@ -36,7 +37,7 @@ import { formatFileSize } from '@src/app/shared/utils/util';
   templateUrl: './files-table.component.html',
   standalone: false
 })
-export class FilesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class FilesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   private _editIndex: number;
 
   @Input() fileType: FileType = FileType.WORDLIST;
@@ -97,11 +98,6 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
     this.dataSource.loadAll();
   }
 
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
   /**
    * Reloads the data source with a backend field filter applied to the currently selected column.
    * Clears the filter and reloads all data when input is empty.
@@ -201,8 +197,10 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -213,8 +211,7 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
               break;
           }
         }
-      })
-    );
+      });
   }
 
   // --- Action functions ---
@@ -268,40 +265,38 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
   }
 
   private bulkActionDelete(files: JFile[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.FILES, files)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted files!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.FILES, files)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted files!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(files: JFile[]): void {
-    this.subscriptions.push(
-      this.gs
-        .delete(SERV.FILES, files[0].id)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted file!');
-          this.reload();
-        })
-    );
+    this.gs
+      .delete(SERV.FILES, files[0].id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted file!');
+        this.reload();
+      });
   }
 
   /**
@@ -336,36 +331,34 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, O
 
   private rowActionToggleSecret(file: JFile): void {
     const isSecret = !file.isSecret;
-    this.subscriptions.push(
-      this.gs
-        .update(SERV.FILES, file.id, { isSecret })
-        .pipe(
-          catchError((error) => {
-            console.error('Error updating secret flag:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`File ${file.filename} is now ${isSecret ? 'secret' : 'not secret'}!`);
-          this.reload();
-        })
-    );
+    this.gs
+      .update(SERV.FILES, file.id, { isSecret })
+      .pipe(
+        catchError((error) => {
+          console.error('Error updating secret flag:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`File ${file.filename} is now ${isSecret ? 'secret' : 'not secret'}!`);
+        this.reload();
+      });
   }
 
   private rowActionRecount(file: JFile): void {
-    this.subscriptions.push(
-      this.gs
-        .chelper(SERV.HELPER, 'recountFileLines', { fileId: file.id })
-        .pipe(
-          catchError((error) => {
-            console.error('Error recounting file lines:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Recounted lines for ${file.filename}!`);
-          this.reload();
-        })
-    );
+    this.gs
+      .chelper(SERV.HELPER, 'recountFileLines', { fileId: file.id })
+      .pipe(
+        catchError((error) => {
+          console.error('Error recounting file lines:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Recounted lines for ${file.filename}!`);
+        this.reload();
+      });
   }
 }

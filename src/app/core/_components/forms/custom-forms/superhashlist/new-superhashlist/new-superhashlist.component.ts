@@ -1,7 +1,8 @@
 import { HashListFormat } from '@constants/hashlist.config';
 import { zHashlistListResponse } from '@generated/api/zod';
 
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -16,7 +17,6 @@ import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { sameHashTypeValidator } from '@src/app/core/_validators/same-hash-type.validator';
@@ -36,7 +36,7 @@ interface NewSuperhashlistForm {
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false
 })
-export class NewSuperhashlistComponent implements OnInit, OnDestroy {
+export class NewSuperhashlistComponent implements OnInit {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
@@ -48,7 +48,7 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
 
   private hashlists: JHashlist[] = [];
 
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private changeDetectorRef = inject(ChangeDetectorRef);
   private titleService = inject(AutoTitleService);
   private alert = inject(AlertService);
@@ -65,14 +65,6 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
     this.loadData();
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
   }
 
   /**
@@ -97,8 +89,9 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
       .addFilter({ field: 'format', operator: FilterType.EQUAL, value: HashListFormat.TEXT })
       .create();
 
-    const loadSubscription$ = this.globalService
+    this.globalService
       .getAll(SERV.HASHLISTS, requestParams)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const hashlists: JHashlist[] = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
         this.hashlists = hashlists;
@@ -107,7 +100,6 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
         this.isLoading = false;
         this.changeDetectorRef.detectChanges();
       });
-    this.unsubscribeService.add(loadSubscription$);
   }
 
   /**
@@ -116,14 +108,13 @@ export class NewSuperhashlistComponent implements OnInit, OnDestroy {
    */
   onSubmit(): void {
     if (this.form.valid) {
-      const createSubscription$ = this.globalService
+      this.globalService
         .chelper(SERV.HELPER, 'createSuperHashlist', this.form.value)
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.alert.showSuccessMessage('New Superhashlist created');
           this.router.navigate(['hashlists/superhashlist']);
         });
-
-      this.unsubscribeService.add(createSubscription$);
     } else {
       this.form.markAllAsTouched();
       this.form.updateValueAndValidity();

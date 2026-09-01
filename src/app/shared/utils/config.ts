@@ -1,3 +1,5 @@
+import { DateFormat } from '@constants/settings.config';
+
 import {
   Sorting,
   TableConfig,
@@ -11,6 +13,7 @@ import { uiConfigSchema } from '@models/config-ui.schema';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { ThemeService } from '@src/app/core/_services/shared/theme.service';
+import { TimePrecision, dateTimeFormat, timeFormat } from '@src/app/shared/utils/datetime';
 
 /**
  * Utility class for managing user interface settings and configurations.
@@ -157,6 +160,18 @@ export class UISettingsUtilityClass {
     } catch {
       return undefined;
     }
+  }
+
+  getDateFormat(): DateFormat {
+    return this.uiConfig.dateFmt;
+  }
+
+  getTimeFormat(precision: TimePrecision): string {
+    return timeFormat(this.uiConfig.timeFmt, precision);
+  }
+
+  getDateTimeFormat(precision: TimePrecision): string {
+    return dateTimeFormat(this.uiConfig.dateFmt, this.uiConfig.timeFmt, precision);
   }
 
   /**

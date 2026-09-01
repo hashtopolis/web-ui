@@ -1,6 +1,7 @@
 import { catchError, forkJoin } from 'rxjs';
 
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
@@ -69,9 +70,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
 
   ngOnDestroy(): void {
     this.dataSource.stopAutoRefresh();
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   filter(input: string) {
@@ -146,7 +144,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         dataKey: 'lastTime',
         render: (agent: JAgent) => this.renderLastActivity(agent),
         isSortable: true,
-        export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateFormat)
+        export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateTimeFormat)
       },
       {
         id: AgentsStatusTableCol.GPU_UTILISATION,
@@ -217,8 +215,10 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -235,8 +235,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
               break;
           }
         }
-      })
-    );
+      });
   }
 
   // --- Action functions ---
@@ -321,51 +320,50 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
 
     const action = isActive ? 'activated' : 'deactivated';
 
-    this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during activation:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.alertService.showSuccessMessage(`Successfully ${action} ${results.length} agents!`);
-          this.dataSource.reload();
-        })
-    );
+    forkJoin(requests)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during activation:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((results) => {
+        this.alertService.showSuccessMessage(`Successfully ${action} ${results.length} agents!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private bulkActionDelete(agents: JAgent[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.AGENTS, agents)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted agents!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.AGENTS, agents)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted agents!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(agent: JAgent[]): void {
-    this.subscriptions.push(
-      this.gs.delete(SERV.AGENTS, agent[0].id).subscribe(() => {
+    this.gs
+      .delete(SERV.AGENTS, agent[0].id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted agent!');
         this.dataSource.reload();
-      })
-    );
+      });
   }
 
   private rowActionEdit(agent: JAgent): void {
@@ -474,7 +472,7 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
    * @private
    */
   private renderLastActivity(agent: JAgent): SafeHtml {
-    const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
+    const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateTimeFormat);
     const action = `Action: ${agent.lastAct}<br>`;
     const time = `Time: ${formattedDate}<br>`;
     /*     const ip = agent.lastIp ? `<div>IP: ${agent.lastIp}</div>` : ''; */
@@ -546,6 +544,6 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         ]
       }
     });
-    this.subscriptions.push(dialogRef?.afterClosed().subscribe());
+    dialogRef?.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 }

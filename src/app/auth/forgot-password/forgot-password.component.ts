@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, inject } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -9,7 +10,6 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { emailValidator } from '@src/app/core/_validators/email.validator';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
@@ -27,8 +27,8 @@ export interface ForgotPasswordForm {
   styleUrls: ['./forgot-password.component.scss'],
   standalone: false
 })
-export class ForgotPasswordComponent implements OnDestroy, AfterViewInit {
-  private unsubscribeService = inject(UnsubscribeService);
+export class ForgotPasswordComponent implements AfterViewInit {
+  private destroyRef = inject(DestroyRef);
   private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private gs = inject(GlobalService);
   private alert = inject(AlertService);
@@ -63,10 +63,6 @@ export class ForgotPasswordComponent implements OnDestroy, AfterViewInit {
     });
   }
 
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
-  }
-
   /**
    * Builds the reactive form. Email is validated as an email address; both fields are required.
    */
@@ -93,19 +89,20 @@ export class ForgotPasswordComponent implements OnDestroy, AfterViewInit {
 
     this.isLoading = true;
 
-    const resetSubscription$ = this.gs.chelper(SERV.HELPER, 'resetUserPassword', { username, email }).subscribe({
-      next: () => {
-        this.alert.showSuccessMessage('Password reset requested.');
-        this.router.navigate(['/auth']);
-      },
-      error: () => {
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      }
-    });
-
-    this.unsubscribeService.add(resetSubscription$);
+    this.gs
+      .chelper(SERV.HELPER, 'resetUserPassword', { username, email })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.alert.showSuccessMessage('Password reset requested.');
+          this.router.navigate(['/auth']);
+        },
+        error: () => {
+          this.isLoading = false;
+        },
+        complete: () => {
+          this.isLoading = false;
+        }
+      });
   }
 }

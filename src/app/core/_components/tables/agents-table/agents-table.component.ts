@@ -1,6 +1,7 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JAgent } from '@models/agent.model';
@@ -39,7 +40,7 @@ import { convertCrackingSpeed } from '@src/app/shared/utils/util';
   templateUrl: './agents-table.component.html',
   standalone: false
 })
-export class AgentsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class AgentsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   private _taskId: number;
 
   @Input() datatype: DataType = 'agents';
@@ -62,12 +63,6 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
   selectedFilterColumn: HTTableColumn;
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
 
   ngOnInit(): void {
     this.setColumnLabels(AgentsTableColumnLabel);
@@ -190,7 +185,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'lastTime',
         render: (agent: JAgent) => this.renderLastActivity(agent),
         isSortable: true,
-        export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateFormat)
+        export: async (agent: JAgent) => formatUnixTimestamp(agent.lastTime, this.dateTimeFormat)
       },
       {
         id: AgentsTableCol.CURRENT_TASK,
@@ -223,8 +218,10 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -241,8 +238,7 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
               break;
           }
         }
-      })
-    );
+      });
   }
 
   /**
@@ -314,8 +310,8 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   renderLastActivity(agent: JAgent): SafeHtml {
-    const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateFormat);
-    const data = `<time datetime="${formatUnixTimestamp(agent.lastTime, 'yyyy-MM-ddThh:mm:ss')}">${formattedDate}</time>`;
+    const formattedDate = formatUnixTimestamp(agent.lastTime, this.dateTimeFormat);
+    const data = `<time datetime="${formatUnixTimestamp(agent.lastTime, 'yyyy-MM-ddTHH:mm:ss')}">${formattedDate}</time>`;
     return this.sanitize(data);
   }
 
@@ -428,32 +424,32 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   private bulkActionActivate(agents: JAgent[], isActive: boolean): void {
     const action = isActive ? 'activated' : 'deactivated';
 
-    this.subscriptions.push(
-      this.gs.bulkUpdate(SERV.AGENTS, agents, { isActive: isActive }).subscribe(() => {
+    this.gs
+      .bulkUpdate(SERV.AGENTS, agents, { isActive: isActive })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         this.alertService.showSuccessMessage(`Successfully ${action} agents!`);
         this.dataSource.reload();
-      })
-    );
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private bulkActionDelete(agents: JAgent[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.AGENTS, agents)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted agents!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.AGENTS, agents)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted agents!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
@@ -462,19 +458,21 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
   private rowActionDelete(agents: JAgent[]): void {
     const agent = agents[0];
     if (agent.assignmentId) {
-      this.subscriptions.push(
-        this.gs.delete(SERV.AGENT_ASSIGN, agent.assignmentId).subscribe(() => {
+      this.gs
+        .delete(SERV.AGENT_ASSIGN, agent.assignmentId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
           this.alertService.showSuccessMessage('Successfully unassigned agent!');
           this.dataSource.reload();
-        })
-      );
+        });
     } else {
-      this.subscriptions.push(
-        this.gs.delete(SERV.AGENTS, agent.id).subscribe(() => {
+      this.gs
+        .delete(SERV.AGENTS, agent.id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
           this.alertService.showSuccessMessage('Successfully deleted agent!');
           this.dataSource.reload();
-        })
-      );
+        });
     }
   }
 
@@ -493,19 +491,18 @@ export class AgentsTableComponent extends BaseTableComponent implements OnInit, 
     const request$ = this.gs.update(SERV.AGENT_ASSIGN, agent.id, {
       benchmark: benchmark
     });
-    this.subscriptions.push(
-      request$
-        .pipe(
-          catchError((error) => {
-            this.alertService.showErrorMessage(`Failed to update benchmark!`);
-            console.error('Failed to update benchmark:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Changed benchmark to ${benchmark} on Agent #${agent.id}!`);
-          this.reload();
-        })
-    );
+    request$
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage(`Failed to update benchmark!`);
+          console.error('Failed to update benchmark:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Changed benchmark to ${benchmark} on Agent #${agent.id}!`);
+        this.reload();
+      });
   }
 }

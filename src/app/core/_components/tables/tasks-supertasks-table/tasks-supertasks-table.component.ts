@@ -1,6 +1,7 @@
 import { catchError, forkJoin, of } from 'rxjs';
 
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JTask, JTaskWith } from '@models/task.model';
@@ -33,7 +34,7 @@ type Subtask = JTaskWith<'dispatched' | 'searched' | 'totalAssignedAgents' | 'st
   templateUrl: './tasks-supertasks-table.component.html',
   standalone: false
 })
-export class TasksSupertasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy {
+export class TasksSupertasksTableComponent extends BaseTableComponent implements OnInit {
   @Input() supertaskId = 0;
   @Output() linkClicked = new EventEmitter<void>();
 
@@ -50,12 +51,6 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     }
     this.contextMenuService = new TaskSupertaskSubtaskContextMenuService(this.permissionService).addContextMenu();
     this.dataSource.loadAll();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   onLinkClick(): void {
@@ -157,8 +152,10 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       data: data
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -172,8 +169,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
               break;
           }
         }
-      })
-    );
+      });
   }
 
   // --- Action functions ---
@@ -255,19 +251,18 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
 
     const action = isArchived ? 'archived' : 'unarchived';
 
-    this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during archiving:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.alertService.showSuccessMessage(`Successfully ${action} ${results.length} tasks!`);
-          this.reload();
-        })
-    );
+    forkJoin(requests)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during archiving:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((results) => {
+        this.alertService.showSuccessMessage(`Successfully ${action} ${results.length} tasks!`);
+        this.reload();
+      });
   }
 
   /**
@@ -278,19 +273,18 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
       return this.gs.delete(SERV.TASKS, w.id);
     });
 
-    this.subscriptions.push(
-      forkJoin(requests)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe((results) => {
-          this.alertService.showSuccessMessage(`Successfully deleted ${results.length} tasks!`);
-          this.reload();
-        })
-    );
+    forkJoin(requests)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((results) => {
+        this.alertService.showSuccessMessage(`Successfully deleted ${results.length} tasks!`);
+        this.reload();
+      });
   }
 
   private getDispatchedSearchedString(task: Subtask): string {
@@ -327,12 +321,13 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   private rowActionDelete(tasks: JTask[]): void {
-    this.subscriptions.push(
-      this.gs.delete(SERV.TASKS, tasks[0].id).subscribe(() => {
+    this.gs
+      .delete(SERV.TASKS, tasks[0].id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted task!');
         this.reload();
-      })
-    );
+      });
   }
 
   editableSaved(editable: HTTableEditable<JTask>): void {
@@ -362,20 +357,19 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     const request$ = this.gs.update(SERV.TASKS, task.id, {
       priority: val
     });
-    this.subscriptions.push(
-      request$
-        .pipe(
-          catchError((error) => {
-            this.alertService.showErrorMessage(`Failed to update priority!`);
-            console.error('Failed to update priority:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Changed priority to ${val} on subtask #${task.id}!`);
-          this.reload();
-        })
-    );
+    request$
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage(`Failed to update priority!`);
+          console.error('Failed to update priority:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Changed priority to ${val} on subtask #${task.id}!`);
+        this.reload();
+      });
   }
 
   private changeMaxAgents(task: JTask, max: string): void {
@@ -394,20 +388,19 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
     const request$ = this.gs.update(SERV.TASKS, task.id, {
       maxAgents: val
     });
-    this.subscriptions.push(
-      request$
-        .pipe(
-          catchError((error) => {
-            this.alertService.showErrorMessage(`Failed to update max agents!`);
-            console.error('Failed to update max agents:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on subtask #${task.id}!`);
-          this.reload();
-        })
-    );
+    request$
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage(`Failed to update max agents!`);
+          console.error('Failed to update max agents:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on subtask #${task.id}!`);
+        this.reload();
+      });
   }
 
   private rowActionCopyToTask(task: JTask): void {
@@ -435,11 +428,12 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
 
   private updateIsArchived(taskId: number, isArchived: boolean): void {
     const strArchived = isArchived ? 'archived' : 'unarchived';
-    this.subscriptions.push(
-      this.gs.update(SERV.TASKS, taskId, { isArchived: isArchived }).subscribe(() => {
+    this.gs
+      .update(SERV.TASKS, taskId, { isArchived: isArchived })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         this.alertService.showSuccessMessage(`Successfully ${strArchived} task!`);
         this.reload();
-      })
-    );
+      });
   }
 }

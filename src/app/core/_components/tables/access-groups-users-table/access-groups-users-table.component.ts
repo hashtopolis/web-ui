@@ -1,7 +1,8 @@
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JAgent } from '@models/agent.model';
 import { JUser } from '@models/user.model';
@@ -30,7 +31,7 @@ import { RelationshipType, SERV } from '@src/app/core/_services/main.config';
   templateUrl: './access-groups-users-table.component.html',
   standalone: false
 })
-export class AccessGroupsUserTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class AccessGroupsUserTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   @Input() accessgroupId = 0;
   @Output() usersRemoved = new EventEmitter<void>(); // Event to notify parent about removed user(s)
 
@@ -53,12 +54,6 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   getColumns(): HTTableColumn[] {
@@ -118,13 +113,14 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           this.bulkActionUnassign(result.data);
         }
-      })
-    );
+      });
   }
 
   /**
@@ -147,24 +143,21 @@ export class AccessGroupsUserTableComponent extends BaseTableComponent implement
       payload
     );
 
-    this.subscriptions.push(
-      removeRequest
-        .pipe(
-          catchError((error) => {
-            const msg = 'Error while removing user from access group';
-            console.error(`${msg}: `, error);
-            this.alertService.showErrorMessage(error.message);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.usersRemoved.emit();
-          this.alertService.showSuccessMessage(
-            `Successfully removed ${users.length} user${users.length > 1 ? 's' : ''}`
-          );
-          this.reload();
-        })
-    );
+    removeRequest
+      .pipe(
+        catchError((error) => {
+          const msg = 'Error while removing user from access group';
+          console.error(`${msg}: `, error);
+          this.alertService.showErrorMessage(error.message);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.usersRemoved.emit();
+        this.alertService.showSuccessMessage(`Successfully removed ${users.length} user${users.length > 1 ? 's' : ''}`);
+        this.reload();
+      });
   }
 
   rowActionClicked(event: ActionMenuEvent<JUser | JAgent>): void {

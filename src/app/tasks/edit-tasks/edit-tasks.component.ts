@@ -1,6 +1,3 @@
-import { HashListFormat } from '@constants/hashlist.config';
-import { HTTP_SKIP_CACHE_HEADER_CONFIG, HttpStatus } from '@constants/http.config';
-import { StaticChunking } from '@constants/tasks.config';
 import {
   zAgentAssignmentListResponse,
   zAgentListResponse,
@@ -8,7 +5,7 @@ import {
   zSpeedListResponse,
   zTaskResponse
 } from '@generated/api/zod';
-import { Subscription, finalize, lastValueFrom } from 'rxjs';
+import { finalize, lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
@@ -44,6 +41,7 @@ import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
 import { AGENT_MAPPING } from '@src/app/core/_constants/select.config';
+import { StaticChunkingMode } from '@src/app/core/_constants/tasks.config';
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
@@ -67,8 +65,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   originalValue: JTask;
 
   pageTitle = 'Task';
-
-  protected readonly HashListFormat = HashListFormat;
 
   updateForm: FormGroup;
   createForm: FormGroup<{ agentId: FormControl<number | null> }>; // Assign Agent
@@ -105,8 +101,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   taskProgressImageUrl: SafeUrl | null = null;
   private rawTaskProgressObjectUrl: string | null = null;
-
-  private routeSub: Subscription | undefined;
 
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
@@ -167,7 +161,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       this.updateForm.setValue({
         taskId: task.id,
         forcePipe: task.forcePipe === true ? 'Yes' : 'No',
-        staticChunks: this.getStaticChunkingLabel(task.staticChunks),
+        staticChunks: this.getStaticChunkingLabel(task.staticChunks, task.chunkSize),
         skipKeyspace: task.skipKeyspace > 0 ? task.skipKeyspace : 'N/A',
         keyspace: task.keyspace,
         keyspaceProgress: task.keyspaceProgress,
@@ -197,7 +191,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       this.isLoading = false;
     } catch (e: unknown) {
       const status = e instanceof HttpErrorResponse ? e.status : undefined;
-      if (status === HttpStatus.FORBIDDEN) {
+      if (status === 403) {
         this.router.navigateByUrl('/forbidden');
         return;
       }
@@ -205,7 +199,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       // For other server errors (500 etc.) show an error message so the
       // user knows something went wrong on the server instead of silently
       // redirecting to the 404 page.
-      if (status === HttpStatus.NOT_FOUND) {
+      if (status === 404) {
         this.router.navigateByUrl('/not-found');
         return;
       }
@@ -223,8 +217,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.routeSub?.unsubscribe();
-
     if (this.rawTaskProgressObjectUrl) {
       URL.revokeObjectURL(this.rawTaskProgressObjectUrl);
       this.rawTaskProgressObjectUrl = null;
@@ -268,7 +260,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   }
 
   private async loadTask(): Promise<EditedTask> {
-    const noCacheHeaders = new HttpHeaders(HTTP_SKIP_CACHE_HEADER_CONFIG);
+    const noCacheHeaders = new HttpHeaders({ 'X-Cache-Skip': 'true' });
     const params = new RequestParamBuilder()
       .addInclude('hashlist')
       .addInclude('crackerBinary')
@@ -295,7 +287,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       // If backend fails with server error (500+), try a fallback request without includes.
       // This helps when the server chokes resolving included relationships but the main
       // resource exists — the UI can still open the edit form with the primary data.
-      if (err instanceof HttpErrorResponse && err.status && err.status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      if (err instanceof HttpErrorResponse && err.status && err.status >= 500) {
         console.warn('loadTask(): primary request failed, retrying without includes', err);
         const responseFallback = await lastValueFrom<ResponseWrapper>(
           this.http.get<ResponseWrapper>(url, { headers: noCacheHeaders })
@@ -503,12 +495,12 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     });
   }
 
-  private getStaticChunkingLabel(staticChunks: number): string {
+  private getStaticChunkingLabel(staticChunks: number, chunkSize: number): string {
     switch (staticChunks) {
-      case StaticChunking.FIXED_CHUNK_SIZE:
-        return `Fixed chunk size (${StaticChunking.FIXED_CHUNK_SIZE})`;
-      case StaticChunking.FIXED_NUMBER_OF_CHUNKS:
-        return `Fixed number of chunks (${StaticChunking.FIXED_NUMBER_OF_CHUNKS})`;
+      case StaticChunkingMode.FIXED_CHUNK_SIZE:
+        return `Fixed chunksize: ${chunkSize.toLocaleString()}`;
+      case StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS:
+        return `Fixed number of chunks: ${chunkSize.toLocaleString()}`;
       default:
         return 'No';
     }

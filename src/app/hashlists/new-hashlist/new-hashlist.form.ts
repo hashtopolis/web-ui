@@ -50,6 +50,6 @@ export const getNewHashlistForm = () => {
     sourceData: new FormControl<string>('', { nonNullable: true }),
     hashCount: new FormControl<number>(0, { nonNullable: true }),
     isArchived: new FormControl<boolean>(false, { nonNullable: true }),
-    isSecret: new FormControl<boolean>(true, { nonNullable: true })
+    isSecret: new FormControl<boolean>(false, { nonNullable: true })
   });
 };

@@ -1,6 +1,7 @@
 import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { DynamicModel } from '@models/base.model';
@@ -90,9 +91,6 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   ngOnDestroy(): void {
     this.dataSource.stopAutoRefresh();
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
@@ -158,6 +156,14 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         dataKey: 'displayName',
         cssClass: 'cell-task-name',
         routerLink: (wrapper: JTaskWrapperDisplayOverview) => this.renderTaskWrapperLink(wrapper),
+        editable: (wrapper: JTaskWrapperDisplayOverview) => {
+          return {
+            data: wrapper,
+            value: wrapper.displayName ?? '',
+            hidden: true,
+            action: TaskTableEditableAction.CHANGE_NAME
+          };
+        },
         isSortable: true,
         isSearchable: true,
         export: async (wrapper: JTaskWrapperDisplayOverview) => wrapper.displayName ?? ''
@@ -496,8 +502,10 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -511,8 +519,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
               break;
           }
         }
-      })
-    );
+      });
   }
 
   /**
@@ -551,6 +558,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         break;
       case TaskTableEditableAction.CHANGE_MAX_AGENTS:
         this.changeMaxAgents(editable.data, editable.value);
+        break;
+      case TaskTableEditableAction.CHANGE_NAME:
+        this.changeName(editable.data, editable.value);
         break;
     }
   }
@@ -637,32 +647,31 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       return;
     }
 
-    this.subscriptions.push(
-      forkJoin(requests).subscribe(() => {
+    forkJoin(requests)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         this.alertService.showSuccessMessage(`Successfully ${action} tasks!`);
         this.reload();
-      })
-    );
+      });
   }
 
   private bulkActionDelete(wrapper: JTaskWrapperDisplayOverview[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(
-          SERV.TASKS_WRAPPER,
-          wrapper.filter((w) => w.taskWrapperId !== undefined).map((w) => ({ id: w.taskWrapperId! }))
-        )
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted task!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(
+        SERV.TASKS_WRAPPER,
+        wrapper.filter((w) => w.taskWrapperId !== undefined).map((w) => ({ id: w.taskWrapperId! }))
+      )
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted task!`);
+        this.dataSource.reload();
+      });
   }
 
   private rowActionDelete(wrapper: JTaskWrapperDisplayOverview[]): void {
@@ -671,12 +680,13 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       console.error('TaskWrapperId undefined during delete');
       return;
     }
-    this.subscriptions.push(
-      this.gs.delete(SERV.TASKS_WRAPPER, taskWrapperId).subscribe(() => {
+    this.gs
+      .delete(SERV.TASKS_WRAPPER, taskWrapperId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         this.alertService.showSuccessMessage('Successfully deleted task!');
         this.reload();
-      })
-    );
+      });
   }
 
   private rowActionCopyToTask(wrapper: JTaskWrapperDisplayOverview): void {
@@ -709,22 +719,24 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   private updateIsArchived(taskId: number, isArchived: boolean): void {
     const strArchived = isArchived ? 'archived' : 'unarchived';
-    this.subscriptions.push(
-      this.gs.update(SERV.TASKS, taskId, { isArchived: isArchived }).subscribe(() => {
+    this.gs
+      .update(SERV.TASKS, taskId, { isArchived: isArchived })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         this.alertService.showSuccessMessage(`Successfully ${strArchived} task!`);
         this.reload();
-      })
-    );
+      });
   }
 
   private updateTaskWrapperIsArchived(taskWrapperId: number, isArchived: boolean): void {
     const strArchived = isArchived ? 'archived' : 'unarchived';
-    this.subscriptions.push(
-      this.gs.update(SERV.TASKS_WRAPPER, taskWrapperId, { isArchived: isArchived }).subscribe(() => {
+    this.gs
+      .update(SERV.TASKS_WRAPPER, taskWrapperId, { isArchived: isArchived })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
         this.alertService.showSuccessMessage(`Successfully ${strArchived} supertask!`);
         this.reload();
-      })
-    );
+      });
   }
 
   private changePriority(wrapper: JTaskWrapperDisplayOverview, priority: string): void {
@@ -754,20 +766,19 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     const request$ = this.gs.update(serv, task.id, {
       priority: val
     });
-    this.subscriptions.push(
-      request$
-        .pipe(
-          catchError((error) => {
-            this.alertService.showErrorMessage(`Failed to update prio!`);
-            console.error('Failed to update prio:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Changed prio to ${val} on Task #${task.id}!`);
-          this.reload();
-        })
-    );
+    request$
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage(`Failed to update prio!`);
+          console.error('Failed to update prio:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Changed prio to ${val} on Task #${task.id}!`);
+        this.reload();
+      });
   }
 
   private changeMaxAgents(wrapper: JTaskWrapperDisplayOverview, max: string): void {
@@ -797,20 +808,56 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     const request$ = this.gs.update(serv, task.id, {
       maxAgents: val
     });
-    this.subscriptions.push(
-      request$
-        .pipe(
-          catchError((error) => {
-            this.alertService.showErrorMessage(`Failed to update max agents!`);
-            console.error('Failed to update max agents:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on Task #${task.id}!`);
-          this.reload();
-        })
-    );
+    request$
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage(`Failed to update max agents!`);
+          console.error('Failed to update max agents:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on Task #${task.id}!`);
+        this.reload();
+      });
+  }
+
+  private changeName(wrapper: JTaskWrapperDisplayOverview, name: string): void {
+    const val = name;
+
+    let task: { id: number; name: string; attributeName: keyof JTaskWrapperDisplayOverview };
+    let serv: ServiceConfig;
+
+    if (wrapper.taskType === TaskType.TASK) {
+      task = { id: wrapper.taskId!, name: wrapper.taskName!, attributeName: 'taskName' };
+      serv = SERV.TASKS;
+    } else {
+      task = { id: wrapper.taskWrapperId!, name: wrapper.taskWrapperName!, attributeName: 'taskWrapperName' };
+      serv = SERV.TASKS_WRAPPER;
+    }
+
+    if (task.name == val) {
+      this.alertService.showInfoMessage('Nothing changed');
+      return;
+    }
+
+    const request$ = this.gs.update(serv, task.id, {
+      [task.attributeName]: val
+    });
+    request$
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage(`Failed to update task name!`);
+          console.error('Failed to update task name:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Changed name to '${val}' on Task #${task.id}!`);
+        this.reload();
+      });
   }
 
   /**

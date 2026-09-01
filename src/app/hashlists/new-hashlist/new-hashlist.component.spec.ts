@@ -17,7 +17,6 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { NewHashlistComponent } from '@src/app/hashlists/new-hashlist/new-hashlist.component';
@@ -98,7 +97,6 @@ describe('NewHashlistComponent', () => {
   let uploadSpy: jasmine.SpyObj<UploadTUSService>;
   let alertSpy: jasmine.SpyObj<AlertService>;
   let titleSpy: jasmine.SpyObj<AutoTitleService>;
-  let unsubSpy: jasmine.SpyObj<UnsubscribeService>;
   let routerSpy: jasmine.SpyObj<Router>;
   let dialogSpy: jasmine.SpyObj<MatDialog>;
 
@@ -108,7 +106,6 @@ describe('NewHashlistComponent', () => {
     uploadSpy = jasmine.createSpyObj('UploadTUSService', ['uploadFile']);
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
     titleSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    unsubSpy = jasmine.createSpyObj('UnsubscribeService', ['add', 'unsubscribeAll']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
 
@@ -129,7 +126,6 @@ describe('NewHashlistComponent', () => {
         { provide: UploadTUSService, useValue: uploadSpy },
         { provide: AlertService, useValue: alertSpy },
         { provide: AutoTitleService, useValue: titleSpy },
-        { provide: UnsubscribeService, useValue: unsubSpy },
         { provide: Router, useValue: routerSpy },
         { provide: MatDialog, useValue: dialogSpy }
       ]
@@ -388,17 +384,6 @@ describe('NewHashlistComponent', () => {
 
     expect(gsSpy.create).not.toHaveBeenCalled();
     expect(alertSpy.showErrorMessage).toHaveBeenCalled();
-  });
-
-  it('ngOnDestroy should unsubscribe properly', () => {
-    const nextSpy = spyOn(component['fileUnsubscribe'], 'next');
-    const completeSpy = spyOn(component['fileUnsubscribe'], 'complete');
-
-    component.ngOnDestroy();
-
-    expect(unsubSpy.unsubscribeAll).toHaveBeenCalled();
-    expect(nextSpy).toHaveBeenCalled();
-    expect(completeSpy).toHaveBeenCalled();
   });
 
   describe('Hashcat Brain opt-in', () => {

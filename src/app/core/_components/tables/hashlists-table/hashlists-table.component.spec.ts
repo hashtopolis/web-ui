@@ -1,4 +1,4 @@
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -32,7 +32,7 @@ class MockDataSource {
   setIsArchived = jasmine.createSpy('setIsArchived');
   reset = jasmine.createSpy('reset');
   setSuperHashListID = jasmine.createSpy('setSuperHashListID');
-  filterError$ = { subscribe: jasmine.createSpy('subscribe') };
+  filterError$ = new Subject<string>();
 }
 
 class TestHashlistsTableComponent extends HashlistsTableComponent {
@@ -53,10 +53,6 @@ class TestHashlistsTableComponent extends HashlistsTableComponent {
   }
 
   override ngAfterViewInit(): void {}
-
-  override ngOnDestroy(): void {
-    this.subscriptions = [];
-  }
 }
 
 describe('HashlistsTableComponent', () => {

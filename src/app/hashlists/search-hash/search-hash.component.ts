@@ -1,8 +1,7 @@
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { UnsubscribeService } from 'src/app/core/_services/unsubscribe.service';
 
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { AlertService } from '@services/shared/alert.service';
@@ -15,8 +14,7 @@ import { MAX_SEARCH_LENGTH, MAX_SEARCH_SIZE } from '@components/tables/search-ha
   standalone: false
 })
 @PageTitle(['Search Hash'])
-export class SearchHashComponent implements OnInit, OnDestroy {
-  private unsubscribeService = inject(UnsubscribeService);
+export class SearchHashComponent implements OnInit {
   readonly titleService = inject(AutoTitleService);
   private cdr = inject(ChangeDetectorRef);
   private alertService = inject(AlertService);
@@ -46,14 +44,6 @@ export class SearchHashComponent implements OnInit, OnDestroy {
     this.form = new FormGroup({
       hashes: new FormControl('', [Validators.required])
     });
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
   }
 
   get searchResults(): string[] {

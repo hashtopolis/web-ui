@@ -1,8 +1,8 @@
 import { HttpStatus } from '@constants/http.config';
-import { Subscription } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
@@ -16,7 +16,6 @@ import { GlobalService } from '@services/main.service';
 import { MetadataService } from '@services/metadata.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 @Component({
   selector: 'app-form',
@@ -26,8 +25,8 @@ import { UnsubscribeService } from '@services/unsubscribe.service';
 /**
  * Component for managing forms, supporting both create and edit modes.
  */
-export class FormComponent implements OnInit, OnDestroy {
-  private unsubscribeService = inject(UnsubscribeService);
+export class FormComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
   private metadataService = inject(MetadataService);
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
@@ -104,15 +103,8 @@ export class FormComponent implements OnInit, OnDestroy {
    */
   formValues: Record<string, unknown> = {};
 
-  // Subscription for managing asynchronous data retrieval
-  private subscriptionService: Subscription;
-
-  // Subscription for managing router params
-  private routeParamsSubscription: Subscription;
-
   /**
    * Constructor for the FormComponent.
-   * @param unsubscribeService - The UnsubscribeService for managing subscriptions.
    * @param metadataService - The MetadataService for accessing form metadata.
    * @param titleService - The AutoTitleService for setting titles.
    * @param route - The ActivatedRoute for retrieving route data.
@@ -123,7 +115,7 @@ export class FormComponent implements OnInit, OnDestroy {
    */
   constructor() {
     // Subscribe to route data to initialize component data
-    this.routeParamsSubscription = this.route.data.subscribe((data) => {
+    this.route.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data) => {
       const routeData = zFormRouteData.parse(data);
       const formKind = routeData.kind;
       this.serviceConfig = routeData.serviceConfig;
@@ -144,15 +136,13 @@ export class FormComponent implements OnInit, OnDestroy {
         this.isloaded = true;
       }
     });
-    // Add this.mySubscription to UnsubscribeService
-    this.unsubscribeService.add(this.subscriptionService);
   }
 
   /**
    * Loads data for editing a form.
    */
   getIndex() {
-    this.routeParamsSubscription = this.route.params.subscribe((params: Params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
       this.editedIndex = zIdRouteParams.parse(params).id;
     });
   }
@@ -161,40 +151,41 @@ export class FormComponent implements OnInit, OnDestroy {
    * Loads data for editing a form.
    */
   loadEdit() {
-    this.route.params.subscribe((params: Params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
       this.editedIndex = zIdRouteParams.parse(params).id;
     });
 
     // Fetch data from the API for editing
-    const editSubscription = this.gs.get(this.serviceConfig, this.editedIndex).subscribe({
-      next: (response: ResponseWrapper) => {
-        this.formValues = this.responseSchema
-          ? (new JsonAPISerializer().deserialize(response, this.responseSchema) as Record<string, unknown>)
-          : new JsonAPISerializer().deserialize<Record<string, unknown>>(response);
-        this.applyDynamicTitle();
-        this.isloaded = true; // Data is loaded and ready for form rendering
-      },
-      error: (err: unknown) => {
-        const status = err instanceof HttpErrorResponse ? err.status : undefined;
-        if (status === HttpStatus.FORBIDDEN) {
-          this.router.navigateByUrl('/forbidden');
-          return;
+    this.gs
+      .get(this.serviceConfig, this.editedIndex)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response: ResponseWrapper) => {
+          this.formValues = this.responseSchema
+            ? (new JsonAPISerializer().deserialize(response, this.responseSchema) as Record<string, unknown>)
+            : new JsonAPISerializer().deserialize<Record<string, unknown>>(response);
+          this.applyDynamicTitle();
+          this.isloaded = true; // Data is loaded and ready for form rendering
+        },
+        error: (err: unknown) => {
+          const status = err instanceof HttpErrorResponse ? err.status : undefined;
+          if (status === HttpStatus.FORBIDDEN) {
+            this.router.navigateByUrl('/forbidden');
+            return;
+          }
+          if (status === HttpStatus.NOT_FOUND) {
+            this.router.navigateByUrl('/not-found');
+            return;
+          }
+
+          // For other server errors show a friendly message
+
+          console.error('Error loading form data:', err);
+          const msg = status ? `Error loading data (server returned ${status}).` : 'Error loading data.';
+          this.alert.showErrorMessage(msg);
+          this.isloaded = false;
         }
-        if (status === HttpStatus.NOT_FOUND) {
-          this.router.navigateByUrl('/not-found');
-          return;
-        }
-
-        // For other server errors show a friendly message
-
-        console.error('Error loading form data:', err);
-        const msg = status ? `Error loading data (server returned ${status}).` : 'Error loading data.';
-        this.alert.showErrorMessage(msg);
-        this.isloaded = false;
-      }
-    });
-
-    this.unsubscribeService.add(editSubscription);
+      });
   }
 
   /**
@@ -230,20 +221,6 @@ export class FormComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Angular lifecycle hook: ngOnDestroy
-   * Unsubscribe from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    // Unsubscribe from the route params subscription
-    if (this.routeParamsSubscription) {
-      this.routeParamsSubscription.unsubscribe();
-    }
-
-    // Unsubscribe from other subscriptions
-    this.unsubscribeService.unsubscribeAll();
-  }
-
-  /**
    * Handles the submission of the form.
    * @param formValues - The values submitted from the form.
    */
@@ -253,19 +230,22 @@ export class FormComponent implements OnInit, OnDestroy {
     }
     if (this.type === FormRouteType.Create) {
       // Create mode: Submit form data for creating a new item
-      const createSubscription = this.gs.create(this.serviceConfig, formValues).subscribe(() => {
-        this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
-        this.router.navigate([this.globalMetadata.submitokredirect ?? '/']); // Navigate after alert
-      });
-
-      this.unsubscribeService.add(createSubscription);
+      this.gs
+        .create(this.serviceConfig, formValues)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
+          this.router.navigate([this.globalMetadata.submitokredirect ?? '/']); // Navigate after alert
+        });
     } else {
       // Update mode: Submit form data for updating an existing item
-      const updateSubscription = this.gs.update(this.serviceConfig, this.editedIndex, formValues).subscribe(() => {
-        this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
-        this.router.navigate([this.globalMetadata.submitokredirect ?? '/']);
-      });
-      this.unsubscribeService.add(updateSubscription);
+      this.gs
+        .update(this.serviceConfig, this.editedIndex, formValues)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
+          this.router.navigate([this.globalMetadata.submitokredirect ?? '/']);
+        });
     }
   }
 
@@ -300,15 +280,18 @@ export class FormComponent implements OnInit, OnDestroy {
     }
     this.confirmDialog
       .confirmDeletion(this.globalMetadata.deltitle ?? '', `${this.editedIndex}`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((confirmed) => {
         if (confirmed) {
           // Deletion
-          const deleteSubscription = this.gs.delete(this.serviceConfig, this.editedIndex).subscribe(() => {
-            this.router
-              .navigate([this.globalMetadata.delsubmitokredirect ?? '/'])
-              .then(() => this.alert.showSuccessMessage(this.globalMetadata.delsubmitok ?? ''));
-          });
-          this.unsubscribeService.add(deleteSubscription);
+          this.gs
+            .delete(this.serviceConfig, this.editedIndex)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+              this.router
+                .navigate([this.globalMetadata.delsubmitokredirect ?? '/'])
+                .then(() => this.alert.showSuccessMessage(this.globalMetadata.delsubmitok ?? ''));
+            });
         } else {
           this.alert.showInfoMessage(this.globalMetadata.delsubmitcancel ?? '');
         }

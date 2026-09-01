@@ -1,10 +1,9 @@
-import { Subscription } from 'rxjs';
-
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   ElementRef,
   EventEmitter,
   Input,
@@ -14,6 +13,7 @@ import {
   ViewChild,
   inject
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
@@ -160,6 +160,8 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   /** Flag to enable or disable cmd preprocessor attack checkbox. */
   @Input() isCmdPreproAttack = false;
 
+  @Input() isCmdPreproFiles: number[] = [];
+
   /** Flag to add dual label text. */
   @Input() isCmdLabel: string;
 
@@ -230,7 +232,7 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   @Output() backendSqlFilter: EventEmitter<string> = new EventEmitter();
 
   private uiSettings: UISettingsUtilityClass;
-  private subscriptions: Subscription = new Subscription();
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
 
@@ -352,7 +354,7 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
       });
     }
     this.dataSource.sort = this.matSort;
-    const sortSubscription = this.matSort.sortChange.subscribe(() => {
+    this.matSort.sortChange.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.uiSettings.updateTableSettings(this.name, {
         start: undefined,
         before: undefined,
@@ -363,14 +365,11 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
       // Update pagination configuration in the data source
       this.dataSource.setPaginationConfig(this.dataSource.pageSize, this.dataSource.totalItems, null, null, 0);
     });
-    this.subscriptions.add(sortSubscription);
     this.setupHorizontalScroll();
   }
 
   /** Cleanup on component destruction */
   ngOnDestroy(): void {
-    // Unsubscribe from all subscriptions
-    this.subscriptions.unsubscribe();
     this.tableResizeObserver?.disconnect();
   }
 
@@ -678,6 +677,10 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
     } else {
       return this.dataSource.isSelected(row);
     }
+  }
+
+  isPreproSelected(row: T): boolean {
+    return this.isCmdPreproFiles.includes(row.id);
   }
 
   /**

@@ -3,7 +3,8 @@
  */
 import { zGlobalPermissionGroupResponse } from '@generated/api/zod';
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
 
@@ -16,15 +17,14 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 @Component({
   selector: 'app-edit-globalpermissionsgroups',
   templateUrl: './edit-globalpermissionsgroups.component.html',
   standalone: false
 })
-export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
-  private unsubscribeService = inject(UnsubscribeService);
+export class EditGlobalpermissionsgroupsComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
   private alert = inject(AlertService);
@@ -47,7 +47,7 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
    * Initializes the component by extracting and setting the user ID,
    */
   onInitialize() {
-    this.route.params.subscribe((params: Params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: Params) => {
       this.editedGPGIndex = zIdRouteParams.parse(params).id;
     });
   }
@@ -57,14 +57,6 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
    */
   ngOnInit() {
     this.initForm();
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy() {
-    this.unsubscribeService.unsubscribeAll();
   }
 
   /**
@@ -89,10 +81,11 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
    * @private
    */
   private loadData() {
-    const loadSubscription$ = this.gs
+    this.gs
       .get(SERV.ACCESS_PERMISSIONS_GROUPS, this.editedGPGIndex, {
         include: ['userMembers']
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         if (response) {
           this.editedGPG = new JsonAPISerializer().deserialize(response, zGlobalPermissionGroupResponse);
@@ -100,8 +93,6 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
           this.updateForm.patchValue(formValues);
         }
       });
-
-    this.unsubscribeService.add(loadSubscription$);
   }
 
   /**
@@ -123,13 +114,13 @@ export class EditGlobalpermissionsgroupsComponent implements OnInit, OnDestroy {
   onSubmit() {
     if (this.updateForm.valid) {
       this.processing = true;
-      const onSubmitSubscription$ = this.gs
+      this.gs
         .update(SERV.ACCESS_PERMISSIONS_GROUPS, this.editedGPGIndex, this.updateForm.value)
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.alert.showSuccessMessage('Global Permission Group saved');
           this.processing = false;
         });
-      this.unsubscribeService.add(onSubmitSubscription$);
     } else {
       this.updateForm.markAllAsTouched();
       this.updateForm.updateValueAndValidity();

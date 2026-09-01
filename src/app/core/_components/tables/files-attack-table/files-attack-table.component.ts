@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { FileType, JFile } from '@models/file.model';
 
@@ -27,8 +27,8 @@ interface PrepareAttackResult {
   templateUrl: './files-attack-table.component.html',
   standalone: false
 })
-export class FilesAttackTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
-  @Input() fileType: FileType = FileType.WORDLIST;
+export class FilesAttackTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
+  @Input() fileType: FileType = 0;
   @Input() cmdTask = true;
   @Input() cmdPrepro = false;
   @Input() customLabel: string;
@@ -52,12 +52,6 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   filter(input: string) {
@@ -137,13 +131,14 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
     }
 
     if (!event.checked) {
-      // Remove -r and filename from the command
+      // Remove the filename and only its own preceding -r flag.
       const indexFileName = newCmdArray.indexOf(fileName);
       if (indexFileName !== -1) {
-        newCmdArray.splice(indexFileName, 1);
-      }
-      if (row.fileType === FileType.RULES) {
-        newCmdArray.splice(indexFileName - 1, 1);
+        if (row.fileType === FileType.RULES && newCmdArray[indexFileName - 1] === '-r') {
+          newCmdArray.splice(indexFileName - 1, 2);
+        } else {
+          newCmdArray.splice(indexFileName, 1);
+        }
       }
 
       // Remove fileId from the array
@@ -156,7 +151,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
 
       // Only add if filename is NOT already in the command
       if (fileIndex === -1) {
-        if (row.fileType === FileType.RULES) {
+        if (row.fileType === 1) {
           // Add -r only if it doesn't already precede this file
           newCmdArray.push('-r');
         }

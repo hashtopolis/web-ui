@@ -1,8 +1,9 @@
 import { HttpMethod } from '@constants/http.config';
 import { zAccessGroupListResponse } from '@generated/api/zod';
-import { Subject, firstValueFrom, lastValueFrom, takeUntil } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, Validators } from '@angular/forms';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
@@ -20,7 +21,6 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { NewFilesForm, PreparedFormData, getNewFilesForm } from '@src/app/files/new-files/new-files.form';
@@ -44,7 +44,7 @@ type NewFileTab = (typeof NewFileTab)[keyof typeof NewFileTab];
   templateUrl: './new-files.component.html',
   standalone: false
 })
-export class NewFilesComponent implements OnInit, OnDestroy {
+export class NewFilesComponent implements OnInit {
   /** Helper */
   formatFileSize = formatFileSize;
 
@@ -80,14 +80,10 @@ export class NewFilesComponent implements OnInit, OnDestroy {
   // Selected server files for import
   selectedServerFiles: Set<string> = new Set();
 
-  // Unsubcribe files
-  private fileUnsubscribe = new Subject<void>();
-
   /**
    * Component for handling new files.
    *
    * @constructor
-   * @param {UnsubscribeService} unsubscribeService - Service for managing unsubscribing from observables.
    * @param {ChangeDetectorRef} changeDetectorRef - Reference to Angular's ChangeDetectorRef for manual change detection.
    * @param {UploadTUSService} uploadService - Service for handling file uploads using TUS protocol.
    * @param {AutoTitleService} titleService - Service for setting and managing page titles automatically.
@@ -97,7 +93,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    * @param {GlobalService} gs - Service for accessing global application state.
    * @param {Router} router - Angular router service for navigating between views.
    */
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private changeDetectorRef = inject(ChangeDetectorRef);
   private uploadService = inject(UploadTUSService);
   private titleService = inject(AutoTitleService);
@@ -118,7 +114,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    * Sets filterType, title, and redirect properties accordingly.
    */
   getLocation() {
-    this.route.data.subscribe((data) => {
+    this.route.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((data) => {
       const routeDataKind = zNewFilesRouteData.parse(data).kind;
       switch (routeDataKind) {
         case NewFilesRouteKind.NewWordlist:
@@ -147,16 +143,6 @@ export class NewFilesComponent implements OnInit, OnDestroy {
    */
   ngOnInit() {
     void this.loadData();
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
-    this.fileUnsubscribe.next();
-    this.fileUnsubscribe.complete();
   }
 
   /**
@@ -328,7 +314,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
       width: 'auto',
       maxWidth: '100vw'
     });
-    dialogRef.afterClosed().subscribe();
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   /**
@@ -347,7 +333,7 @@ export class NewFilesComponent implements OnInit, OnDestroy {
     for (let i = 0; i < files.length; i++) {
       this.uploadService
         .uploadFile(files[0], files[0].name, SERV.FILES, form.update, ['/files', this.redirect])
-        .pipe(takeUntil(this.fileUnsubscribe))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (progress) => {
             this.uploadProgress = progress;

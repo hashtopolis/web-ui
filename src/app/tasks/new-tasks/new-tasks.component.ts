@@ -14,12 +14,7 @@ import { FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import {
-  DEFAULT_CRACKER_BINARY_TYPE_NAME,
-  JCrackerBinary,
-  JCrackerBinaryType,
-  zCrackerBinaryTypeList
-} from '@models/cracker-binary.model';
+import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { FileType, TaskSelectFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
 import { CrackerBinaryId, CrackerBinaryTypeId, FileId, HashlistId, PreprocessorId } from '@models/id.types';
@@ -44,7 +39,7 @@ import {
   CRACKER_VERSION_FIELD_MAPPING,
   DEFAULT_FIELD_MAPPING
 } from '@src/app/core/_constants/select.config';
-import { StaticChunking, benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
+import { StaticChunkingMode, benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { AttackCommandData, NewTaskForm, getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
@@ -89,7 +84,6 @@ export class NewTasksComponent implements OnInit {
   /** Select Options. */
   selectHashlists: SelectOption<HashlistId>[];
   selectStaticChunking = staticChunking;
-  protected readonly StaticChunking = StaticChunking;
   selectBenchmarktype = benchmarkType;
   selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
   selectCrackerversions: SelectOption<CrackerBinaryId>[];
@@ -100,11 +94,14 @@ export class NewTasksComponent implements OnInit {
   copyFiles: FileId[];
   editedIndex: number;
 
+  private preprocessorFiles: FileId[] = [];
+
   // Tooltips
   tasktip: TaskTooltipsLevel;
 
   // Tables File Types
   protected readonly FileType = FileType;
+  protected readonly StaticChunkingMode = StaticChunkingMode;
 
   private formReady = false;
 
@@ -179,6 +176,10 @@ export class NewTasksComponent implements OnInit {
       });
 
     this.form.controls.preprocessorId.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((newValue) => {
+      if (newValue === 0) {
+        this.preprocessorFiles = [];
+        this.form.controls.preprocessorCommand.setValue('', { emitEvent: false });
+      }
       this.handleChangePreprocessor(newValue);
     });
   }
@@ -227,7 +228,7 @@ export class NewTasksComponent implements OnInit {
       );
       this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
 
-      let typeId = this.selectCrackertype.find((obj) => obj.name === DEFAULT_CRACKER_BINARY_TYPE_NAME)?.id;
+      let typeId = this.selectCrackertype.find((obj) => obj.name === 'hashcat')?.id;
       if (!typeId && this.selectCrackertype.length > 0) {
         typeId = this.selectCrackertype.slice(-1)[0].id;
       }
@@ -284,6 +285,7 @@ export class NewTasksComponent implements OnInit {
     return {
       attackCmd: this.form.controls.attackCmd.value,
       files: this.form.controls.files.value,
+      otherFiles: this.preprocessorFiles,
       preprocessorCommand: this.form.controls.preprocessorCommand.value
     };
   }
@@ -308,6 +310,7 @@ export class NewTasksComponent implements OnInit {
         files: event.files
       });
     } else {
+      this.preprocessorFiles = event.otherFiles;
       this.form.patchValue({
         preprocessorCommand: event.attackCmd
       });
@@ -413,6 +416,7 @@ export class NewTasksComponent implements OnInit {
 
       const payload = { ...this.form.value };
       delete payload.crackerBinaryTypeId;
+      payload.files = [...new Set([...(payload.files ?? []), ...this.preprocessorFiles])];
 
       this.gs.create(SERV.TASKS, payload).subscribe({
         next: () => {
@@ -473,7 +477,7 @@ export class NewTasksComponent implements OnInit {
       hashlistId: null,
       skipKeyspace: 0,
       crackerBinaryId: 1,
-      staticChunks: StaticChunking.NO,
+      staticChunks: StaticChunkingMode.NONE,
       chunkSize: environment.config.tasks.chunkSize,
       forcePipe: false,
       preprocessorId: 0,

@@ -1,6 +1,7 @@
 import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -17,7 +18,6 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
@@ -52,7 +52,7 @@ export interface WrbulkForm {
   templateUrl: './wrbulk.component.html',
   standalone: false
 })
-export class WrbulkComponent implements OnInit, OnDestroy {
+export class WrbulkComponent implements OnInit {
   protected readonly FileType = FileType;
   /**
    * Horizontal menu and redirection links.
@@ -83,7 +83,7 @@ export class WrbulkComponent implements OnInit, OnDestroy {
   /** Table custome label */
   customLabel = 'Base | Iterate';
 
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private titleService = inject(AutoTitleService);
   private uiService = inject(UIConfigService);
   private alert = inject(AlertService);
@@ -100,14 +100,6 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
     this.loadData();
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
   }
 
   /**
@@ -138,8 +130,9 @@ export class WrbulkComponent implements OnInit, OnDestroy {
    * @returns {void}
    */
   loadData() {
-    const loadSubscription$ = this.gs
+    this.gs
       .getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const crackerBinaryTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
           this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
@@ -147,7 +140,6 @@ export class WrbulkComponent implements OnInit, OnDestroy {
 
         this.selectCrackertype = transformSelectOptions(crackerBinaryTypes, CRACKER_TYPE_FIELD_MAPPING);
       });
-    this.unsubscribeService.add(loadSubscription$);
   }
 
   /**
@@ -168,21 +160,22 @@ export class WrbulkComponent implements OnInit, OnDestroy {
       iterfiles: form.iterFiles
     };
 
-    const subscription$ = this.gs.chelper(SERV.HELPER, 'bulkSupertaskBuilder', payload).subscribe({
-      next: () => {
-        this.alert.showSuccessMessage('New Supertask Wordlist/Rules Bulk created');
-        this.router.navigate(['/tasks/supertasks']);
-      },
-      error: (error) => {
-        console.error('Error creating bulk supertask:', error);
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      }
-    });
-
-    this.unsubscribeService.add(subscription$);
+    this.gs
+      .chelper(SERV.HELPER, 'bulkSupertaskBuilder', payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.alert.showSuccessMessage('New Supertask Wordlist/Rules Bulk created');
+          this.router.navigate(['/tasks/supertasks']);
+        },
+        error: (error) => {
+          console.error('Error creating bulk supertask:', error);
+          this.isLoading = false;
+        },
+        complete: () => {
+          this.isLoading = false;
+        }
+      });
   }
 
   /**

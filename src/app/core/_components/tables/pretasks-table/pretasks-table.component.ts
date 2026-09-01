@@ -1,6 +1,7 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { JPretask } from '@models/pretask.model';
@@ -37,7 +38,7 @@ import { formatFileSize } from '@src/app/shared/utils/util';
   templateUrl: './pretasks-table.component.html',
   standalone: false
 })
-export class PretasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class PretasksTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   private _supertTaskId: number;
   private _reverseQuery = false;
   private _unassignOption = false;
@@ -120,11 +121,6 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     void this.dataSource.loadAll();
   }
 
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
@@ -283,8 +279,10 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -295,8 +293,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
               break;
           }
         }
-      })
-    );
+      });
   }
 
   // --- Action handler ---
@@ -402,38 +399,36 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
    */
   private bulkActionDelete(pretasks: JPretask[]): void {
     if (this.isDelete) {
-      this.subscriptions.push(
-        this.gs
-          .bulkDelete(SERV.PRETASKS, pretasks)
-          .pipe(
-            catchError((error) => {
-              console.error('Error during deletion: ', error);
-              return of([]);
-            })
-          )
-          .subscribe(() => {
-            this.alertService.showSuccessMessage(`Successfully deleted ${pretasks.length} pretasks!`);
-            this.pretasksChanged.emit();
-          })
-      );
+      this.gs
+        .bulkDelete(SERV.PRETASKS, pretasks)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion: ', error);
+            return of([]);
+          }),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully deleted ${pretasks.length} pretasks!`);
+          this.pretasksChanged.emit();
+        });
     } else {
       const pretaskData = pretasks.map((pretask) => ({ type: RelationshipType.PRETASKS, id: pretask.id }));
       const responseBody = { data: pretaskData };
 
-      this.subscriptions.push(
-        this.gs
-          .deleteRelationships(SERV.SUPER_TASKS, this.supertTaskId, RelationshipType.PRETASKS, responseBody)
-          .pipe(
-            catchError((error) => {
-              console.error('Error during deletion:', error);
-              return of([]);
-            })
-          )
-          .subscribe(() => {
-            this.alertService.showSuccessMessage(`Successfully unassigned ${pretasks.length} pretasks!`);
-            this.pretasksChanged.emit();
-          })
-      );
+      this.gs
+        .deleteRelationships(SERV.SUPER_TASKS, this.supertTaskId, RelationshipType.PRETASKS, responseBody)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion:', error);
+            return of([]);
+          }),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage(`Successfully unassigned ${pretasks.length} pretasks!`);
+          this.pretasksChanged.emit();
+        });
     }
   }
 
@@ -500,20 +495,19 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     const request$ = this.gs.update(SERV.PRETASKS, pretask.id, {
       priority: val
     });
-    this.subscriptions.push(
-      request$
-        .pipe(
-          catchError((error) => {
-            this.alertService.showErrorMessage(`Failed to update prio!`);
-            console.error('Failed to update prio:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Changed prio to ${val} on Task #${pretask.id}!`);
-          this.reload();
-        })
-    );
+    request$
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage(`Failed to update prio!`);
+          console.error('Failed to update prio:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Changed prio to ${val} on Task #${pretask.id}!`);
+        this.reload();
+      });
   }
 
   private changeMaxAgents(pretask: JPretask, max: string): void {
@@ -532,20 +526,19 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     const request$ = this.gs.update(SERV.PRETASKS, pretask.id, {
       maxAgents: val
     });
-    this.subscriptions.push(
-      request$
-        .pipe(
-          catchError((error) => {
-            this.alertService.showErrorMessage(`Failed to update max agents!`);
-            console.error('Failed to update max agents:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on Task #${pretask.id}!`);
-          this.reload();
-        })
-    );
+    request$
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage(`Failed to update max agents!`);
+          console.error('Failed to update max agents:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Changed number of max agents to ${val} on Task #${pretask.id}!`);
+        this.reload();
+      });
   }
 
   /**
@@ -555,37 +548,35 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
    */
   private rowActionDelete(pretasks: JPretask[]): void {
     if (this.isDelete) {
-      this.subscriptions.push(
-        this.gs
-          .delete(SERV.PRETASKS, pretasks[0].id)
-          .pipe(
-            catchError((error) => {
-              console.error('Error during deletion:', error);
-              return [];
-            })
-          )
-          .subscribe(() => {
-            this.alertService.showSuccessMessage('Successfully deleted pretask!');
-            this.pretasksChanged.emit();
-          })
-      );
+      this.gs
+        .delete(SERV.PRETASKS, pretasks[0].id)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during deletion:', error);
+            return [];
+          }),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage('Successfully deleted pretask!');
+          this.pretasksChanged.emit();
+        });
     } else {
       const responseBody = { data: [{ type: RelationshipType.PRETASKS, id: pretasks[0].id }] };
 
-      this.subscriptions.push(
-        this.gs
-          .deleteRelationships(SERV.SUPER_TASKS, this.supertTaskId, RelationshipType.PRETASKS, responseBody)
-          .pipe(
-            catchError((error) => {
-              console.error('Error during unassigning:', error);
-              return [];
-            })
-          )
-          .subscribe(() => {
-            this.alertService.showSuccessMessage('Successfully unassigned pretask!');
-            this.pretasksChanged.emit();
-          })
-      );
+      this.gs
+        .deleteRelationships(SERV.SUPER_TASKS, this.supertTaskId, RelationshipType.PRETASKS, responseBody)
+        .pipe(
+          catchError((error) => {
+            console.error('Error during unassigning:', error);
+            return [];
+          }),
+          takeUntilDestroyed(this.destroyRef)
+        )
+        .subscribe(() => {
+          this.alertService.showSuccessMessage('Successfully unassigned pretask!');
+          this.pretasksChanged.emit();
+        });
     }
   }
 

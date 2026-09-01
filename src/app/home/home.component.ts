@@ -1,7 +1,8 @@
 import { Observable, Subscription, catchError, forkJoin, map, of } from 'rxjs';
 import { z } from 'zod';
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { BuiltInTheme } from '@models/config-ui.model';
 import { TaskType } from '@models/task.model';
@@ -82,8 +83,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     (alpha) => `color-mix(in oklch, var(--primary) ${Math.round(alpha * 100)}%, transparent)`
   );
 
+  private destroyRef = inject(DestroyRef);
   private uiSettings: UISettingsUtilityClass;
-  private subscriptions: Subscription[] = [];
   private pageReloadTimeout: NodeJS.Timeout;
 
   /** Auto-refresh subscription */
@@ -107,38 +108,28 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.loadData();
 
-    const themeSubscription = this.themeService.theme$.subscribe((theme) => {
+    this.themeService.theme$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((theme) => {
       this.currentTheme = theme ?? this.themeService.current;
       this.isDarkMode = this.themeService.isDark(this.currentTheme);
     });
-    this.subscriptions.push(themeSubscription);
 
     // Start auto-refresh if enabled.
 
     if (this.autoRefreshService.refreshPage) {
-      this.autoRefreshSubscription = this.autoRefreshService.refresh$.subscribe(() => this.loadData(true));
-      this.subscriptions.push(this.autoRefreshSubscription);
+      this.autoRefreshSubscription = this.autoRefreshService.refresh$
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.loadData(true));
       this.autoRefreshService.startAutoRefresh({ immediate: false });
     }
   }
 
   /**
-   * Angular lifecycle hook: unsubscribes all subscriptions and clears any active timeout.
+   * Angular lifecycle hook: stops auto-refresh and clears any active timeout.
    */
   ngOnDestroy(): void {
-    this.unsubscribeAll();
     this.autoRefreshService.stopAutoRefresh();
     if (this.pageReloadTimeout) {
       clearTimeout(this.pageReloadTimeout);
-    }
-  }
-
-  /**
-   * Unsubscribes from all active subscriptions to prevent memory leaks.
-   */
-  unsubscribeAll() {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
     }
   }
 
@@ -198,13 +189,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     this.autoRefreshService.toggleAutoRefresh(flag, { immediate: true });
     if (flag) {
-      const sub = this.autoRefreshService.refresh$.subscribe(() => {
+      this.autoRefreshService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
         // Only reload if no load/refresh is in progress
         if (!this.loading && !this.refreshing) {
           this.loadData(true);
         }
       });
-      this.subscriptions.push(sub);
     }
   }
 

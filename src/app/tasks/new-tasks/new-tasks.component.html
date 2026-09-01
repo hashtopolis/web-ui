@@ -101,13 +101,13 @@
                   formControlName="staticChunks"
                   [items]="selectStaticChunking"
                 ></input-select>
-                @if (form.controls.staticChunks.value === StaticChunking.FIXED_CHUNK_SIZE) {
+                @if (form.controls.staticChunks.value === StaticChunkingMode.FIXED_CHUNK_SIZE) {
                   <input-number
                     title="Fixed size of chunks"
                     formControlName="chunkSize"
                     [tooltip]="tasktip.chunkSize"
                   ></input-number>
-                } @else if (form.controls.staticChunks.value === StaticChunking.FIXED_NUMBER_OF_CHUNKS) {
+                } @else if (form.controls.staticChunks.value === StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS) {
                   <input-number title="Fixed number of chunks" formControlName="chunkSize"></input-number>
                 }
               </app-form-row>
@@ -188,7 +188,7 @@
             [fileType]="FileType.OTHER"
             [formData]="getFormData()"
             (updateFormEvent)="onUpdateForm($event)"
-            [cmdPrepro]="false"
+            [cmdPrepro]="isPreprocessor()"
           ></app-files-attack-table>
         </mat-expansion-panel>
       </mat-accordion>

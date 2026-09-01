@@ -540,15 +540,4 @@ describe('AccessGroupsTableComponent', () => {
       expect(mockGlobalService.bulkDelete).not.toHaveBeenCalled();
     });
   });
-
-  // ngOnDestroy()
-
-  describe('ngOnDestroy()', () => {
-    it('should unsubscribe all active subscriptions on destroy', () => {
-      const mockSub = jasmine.createSpyObj('Subscription', ['unsubscribe']);
-      component['subscriptions'].push(mockSub);
-      component.ngOnDestroy();
-      expect(mockSub.unsubscribe).toHaveBeenCalledTimes(1);
-    });
-  });
 });

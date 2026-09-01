@@ -1,12 +1,12 @@
 import { zConfigListResponse } from '@generated/api/zod';
-import { Subscription } from 'rxjs';
 import { VouchersTableComponent } from 'src/app/core/_components/tables/vouchers-table/vouchers-table.component';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 import { ConfigService } from 'src/app/core/_services/shared/config.service';
 
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -26,31 +26,25 @@ import { environment } from '@src/environments/environment';
   templateUrl: './new-agent.component.html',
   standalone: false
 })
-export class NewAgentComponent implements OnInit, OnDestroy {
+export class NewAgentComponent implements OnInit {
   private titleService = inject(AutoTitleService);
   private clipboard = inject(Clipboard);
   private alertService = inject(AlertService);
   private cs = inject(ConfigService);
   private gs = inject(GlobalService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   form: FormGroup<VoucherForm> = new FormGroup<VoucherForm>({
     voucher: new FormControl('', { nonNullable: true })
   });
   agentURL: string;
-  newVoucherSubscription: Subscription;
   allowMultiVoucher = false;
 
   @ViewChild('table') table: VouchersTableComponent;
 
   constructor() {
     this.titleService.set(['New Agent']);
-  }
-
-  ngOnDestroy(): void {
-    if (this.newVoucherSubscription) {
-      this.newVoucherSubscription.unsubscribe();
-    }
   }
 
   ngOnInit(): void {
@@ -103,11 +97,14 @@ export class NewAgentComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     if (this.form.valid) {
-      this.newVoucherSubscription = this.gs.create(SERV.VOUCHER, this.form.value).subscribe(() => {
-        this.updateVoucher();
-        this.alertService.showSuccessMessage('New voucher successfully created!');
-        this.table.reload();
-      });
+      this.gs
+        .create(SERV.VOUCHER, this.form.value)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.updateVoucher();
+          this.alertService.showSuccessMessage('New voucher successfully created!');
+          this.table.reload();
+        });
     } else {
       this.form.markAllAsTouched();
       this.form.updateValueAndValidity();

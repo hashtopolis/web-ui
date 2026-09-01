@@ -29,7 +29,7 @@ import {
   inject
 } from '@angular/core';
 
-import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { UIConfig } from '@models/config-ui.model';
 import { AgentId } from '@models/id.types';
 
 import { LocalStorageService } from '@services/storage/local-storage.service';
@@ -37,7 +37,7 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 import { SpeedStat } from '@src/app/core/_models/speed-stat.model';
 import { getHashRateFormatComponents } from '@src/app/core/_pipes/hashrate-pipe';
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { formatDate, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
+import { TimePrecision, formatDate, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 /**
  * Group speeds into bucket (previously exact timestamp was used) so that we sum up the speed reports of parallel agents.
@@ -91,7 +91,8 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
   private chart: EChartsType;
 
   private uiSettings = new UISettingsUtilityClass(inject<LocalStorageService<UIConfig>>(LocalStorageService));
-  private dateFormat = this.uiSettings.getSetting('timefmt') || uiConfigDefault.timefmt;
+  private dateTimeFormat = this.uiSettings.getDateTimeFormat(TimePrecision.SECONDS);
+  private timeFormat = this.uiSettings.getTimeFormat(TimePrecision.SECONDS);
 
   /**
    * Initializes the chart after view is ready.
@@ -135,7 +136,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
     const { unit, scale } = getHashRateFormatComponents(maxRawSpeed);
 
     const arr = result.map((item) => ({
-      name: formatUnixTimestamp(item.time, this.dateFormat),
+      name: formatUnixTimestamp(item.time, this.dateTimeFormat),
       value: [item.time * 1000, +(item.speed / scale).toFixed(2)] as [number, number],
       unit
     }));
@@ -151,7 +152,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
 
     const option: EChartsOption = {
       title: {
-        subtext: 'Last record: ' + formatUnixTimestamp(lastRecord, this.dateFormat)
+        subtext: 'Last record: ' + formatUnixTimestamp(lastRecord, this.dateTimeFormat)
       },
       tooltip: {
         trigger: 'axis',
@@ -160,7 +161,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
           const point = Array.isArray(params) ? params[0] : params;
           const data = point?.data as { value: [number, number]; unit: string } | undefined;
           if (!Array.isArray(data?.value)) return '';
-          return `${formatUnixTimestamp(data.value[0] / 1000, this.dateFormat)}: <strong>${data.value[1]} ${data.unit}</strong>`;
+          return `${formatUnixTimestamp(data.value[0] / 1000, this.dateTimeFormat)}: <strong>${data.value[1]} ${data.unit}</strong>`;
         }
       },
       grid: {
@@ -172,7 +173,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
         min: startdate * 1000,
         max: enddate * 1000,
         axisLabel: {
-          formatter: (value: number) => formatDate(new Date(value), 'hh:mm:ss')
+          formatter: (value: number) => formatDate(new Date(value), this.timeFormat)
         }
       },
       yAxis: {

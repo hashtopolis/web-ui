@@ -1,3 +1,5 @@
+import { DateFormat, TimeFormat, browserDateFormat, browserTimeFormat } from '@constants/settings.config';
+
 import { AccessGroupsAgentsTableCol } from '@components/tables/access-groups-agents-table/access-groups-agents-table.constants';
 import { AccessGroupsTableCol } from '@components/tables/access-groups-table/access-groups-table.constants';
 import { AccessGroupsUsersTableCol } from '@components/tables/access-groups-users-table/access-groups-users-table.constants';
@@ -34,6 +36,8 @@ import { TaskTableCol } from '@components/tables/tasks-table/tasks-table.constan
 import { UsersTableCol } from '@components/tables/users-table/users-table.constants';
 import { VouchersTableCol } from '@components/tables/vouchers-table/vouchers-table.constants';
 
+import { TimePrecision, dateTimeFormat } from '@src/app/shared/utils/datetime';
+
 /** Rows fetched per page before the user picks a different page size. */
 export const DEFAULT_PAGE_SIZE = 25;
 
@@ -48,7 +52,6 @@ export const BuiltInTheme = {
   DARK: 'dark'
 } as const;
 export type BuiltInTheme = (typeof BuiltInTheme)[keyof typeof BuiltInTheme];
-
 export type Theme = BuiltInTheme | (string & {});
 
 /**
@@ -81,7 +84,8 @@ export interface TableConfig {
  * @prop layout           UI layout
  * @prop theme            UI theme
  * @prop tableSettings    UI table settings
- * @prop timefmt          Time format
+ * @prop dateFmt          Date format, used on its own for date-only output
+ * @prop timeFmt          Clock convention, combined with dateFmt for date-time output
  * @prop refreshPage      Refresh page true/false
  * @prop refreshInterval  Refresh interval
  */
@@ -89,7 +93,8 @@ export interface UIConfig {
   layout: Layout;
   theme: Theme;
   tableSettings: TableSettings;
-  timefmt: string;
+  dateFmt: DateFormat;
+  timeFmt: TimeFormat;
   refreshPage: boolean;
   refreshInterval: number;
 }
@@ -114,7 +119,8 @@ export interface Sorting {
 const _uiConfigDefault = {
   layout: Layout.FIXED,
   theme: BuiltInTheme.LIGHT,
-  timefmt: 'dd/MM/yyyy h:mm:ss',
+  dateFmt: browserDateFormat(),
+  timeFmt: browserTimeFormat(),
   tableSettings: {
     notificationsTable: {
       page: DEFAULT_PAGE_SIZE,
@@ -811,3 +817,10 @@ const _uiConfigDefault = {
 
 export type TableSettingsKey = keyof (typeof _uiConfigDefault)['tableSettings'];
 export const uiConfigDefault: UIConfig = _uiConfigDefault;
+
+/** Date-time format from the default config, for use before the stored UI config has been read. */
+export const DEFAULT_DATETIME_FORMAT = dateTimeFormat(
+  uiConfigDefault.dateFmt,
+  uiConfigDefault.timeFmt,
+  TimePrecision.SECONDS
+);

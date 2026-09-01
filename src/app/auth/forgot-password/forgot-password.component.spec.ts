@@ -14,7 +14,6 @@ import { Router } from '@angular/router';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { ForgotPasswordComponent } from '@src/app/auth/forgot-password/forgot-password.component';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
@@ -29,13 +28,11 @@ describe('ForgotPasswordComponent', () => {
   // Mocks
   let mockGlobalService: jasmine.SpyObj<GlobalService>;
   let mockAlertService: jasmine.SpyObj<AlertService>;
-  let mockUnsubscribeService: jasmine.SpyObj<UnsubscribeService>;
   let mockRouter: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['chelper']);
     mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    mockUnsubscribeService = jasmine.createSpyObj('UnsubscribeService', ['add', 'unsubscribeAll']);
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -55,7 +52,6 @@ describe('ForgotPasswordComponent', () => {
       providers: [
         { provide: GlobalService, useValue: mockGlobalService },
         { provide: AlertService, useValue: mockAlertService },
-        { provide: UnsubscribeService, useValue: mockUnsubscribeService },
         { provide: Router, useValue: mockRouter }
       ]
     }).compileComponents();
@@ -117,7 +113,6 @@ describe('ForgotPasswordComponent', () => {
     expect(component.isLoading).toBeFalse();
     expect(mockAlertService.showSuccessMessage).toHaveBeenCalled();
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/auth']);
-    expect(mockUnsubscribeService.add).toHaveBeenCalled();
   }));
 
   it('should reset the loading state and not redirect when the request fails', fakeAsync(() => {
@@ -132,9 +127,4 @@ describe('ForgotPasswordComponent', () => {
     expect(component.isLoading).toBeFalse();
     expect(mockRouter.navigate).not.toHaveBeenCalled();
   }));
-
-  it('should unsubscribe from all subscriptions on destroy', () => {
-    component.ngOnDestroy();
-    expect(mockUnsubscribeService.unsubscribeAll).toHaveBeenCalled();
-  });
 });

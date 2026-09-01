@@ -1,6 +1,7 @@
 import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -14,7 +15,6 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { HealthCheckHashType, HealthCheckType, attack, hashtype } from '@src/app/core/_constants/healthchecks.config';
 import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
@@ -32,7 +32,7 @@ export interface NewHealthCheckForm {
   templateUrl: './new-health-checks.component.html',
   standalone: false
 })
-export class NewHealthChecksComponent implements OnInit, OnDestroy {
+export class NewHealthChecksComponent implements OnInit {
   /** Form group for Health Checks */
   form: FormGroup<NewHealthCheckForm>;
 
@@ -45,7 +45,7 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
   selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
   selectCrackerversions: SelectOption<CrackerBinaryId>[] = [];
 
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private titleService = inject(AutoTitleService);
   private alert = inject(AlertService);
   private gs = inject(GlobalService);
@@ -64,14 +64,6 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
-  }
-
-  /**
    * Builds the form for creating a new Superhashlist.
    */
   buildForm(): void {
@@ -82,27 +74,28 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
       crackerBinaryType: new FormControl<string | null>('')
     });
 
-    const onHandleBinarySubscription$ = this.form.controls.crackerBinaryType.valueChanges.subscribe((newvalue) => {
-      if (newvalue !== null) {
-        this.handleChangeBinary(newvalue);
-      }
-    });
-    this.unsubscribeService.add(onHandleBinarySubscription$);
+    this.form.controls.crackerBinaryType.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((newvalue) => {
+        if (newvalue !== null) {
+          this.handleChangeBinary(newvalue);
+        }
+      });
   }
 
   /**
    * Loads data, specifically hashlists, for the component.
    */
   loadData(): void {
-    const loadSubscription$ = this.gs
+    this.gs
       .getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
           new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
         );
         this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
       });
-    this.unsubscribeService.add(loadSubscription$);
   }
 
   /**
@@ -115,13 +108,15 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
   handleChangeBinary(id: string) {
     const filter = new Array<Filter>({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id });
     const params = { filter: filter };
-    const onChangeBinarySubscription$ = this.gs.getAll(SERV.CRACKERS, params).subscribe((response: ResponseWrapper) => {
-      const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
-      this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
-      const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-      this.form.controls.crackerBinaryId.patchValue(lastItem);
-    });
-    this.unsubscribeService.add(onChangeBinarySubscription$);
+    this.gs
+      .getAll(SERV.CRACKERS, params)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((response: ResponseWrapper) => {
+        const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
+        this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
+        const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
+        this.form.controls.crackerBinaryId.patchValue(lastItem);
+      });
   }
 
   /**
@@ -140,12 +135,14 @@ export class NewHealthChecksComponent implements OnInit, OnDestroy {
         crackerBinaryId
       };
 
-      const onSubmitSubscription$ = this.gs.create(SERV.HEALTH_CHECKS, payload).subscribe(() => {
-        this.alert.showSuccessMessage('New Health Check created');
-        this.router.navigate(['/config/health-checks']);
-        this.isCreatingLoading = false;
-      });
-      this.unsubscribeService.add(onSubmitSubscription$);
+      this.gs
+        .create(SERV.HEALTH_CHECKS, payload)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.alert.showSuccessMessage('New Health Check created');
+          this.router.navigate(['/config/health-checks']);
+          this.isCreatingLoading = false;
+        });
     } else {
       this.form.markAllAsTouched();
       this.form.updateValueAndValidity();

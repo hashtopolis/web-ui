@@ -3,7 +3,8 @@ import { zAccessGroupListResponse, zHashlistResponse } from '@generated/api/zod'
 import { lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -21,7 +22,6 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { ConfigService } from '@services/shared/config.service';
 import { UnsavedChangesService } from '@services/shared/unsaved-changes.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { TasksTableComponent } from '@components/tables/tasks-table/tasks-table.component';
 
@@ -40,7 +40,7 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
   templateUrl: './edit-hashlist.component.html',
   standalone: false
 })
-export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDeactivate {
+export class EditHashlistComponent implements OnInit, CanComponentDeactivate {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
@@ -60,7 +60,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
   @ViewChild(TasksTableComponent) private tasksTable?: TasksTableComponent;
 
   private unsavedChangesService = inject(UnsavedChangesService);
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private changeDetectorRef = inject(ChangeDetectorRef);
   private titleService = inject(AutoTitleService);
   private format = inject(StaticArrayPipe);
@@ -98,7 +98,7 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    * Lifecycle hook called after component initialization.
    */
   async ngOnInit(): Promise<void> {
-    this.route.params.subscribe(async (params) => {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(async (params) => {
       this.editedHashlistIndex = zIdRouteParams.parse(params).id;
       this.isLoading = true;
 
@@ -130,14 +130,6 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
         this.isLoading = false;
       }
     });
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
   }
 
   private async loadHashlist(): Promise<void> {
@@ -225,15 +217,15 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
    */
   onSubmit(): void {
     if (this.updateForm.valid) {
-      const createSubscription$ = this.gs
+      this.gs
         .update(SERV.HASHLISTS, this.editedHashlistIndex, this.updateForm.value['updateData'])
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.alert.showSuccessMessage('Hashlist saved');
           this.updateForm.reset(); // success, we reset form
           const path = this.isSuperhashlist ? '/hashlists/superhashlist' : '/hashlists/hashlist';
           this.router.navigate([path]);
         });
-      this.unsubscribeService.add(createSubscription$);
     } else {
       this.updateForm.markAllAsTouched();
       this.updateForm.updateValueAndValidity();
@@ -248,33 +240,32 @@ export class EditHashlistComponent implements OnInit, OnDestroy, CanComponentDea
 
   exportLeftHashes(): void {
     const payload = { hashlistId: this.editedHashlistIndex };
-    const helperExportedLeftSubscription$ = this.gs.chelper(SERV.HELPER, 'exportLeftHashes', payload).subscribe(() => {
-      this.alert.showSuccessMessage('Exported Left Hashes');
-    });
-
-    this.unsubscribeService.add(helperExportedLeftSubscription$);
+    this.gs
+      .chelper(SERV.HELPER, 'exportLeftHashes', payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.alert.showSuccessMessage('Exported Left Hashes');
+      });
   }
 
   exortPreCrackedHashes(): void {
     const payload = { hashlistId: this.editedHashlistIndex };
-    const helperExportedPreCrackedHashesSubscription$ = this.gs
+    this.gs
       .chelper(SERV.HELPER, 'exportCrackedHashes', payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.alert.showSuccessMessage('Cracked hashes from hashlist exported');
       });
-
-    this.unsubscribeService.add(helperExportedPreCrackedHashesSubscription$);
   }
 
   exportWordlist(): void {
     const payload = { hashlistId: this.editedHashlistIndex };
-    const helperExportedWordlistSubscription$ = this.gs
+    this.gs
       .chelper(SERV.HELPER, 'exportWordlist', payload)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.alert.showSuccessMessage('Exported Wordlist');
       });
-
-    this.unsubscribeService.add(helperExportedWordlistSubscription$);
   }
 
   /** Reloads the tasks table after a builder creates tasks/supertasks against this hashlist. */

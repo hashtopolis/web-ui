@@ -1,9 +1,10 @@
 import { HttpStatus } from '@constants/http.config';
 import { zPreprocessorResponse } from '@generated/api/zod';
-import { Subscription, firstValueFrom, lastValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -46,11 +47,6 @@ export class NewEditPreprocessorComponent implements OnInit {
 
   isLoading = true;
 
-  /**
-   * Array to hold subscriptions for cleanup on component destruction.
-   */
-  subscriptions: Subscription[] = [];
-
   private route = inject(ActivatedRoute);
   private gs = inject(GlobalService);
   private router = inject(Router);
@@ -58,6 +54,7 @@ export class NewEditPreprocessorComponent implements OnInit {
   private cs = inject(ConfigService);
   private http = inject(HttpClient);
   protected roleService = inject(PreprocessorRoleService);
+  private destroyRef = inject(DestroyRef);
 
   constructor() {
     this.newEditPreprocessorForm = getNewEditPreprocessorForm();
@@ -146,12 +143,13 @@ export class NewEditPreprocessorComponent implements OnInit {
 
     if (this.isEditMode && this.preprocessorId !== null) {
       try {
-        this.subscriptions.push(
-          this.gs.update(SERV.PREPROCESSORS, this.preprocessorId, payload).subscribe(() => {
+        this.gs
+          .update(SERV.PREPROCESSORS, this.preprocessorId, payload)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
             this.alert.showSuccessMessage('Preprocessor updated');
             void this.router.navigate(['config/engine/preprocessors']);
-          })
-        );
+          });
       } catch {
         const msg = 'Error updating preprocessor!';
         this.alert.showErrorMessage(msg);

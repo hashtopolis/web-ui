@@ -1,6 +1,7 @@
 import { catchError } from 'rxjs';
 
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JAccessGroup } from '@models/access-group.model';
 
@@ -28,7 +29,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './access-groups-table.component.html',
   standalone: false
 })
-export class AccessGroupsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class AccessGroupsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: AccessGroupsDataSource;
   selectedFilterColumn: HTTableColumn;
@@ -46,12 +47,6 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
-  }
-
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
   }
 
   filter(input: string) {
@@ -122,8 +117,10 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -134,8 +131,7 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
               break;
           }
         }
-      })
-    );
+      });
   }
 
   // --- Action functions ---
@@ -189,40 +185,38 @@ export class AccessGroupsTableComponent extends BaseTableComponent implements On
    * @todo Implement error handling.
    */
   private bulkActionDelete(accessGroups: JAccessGroup[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.ACCESS_GROUPS, accessGroups)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted accessgroups!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.ACCESS_GROUPS, accessGroups)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted accessgroups!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(accessGroups: JAccessGroup[]): void {
-    this.subscriptions.push(
-      this.gs
-        .delete(SERV.ACCESS_GROUPS, accessGroups[0].id)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted accessGroup!');
-          this.reload();
-        })
-    );
+    this.gs
+      .delete(SERV.ACCESS_GROUPS, accessGroups[0].id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted accessGroup!');
+        this.reload();
+      });
   }
 
   private rowActionEdit(accessGroup: JAccessGroup): void {
