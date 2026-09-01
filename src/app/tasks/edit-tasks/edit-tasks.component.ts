@@ -340,31 +340,34 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   private updateTask(): void {
     this.isUpdatingLoading = true;
     const updatePayload = this.updateForm.value['updateData'];
-    const preprocessorCommandChanged = this.updateForm.value['preprocessorCommand'] !== this.originalPreprocessorCommand;
+    const preprocessorCommandChanged =
+      this.updateForm.value['preprocessorCommand'] !== this.originalPreprocessorCommand;
 
     // If preprocessor command changed, make the update request first
     if (preprocessorCommandChanged) {
-      this.gs.update(SERV.TASKS, this.editedTaskIndex, { preprocessorCommand: this.updateForm.value['preprocessorCommand'] }).subscribe({
-        next: () => {
-          // After preprocessor command is updated, update the task data
-          this.gs.update(SERV.TASKS, this.editedTaskIndex, updatePayload).subscribe({
-            next: () => {
-              this.isUpdatingLoading = false;
-              this.router.navigate(['tasks/show-tasks']).then(() => {
-                this.alertService.showSuccessMessage('Task data has been updated successfully.');
-              });
-            },
-            error: (err) => {
-              console.error('Error updating task', err);
-              this.isUpdatingLoading = false;
-            }
-          });
-        },
-        error: (err) => {
-          console.error('Error updating preprocessor command', err);
-          this.isUpdatingLoading = false;
-        }
-      });
+      this.gs
+        .update(SERV.TASKS, this.editedTaskIndex, { preprocessorCommand: this.updateForm.value['preprocessorCommand'] })
+        .subscribe({
+          next: () => {
+            // After preprocessor command is updated, update the task data
+            this.gs.update(SERV.TASKS, this.editedTaskIndex, updatePayload).subscribe({
+              next: () => {
+                this.isUpdatingLoading = false;
+                this.router.navigate(['tasks/show-tasks']).then(() => {
+                  this.alertService.showSuccessMessage('Task data has been updated successfully.');
+                });
+              },
+              error: (err) => {
+                console.error('Error updating task', err);
+                this.isUpdatingLoading = false;
+              }
+            });
+          },
+          error: (err) => {
+            console.error('Error updating preprocessor command', err);
+            this.isUpdatingLoading = false;
+          }
+        });
     } else {
       // No preprocessor command change, just update task data normally
       this.gs.update(SERV.TASKS, this.editedTaskIndex, updatePayload).subscribe({
