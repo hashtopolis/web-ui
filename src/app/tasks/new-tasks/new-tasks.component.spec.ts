@@ -19,13 +19,21 @@ import { UIConfigService } from '@services/shared/storage.service';
 import { TaskTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
 
 import { CheckboxColumnType } from '@components/tables/ht-table/ht-table.models';
+import {
+  zCrackerBinaryListResponse,
+  zCrackerBinaryTypeListResponse,
+  zHashlistListResponse,
+  zPreTaskResponse,
+  zPreprocessorListResponse,
+  zTaskResponse
+} from '@generated/api/zod';
 
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { NewTasksComponent } from '@src/app/tasks/new-tasks/new-tasks.component';
-import { mockResponse } from '@src/app/testing/mock-response';
+import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 import { environment } from '@src/environments/environment';
 
-const MOCK_HASHLISTS_RESPONSE = {
+const MOCK_HASHLISTS_RESPONSE = mockValidResponse(zHashlistListResponse, {
   data: [
     {
       id: 1,
@@ -68,13 +76,11 @@ const MOCK_HASHLISTS_RESPONSE = {
       }
     }
   ]
-};
+});
 
-const MOCK_EMPTY_HASHLISTS_RESPONSE = {
-  data: []
-};
+const MOCK_EMPTY_HASHLISTS_RESPONSE = mockValidResponse(zHashlistListResponse, { data: [] });
 
-const MOCK_CRACKER_TYPES_RESPONSE = {
+const MOCK_CRACKER_TYPES_RESPONSE = mockValidResponse(zCrackerBinaryTypeListResponse, {
   data: [
     {
       id: 1,
@@ -94,9 +100,9 @@ const MOCK_CRACKER_TYPES_RESPONSE = {
       attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
     }
   ]
-};
+});
 
-const MOCK_CRACKERS_RESPONSE = {
+const MOCK_CRACKERS_RESPONSE = mockValidResponse(zCrackerBinaryListResponse, {
   data: [
     {
       id: 10,
@@ -104,13 +110,11 @@ const MOCK_CRACKERS_RESPONSE = {
       attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
     }
   ]
-};
+});
 
-const MOCK_CRACKERS_EMPTY_RESPONSE = {
-  data: []
-};
+const MOCK_CRACKERS_EMPTY_RESPONSE = mockValidResponse(zCrackerBinaryListResponse, { data: [] });
 
-const MOCK_PREPROCESSORS_RESPONSE = {
+const MOCK_PREPROCESSORS_RESPONSE = mockValidResponse(zPreprocessorListResponse, {
   data: [
     {
       id: 1,
@@ -125,7 +129,7 @@ const MOCK_PREPROCESSORS_RESPONSE = {
       }
     }
   ]
-};
+});
 
 const MOCK_TASK_ATTRIBUTES: Partial<JTask> = {
   taskName: 'Original Task',
@@ -169,11 +173,11 @@ const MOCK_PRETASK_ATTRIBUTES: Partial<JPretask> = {
   isMaskImport: false
 };
 
-const MOCK_TASK_GET_RESPONSE = {
+const TASK_GET_BODY = {
   data: {
     id: 42,
     type: 'task',
-    attributes: MOCK_TASK_ATTRIBUTES,
+    attributes: MOCK_TASK_ATTRIBUTES as Record<string, unknown>,
     relationships: {
       hashlist: { data: { id: 1, type: 'hashlist' } },
       files: {
@@ -227,11 +231,13 @@ const MOCK_TASK_GET_RESPONSE = {
   ]
 };
 
-const MOCK_PRETASK_GET_RESPONSE = {
+const MOCK_TASK_GET_RESPONSE = mockValidResponse(zTaskResponse, TASK_GET_BODY);
+
+const MOCK_PRETASK_GET_RESPONSE = mockValidResponse(zPreTaskResponse, {
   data: {
     id: 7,
     type: 'preTask',
-    attributes: MOCK_PRETASK_ATTRIBUTES,
+    attributes: MOCK_PRETASK_ATTRIBUTES as Record<string, unknown>,
     relationships: {
       pretaskFiles: { data: [{ id: 200, type: 'file' }] }
     }
@@ -243,14 +249,14 @@ const MOCK_PRETASK_GET_RESPONSE = {
       attributes: { filename: 'mask.hcmask', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 }
     }
   ]
-};
+});
 
 function buildGetAllCallFake(overrides: { [url: string]: Observable<ResponseWrapper> } = {}) {
   const defaults: { [url: string]: Observable<ResponseWrapper> } = {
-    [SERV.HASHLISTS.URL]: of(mockResponse(MOCK_HASHLISTS_RESPONSE)),
-    [SERV.CRACKERS_TYPES.URL]: of(mockResponse(MOCK_CRACKER_TYPES_RESPONSE)),
-    [SERV.CRACKERS.URL]: of(mockResponse(MOCK_CRACKERS_RESPONSE)),
-    [SERV.PREPROCESSORS.URL]: of(mockResponse(MOCK_PREPROCESSORS_RESPONSE))
+    [SERV.HASHLISTS.URL]: of(MOCK_HASHLISTS_RESPONSE),
+    [SERV.CRACKERS_TYPES.URL]: of(MOCK_CRACKER_TYPES_RESPONSE),
+    [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_RESPONSE),
+    [SERV.PREPROCESSORS.URL]: of(MOCK_PREPROCESSORS_RESPONSE)
   };
   const merged = { ...defaults, ...overrides };
   return (serviceConfig: { URL: string }) => {
@@ -501,7 +507,7 @@ describe('NewTasksComponent', () => {
     beforeEach(() => {
       activatedRoute.params = of({ id: '42' });
       activatedRoute.data = of({ kind: 'copy-task' });
-      globalServiceSpy.get.and.returnValue(of(mockResponse(MOCK_TASK_GET_RESPONSE)));
+      globalServiceSpy.get.and.returnValue(of(MOCK_TASK_GET_RESPONSE));
     });
 
     it('should call gs.get with SERV.TASKS endpoint and the task id', async () => {
@@ -588,17 +594,17 @@ describe('NewTasksComponent', () => {
     });
 
     it('should set hashlistId to null when the source task has no hashlist', async () => {
-      const taskWithoutHashlist = {
-        ...MOCK_TASK_GET_RESPONSE,
+      const taskWithoutHashlist = mockValidResponse(zTaskResponse, {
+        ...TASK_GET_BODY,
         data: {
-          ...MOCK_TASK_GET_RESPONSE.data,
+          ...TASK_GET_BODY.data,
           relationships: {
-            ...MOCK_TASK_GET_RESPONSE.data.relationships,
+            ...TASK_GET_BODY.data.relationships,
             hashlist: { data: null }
           }
         }
-      };
-      globalServiceSpy.get.and.returnValue(of(mockResponse(taskWithoutHashlist)));
+      });
+      globalServiceSpy.get.and.returnValue(of(taskWithoutHashlist));
 
       await initComponent(fixture);
 
@@ -610,7 +616,7 @@ describe('NewTasksComponent', () => {
     beforeEach(() => {
       activatedRoute.params = of({ id: '7' });
       activatedRoute.data = of({ kind: 'copy-pretask' });
-      globalServiceSpy.get.and.returnValue(of(mockResponse(MOCK_PRETASK_GET_RESPONSE)));
+      globalServiceSpy.get.and.returnValue(of(MOCK_PRETASK_GET_RESPONSE));
     });
 
     it('should call gs.get with SERV.PRETASKS endpoint and the pretask id', async () => {
@@ -775,7 +781,7 @@ describe('NewTasksComponent', () => {
 
     it('should show error when no hashlists are available', async () => {
       globalServiceSpy.getAll.and.callFake(
-        buildGetAllCallFake({ [SERV.HASHLISTS.URL]: of(mockResponse(MOCK_EMPTY_HASHLISTS_RESPONSE)) })
+        buildGetAllCallFake({ [SERV.HASHLISTS.URL]: of(MOCK_EMPTY_HASHLISTS_RESPONSE) })
       );
 
       await initComponent(fixture);
@@ -810,7 +816,7 @@ describe('NewTasksComponent', () => {
     });
 
     it('should select the last version by default', async () => {
-      const multiVersionResponse = {
+      const multiVersionResponse = mockValidResponse(zCrackerBinaryListResponse, {
         data: [
           {
             id: 10,
@@ -823,13 +829,13 @@ describe('NewTasksComponent', () => {
             attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
           }
         ]
-      };
+      });
 
       await initComponent(fixture);
 
       // Override only CRACKERS responses for the next value change
       globalServiceSpy.getAll.and.callFake(
-        buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(mockResponse(multiVersionResponse)) })
+        buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(multiVersionResponse) })
       );
 
       component.form.controls.crackerBinaryTypeId.setValue(1);
@@ -843,7 +849,7 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       globalServiceSpy.getAll.and.callFake(
-        buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(mockResponse(MOCK_CRACKERS_EMPTY_RESPONSE)) })
+        buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_EMPTY_RESPONSE) })
       );
 
       component.form.controls.crackerBinaryTypeId.setValue(999);
