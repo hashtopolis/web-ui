@@ -1,3 +1,4 @@
+import { zPreprocessorResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -12,7 +13,7 @@ import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-r
 import { AlertService } from '@services/shared/alert.service';
 
 import { NewEditPreprocessorComponent } from '@src/app/config/engine/preprocessors/new_edit-preprocessor/new_edit-preprocessor.component';
-import { mockResponse } from '@src/app/testing/mock-response';
+import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 
 describe('NewEditPreprocessorComponent', () => {
   let component: NewEditPreprocessorComponent;
@@ -24,7 +25,7 @@ describe('NewEditPreprocessorComponent', () => {
   let mockRoleService: jasmine.SpyObj<PreprocessorRoleService>;
   let httpMock: HttpTestingController;
 
-  const preprocessorResponse = mockResponse({
+  const preprocessorResponse = mockValidResponse(zPreprocessorResponse, {
     data: {
       id: 9,
       type: 'preprocessor',
