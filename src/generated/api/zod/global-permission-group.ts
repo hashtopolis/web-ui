@@ -1,5 +1,33 @@
 import * as z from 'zod';
 
+export const zGlobalPermissionGroupResourceObject = z.object({
+  id: z.int(),
+  type: z.literal('globalPermissionGroup'),
+  attributes: z.object({
+    name: z.string(),
+    permissions: z.record(z.string(), z.boolean())
+  }),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/globalpermissiongroups/1')
+  }),
+  relationships: z.object({
+    userMembers: z.object({
+      links: z.object({
+        self: z.string().default('/api/v2/ui/globalpermissiongroups/relationships/userMembers'),
+        related: z.string().default('/api/v2/ui/globalpermissiongroups/userMembers')
+      }),
+      data: z
+        .array(
+          z.object({
+            type: z.literal('user'),
+            id: z.int()
+          })
+        )
+        .optional()
+    })
+  })
+});
+
 export const zGlobalPermissionGroupCreate = z.object({
   data: z.object({
     type: z.literal('globalPermissionGroup'),
@@ -43,66 +71,6 @@ export const zGlobalPermissionGroupDeleteMultiple = z.object({
 });
 
 export const zGlobalPermissionGroupResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z.object({
-    self: z.string().default('/api/v2/ui/globalpermissiongroups/1')
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('globalPermissionGroup'),
-    attributes: z.object({
-      name: z.string(),
-      permissions: z.record(z.string(), z.boolean())
-    }),
-    links: z.object({
-      self: z.string().default('/api/v2/ui/globalpermissiongroups/1')
-    }),
-    relationships: z.object({
-      userMembers: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/globalpermissiongroups/relationships/userMembers'),
-          related: z.string().default('/api/v2/ui/globalpermissiongroups/userMembers')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('user'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-  }),
-  included: z
-    .array(
-      z.object({
-        id: z.int(),
-        type: z.literal('user'),
-        attributes: z.object({
-          name: z.string(),
-          email: z.string().optional(),
-          isValid: z.boolean().optional(),
-          isComputedPassword: z.boolean().optional(),
-          lastLoginDate: z.number().optional(),
-          registeredSince: z.number().optional(),
-          sessionLifetime: z.int().optional(),
-          globalPermissionGroupId: z.int().optional(),
-          yubikey: z.string().optional(),
-          otp1: z.string().optional(),
-          otp2: z.string().optional(),
-          otp3: z.string().optional(),
-          otp4: z.string().optional()
-        })
-      })
-    )
-    .optional()
-});
-
-export const zGlobalPermissionGroupSingleResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])

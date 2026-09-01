@@ -1,5 +1,95 @@
 import type { ErrorResponse } from './common';
 
+export type ConfigResourceObject = {
+  id: number;
+  type: 'config';
+  attributes:
+    | {
+        configSectionId: number;
+        item: 'serverLogLevel';
+        value: '0' | '10' | '20' | '30' | '40' | '50';
+        valueBoundaries?: {
+          /**
+           * Smallest accepted value of a numeric item
+           */
+          min?: number;
+          /**
+           * Largest accepted value of a numeric item
+           */
+          max?: number;
+          /**
+           * Longest accepted value of a textual item
+           */
+          maxLength?: number;
+          /**
+           * The two values a tickbox item accepts
+           */
+          binaryValues?: Array<string>;
+        };
+      }
+    | {
+        configSectionId: number;
+        item: 'notificationsProxyType';
+        value: 'HTTP' | 'HTTPS' | 'SOCKS4' | 'SOCKS5';
+        valueBoundaries?: {
+          /**
+           * Smallest accepted value of a numeric item
+           */
+          min?: number;
+          /**
+           * Largest accepted value of a numeric item
+           */
+          max?: number;
+          /**
+           * Longest accepted value of a textual item
+           */
+          maxLength?: number;
+          /**
+           * The two values a tickbox item accepts
+           */
+          binaryValues?: Array<string>;
+        };
+      }
+    | {
+        configSectionId: number;
+        item: string;
+        value: string;
+        valueBoundaries?: {
+          /**
+           * Smallest accepted value of a numeric item
+           */
+          min?: number;
+          /**
+           * Largest accepted value of a numeric item
+           */
+          max?: number;
+          /**
+           * Longest accepted value of a textual item
+           */
+          maxLength?: number;
+          /**
+           * The two values a tickbox item accepts
+           */
+          binaryValues?: Array<string>;
+        };
+      };
+  links: {
+    self: string;
+  };
+  relationships: {
+    configSection: {
+      links: {
+        self: string;
+        related: string;
+      };
+      data?: {
+        type: 'configSection';
+        id: number;
+      } | null;
+    };
+  };
+};
+
 export type ConfigPatch = {
   data: {
     type: 'config';
@@ -22,112 +112,6 @@ export type ConfigPatchMultiple = {
 };
 
 export type ConfigResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
-  };
-  links: {
-    self: string;
-  };
-  data: {
-    id: number;
-    type: 'config';
-    attributes:
-      | {
-          configSectionId: number;
-          item: 'serverLogLevel';
-          value: '0' | '10' | '20' | '30' | '40' | '50';
-          valueBoundaries?: {
-            /**
-             * Smallest accepted value of a numeric item
-             */
-            min?: number;
-            /**
-             * Largest accepted value of a numeric item
-             */
-            max?: number;
-            /**
-             * Longest accepted value of a textual item
-             */
-            maxLength?: number;
-            /**
-             * The two values a tickbox item accepts
-             */
-            binaryValues?: Array<string>;
-          };
-        }
-      | {
-          configSectionId: number;
-          item: 'notificationsProxyType';
-          value: 'HTTP' | 'HTTPS' | 'SOCKS4' | 'SOCKS5';
-          valueBoundaries?: {
-            /**
-             * Smallest accepted value of a numeric item
-             */
-            min?: number;
-            /**
-             * Largest accepted value of a numeric item
-             */
-            max?: number;
-            /**
-             * Longest accepted value of a textual item
-             */
-            maxLength?: number;
-            /**
-             * The two values a tickbox item accepts
-             */
-            binaryValues?: Array<string>;
-          };
-        }
-      | {
-          configSectionId: number;
-          item: string;
-          value: string;
-          valueBoundaries?: {
-            /**
-             * Smallest accepted value of a numeric item
-             */
-            min?: number;
-            /**
-             * Largest accepted value of a numeric item
-             */
-            max?: number;
-            /**
-             * Longest accepted value of a textual item
-             */
-            maxLength?: number;
-            /**
-             * The two values a tickbox item accepts
-             */
-            binaryValues?: Array<string>;
-          };
-        };
-    links: {
-      self: string;
-    };
-    relationships: {
-      configSection: {
-        links: {
-          self: string;
-          related: string;
-        };
-        data?: {
-          type: 'configSection';
-          id: number;
-        } | null;
-      };
-    };
-  };
-  included?: Array<{
-    id: number;
-    type: 'configSection';
-    attributes: {
-      sectionName: string;
-    };
-  }>;
-};
-
-export type ConfigSingleResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;

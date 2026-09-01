@@ -1,5 +1,31 @@
 import type { ErrorResponse } from './common';
 
+export type GlobalPermissionGroupResourceObject = {
+  id: number;
+  type: 'globalPermissionGroup';
+  attributes: {
+    name: string;
+    permissions: {
+      [key: string]: boolean;
+    };
+  };
+  links: {
+    self: string;
+  };
+  relationships: {
+    userMembers: {
+      links: {
+        self: string;
+        related: string;
+      };
+      data?: Array<{
+        type: 'user';
+        id: number;
+      }>;
+    };
+  };
+};
+
 export type GlobalPermissionGroupCreate = {
   data: {
     type: 'globalPermissionGroup';
@@ -45,60 +71,6 @@ export type GlobalPermissionGroupDeleteMultiple = {
 };
 
 export type GlobalPermissionGroupResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
-  };
-  links: {
-    self: string;
-  };
-  data: {
-    id: number;
-    type: 'globalPermissionGroup';
-    attributes: {
-      name: string;
-      permissions: {
-        [key: string]: boolean;
-      };
-    };
-    links: {
-      self: string;
-    };
-    relationships: {
-      userMembers: {
-        links: {
-          self: string;
-          related: string;
-        };
-        data?: Array<{
-          type: 'user';
-          id: number;
-        }>;
-      };
-    };
-  };
-  included?: Array<{
-    id: number;
-    type: 'user';
-    attributes: {
-      name: string;
-      email?: string;
-      isValid?: boolean;
-      isComputedPassword?: boolean;
-      lastLoginDate?: number;
-      registeredSince?: number;
-      sessionLifetime?: number;
-      globalPermissionGroupId?: number;
-      yubikey?: string;
-      otp1?: string;
-      otp2?: string;
-      otp3?: string;
-      otp4?: string;
-    };
-  }>;
-};
-
-export type GlobalPermissionGroupSingleResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;

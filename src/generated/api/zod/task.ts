@@ -1,5 +1,128 @@
 import * as z from 'zod';
 
+export const zTaskResourceObject = z.object({
+  id: z.int(),
+  type: z.literal('task'),
+  attributes: z.object({
+    taskName: z.string(),
+    attackCmd: z.string(),
+    chunkTime: z.int(),
+    statusTimer: z.int(),
+    keyspace: z.number(),
+    keyspaceProgress: z.number(),
+    priority: z.int(),
+    maxAgents: z.int(),
+    color: z.string().nullable(),
+    isSmall: z.boolean(),
+    isCpuTask: z.boolean(),
+    useNewBench: z.boolean(),
+    skipKeyspace: z.number(),
+    crackerBinaryId: z.int(),
+    crackerBinaryTypeId: z.int().nullable(),
+    taskWrapperId: z.int(),
+    isArchived: z.boolean(),
+    notes: z.string(),
+    staticChunks: z.int(),
+    chunkSize: z.number(),
+    forcePipe: z.boolean(),
+    preprocessorId: z.int(),
+    preprocessorCommand: z.string(),
+    totalAssignedAgents: z.int().optional(),
+    dispatched: z.string().optional(),
+    searched: z.string().optional(),
+    status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
+    totalNumberOfChunks: z.int().optional(),
+    currentSpeed: z.int().optional(),
+    estimatedTime: z.int().optional(),
+    cprogress: z.int().optional(),
+    timeSpent: z.int().optional(),
+    cracked: z.int().optional()
+  }),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/tasks/1')
+  }),
+  relationships: z.object({
+    assignedAgents: z.object({
+      links: z.object({
+        self: z.string().default('/api/v2/ui/tasks/relationships/assignedAgents'),
+        related: z.string().default('/api/v2/ui/tasks/assignedAgents')
+      }),
+      data: z
+        .array(
+          z.object({
+            type: z.literal('agent'),
+            id: z.int()
+          })
+        )
+        .optional()
+    }),
+    crackerBinary: z.object({
+      links: z.object({
+        self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinary'),
+        related: z.string().default('/api/v2/ui/tasks/crackerBinary')
+      }),
+      data: z
+        .object({
+          type: z.literal('crackerBinary'),
+          id: z.int()
+        })
+        .nullish()
+    }),
+    crackerBinaryType: z.object({
+      links: z.object({
+        self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinaryType'),
+        related: z.string().default('/api/v2/ui/tasks/crackerBinaryType')
+      }),
+      data: z
+        .object({
+          type: z.literal('crackerBinaryType'),
+          id: z.int()
+        })
+        .nullish()
+    }),
+    files: z.object({
+      links: z.object({
+        self: z.string().default('/api/v2/ui/tasks/relationships/files'),
+        related: z.string().default('/api/v2/ui/tasks/files')
+      }),
+      data: z
+        .array(
+          z.object({
+            type: z.literal('file'),
+            id: z.int()
+          })
+        )
+        .optional()
+    }),
+    hashlist: z.object({
+      links: z.object({
+        self: z.string().default('/api/v2/ui/tasks/relationships/hashlist'),
+        related: z.string().default('/api/v2/ui/tasks/hashlist')
+      }),
+      data: z
+        .object({
+          type: z.literal('hashlist'),
+          id: z.int()
+        })
+        .nullish()
+    }),
+    speeds: z.object({
+      links: z.object({
+        self: z.string().default('/api/v2/ui/tasks/relationships/speeds'),
+        related: z.string().default('/api/v2/ui/tasks/speeds')
+      }),
+      data: z
+        .array(
+          z.object({
+            type: z.literal('speed'),
+            id: z.int()
+          })
+        )
+        .optional()
+    })
+  })
+});
+
 export const zTaskCreate = z.object({
   data: z.object({
     type: z.literal('task'),
@@ -81,225 +204,6 @@ export const zTaskDeleteMultiple = z.object({
 });
 
 export const zTaskResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z.object({
-    self: z.string().default('/api/v2/ui/tasks/1')
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('task'),
-    attributes: z.object({
-      taskName: z.string(),
-      attackCmd: z.string(),
-      chunkTime: z.int(),
-      statusTimer: z.int(),
-      keyspace: z.number(),
-      keyspaceProgress: z.number(),
-      priority: z.int(),
-      maxAgents: z.int(),
-      color: z.string().nullable(),
-      isSmall: z.boolean(),
-      isCpuTask: z.boolean(),
-      useNewBench: z.boolean(),
-      skipKeyspace: z.number(),
-      crackerBinaryId: z.int(),
-      crackerBinaryTypeId: z.int().nullable(),
-      taskWrapperId: z.int(),
-      isArchived: z.boolean(),
-      notes: z.string(),
-      staticChunks: z.int(),
-      chunkSize: z.number(),
-      forcePipe: z.boolean(),
-      preprocessorId: z.int(),
-      preprocessorCommand: z.string(),
-      totalAssignedAgents: z.int().optional(),
-      dispatched: z.string().optional(),
-      searched: z.string().optional(),
-      status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
-      totalNumberOfChunks: z.int().optional(),
-      currentSpeed: z.int().optional(),
-      estimatedTime: z.int().optional(),
-      cprogress: z.int().optional(),
-      timeSpent: z.int().optional(),
-      cracked: z.int().optional()
-    }),
-    links: z.object({
-      self: z.string().default('/api/v2/ui/tasks/1')
-    }),
-    relationships: z.object({
-      assignedAgents: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/assignedAgents'),
-          related: z.string().default('/api/v2/ui/tasks/assignedAgents')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('agent'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      crackerBinary: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinary'),
-          related: z.string().default('/api/v2/ui/tasks/crackerBinary')
-        }),
-        data: z
-          .object({
-            type: z.literal('crackerBinary'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      crackerBinaryType: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/crackerBinaryType'),
-          related: z.string().default('/api/v2/ui/tasks/crackerBinaryType')
-        }),
-        data: z
-          .object({
-            type: z.literal('crackerBinaryType'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      files: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/files'),
-          related: z.string().default('/api/v2/ui/tasks/files')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('file'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      hashlist: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/hashlist'),
-          related: z.string().default('/api/v2/ui/tasks/hashlist')
-        }),
-        data: z
-          .object({
-            type: z.literal('hashlist'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      speeds: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/tasks/relationships/speeds'),
-          related: z.string().default('/api/v2/ui/tasks/speeds')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('speed'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-  }),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('crackerBinary'),
-          attributes: z.object({
-            crackerBinaryTypeId: z.int(),
-            version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('crackerBinaryType'),
-          attributes: z.object({
-            typeName: z.string(),
-            isChunkingAvailable: z.boolean().nullable()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('hashlist'),
-          attributes: z.object({
-            name: z.string(),
-            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
-            hashTypeId: z.int(),
-            hashCount: z.int(),
-            separator: z.string().nullable(),
-            cracked: z.int(),
-            isSecret: z.boolean(),
-            isHexSalt: z.boolean(),
-            isSalted: z.boolean(),
-            accessGroupId: z.int(),
-            notes: z.string(),
-            useBrain: z.boolean(),
-            brainFeatures: z.int(),
-            isArchived: z.boolean()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('agent'),
-          attributes: z.object({
-            agentName: z.string(),
-            uid: z.string(),
-            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            devices: z.string(),
-            cmdPars: z.string(),
-            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            isActive: z.boolean(),
-            isTrusted: z.boolean(),
-            token: z.string(),
-            lastAct: z.string(),
-            lastTime: z.number(),
-            lastIp: z.string(),
-            userId: z.int().nullable(),
-            cpuOnly: z.boolean(),
-            clientSignature: z.string()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('file'),
-          attributes: z.object({
-            filename: z.string(),
-            size: z.number(),
-            isSecret: z.boolean(),
-            fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
-            accessGroupId: z.int(),
-            lineCount: z.number()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('speed'),
-          attributes: z.object({
-            agentId: z.int(),
-            taskId: z.int(),
-            speed: z.number(),
-            time: z.number()
-          })
-        })
-      ])
-    )
-    .optional()
-});
-
-export const zTaskSingleResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])

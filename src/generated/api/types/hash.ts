@@ -1,94 +1,46 @@
 import type { ErrorResponse } from './common';
 
-export type HashResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
+export type HashResourceObject = {
+  id: number;
+  type: 'hash';
+  attributes: {
+    hashlistId: number;
+    hash: string;
+    salt: string;
+    plaintext: string;
+    timeCracked: number;
+    chunkId: number | null;
+    isCracked: boolean;
+    crackPos: number;
   };
   links: {
     self: string;
   };
-  data: {
-    id: number;
-    type: 'hash';
-    attributes: {
-      hashlistId: number;
-      hash: string;
-      salt: string;
-      plaintext: string;
-      timeCracked: number;
-      chunkId: number | null;
-      isCracked: boolean;
-      crackPos: number;
-    };
-    links: {
-      self: string;
-    };
-    relationships: {
-      chunk: {
-        links: {
-          self: string;
-          related: string;
-        };
-        data?: {
-          type: 'chunk';
-          id: number;
-        } | null;
+  relationships: {
+    chunk: {
+      links: {
+        self: string;
+        related: string;
       };
-      hashlist: {
-        links: {
-          self: string;
-          related: string;
-        };
-        data?: {
-          type: 'hashlist';
-          id: number;
-        } | null;
+      data?: {
+        type: 'chunk';
+        id: number;
+      } | null;
+    };
+    hashlist: {
+      links: {
+        self: string;
+        related: string;
       };
+      data?: {
+        type: 'hashlist';
+        id: number;
+      } | null;
     };
   };
-  included?: Array<
-    | {
-        id: number;
-        type: 'chunk';
-        attributes: {
-          taskId: number;
-          skip: number;
-          length: number;
-          agentId: number;
-          dispatchTime: number;
-          solveTime: number;
-          checkpoint: number;
-          progress: number;
-          state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
-          cracked: number;
-          speed: number;
-        };
-      }
-    | {
-        id: number;
-        type: 'hashlist';
-        attributes: {
-          name: string;
-          format: 0 | 1 | 2 | 3;
-          hashTypeId: number;
-          hashCount: number;
-          separator: string | null;
-          cracked: number;
-          isSecret: boolean;
-          isHexSalt: boolean;
-          isSalted: boolean;
-          accessGroupId: number;
-          notes: string;
-          useBrain: boolean;
-          brainFeatures: number;
-          isArchived: boolean;
-        };
-      }
-  >;
 };
 
-export type HashSingleResponse = {
+export type HashResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;

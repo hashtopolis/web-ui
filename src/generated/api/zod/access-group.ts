@@ -1,5 +1,46 @@
 import * as z from 'zod';
 
+export const zAccessGroupResourceObject = z.object({
+  id: z.int(),
+  type: z.literal('accessGroup'),
+  attributes: z.object({
+    groupName: z.string()
+  }),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/accessgroups/1')
+  }),
+  relationships: z.object({
+    agentMembers: z.object({
+      links: z.object({
+        self: z.string().default('/api/v2/ui/accessgroups/relationships/agentMembers'),
+        related: z.string().default('/api/v2/ui/accessgroups/agentMembers')
+      }),
+      data: z
+        .array(
+          z.object({
+            type: z.literal('agent'),
+            id: z.int()
+          })
+        )
+        .optional()
+    }),
+    userMembers: z.object({
+      links: z.object({
+        self: z.string().default('/api/v2/ui/accessgroups/relationships/userMembers'),
+        related: z.string().default('/api/v2/ui/accessgroups/userMembers')
+      }),
+      data: z
+        .array(
+          z.object({
+            type: z.literal('user'),
+            id: z.int()
+          })
+        )
+        .optional()
+    })
+  })
+});
+
 export const zAccessGroupCreate = z.object({
   data: z.object({
     type: z.literal('accessGroup'),
@@ -40,102 +81,6 @@ export const zAccessGroupDeleteMultiple = z.object({
 });
 
 export const zAccessGroupResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z.object({
-    self: z.string().default('/api/v2/ui/accessgroups/1')
-  }),
-  data: z.object({
-    id: z.int(),
-    type: z.literal('accessGroup'),
-    attributes: z.object({
-      groupName: z.string()
-    }),
-    links: z.object({
-      self: z.string().default('/api/v2/ui/accessgroups/1')
-    }),
-    relationships: z.object({
-      agentMembers: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/accessgroups/relationships/agentMembers'),
-          related: z.string().default('/api/v2/ui/accessgroups/agentMembers')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('agent'),
-              id: z.int()
-            })
-          )
-          .optional()
-      }),
-      userMembers: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/accessgroups/relationships/userMembers'),
-          related: z.string().default('/api/v2/ui/accessgroups/userMembers')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('user'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-  }),
-  included: z
-    .array(
-      z.union([
-        z.object({
-          id: z.int(),
-          type: z.literal('user'),
-          attributes: z.object({
-            name: z.string(),
-            email: z.string().optional(),
-            isValid: z.boolean().optional(),
-            isComputedPassword: z.boolean().optional(),
-            lastLoginDate: z.number().optional(),
-            registeredSince: z.number().optional(),
-            sessionLifetime: z.int().optional(),
-            globalPermissionGroupId: z.int().optional(),
-            yubikey: z.string().optional(),
-            otp1: z.string().optional(),
-            otp2: z.string().optional(),
-            otp3: z.string().optional(),
-            otp4: z.string().optional()
-          })
-        }),
-        z.object({
-          id: z.int(),
-          type: z.literal('agent'),
-          attributes: z.object({
-            agentName: z.string(),
-            uid: z.string(),
-            os: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            devices: z.string(),
-            cmdPars: z.string(),
-            ignoreErrors: z.union([z.literal(0), z.literal(1), z.literal(2)]),
-            isActive: z.boolean(),
-            isTrusted: z.boolean(),
-            token: z.string(),
-            lastAct: z.string(),
-            lastTime: z.number(),
-            lastIp: z.string(),
-            userId: z.int().nullable(),
-            cpuOnly: z.boolean(),
-            clientSignature: z.string()
-          })
-        })
-      ])
-    )
-    .optional()
-});
-
-export const zAccessGroupSingleResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])

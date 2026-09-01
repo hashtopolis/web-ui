@@ -1,13 +1,13 @@
 import * as z from 'zod';
 
-import { zAccessGroupSingleResponse } from './access-group';
-import { zConfigSingleResponse } from './config';
+import { zAccessGroupResourceObject } from './access-group';
+import { zConfigResourceObject } from './config';
 import { zFileSingleResponse } from './file';
-import { zGlobalPermissionGroupSingleResponse } from './global-permission-group';
-import { zHashSingleResponse } from './hash';
+import { zGlobalPermissionGroupResourceObject } from './global-permission-group';
+import { zHashResourceObject } from './hash';
 import { zHashlistSingleResponse } from './hashlist';
 import { zSupertaskSingleResponse } from './supertask';
-import { zTaskSingleResponse } from './task';
+import { zTaskResourceObject } from './task';
 import {
   zTaskWrapperDisplayCountResponse,
   zTaskWrapperDisplayListResponse,
@@ -16,7 +16,7 @@ import {
   zTaskWrapperDisplayResponse,
   zTaskWrapperSingleResponse
 } from './task-wrapper';
-import { zUserSingleResponse } from './user';
+import { zUserResourceObject, zUserSingleResponse } from './user';
 
 export const zAbortChunkHelperApi = z.object({
   chunkId: z.int().optional()
@@ -89,6 +89,14 @@ export const zCreateSupertaskHelperApi = z.object({
   crackerVersionId: z.int().optional()
 });
 
+export const zCurrentUserHelperApiResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  data: zUserResourceObject
+});
+
 export const zExportCrackedHashesHelperApi = z.object({
   hashlistId: z.int().optional()
 });
@@ -99,6 +107,67 @@ export const zExportLeftHashesHelperApi = z.object({
 
 export const zExportWordlistHelperApi = z.object({
   hashlistId: z.int().optional()
+});
+
+export const zGetAccessGroupsHelperApiResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  data: z.array(zAccessGroupResourceObject)
+});
+
+export const zGetBestTasksAgentResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  data: z.array(zTaskResourceObject)
+});
+
+export const zGetCompletedCountHelperApiResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  meta: z.object({
+    completedTasks: z.int().optional().default(5),
+    completedSupertasks: z.int().optional().default(2)
+  }),
+  data: z.array(z.record(z.string(), z.unknown())).max(0)
+});
+
+export const zGetCracksOfTaskHelperResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  data: z.array(zHashResourceObject)
+});
+
+export const zGetCracksPerDayHelperApiResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  meta: z.record(z.string(), z.int()),
+  data: z.array(z.record(z.string(), z.unknown())).max(0)
+});
+
+export const zGetGlobalConfigHelperApiResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  data: z.array(zConfigResourceObject)
+});
+
+export const zGetUserPermissionHelperApiResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  data: zGlobalPermissionGroupResourceObject
 });
 
 export const zImportCrackedHashesHelperApi = z.object({
@@ -499,7 +568,7 @@ export const zPostCreateSupertaskResponse = zTaskWrapperSingleResponse;
 /**
  * successful operation
  */
-export const zGetCurrentUserResponse = zUserSingleResponse;
+export const zGetCurrentUserResponse = zCurrentUserHelperApiResponse;
 
 /**
  * successful operation
@@ -539,7 +608,7 @@ export const zPostExportWordlistResponse = zFileSingleResponse;
 /**
  * successful operation
  */
-export const zGetGetAccessGroupsResponse = zAccessGroupSingleResponse;
+export const zGetGetAccessGroupsResponse = zGetAccessGroupsHelperApiResponse;
 
 export const zGetGetAgentBinaryQuery = z.object({
   agent: z
@@ -558,12 +627,12 @@ export const zGetGetBestTasksAgentQuery = z.object({
 /**
  * successful operation
  */
-export const zGetGetBestTasksAgentResponse = zTaskSingleResponse;
+export const zGetGetBestTasksAgentResponse = zGetBestTasksAgentResponse;
 
 /**
  * successful operation
  */
-export const zGetGetCompletedCountResponse = zTaskSingleResponse;
+export const zGetGetCompletedCountResponse = zGetCompletedCountHelperApiResponse;
 
 export const zGetGetCracksOfTaskQuery = z.object({
   task: z
@@ -575,7 +644,12 @@ export const zGetGetCracksOfTaskQuery = z.object({
 /**
  * successful operation
  */
-export const zGetGetCracksOfTaskResponse = zHashSingleResponse;
+export const zGetGetCracksOfTaskResponse = zGetCracksOfTaskHelperResponse;
+
+/**
+ * successful operation
+ */
+export const zGetGetCracksPerDayResponse = zGetCracksPerDayHelperApiResponse;
 
 export const zGetGetFileQuery = z.object({
   file: z
@@ -587,7 +661,7 @@ export const zGetGetFileQuery = z.object({
 /**
  * successful operation
  */
-export const zGetGetGlobalConfigResponse = zConfigSingleResponse;
+export const zGetGetGlobalConfigResponse = zGetGlobalConfigHelperApiResponse;
 
 export const zGetGetTaskProgressImageQuery = z.object({
   supertask: z
@@ -605,7 +679,7 @@ export const zGetGetTaskProgressImageQuery = z.object({
 /**
  * successful operation
  */
-export const zGetGetUserPermissionResponse = zGlobalPermissionGroupSingleResponse;
+export const zGetGetUserPermissionResponse = zGetUserPermissionHelperApiResponse;
 
 /**
  * HashlistId is the Id of the hashlist where you want to import the cracked hashes into.<br />SourceData is the cracked hashes you want to import.<br />Seperator is the seperator that has been used for the salt in the hashes.

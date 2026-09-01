@@ -1,5 +1,50 @@
 import type { ErrorResponse } from './common';
 
+export type UserResourceObject = {
+  id: number;
+  type: 'user';
+  attributes: {
+    name: string;
+    email?: string;
+    isValid?: boolean;
+    isComputedPassword?: boolean;
+    lastLoginDate?: number;
+    registeredSince?: number;
+    sessionLifetime?: number;
+    globalPermissionGroupId?: number;
+    yubikey?: string;
+    otp1?: string;
+    otp2?: string;
+    otp3?: string;
+    otp4?: string;
+  };
+  links: {
+    self: string;
+  };
+  relationships: {
+    accessGroups: {
+      links: {
+        self: string;
+        related: string;
+      };
+      data?: Array<{
+        type: 'accessGroup';
+        id: number;
+      }>;
+    };
+    globalPermissionGroup: {
+      links: {
+        self: string;
+        related: string;
+      };
+      data?: {
+        type: 'globalPermissionGroup';
+        id: number;
+      } | null;
+    };
+  };
+};
+
 export type UserCreate = {
   data: {
     type: 'user';

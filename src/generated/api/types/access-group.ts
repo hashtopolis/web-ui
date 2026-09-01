@@ -1,5 +1,38 @@
 import type { ErrorResponse } from './common';
 
+export type AccessGroupResourceObject = {
+  id: number;
+  type: 'accessGroup';
+  attributes: {
+    groupName: string;
+  };
+  links: {
+    self: string;
+  };
+  relationships: {
+    agentMembers: {
+      links: {
+        self: string;
+        related: string;
+      };
+      data?: Array<{
+        type: 'agent';
+        id: number;
+      }>;
+    };
+    userMembers: {
+      links: {
+        self: string;
+        related: string;
+      };
+      data?: Array<{
+        type: 'user';
+        id: number;
+      }>;
+    };
+  };
+};
+
 export type AccessGroupCreate = {
   data: {
     type: 'accessGroup';
@@ -36,90 +69,6 @@ export type AccessGroupDeleteMultiple = {
 };
 
 export type AccessGroupResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
-  };
-  links: {
-    self: string;
-  };
-  data: {
-    id: number;
-    type: 'accessGroup';
-    attributes: {
-      groupName: string;
-    };
-    links: {
-      self: string;
-    };
-    relationships: {
-      agentMembers: {
-        links: {
-          self: string;
-          related: string;
-        };
-        data?: Array<{
-          type: 'agent';
-          id: number;
-        }>;
-      };
-      userMembers: {
-        links: {
-          self: string;
-          related: string;
-        };
-        data?: Array<{
-          type: 'user';
-          id: number;
-        }>;
-      };
-    };
-  };
-  included?: Array<
-    | {
-        id: number;
-        type: 'user';
-        attributes: {
-          name: string;
-          email?: string;
-          isValid?: boolean;
-          isComputedPassword?: boolean;
-          lastLoginDate?: number;
-          registeredSince?: number;
-          sessionLifetime?: number;
-          globalPermissionGroupId?: number;
-          yubikey?: string;
-          otp1?: string;
-          otp2?: string;
-          otp3?: string;
-          otp4?: string;
-        };
-      }
-    | {
-        id: number;
-        type: 'agent';
-        attributes: {
-          agentName: string;
-          uid: string;
-          os: 0 | 1 | 2;
-          devices: string;
-          cmdPars: string;
-          ignoreErrors: 0 | 1 | 2;
-          isActive: boolean;
-          isTrusted: boolean;
-          token: string;
-          lastAct: string;
-          lastTime: number;
-          lastIp: string;
-          userId: number | null;
-          cpuOnly: boolean;
-          clientSignature: string;
-        };
-      }
-  >;
-};
-
-export type AccessGroupSingleResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;
