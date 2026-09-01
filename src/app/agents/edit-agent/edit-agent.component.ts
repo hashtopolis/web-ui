@@ -326,7 +326,7 @@ export class EditAgentComponent implements OnInit {
         taskId,
         agentId: this.editedAgentIndex
       };
-      request$ = this.gs.create(SERV.AGENT_ASSIGN, payload);
+      request$ = this.gs.chelper(SERV.HELPER, 'assignAgent', payload);
     } else if (this.assignId) {
       request$ = this.gs.delete(SERV.AGENT_ASSIGN, this.assignId);
     }

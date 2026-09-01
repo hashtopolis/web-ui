@@ -410,7 +410,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         agentId: this.createForm.value['agentId']
       };
       this.gs
-        .create(SERV.AGENT_ASSIGN, payload)
+        .chelper(SERV.HELPER, 'assignAgent', payload)
         .pipe(
           finalize(() => {
             this.reloadAgentAssignment();
