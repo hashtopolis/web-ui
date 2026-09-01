@@ -1,3 +1,4 @@
+import { HashListFormat } from '@constants/hashlist.config';
 import {
   zAgentAssignmentListResponse,
   zAgentListResponse,
@@ -505,4 +506,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         return 'No';
     }
   }
+
+  protected readonly HashListFormat = HashListFormat;
 }

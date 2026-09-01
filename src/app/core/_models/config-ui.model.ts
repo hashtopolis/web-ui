@@ -1,4 +1,15 @@
-import { DateFormat, TimeFormat, browserDateFormat, browserTimeFormat } from '@constants/settings.config';
+import {
+  BuiltInTheme,
+  DateFormat,
+  Layout,
+  Theme,
+  TimeFormat,
+  browserDateFormat,
+  browserTimeFormat
+} from '@constants/settings.config';
+
+export { BuiltInTheme, Layout };
+export type { Theme };
 
 import { AccessGroupsAgentsTableCol } from '@components/tables/access-groups-agents-table/access-groups-agents-table.constants';
 import { AccessGroupsTableCol } from '@components/tables/access-groups-table/access-groups-table.constants';
@@ -40,19 +51,6 @@ import { TimePrecision, dateTimeFormat } from '@src/app/shared/utils/datetime';
 
 /** Rows fetched per page before the user picks a different page size. */
 export const DEFAULT_PAGE_SIZE = 25;
-
-export const Layout = {
-  FULL: 'full',
-  FIXED: 'fixed'
-} as const;
-export type Layout = (typeof Layout)[keyof typeof Layout];
-
-export const BuiltInTheme = {
-  LIGHT: 'light',
-  DARK: 'dark'
-} as const;
-export type BuiltInTheme = (typeof BuiltInTheme)[keyof typeof BuiltInTheme];
-export type Theme = BuiltInTheme | (string & {});
 
 /**
  * Interface definition for TableSettings

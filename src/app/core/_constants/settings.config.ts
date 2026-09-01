@@ -1,5 +1,3 @@
-import { BuiltInTheme, Layout } from '@models/config-ui.model';
-
 /**
  * Date formats, used in general settings and when app is initialized
  **/
@@ -15,6 +13,19 @@ export interface Option {
   label: string;
   value: number | string | boolean;
 }
+
+export const Layout = {
+  FULL: 'full',
+  FIXED: 'fixed'
+} as const;
+export type Layout = (typeof Layout)[keyof typeof Layout];
+
+export const BuiltInTheme = {
+  LIGHT: 'light',
+  DARK: 'dark'
+} as const;
+export type BuiltInTheme = (typeof BuiltInTheme)[keyof typeof BuiltInTheme];
+export type Theme = BuiltInTheme | (string & {});
 
 export const DateFormat = {
   DAY_MONTH_YEAR_SLASH: 'dd/MM/yyyy',
