@@ -1,7 +1,7 @@
 import { HttpStatus } from '@constants/http.config';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
-import { zAgentResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
+import { zAgentResponse, zGetBestTasksAgentResponse, zUserListResponse } from '@generated/api/zod';
 import { lastValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
@@ -229,7 +229,7 @@ export class EditAgentComponent implements OnInit {
       .ghelper(SERV.HELPER, 'getBestTasksAgent', { agent: this.editedAgentIndex })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
-        const tasks = this.serializer.deserialize(response, zTaskListResponse);
+        const tasks = this.serializer.deserialize(response, zGetBestTasksAgentResponse);
         this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
       });
   }

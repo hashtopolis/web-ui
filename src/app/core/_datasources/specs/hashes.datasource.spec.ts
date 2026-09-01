@@ -1,6 +1,6 @@
 /// <reference types="jasmine" />
 import { HashListFormat } from '@constants/hashlist.config';
-import { zHashListResponse, zHashlistResponse } from '@generated/api/zod';
+import { zGetCracksOfTaskHelperResponse, zHashListResponse, zHashlistResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
@@ -106,7 +106,7 @@ describe('HashesDataSource', () => {
 
     spyOn(JsonAPISerializer.prototype, 'deserialize').and.callFake((_body: unknown, schema?: unknown) => {
       if (schema === zHashlistResponse) return resolvedHashlist;
-      if (schema === zHashListResponse) return MOCK_HASHES;
+      if (schema === zHashListResponse || schema === zGetCracksOfTaskHelperResponse) return MOCK_HASHES;
       return [];
     });
 

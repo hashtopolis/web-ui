@@ -17,7 +17,7 @@ import { changeOwnPasswordResponseSchema } from '@src/app/account/settings/acc-s
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { emailValidator } from '@src/app/core/_validators/email.validator';
 import { passwordMatchValidator } from '@src/app/core/_validators/password.validator';
-import { zUserResponse } from '@src/generated/api/zod';
+import { zCurrentUserHelperApiResponse } from '@src/generated/api/zod';
 
 export interface UpdateUserPassword {
   oldPassword: string;
@@ -223,7 +223,7 @@ export class AccountSettingsComponent implements OnInit {
       .ghelper(SERV.HELPER, 'currentUser')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response) => {
-        const user: JUser = new JsonAPISerializer().deserialize(response, zUserResponse);
+        const user: JUser = new JsonAPISerializer().deserialize(response, zCurrentUserHelperApiResponse);
 
         this.form.patchValue({
           name: user.name,

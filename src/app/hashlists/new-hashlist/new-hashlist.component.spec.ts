@@ -1,5 +1,5 @@
 import { HttpHeaderName } from '@constants/http.config';
-import { zAccessGroupListResponse, zConfigResponse, zHashTypeListResponse } from '@generated/api/zod';
+import { zConfigResponse, zGetAccessGroupsHelperApiResponse, zHashTypeListResponse } from '@generated/api/zod';
 import { concat, of, throwError } from 'rxjs';
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
@@ -27,7 +27,7 @@ import { InputModule } from '@src/app/shared/input/input.module';
 import { PageSubTitleComponent } from '@src/app/shared/page-headers/page-subtitle/page-subtitle.component';
 import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 
-const mockAccessGroups: ResponseWrapper = mockValidResponse(zAccessGroupListResponse, {
+const mockAccessGroups: ResponseWrapper = mockValidResponse(zGetAccessGroupsHelperApiResponse, {
   data: [
     {
       id: 1,

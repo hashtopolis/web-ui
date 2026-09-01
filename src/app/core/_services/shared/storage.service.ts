@@ -1,4 +1,4 @@
-import { zConfigListResponse } from '@generated/api/zod';
+import { zGetGlobalConfigHelperApiResponse } from '@generated/api/zod';
 
 import { Injectable } from '@angular/core';
 
@@ -43,7 +43,7 @@ export class UIConfigService {
   public storeDefault(): void {
     this.gs.ghelper(SERV.HELPER, 'getGlobalConfig').subscribe({
       next: (response: ResponseWrapper) => {
-        const configs: JConfig[] = new JsonAPISerializer().deserialize(response, zConfigListResponse);
+        const configs: JConfig[] = new JsonAPISerializer().deserialize(response, zGetGlobalConfigHelperApiResponse);
         const configValues = convertNameValueConfigPairs(configs, this.cachevar);
         const raw: Record<string, unknown> = {
           ...configValues,

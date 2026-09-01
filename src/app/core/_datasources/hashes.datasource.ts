@@ -1,4 +1,4 @@
-import { zHashListResponse, zHashlistResponse } from '@generated/api/zod';
+import { zGetCracksOfTaskHelperResponse, zHashListResponse, zHashlistResponse } from '@generated/api/zod';
 import { EMPTY, Observable, catchError, finalize, of, switchMap } from 'rxjs';
 import { z } from 'zod';
 
@@ -47,7 +47,7 @@ export class HashesDataSource extends BaseDataSource<JHash> {
             finalize(() => (this.loading = false))
           )
           .subscribe((response: ResponseWrapper) => {
-            const hashes: JHash[] = this.serializer.deserialize(response, zHashListResponse);
+            const hashes: JHash[] = this.serializer.deserialize(response, zGetCracksOfTaskHelperResponse);
 
             this.setData(hashes);
           })
