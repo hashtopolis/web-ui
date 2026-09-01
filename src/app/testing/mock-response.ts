@@ -142,5 +142,13 @@ export function mockValidResponse(schema: ZodType, body: ValidResponseBody = {})
     overrides['included'] = included;
   }
 
-  return mockResponse(overrides);
+  const response = mockResponse(overrides);
+
+  /* Fail at construction rather than as console noise deep inside a test run */
+  const result = schema.safeParse(response);
+  if (!result.success) {
+    throw new Error('mockValidResponse: fixture does not satisfy the schema:\n' + result.error.message);
+  }
+
+  return response;
 }
