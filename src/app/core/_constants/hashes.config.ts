@@ -22,13 +22,14 @@ export type HashesSelectKind = (typeof HashesSelectKind)[keyof typeof HashesSele
  */
 export const HashesFilter = {
   CRACKED: 'cracked',
+  UNCRACKED: 'uncracked',
   ALL: ''
 } as const;
 export type HashesFilter = (typeof HashesFilter)[keyof typeof HashesFilter];
 
 export const filters = [
   { _id: HashesFilter.CRACKED, name: 'Cracked' },
-  { _id: HashesFilter.CRACKED, name: 'Uncracked' },
+  { _id: HashesFilter.UNCRACKED, name: 'Uncracked' },
   { _id: HashesFilter.ALL, name: 'All' }
 ];
 

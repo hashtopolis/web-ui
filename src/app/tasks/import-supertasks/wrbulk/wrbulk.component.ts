@@ -6,8 +6,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
-import { TaskSelectFile } from '@models/file.model';
-import { FileType } from '@models/file.model';
+import { FileType, TaskSelectFile } from '@models/file.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
 import { CrackerBinaryTypeId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';

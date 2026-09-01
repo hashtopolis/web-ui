@@ -7,8 +7,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { DynamicModel } from '@models/base.model';
 import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
-import { JFile, TaskSelectFile } from '@models/file.model';
-import { FileType } from '@models/file.model';
+import { FileType, JFile, TaskSelectFile } from '@models/file.model';
 import { CrackerBinaryTypeId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
