@@ -1,7 +1,7 @@
 import { Observable, catchError, firstValueFrom, of } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
@@ -9,16 +9,23 @@ import { ApiTokenStatus, JApiToken, computeApiTokenStatus } from '@models/api-to
 
 import { ApiTokensContextMenuService } from '@services/context-menu/users/api-tokens-menu.service';
 import { SERV } from '@services/main.config';
+import { ApiTokensRoleService } from '@services/roles/user/api-tokens-role.service';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
   ApiTokensRowAction,
   ApiTokensTableCol,
-  ApiTokensTableColumnLabel
+  ApiTokensTableColumnLabel,
+  ApiTokensTableEditableAction
 } from '@components/tables/api-tokens-table/api-tokens-table.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
-import { HTTableColumn, HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import {
+  HTTableColumn,
+  HTTableEditable,
+  HTTableIcon,
+  HTTableRouterLink
+} from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
@@ -32,6 +39,7 @@ import { formatUnixTimestamp, lastValidSecond } from '@src/app/shared/utils/date
   standalone: false
 })
 export class ApiTokensTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
+  private readonly apiTokensRoleService = inject(ApiTokensRoleService);
   tableColumns: HTTableColumn[] = [];
   dataSource: ApiTokensDataSource;
 
@@ -49,6 +57,25 @@ export class ApiTokensTableComponent extends BaseTableComponent implements OnIni
   }
 
   getColumns(): HTTableColumn[] {
+    const tokenNameColumn: HTTableColumn = {
+      id: ApiTokensTableCol.TOKEN_NAME,
+      dataKey: 'tokenName',
+      isSortable: true,
+      export: async (token: JApiToken) => token.tokenName?.trim() ?? ''
+    };
+
+    if (this.apiTokensRoleService.hasRole('update')) {
+      tokenNameColumn.editable = (token: JApiToken) => {
+        return {
+          data: token,
+          value: token.tokenName ?? '',
+          action: ApiTokensTableEditableAction.CHANGE_TOKEN_NAME
+        };
+      };
+    } else {
+      tokenNameColumn.render = (token: JApiToken) => token.tokenName?.trim() || '—';
+    }
+
     return [
       {
         id: ApiTokensTableCol.ID,
@@ -57,6 +84,7 @@ export class ApiTokensTableComponent extends BaseTableComponent implements OnIni
         routerLink: (token: JApiToken) => this.renderDetailLink(token),
         export: async (token: JApiToken) => token.id + ''
       },
+      tokenNameColumn,
       {
         id: ApiTokensTableCol.VALID_FROM,
         dataKey: 'startValid',
@@ -120,6 +148,38 @@ export class ApiTokensTableComponent extends BaseTableComponent implements OnIni
   private renderStatusLabel(token: JApiToken): SafeHtml {
     const status = computeApiTokenStatus(token);
     return status.charAt(0).toUpperCase() + status.slice(1);
+  }
+
+  // --- Inline editing ---
+
+  editableSaved(editable: HTTableEditable<JApiToken>): void {
+    switch (editable.action) {
+      case ApiTokensTableEditableAction.CHANGE_TOKEN_NAME:
+        void this.changeTokenName(editable.data, editable.value);
+        break;
+    }
+  }
+
+  private async changeTokenName(token: JApiToken, value: string): Promise<void> {
+    const newName = value.trim();
+    if ((token.tokenName ?? '') === newName) {
+      this.alertService.showInfoMessage('Nothing changed');
+      return;
+    }
+
+    try {
+      await firstValueFrom(
+        this.gs.update(SERV.API_TOKENS, token.id, { tokenName: newName }).pipe(
+          catchError((error: HttpErrorResponse) => {
+            throw error;
+          })
+        )
+      );
+      this.alertService.showSuccessMessage(`Renamed API key #${token.id} to "${newName || '(empty)'}".`);
+      this.reload();
+    } catch (error) {
+      this.alertService.showErrorMessage(`Could not rename API key: ${this.extractMessage(error)}`);
+    }
   }
 
   // --- Action handling ---
