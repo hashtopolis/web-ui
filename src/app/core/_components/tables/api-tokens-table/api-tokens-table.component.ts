@@ -1,7 +1,7 @@
 import { Observable, catchError, firstValueFrom, of } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
@@ -38,7 +38,7 @@ import { formatUnixTimestamp, lastValidSecond } from '@src/app/shared/utils/date
   templateUrl: './api-tokens-table.component.html',
   standalone: false
 })
-export class ApiTokensTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ApiTokensTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   private readonly apiTokensRoleService = inject(ApiTokensRoleService);
   tableColumns: HTTableColumn[] = [];
   dataSource: ApiTokensDataSource;
