@@ -168,7 +168,8 @@ describe('EditAgentComponent', () => {
       'update',
       'create',
       'delete',
-      'ghelper'
+      'ghelper',
+      'chelper'
     ]);
     routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     agentRoleServiceSpy = jasmine.createSpyObj('AgentRoleService', ['hasRole']);
@@ -185,6 +186,7 @@ describe('EditAgentComponent', () => {
     globalServiceSpy.get.and.returnValue(of(mockResponse({ data: mockAgent })));
     globalServiceSpy.getAll.and.returnValue(of(mockResponse({ data: [mockUser] })));
     globalServiceSpy.ghelper.and.returnValue(of(mockResponse({ data: [] })));
+    globalServiceSpy.chelper.and.returnValue(of(mockResponse()));
     globalServiceSpy.update.and.returnValue(of(mockResponse()));
     globalServiceSpy.create.and.returnValue(of(mockResponse()));
 
@@ -411,7 +413,7 @@ describe('EditAgentComponent', () => {
     component.onUpdateAssign(5);
     tick();
 
-    expect(globalServiceSpy.create).toHaveBeenCalledWith(SERV.AGENT_ASSIGN, {
+    expect(globalServiceSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'assignAgent', {
       taskId: 5,
       agentId: 1
     });

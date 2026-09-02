@@ -77,6 +77,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   color = '';
   tusepreprocessor: number;
+  preprocessorCommand: string;
+  originalPreprocessorCommand: string;
   hashlistDescrip: string;
   hashlistinform: JHashlist | undefined;
   availAgents: ThinJAgent[] = [];
@@ -138,6 +140,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       this.taskWrapperId = task.taskWrapperId;
       this.tkeyspace = task.keyspace;
       this.tusepreprocessor = task.preprocessorId;
+      this.preprocessorCommand = task.preprocessorCommand;
+      this.originalPreprocessorCommand = task.preprocessorCommand;
       this.ctimespent = task.timeSpent ?? 0;
       this.currenspeed = task.currentSpeed ?? 0;
       this.estimatedTime = task.estimatedTime ?? 0;
@@ -169,6 +173,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         crackerBinaryId: task.crackerBinaryId,
         chunkSize: task.chunkSize,
         totalNumberOfChunks: task.totalNumberOfChunks,
+        preprocessorCommand: task.preprocessorCommand,
         updateData: {
           taskName: task.taskName,
           attackCmd: task.attackCmd,
@@ -235,6 +240,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       crackerBinaryId: new FormControl({ value: '', disabled: true }),
       chunkSize: new FormControl({ value: '', disabled: true }),
       totalNumberOfChunks: new FormControl({ value: '', disabled: true }),
+      preprocessorCommand: new FormControl({ value: '', disabled: this.isReadOnly }),
       updateData: new FormGroup({
         taskName: new FormControl(
           { value: '', disabled: this.isReadOnly },
@@ -313,6 +319,16 @@ export class EditTasksComponent implements OnInit, OnDestroy {
             this.alertService.showInfoMessage('Task Information has not been updated');
           }
         });
+      } else if (this.updateForm.value['preprocessorCommand'] !== this.originalPreprocessorCommand) {
+        const message =
+          'Do you really want to change the preprocessor command? If the task already was started, it will be completely purged before and reset to an initial state.';
+        this.confirmDialog.confirmYesNo('Update preprocessor command', message).subscribe((confirmed) => {
+          if (confirmed) {
+            this.updateTask();
+          } else {
+            this.alertService.showInfoMessage('Preprocessor command has not been updated');
+          }
+        });
       } else {
         this.updateTask();
       }
@@ -324,18 +340,50 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   private updateTask(): void {
     this.isUpdatingLoading = true;
-    this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.value['updateData']).subscribe({
-      next: () => {
-        this.isUpdatingLoading = false;
-        this.router.navigate(['tasks/show-tasks']).then(() => {
-          this.alertService.showSuccessMessage('Task data has been updated successfully.');
+    const updatePayload = this.updateForm.value['updateData'];
+    const preprocessorCommandChanged =
+      this.updateForm.value['preprocessorCommand'] !== this.originalPreprocessorCommand;
+
+    // If preprocessor command changed, make the update request first
+    if (preprocessorCommandChanged) {
+      this.gs
+        .update(SERV.TASKS, this.editedTaskIndex, { preprocessorCommand: this.updateForm.value['preprocessorCommand'] })
+        .subscribe({
+          next: () => {
+            // After preprocessor command is updated, update the task data
+            this.gs.update(SERV.TASKS, this.editedTaskIndex, updatePayload).subscribe({
+              next: () => {
+                this.isUpdatingLoading = false;
+                this.router.navigate(['tasks/show-tasks']).then(() => {
+                  this.alertService.showSuccessMessage('Task data has been updated successfully.');
+                });
+              },
+              error: (err) => {
+                console.error('Error updating task', err);
+                this.isUpdatingLoading = false;
+              }
+            });
+          },
+          error: (err) => {
+            console.error('Error updating preprocessor command', err);
+            this.isUpdatingLoading = false;
+          }
         });
-      },
-      error: (err) => {
-        console.error('Error updating task', err);
-        this.isUpdatingLoading = false;
-      }
-    });
+    } else {
+      // No preprocessor command change, just update task data normally
+      this.gs.update(SERV.TASKS, this.editedTaskIndex, updatePayload).subscribe({
+        next: () => {
+          this.isUpdatingLoading = false;
+          this.router.navigate(['tasks/show-tasks']).then(() => {
+            this.alertService.showSuccessMessage('Task data has been updated successfully.');
+          });
+        },
+        error: (err) => {
+          console.error('Error updating task', err);
+          this.isUpdatingLoading = false;
+        }
+      });
+    }
   }
 
   /**
@@ -411,7 +459,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         agentId: this.createForm.value['agentId']
       };
       this.gs
-        .create(SERV.AGENT_ASSIGN, payload)
+        .chelper(SERV.HELPER, 'assignAgent', payload)
         .pipe(
           finalize(() => {
             this.reloadAgentAssignment();
