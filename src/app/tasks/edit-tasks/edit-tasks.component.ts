@@ -5,7 +5,7 @@ import {
   zSpeedListResponse,
   zTaskResponse
 } from '@generated/api/zod';
-import { Subscription, finalize, lastValueFrom } from 'rxjs';
+import { finalize, lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
@@ -41,6 +41,7 @@ import { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 
 import { AGENT_MAPPING } from '@src/app/core/_constants/select.config';
+import { StaticChunkingMode } from '@src/app/core/_constants/tasks.config';
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
@@ -75,6 +76,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   color = '';
   tusepreprocessor: number;
+  preprocessorCommand: string;
+  originalPreprocessorCommand: string;
   hashlistDescrip: string;
   hashlistinform: JHashlist | undefined;
   availAgents: ThinJAgent[] = [];
@@ -100,8 +103,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   taskProgressImageUrl: SafeUrl | null = null;
   private rawTaskProgressObjectUrl: string | null = null;
-
-  private routeSub: Subscription | undefined;
 
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
@@ -138,6 +139,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       this.taskWrapperId = task.taskWrapperId;
       this.tkeyspace = task.keyspace;
       this.tusepreprocessor = task.preprocessorId;
+      this.preprocessorCommand = task.preprocessorCommand;
+      this.originalPreprocessorCommand = task.preprocessorCommand;
       this.ctimespent = task.timeSpent ?? 0;
       this.currenspeed = task.currentSpeed ?? 0;
       this.estimatedTime = task.estimatedTime ?? 0;
@@ -162,13 +165,14 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       this.updateForm.setValue({
         taskId: task.id,
         forcePipe: task.forcePipe === true ? 'Yes' : 'No',
-        staticChunks: this.getStaticChunkingLabel(task.staticChunks),
+        staticChunks: this.getStaticChunkingLabel(task.staticChunks, task.chunkSize),
         skipKeyspace: task.skipKeyspace > 0 ? task.skipKeyspace : 'N/A',
         keyspace: task.keyspace,
         keyspaceProgress: task.keyspaceProgress,
         crackerBinaryId: task.crackerBinaryId,
         chunkSize: task.chunkSize,
         totalNumberOfChunks: task.totalNumberOfChunks,
+        preprocessorCommand: task.preprocessorCommand,
         updateData: {
           taskName: task.taskName,
           attackCmd: task.attackCmd,
@@ -218,8 +222,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.routeSub?.unsubscribe();
-
     if (this.rawTaskProgressObjectUrl) {
       URL.revokeObjectURL(this.rawTaskProgressObjectUrl);
       this.rawTaskProgressObjectUrl = null;
@@ -237,6 +239,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       crackerBinaryId: new FormControl({ value: '', disabled: true }),
       chunkSize: new FormControl({ value: '', disabled: true }),
       totalNumberOfChunks: new FormControl({ value: '', disabled: true }),
+      preprocessorCommand: new FormControl({ value: '', disabled: this.isReadOnly }),
       updateData: new FormGroup({
         taskName: new FormControl(
           { value: '', disabled: this.isReadOnly },
@@ -315,6 +318,16 @@ export class EditTasksComponent implements OnInit, OnDestroy {
             this.alertService.showInfoMessage('Task Information has not been updated');
           }
         });
+      } else if (this.updateForm.value['preprocessorCommand'] !== this.originalPreprocessorCommand) {
+        const message =
+          'Do you really want to change the preprocessor command? If the task already was started, it will be completely purged before and reset to an initial state.';
+        this.confirmDialog.confirmYesNo('Update preprocessor command', message).subscribe((confirmed) => {
+          if (confirmed) {
+            this.updateTask();
+          } else {
+            this.alertService.showInfoMessage('Preprocessor command has not been updated');
+          }
+        });
       } else {
         this.updateTask();
       }
@@ -326,18 +339,50 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   private updateTask(): void {
     this.isUpdatingLoading = true;
-    this.gs.update(SERV.TASKS, this.editedTaskIndex, this.updateForm.value['updateData']).subscribe({
-      next: () => {
-        this.isUpdatingLoading = false;
-        this.router.navigate(['tasks/show-tasks']).then(() => {
-          this.alertService.showSuccessMessage('Task data has been updated successfully.');
+    const updatePayload = this.updateForm.value['updateData'];
+    const preprocessorCommandChanged =
+      this.updateForm.value['preprocessorCommand'] !== this.originalPreprocessorCommand;
+
+    // If preprocessor command changed, make the update request first
+    if (preprocessorCommandChanged) {
+      this.gs
+        .update(SERV.TASKS, this.editedTaskIndex, { preprocessorCommand: this.updateForm.value['preprocessorCommand'] })
+        .subscribe({
+          next: () => {
+            // After preprocessor command is updated, update the task data
+            this.gs.update(SERV.TASKS, this.editedTaskIndex, updatePayload).subscribe({
+              next: () => {
+                this.isUpdatingLoading = false;
+                this.router.navigate(['tasks/show-tasks']).then(() => {
+                  this.alertService.showSuccessMessage('Task data has been updated successfully.');
+                });
+              },
+              error: (err) => {
+                console.error('Error updating task', err);
+                this.isUpdatingLoading = false;
+              }
+            });
+          },
+          error: (err) => {
+            console.error('Error updating preprocessor command', err);
+            this.isUpdatingLoading = false;
+          }
         });
-      },
-      error: (err) => {
-        console.error('Error updating task', err);
-        this.isUpdatingLoading = false;
-      }
-    });
+    } else {
+      // No preprocessor command change, just update task data normally
+      this.gs.update(SERV.TASKS, this.editedTaskIndex, updatePayload).subscribe({
+        next: () => {
+          this.isUpdatingLoading = false;
+          this.router.navigate(['tasks/show-tasks']).then(() => {
+            this.alertService.showSuccessMessage('Task data has been updated successfully.');
+          });
+        },
+        error: (err) => {
+          console.error('Error updating task', err);
+          this.isUpdatingLoading = false;
+        }
+      });
+    }
   }
 
   /**
@@ -413,7 +458,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         agentId: this.createForm.value['agentId']
       };
       this.gs
-        .create(SERV.AGENT_ASSIGN, payload)
+        .chelper(SERV.HELPER, 'assignAgent', payload)
         .pipe(
           finalize(() => {
             this.reloadAgentAssignment();
@@ -498,12 +543,12 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     });
   }
 
-  private getStaticChunkingLabel(staticChunks: number): string {
+  private getStaticChunkingLabel(staticChunks: number, chunkSize: number): string {
     switch (staticChunks) {
-      case 1:
-        return 'Fixed chunk size (1)';
-      case 2:
-        return 'Fixed number of chunks (2)';
+      case StaticChunkingMode.FIXED_CHUNK_SIZE:
+        return `Fixed chunksize: ${chunkSize.toLocaleString()}`;
+      case StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS:
+        return `Fixed number of chunks: ${chunkSize.toLocaleString()}`;
       default:
         return 'No';
     }

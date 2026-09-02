@@ -23,6 +23,9 @@ export const HELPER_ENDPOINTS = [
   'getAccessGroups',
   'getGlobalConfig',
   // POST helpers (chelper)
+  'assignAgent',
+  'unassignAgent',
+  'searchHashes',
   'changeOwnPassword',
   'importFile',
   'importCrackedHashes',

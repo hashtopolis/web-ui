@@ -1,68 +1,32 @@
-import { dateFormats } from '@constants/settings.config';
+import { Pipe, PipeTransform, inject } from '@angular/core';
 
-import { DatePipe } from '@angular/common';
-import { LOCALE_ID, Pipe, PipeTransform, inject } from '@angular/core';
+import { UIConfig } from '@models/config-ui.model';
 
-import { CookieService } from '@services/shared/cookies.service';
+import { LocalStorageService } from '@services/storage/local-storage.service';
+
+import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { TimePrecision, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 /**
- * Pipe to format date
+ * Pipe to format an epoch timestamp as a date and time, in the formats configured in the UI settings.
  * @param epoch - Epoch date number
  * Usage:
  *   value | uiDate
  * Example:
  *   {{ 1694866300 | uiDate }}
- * @returns 16/09/2023
+ * @returns 16/09/2023 14:51:40
  **/
 
 @Pipe({
   name: 'uiDate',
   standalone: false
 })
-export class uiDatePipe extends DatePipe implements PipeTransform {
-  private cookieService = inject(CookieService);
+export class uiDatePipe implements PipeTransform {
+  private uiSettings = new UISettingsUtilityClass(inject<LocalStorageService<UIConfig>>(LocalStorageService));
 
-  constructor() {
-    super(inject(LOCALE_ID));
-  }
-
-  override transform(value: Date | string | number, format?: string, timezone?: string, locale?: string): string | null;
-  override transform(value: null | undefined, format?: string, timezone?: string, locale?: string): null;
-  override transform(
-    value: Date | string | number | null | undefined,
-    format?: string,
-    timezone?: string,
-    locale?: string
-  ): string | null;
-  override transform(
-    epoch: number | Date | string | null | undefined,
-    _format?: string,
-    _timezone?: string,
-    _locale?: string
-  ): string | null {
+  transform(epoch: number | Date | string | null | undefined): string | null {
     if (epoch === undefined || epoch === null) return null;
 
-    if (!this.cookieService.getCookie('localtimefmt')) {
-      this.cookieService.setCookie('localtimefmt', 'dd/MM/yyyy h:mm:ss', 365);
-    }
-
-    const format = this.checkFormat(this.cookieService.getCookie('localtimefmt'));
-
-    return super.transform(Number(epoch) * 1000, format);
-  }
-
-  //Check that format is correct
-  checkFormat(format: string | null) {
-    let res; //Default date format
-    for (let i = 0; i < dateFormats.length; i++) {
-      if (dateFormats[i].value === format) {
-        res = format;
-      }
-    }
-    if (!res) {
-      res = 'dd/MM/yyyy h:mm:ss';
-      this.cookieService.setCookie('localtimefmt', res, 365);
-    }
-    return res;
+    return formatUnixTimestamp(Number(epoch), this.uiSettings.getDateTimeFormat(TimePrecision.SECONDS));
   }
 }

@@ -39,7 +39,7 @@ import {
   CRACKER_VERSION_FIELD_MAPPING,
   DEFAULT_FIELD_MAPPING
 } from '@src/app/core/_constants/select.config';
-import { benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
+import { StaticChunkingMode, benchmarkType, staticChunking } from '@src/app/core/_constants/tasks.config';
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { AttackCommandData, NewTaskForm, getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
@@ -94,11 +94,14 @@ export class NewTasksComponent implements OnInit {
   copyFiles: FileId[];
   editedIndex: number;
 
+  private preprocessorFiles: FileId[] = [];
+
   // Tooltips
   tasktip: TaskTooltipsLevel;
 
   // Tables File Types
   protected readonly FileType = FileType;
+  protected readonly StaticChunkingMode = StaticChunkingMode;
 
   private formReady = false;
 
@@ -173,6 +176,10 @@ export class NewTasksComponent implements OnInit {
       });
 
     this.form.controls.preprocessorId.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((newValue) => {
+      if (newValue === 0) {
+        this.preprocessorFiles = [];
+        this.form.controls.preprocessorCommand.setValue('', { emitEvent: false });
+      }
       this.handleChangePreprocessor(newValue);
     });
   }
@@ -278,6 +285,7 @@ export class NewTasksComponent implements OnInit {
     return {
       attackCmd: this.form.controls.attackCmd.value,
       files: this.form.controls.files.value,
+      otherFiles: this.preprocessorFiles,
       preprocessorCommand: this.form.controls.preprocessorCommand.value
     };
   }
@@ -302,6 +310,7 @@ export class NewTasksComponent implements OnInit {
         files: event.files
       });
     } else {
+      this.preprocessorFiles = event.otherFiles;
       this.form.patchValue({
         preprocessorCommand: event.attackCmd
       });
@@ -407,6 +416,7 @@ export class NewTasksComponent implements OnInit {
 
       const payload = { ...this.form.value };
       delete payload.crackerBinaryTypeId;
+      payload.files = [...new Set([...(payload.files ?? []), ...this.preprocessorFiles])];
 
       this.gs.create(SERV.TASKS, payload).subscribe({
         next: () => {
@@ -467,7 +477,7 @@ export class NewTasksComponent implements OnInit {
       hashlistId: null,
       skipKeyspace: 0,
       crackerBinaryId: 1,
-      staticChunks: 0,
+      staticChunks: StaticChunkingMode.NONE,
       chunkSize: environment.config.tasks.chunkSize,
       forcePipe: false,
       preprocessorId: 0,

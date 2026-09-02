@@ -1,4 +1,6 @@
-//import moment from 'moment';
+import { DateFormat, TimeFormat } from '@constants/settings.config';
+
+import { formatDate as ngFormatDate } from '@angular/common';
 
 type Seconds = number;
 type Days = number;
@@ -70,73 +72,78 @@ export const unixTimestampFromDate = (date: Date): UnixTimestampSeconds => {
   return Math.floor(date.getTime() / 1000);
 };
 
+export const TimePrecision = {
+  MINUTES: 'minutes',
+  SECONDS: 'seconds'
+} as const;
+export type TimePrecision = (typeof TimePrecision)[keyof typeof TimePrecision];
+
+/**
+ * Builds a time format from the user's clock convention and the precision the usage site needs.
+ */
+export const timeFormat = (clock: TimeFormat, precision: TimePrecision): string => {
+  const seconds = precision === TimePrecision.SECONDS ? ':ss' : '';
+
+  return clock === TimeFormat.TWELVE_HOUR ? `h:mm${seconds} a` : `HH:mm${seconds}`;
+};
+
+/**
+ * Builds a combined date-time format. Date and clock are configured separately so a usage site
+ * can render just the date where the time carries no information.
+ */
+export const dateTimeFormat = (dateFmt: DateFormat, clock: TimeFormat, precision: TimePrecision): string =>
+  `${dateFmt} ${timeFormat(clock, precision)}`;
+
 /**
  * Formats a Unix timestamp into a date-time string using a custom format.
  *
  * @param unixTimestamp The Unix timestamp to format, in seconds.
- * @param fmt The format string to define the output format. Supported placeholders:
- *   - yy: 2-digit year
- *   - yyyy: 4-digit year
- *   - MM: Zero-padded month (01-12)
- *   - M: Month (1-12)
- *   - dd: Zero-padded day of the month (01-31)
- *   - d: Day of the month (1-31)
- *   - hh: Zero-padded hours in 24-hour format (00-23)
- *   - h: Hours in 24-hour format (0-23)
- *   - mm: Zero-padded minutes (00-59)
- *   - m: Minutes (0-59)
- *   - ss: Zero-padded seconds (00-59)
- *   - s: Seconds (0-59)
+ * @param fmt The format string to define the output format, see {@link formatDate}.
  *
  * @returns The formatted date-time string.
  */
 export function formatUnixTimestamp(unixTimestamp: number, fmt: string): string {
-  if (unixTimestamp === 0) {
+  if (unixTimestamp === 0 || !Number.isFinite(unixTimestamp)) {
     return 'N/A';
   }
-  //return moment.unix(unixTimestamp).format(fmt)
   const date = new Date(unixTimestamp * 1000);
 
   return formatDate(date, fmt);
 }
 
 /**
+ * The app registers no locale data beyond the one Angular bundles by default, so month names and
+ * the AM/PM marker are always rendered in English.
+ */
+const FORMAT_LOCALE = 'en-US';
+
+/**
  * Formats a Date into a date-time string using a custom format.
  *
  * @param date The date to format.
- * @param fmt The format string to define the output format. Supported placeholders:
+ * @param fmt The format string to define the output format. Placeholders are the ones Angular's
+ *   `DatePipe` understands, the ones used here being:
  *   - yy: 2-digit year
  *   - yyyy: 4-digit year
+ *   - MMM: Abbreviated month name (Jan-Dec)
  *   - MM: Zero-padded month (01-12)
  *   - M: Month (1-12)
  *   - dd: Zero-padded day of the month (01-31)
  *   - d: Day of the month (1-31)
  *   - HH: Zero-padded hours in 24-hour format (00-23)
  *   - H: Hours in 24-hour format (0-23)
+ *   - hh: Zero-padded hours in 12-hour format (01-12)
+ *   - h: Hours in 12-hour format (1-12)
  *   - mm: Zero-padded minutes (00-59)
  *   - m: Minutes (0-59)
  *   - ss: Zero-padded seconds (00-59)
  *   - s: Seconds (0-59)
+ *   - a: AM/PM marker
  *
  * @returns The formatted date-time string.
  */
 export function formatDate(date: Date, fmt: string): string {
-  //return moment(date).format(fmt)
-  const pad = (value: number) => (value < 10 ? `0${value}` : value.toString());
-
-  return fmt
-    .replace(/yyyy/g, date.getFullYear().toString())
-    .replace(/yy/g, date.getFullYear().toString().slice(-2))
-    .replace(/MM/g, pad(date.getMonth() + 1))
-    .replace(/M/g, (date.getMonth() + 1).toString())
-    .replace(/dd/g, pad(date.getDate()))
-    .replace(/d/g, date.getDate().toString())
-    .replace(/hh/g, pad(date.getHours()))
-    .replace(/h/g, date.getHours().toString())
-    .replace(/mm/g, pad(date.getMinutes()))
-    .replace(/m/g, date.getMinutes().toString())
-    .replace(/ss/g, pad(date.getSeconds()))
-    .replace(/s/g, date.getSeconds().toString());
+  return ngFormatDate(date, fmt, FORMAT_LOCALE);
 }
 
 /**

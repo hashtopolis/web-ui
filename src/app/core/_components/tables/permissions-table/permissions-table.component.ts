@@ -1,6 +1,7 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
 
@@ -28,7 +29,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
   templateUrl: './permissions-table.component.html',
   standalone: false
 })
-export class PermissionsTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class PermissionsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: PermissionsDataSource;
   selectedFilterColumn: HTTableColumn;
@@ -48,11 +49,6 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
     this.dataSource.loadAll();
   }
 
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
@@ -108,8 +104,10 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -120,8 +118,7 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
               break;
           }
         }
-      })
-    );
+      });
   }
 
   // --- Action functions ---
@@ -175,40 +172,38 @@ export class PermissionsTableComponent extends BaseTableComponent implements OnI
    * @todo Implement error handling.
    */
   private bulkActionDelete(permissions: JGlobalPermissionGroup[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.ACCESS_PERMISSIONS_GROUPS, permissions)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted permission groups!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.ACCESS_PERMISSIONS_GROUPS, permissions)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted permission groups!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(permissions: JGlobalPermissionGroup[]): void {
-    this.subscriptions.push(
-      this.gs
-        .delete(SERV.ACCESS_PERMISSIONS_GROUPS, permissions[0].id)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted permission group!');
-          this.reload();
-        })
-    );
+    this.gs
+      .delete(SERV.ACCESS_PERMISSIONS_GROUPS, permissions[0].id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted permission group!');
+        this.reload();
+      });
   }
 
   private rowActionEdit(permission: JGlobalPermissionGroup): void {

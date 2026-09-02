@@ -35,9 +35,11 @@
         </button>
       </mat-form-field>
     } @else {
-      <div class="editable-text">
-        <span [innerHtml]="editable.value"></span>
-      </div>
+      @if (!(editable.hidden ?? false)) {
+        <div class="editable-text">
+          <span [innerHtml]="editable.display ?? editable.value"></span>
+        </div>
+      }
       <mat-icon class="editable-pencil" aria-hidden="true">edit</mat-icon>
     }
   </div>

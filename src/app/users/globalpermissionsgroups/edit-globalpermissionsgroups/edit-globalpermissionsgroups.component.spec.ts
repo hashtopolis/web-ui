@@ -12,7 +12,6 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { mockResponse } from '@src/app/testing/mock-response';
 import { EditGlobalpermissionsgroupsComponent } from '@src/app/users/globalpermissionsgroups/edit-globalpermissionsgroups/edit-globalpermissionsgroups.component';
@@ -29,13 +28,11 @@ describe('EditGlobalpermissionsgroupsComponent', () => {
   let fixture: ComponentFixture<EditGlobalpermissionsgroupsComponent>;
   let mockGlobalService: jasmine.SpyObj<GlobalService>;
   let mockAlertService: jasmine.SpyObj<AlertService>;
-  let mockUnsubscribeService: jasmine.SpyObj<UnsubscribeService>;
   let mockAutoTitleService: jasmine.SpyObj<AutoTitleService>;
 
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['get', 'update']);
     mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage']);
-    mockUnsubscribeService = jasmine.createSpyObj('UnsubscribeService', ['add', 'unsubscribeAll']);
     mockAutoTitleService = jasmine.createSpyObj('AutoTitleService', ['set']);
 
     mockGlobalService.get.and.returnValue(of(mockResponse()));
@@ -53,7 +50,6 @@ describe('EditGlobalpermissionsgroupsComponent', () => {
       providers: [
         { provide: GlobalService, useValue: mockGlobalService },
         { provide: AlertService, useValue: mockAlertService },
-        { provide: UnsubscribeService, useValue: mockUnsubscribeService },
         { provide: AutoTitleService, useValue: mockAutoTitleService },
         { provide: ActivatedRoute, useValue: { params: of({ id: '1' }) } }
       ],

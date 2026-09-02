@@ -17,7 +17,7 @@ import { UIConfig } from '@models/config-ui.model';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
-import { formatDate } from '@src/app/shared/utils/datetime';
+import { TimePrecision, formatDate } from '@src/app/shared/utils/datetime';
 
 /**
  * Component to display the last updated time and a countdown to the next refresh.
@@ -74,7 +74,7 @@ export class LastUpdatedComponent implements OnInit, OnDestroy, OnChanges {
 
   /** Returns the formatted last updated time according to UI settings */
   get lastUpdatedDisplay(): string {
-    return formatDate(this.lastUpdated, this.util.getSetting('timefmt') ?? '');
+    return formatDate(this.lastUpdated, this.util.getDateTimeFormat(TimePrecision.SECONDS));
   }
 
   /** Initialize the countdown timer */

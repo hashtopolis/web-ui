@@ -1,9 +1,9 @@
 import { zCrackerBinaryListResponse } from '@generated/api/zod';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
-import { Subscription } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
-import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PageEvent } from '@angular/material/paginator';
 
 import { JCrackerBinary } from '@models/cracker-binary.model';
@@ -19,6 +19,7 @@ import { AlertService } from '@services/shared/alert.service';
 
 import { HashlistPretaskBuilderDataSource } from '@datasources/hashlist-pretask-builder.datasource';
 
+import { StaticChunkingMode } from '@src/app/core/_constants/tasks.config';
 import { environment } from '@src/environments/environment';
 
 @Component({
@@ -47,11 +48,11 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
 
   private readonly serializer = new JsonAPISerializer();
   private readonly crackerVersionByType = new Map<number, number>();
-  private tableSubscription?: Subscription;
 
   private readonly injector = inject(Injector);
   private readonly gs = inject(GlobalService);
   private readonly alert = inject(AlertService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.dataSource = new HashlistPretaskBuilderDataSource(this.injector);
@@ -59,15 +60,17 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
 
     // This datasource is driven manually (not bound to a mat-table), so we own connect/disconnect
     // ourselves. connect() exposes the row BehaviorSubject; loadAll() fills it. CollectionViewer is unused.
-    this.tableSubscription = this.dataSource.connect(null as never).subscribe((rows) => {
-      this.pretasks = rows;
-      this.retainSelection(rows);
-    });
+    this.dataSource
+      .connect(null as never)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((rows) => {
+        this.pretasks = rows;
+        this.retainSelection(rows);
+      });
     this.dataSource.loadAll();
   }
 
   ngOnDestroy(): void {
-    this.tableSubscription?.unsubscribe();
     this.dataSource.disconnect(null as never);
   }
 
@@ -186,7 +189,7 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
         crackerBinaryId,
         isArchived: false,
         notes: '',
-        staticChunks: 0,
+        staticChunks: StaticChunkingMode.NONE,
         chunkSize: Number(environment.config.tasks.chunkSize),
         forcePipe: false,
         preprocessorId: 0,

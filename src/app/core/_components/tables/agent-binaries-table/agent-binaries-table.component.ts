@@ -1,6 +1,7 @@
 import { catchError } from 'rxjs';
 
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JAgentBinary } from '@models/agent-binary.model';
 
@@ -29,7 +30,7 @@ import { environment } from '@src/environments/environment';
   templateUrl: './agent-binaries-table.component.html',
   standalone: false
 })
-export class AgentBinariesTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {
+export class AgentBinariesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentBinariesDataSource;
   selectedFilterColumn: HTTableColumn;
@@ -52,11 +53,6 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
     this.dataSource.loadAll();
   }
 
-  ngOnDestroy(): void {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-  }
   filter(input: string) {
     const selectedColumn = this.selectedFilterColumn;
     if (input && input.length > 0) {
@@ -134,8 +130,10 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
       width: '450px'
     });
 
-    this.subscriptions.push(
-      dialogRef.afterClosed().subscribe((result) => {
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
         if (result && result.action) {
           switch (result.action) {
             case RowActionMenuAction.DELETE:
@@ -146,8 +144,7 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
               break;
           }
         }
-      })
-    );
+      });
   }
 
   // --- Action functions ---
@@ -207,40 +204,38 @@ export class AgentBinariesTableComponent extends BaseTableComponent implements O
    * @todo Implement error handling.
    */
   private bulkActionDelete(agentBinaries: JAgentBinary[]): void {
-    this.subscriptions.push(
-      this.gs
-        .bulkDelete(SERV.AGENT_BINARY, agentBinaries)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion: ', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage(`Successfully deleted agent binaries!`);
-          this.dataSource.reload();
-        })
-    );
+    this.gs
+      .bulkDelete(SERV.AGENT_BINARY, agentBinaries)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion: ', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Successfully deleted agent binaries!`);
+        this.dataSource.reload();
+      });
   }
 
   /**
    * @todo Implement error handling.
    */
   private rowActionDelete(agentBinaries: JAgentBinary[]): void {
-    this.subscriptions.push(
-      this.gs
-        .delete(SERV.AGENT_BINARY, agentBinaries[0].id)
-        .pipe(
-          catchError((error) => {
-            console.error('Error during deletion:', error);
-            return [];
-          })
-        )
-        .subscribe(() => {
-          this.alertService.showSuccessMessage('Successfully deleted agent binary!');
-          this.reload();
-        })
-    );
+    this.gs
+      .delete(SERV.AGENT_BINARY, agentBinaries[0].id)
+      .pipe(
+        catchError((error) => {
+          console.error('Error during deletion:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage('Successfully deleted agent binary!');
+        this.reload();
+      });
   }
 
   private rowActionEdit(agentBinary: JAgentBinary): void {

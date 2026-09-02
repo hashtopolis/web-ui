@@ -4,7 +4,8 @@ import { zAgentResponse, zTaskListResponse, zUserListResponse } from '@generated
 import { lastValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -22,7 +23,6 @@ import { AgentRoleService } from '@services/roles/agents/agent-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import {
   EditAgentForm,
@@ -47,7 +47,7 @@ type ShownAgent = JAgentWith<'agentStats' | 'accessGroups' | 'assignments' | 'cr
   templateUrl: './edit-agent.component.html',
   standalone: false
 })
-export class EditAgentComponent implements OnInit, OnDestroy {
+export class EditAgentComponent implements OnInit {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
@@ -80,7 +80,7 @@ export class EditAgentComponent implements OnInit, OnDestroy {
   protected readonly faWindows = faWindows;
   protected readonly faApple = faApple;
 
-  private unsubscribeService = inject(UnsubscribeService);
+  private destroyRef = inject(DestroyRef);
   private titleService = inject(AutoTitleService);
   private uiService = inject(UIConfigService);
   private route = inject(ActivatedRoute);
@@ -129,14 +129,6 @@ export class EditAgentComponent implements OnInit, OnDestroy {
     } finally {
       this.isLoading = false;
     }
-  }
-
-  /**
-   * Lifecycle hook called before the component is destroyed.
-   * Unsubscribes from all subscriptions to prevent memory leaks.
-   */
-  ngOnDestroy(): void {
-    this.unsubscribeService.unsubscribeAll();
   }
 
   /**
@@ -232,14 +224,13 @@ export class EditAgentComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const loadTasksSubscription$ = this.gs
+    this.gs
       .ghelper(SERV.HELPER, 'getBestTasksAgent', { agent: this.editedAgentIndex })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
         const tasks = this.serializer.deserialize(response, zTaskListResponse);
         this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
       });
-
-    this.unsubscribeService.add(loadTasksSubscription$);
   }
 
   /**
@@ -247,14 +238,15 @@ export class EditAgentComponent implements OnInit, OnDestroy {
    * @private
    */
   private loadSelectUsers(): void {
-    const loadUsersSubscription$ = this.gs.getAll(SERV.USERS).subscribe((response: ResponseWrapper) => {
-      this.selectUsers = transformSelectOptions(
-        this.serializer.deserialize(response, zUserListResponse),
-        DEFAULT_FIELD_MAPPING
-      );
-    });
-
-    this.unsubscribeService.add(loadUsersSubscription$);
+    this.gs
+      .getAll(SERV.USERS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((response: ResponseWrapper) => {
+        this.selectUsers = transformSelectOptions(
+          this.serializer.deserialize(response, zUserListResponse),
+          DEFAULT_FIELD_MAPPING
+        );
+      });
   }
 
   /**
@@ -305,19 +297,20 @@ export class EditAgentComponent implements OnInit, OnDestroy {
 
     this.isUpdatingLoading = true;
 
-    const onSubmitSubscription$ = this.gs.update(SERV.AGENTS, this.editedAgentIndex, this.updateForm.value).subscribe({
-      next: () => {
-        this.alert.showSuccessMessage('Agent saved');
-        this.isUpdatingLoading = false;
-        this.router.navigate(['agents/show-agents']);
-      },
-      error: () => {
-        this.isUpdatingLoading = false;
-        this.alert.showErrorMessage('Error updating agent');
-      }
-    });
-
-    this.unsubscribeService.add(onSubmitSubscription$);
+    this.gs
+      .update(SERV.AGENTS, this.editedAgentIndex, this.updateForm.value)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.alert.showSuccessMessage('Agent saved');
+          this.isUpdatingLoading = false;
+          this.router.navigate(['agents/show-agents']);
+        },
+        error: () => {
+          this.isUpdatingLoading = false;
+          this.alert.showErrorMessage('Error updating agent');
+        }
+      });
   }
 
   /**
@@ -333,14 +326,13 @@ export class EditAgentComponent implements OnInit, OnDestroy {
         taskId,
         agentId: this.editedAgentIndex
       };
-      request$ = this.gs.create(SERV.AGENT_ASSIGN, payload);
+      request$ = this.gs.chelper(SERV.HELPER, 'assignAgent', payload);
     } else if (this.assignId) {
       request$ = this.gs.delete(SERV.AGENT_ASSIGN, this.assignId);
     }
 
     if (request$) {
-      const subscription = request$.subscribe();
-      this.unsubscribeService.add(subscription);
+      request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     }
   }
 

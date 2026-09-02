@@ -1,11 +1,9 @@
-import { Subscription } from 'rxjs';
-
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
-import { UIConfig, uiConfigDefault } from '@models/config-ui.model';
+import { UIConfig } from '@models/config-ui.model';
 
 import { ExportService } from '@services/export/export.service';
 import { GlobalService } from '@services/main.service';
@@ -14,6 +12,7 @@ import { UIConfigService } from '@services/shared/storage.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { TimePrecision } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'base-report',
@@ -22,8 +21,7 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 })
 export class BaseReportComponent {
   protected uiSettings: UISettingsUtilityClass;
-  protected dateFormat: string;
-  protected subscriptions: Subscription[] = [];
+  protected dateTimeFormat: string;
 
   protected gs = inject(GlobalService);
   protected cs = inject(ConfigService);
@@ -37,17 +35,7 @@ export class BaseReportComponent {
 
   constructor() {
     this.uiSettings = new UISettingsUtilityClass(this.settingsService);
-    this.dateFormat = this.getDateFormat();
-  }
-
-  /**
-   * Retrieves the date format for rendering timestamps.
-   * @returns The date format string.
-   */
-  private getDateFormat(): string {
-    const fmt = this.uiSettings.getSetting('timefmt');
-
-    return fmt ? fmt : uiConfigDefault.timefmt;
+    this.dateTimeFormat = this.uiSettings.getDateTimeFormat(TimePrecision.SECONDS);
   }
 
   /**

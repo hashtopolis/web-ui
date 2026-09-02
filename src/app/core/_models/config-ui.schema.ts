@@ -1,3 +1,4 @@
+import { DateFormat, TimeFormat } from '@constants/settings.config';
 import { z } from 'zod';
 
 import { uiConfigDefault } from '@models/config-ui.model';
@@ -154,7 +155,8 @@ export const uiConfigSchema = z.object({
   layout: z.enum(['full', 'fixed']).default(uiConfigDefault.layout),
   theme: z.string().min(1).default(uiConfigDefault.theme),
   tableSettings: tableSettingsSchema.default(uiConfigDefault.tableSettings as z.output<typeof tableSettingsSchema>),
-  timefmt: z.string().default(uiConfigDefault.timefmt),
+  dateFmt: z.enum(DateFormat).default(uiConfigDefault.dateFmt),
+  timeFmt: z.enum(TimeFormat).default(uiConfigDefault.timeFmt),
   refreshPage: z.boolean().default(uiConfigDefault.refreshPage),
   refreshInterval: z.coerce.number().default(uiConfigDefault.refreshInterval)
 });

@@ -19,7 +19,6 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { ConfigService } from '@services/shared/config.service';
 import { UnsavedChangesService } from '@services/shared/unsaved-changes.service';
-import { UnsubscribeService } from '@services/unsubscribe.service';
 
 import { StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import { EditHashlistComponent } from '@src/app/hashlists/edit-hashlist/edit-hashlist.component';
@@ -119,7 +118,6 @@ describe('EditHashlistComponent', () => {
   let gsSpy: jasmine.SpyObj<GlobalService>;
   let alertSpy: jasmine.SpyObj<AlertService>;
   let titleSpy: jasmine.SpyObj<AutoTitleService>;
-  let unsubSpy: jasmine.SpyObj<UnsubscribeService>;
   let routerSpy: jasmine.SpyObj<Router>;
   let configSpy: jasmine.SpyObj<ConfigService>;
   let unsavedChangesSpy: jasmine.SpyObj<UnsavedChangesService>;
@@ -130,7 +128,6 @@ describe('EditHashlistComponent', () => {
     Object.defineProperty(gsSpy, 'userId', { get: () => 1 });
     alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
     titleSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    unsubSpy = jasmine.createSpyObj('UnsubscribeService', ['add', 'unsubscribeAll']);
     routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl', 'createUrlTree', 'serializeUrl'], {
       events: of()
     });
@@ -157,7 +154,6 @@ describe('EditHashlistComponent', () => {
         { provide: GlobalService, useValue: gsSpy },
         { provide: AlertService, useValue: alertSpy },
         { provide: AutoTitleService, useValue: titleSpy },
-        { provide: UnsubscribeService, useValue: unsubSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ConfigService, useValue: configSpy },
         { provide: UnsavedChangesService, useValue: unsavedChangesSpy },
@@ -209,15 +205,6 @@ describe('EditHashlistComponent', () => {
       respondToHashlistRequest(mockHashlistResponse());
 
       expect(titleSpy.set).toHaveBeenCalledWith(['Edit Hashlist']);
-    });
-
-    it('should unsubscribe on destroy', () => {
-      initComponent();
-      respondToHashlistRequest(mockHashlistResponse());
-
-      component.ngOnDestroy();
-
-      expect(unsubSpy.unsubscribeAll).toHaveBeenCalled();
     });
   });
 
@@ -407,7 +394,6 @@ describe('EditHashlistComponent', () => {
 
       expect(gsSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'exportLeftHashes', { hashlistId: 42 });
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Exported Left Hashes');
-      expect(unsubSpy.add).toHaveBeenCalled();
     }));
   });
 
@@ -423,7 +409,6 @@ describe('EditHashlistComponent', () => {
 
       expect(gsSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'exportCrackedHashes', { hashlistId: 42 });
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Cracked hashes from hashlist exported');
-      expect(unsubSpy.add).toHaveBeenCalled();
     }));
   });
 
@@ -439,7 +424,6 @@ describe('EditHashlistComponent', () => {
 
       expect(gsSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'exportWordlist', { hashlistId: 42 });
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Exported Wordlist');
-      expect(unsubSpy.add).toHaveBeenCalled();
     }));
   });
 
