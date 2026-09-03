@@ -15,7 +15,7 @@ import { JFile } from '@models/file.model';
  * - `ruleFiles`: List of rule files applied in the attack.
  * - `posArgs`: Positional arguments extracted from the command line.
  * - `unrecognizedFlag`: Flags not recognized by the parser.
- * - `customCharset1` to `customCharset4`: Custom character sets used in mask attacks.
+ * - `customCharset1` to `customCharset8`: Custom character sets used in mask attacks.
  * - `attackType`: Numeric code representing the attack mode (e.g., brute-force, mask, dictionary).
  * - Additional properties can be included as needed.
  */
@@ -27,6 +27,10 @@ interface ParserOptions {
   customCharset2: string;
   customCharset3: string;
   customCharset4: string;
+  customCharset5: string;
+  customCharset6: string;
+  customCharset7: string;
+  customCharset8: string;
   attackType: number;
   [key: string]: unknown;
 }
@@ -78,7 +82,7 @@ export const calculateKeyspace = (
   const args = cmd
     .replace('hashcat', '')
     .replace(/(-a)(\d)(\s)/, '-a $2 ')
-    .replace(/(-\d)(\S+)(\s)/, '$1 $2 ')
+    .replace(/(-\d)(\S+)(\s)/g, '$1 $2 ')
     .replace(/\s+/g, ' ')
     .trim()
     .split(/ |=/g);
@@ -119,7 +123,7 @@ export const calculateKeyspace = (
  * Calculates the total keyspace size represented by a given mask string.
  *
  * This function calculates the product of all charset sizes used in the mask,
- * including both standard charsets (like ?a, ?d) and custom charsets (?1 - ?4).
+ * including both standard charsets (like ?a, ?d) and custom charsets (?1 - ?8).
  * It uses `customCharsetToOptions` to compute the size of each custom charset.
  *
  * @param mask - The mask string representing the attack pattern.
@@ -133,7 +137,11 @@ const maskToKeyspace = (mask: string): number => {
     charsetCount(options.customCharset1, '?1') *
     charsetCount(options.customCharset2, '?2') *
     charsetCount(options.customCharset3, '?3') *
-    charsetCount(options.customCharset4, '?4');
+    charsetCount(options.customCharset4, '?4') *
+    charsetCount(options.customCharset5, '?5') *
+    charsetCount(options.customCharset6, '?6') *
+    charsetCount(options.customCharset7, '?7') *
+    charsetCount(options.customCharset8, '?8');
 
   const standardCounts = {
     '?a': 95,
