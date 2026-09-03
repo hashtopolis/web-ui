@@ -17,7 +17,6 @@ export class SuperTaskContextMenuService extends ContextMenuService {
 
     this.addCtxEditItem(RowActionMenuLabel.EDIT_SUPERTASK, RowActionMenuAction.EDIT, permUpdate);
     this.addCtxCopyItem(RowActionMenuLabel.APPLY_HASHLIST, RowActionMenuAction.APPLY_TO_HASHLIST, permUpdate);
-    this.addCtxEditItem(RowActionMenuLabel.EDIT_SUBTASKS, RowActionMenuAction.EDIT_SUBTASKS, permUpdate);
     this.addCtxDeleteItem(RowActionMenuLabel.DELETE_SUPERTASK, permDelete);
 
     this.addBulkDeleteItem(BulkActionMenuLabel.DELETE_SUPERTASKS, permDelete);

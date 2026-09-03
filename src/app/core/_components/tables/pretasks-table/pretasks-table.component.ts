@@ -209,7 +209,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       }
     ];
 
-    if (this.preconfiguredTasksRoleService.hasRole('update')) {
+    if (this.preconfiguredTasksRoleService.hasRole('edit')) {
       tableColumns.push(
         {
           id: PretasksTableCol.PRIORITY,

@@ -23,7 +23,6 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { SuperTasksDataSource } from '@datasources/supertasks.datasource';
 
 import { FilterType } from '@src/app/core/_models/request-params.model';
-import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
 
 @Component({
   selector: 'app-supertasks-table',
@@ -146,9 +145,6 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
       case RowActionMenuAction.APPLY_TO_HASHLIST:
         this.rowActionApplyToHashlist(event.data);
         break;
-      case RowActionMenuAction.EDIT_SUBTASKS:
-        this.rowActionEditSubtasks(event.data);
-        break;
       case RowActionMenuAction.DELETE:
         this.openDialog({
           rows: [event.data],
@@ -209,19 +205,6 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
 
   private rowActionApplyToHashlist(supertask: JSuperTask): void {
     this.router.navigate(['/tasks/', supertask.id, 'applyhashlist']).then(() => {});
-  }
-
-  private rowActionEditSubtasks(supertask: JSuperTask): void {
-    const dialogRef = this.dialog.open(ModalPretasksComponent, {
-      width: '80vw',
-      maxWidth: '80vw',
-      data: {
-        supertaskId: supertask.id,
-        supertaskName: supertask.supertaskName
-      }
-    });
-
-    dialogRef.afterClosed().subscribe();
   }
 
   private rowActionEdit(supertask: JSuperTask): void {
