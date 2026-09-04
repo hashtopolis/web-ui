@@ -17,32 +17,17 @@ export const ChunkState = {
 } as const;
 export type ChunkState = (typeof ChunkState)[keyof typeof ChunkState];
 
-export const ChunkStateLabel = {
-  NEW: 'New',
-  INIT: 'Init',
-  RUNNING: 'Running',
-  PAUSED: 'Paused',
-  EXHAUSTED: 'Exhausted',
-  CRACKED: 'Cracked',
-  ABORTED: 'Aborted',
-  QUIT: 'Quit',
-  BYPASS: 'Bypass',
-  TRIMMED: 'Trimmed',
-  ABORTING: 'Aborting...'
-} as const;
-export type ChunkStateLabel = (typeof ChunkStateLabel)[keyof typeof ChunkStateLabel];
-
 /** Maps each `ChunkState` code to its display label. Exhaustive by construction - a new `ChunkState` member is a compile error here until given a label. */
-export const ChunkStateLabels: Record<ChunkState, ChunkStateLabel> = {
-  [ChunkState.NEW]: ChunkStateLabel.NEW,
-  [ChunkState.INIT]: ChunkStateLabel.INIT,
-  [ChunkState.RUNNING]: ChunkStateLabel.RUNNING,
-  [ChunkState.PAUSED]: ChunkStateLabel.PAUSED,
-  [ChunkState.EXHAUSTED]: ChunkStateLabel.EXHAUSTED,
-  [ChunkState.CRACKED]: ChunkStateLabel.CRACKED,
-  [ChunkState.ABORTED]: ChunkStateLabel.ABORTED,
-  [ChunkState.QUIT]: ChunkStateLabel.QUIT,
-  [ChunkState.BYPASS]: ChunkStateLabel.BYPASS,
-  [ChunkState.TRIMMED]: ChunkStateLabel.TRIMMED,
-  [ChunkState.ABORTING]: ChunkStateLabel.ABORTING
+export const ChunkStateLabels: Record<ChunkState, string> = {
+  [ChunkState.NEW]: 'New',
+  [ChunkState.INIT]: 'Init',
+  [ChunkState.RUNNING]: 'Running',
+  [ChunkState.PAUSED]: 'Paused',
+  [ChunkState.EXHAUSTED]: 'Exhausted',
+  [ChunkState.CRACKED]: 'Cracked',
+  [ChunkState.ABORTED]: 'Aborted',
+  [ChunkState.QUIT]: 'Quit',
+  [ChunkState.BYPASS]: 'Bypass',
+  [ChunkState.TRIMMED]: 'Trimmed',
+  [ChunkState.ABORTING]: 'Aborting...'
 };

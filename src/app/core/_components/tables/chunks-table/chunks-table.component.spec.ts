@@ -1,4 +1,4 @@
-import { ChunkStateLabel } from '@constants/chunks.config';
+import { ChunkState, ChunkStateLabels } from '@constants/chunks.config';
 import { Subject, of } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -314,72 +314,72 @@ describe('ChunksTableComponent', () => {
       const chunk = { state: 0 } as JChunk;
       const result = component.renderState(chunk);
 
-      expect(result).toContain(ChunkStateLabel.NEW.toLowerCase());
-      expect(result).toContain(ChunkStateLabel.NEW);
+      expect(result).toContain(ChunkStateLabels[ChunkState.NEW].toLowerCase());
+      expect(result).toContain(ChunkStateLabels[ChunkState.NEW]);
     });
 
     it('should render state for RUNNING state', () => {
       const chunk = { state: 2 } as JChunk;
       const result = component.renderState(chunk);
 
-      expect(result).toContain(ChunkStateLabel.RUNNING.toLowerCase());
-      expect(result).toContain(ChunkStateLabel.RUNNING);
+      expect(result).toContain(ChunkStateLabels[ChunkState.RUNNING].toLowerCase());
+      expect(result).toContain(ChunkStateLabels[ChunkState.RUNNING]);
     });
 
     it('should render state for EXHAUSTED state', () => {
       const chunk = { state: 4 } as JChunk;
       const result = component.renderState(chunk);
 
-      expect(result).toContain(ChunkStateLabel.EXHAUSTED.toLowerCase());
-      expect(result).toContain(ChunkStateLabel.EXHAUSTED);
+      expect(result).toContain(ChunkStateLabels[ChunkState.EXHAUSTED].toLowerCase());
+      expect(result).toContain(ChunkStateLabels[ChunkState.EXHAUSTED]);
     });
 
     it('should render state for CRACKED state', () => {
       const chunk = { state: 5 } as JChunk;
       const result = component.renderState(chunk);
 
-      expect(result).toContain(ChunkStateLabel.CRACKED.toLowerCase());
-      expect(result).toContain(ChunkStateLabel.CRACKED);
+      expect(result).toContain(ChunkStateLabels[ChunkState.CRACKED].toLowerCase());
+      expect(result).toContain(ChunkStateLabels[ChunkState.CRACKED]);
     });
 
     it('should render state for ABORTED state', () => {
       const chunk = { state: 6 } as JChunk;
       const result = component.renderState(chunk);
 
-      expect(result).toContain(ChunkStateLabel.ABORTED.toLowerCase());
-      expect(result).toContain(ChunkStateLabel.ABORTED);
+      expect(result).toContain(ChunkStateLabels[ChunkState.ABORTED].toLowerCase());
+      expect(result).toContain(ChunkStateLabels[ChunkState.ABORTED]);
     });
 
     it('should render state for QUIT state', () => {
       const chunk = { state: 7 } as JChunk;
       const result = component.renderState(chunk);
 
-      expect(result).toContain(ChunkStateLabel.QUIT.toLowerCase());
-      expect(result).toContain(ChunkStateLabel.QUIT);
+      expect(result).toContain(ChunkStateLabels[ChunkState.QUIT].toLowerCase());
+      expect(result).toContain(ChunkStateLabels[ChunkState.QUIT]);
     });
 
     it('should render state for BYPASS state', () => {
       const chunk = { state: 8 } as JChunk;
       const result = component.renderState(chunk);
 
-      expect(result).toContain(ChunkStateLabel.BYPASS.toLowerCase());
-      expect(result).toContain(ChunkStateLabel.BYPASS);
+      expect(result).toContain(ChunkStateLabels[ChunkState.BYPASS].toLowerCase());
+      expect(result).toContain(ChunkStateLabels[ChunkState.BYPASS]);
     });
 
     it('should render state for TRIMMED state', () => {
       const chunk = { state: 9 } as JChunk;
       const result = component.renderState(chunk);
 
-      expect(result).toContain(ChunkStateLabel.TRIMMED.toLowerCase());
-      expect(result).toContain(ChunkStateLabel.TRIMMED);
+      expect(result).toContain(ChunkStateLabels[ChunkState.TRIMMED].toLowerCase());
+      expect(result).toContain(ChunkStateLabels[ChunkState.TRIMMED]);
     });
 
     it('should render state for ABORTING state', () => {
       const chunk = { state: 10 } as JChunk;
       const result = component.renderState(chunk);
 
-      expect(result).toContain(ChunkStateLabel.ABORTING.toLowerCase());
-      expect(result).toContain(ChunkStateLabel.ABORTING);
+      expect(result).toContain(ChunkStateLabels[ChunkState.ABORTING].toLowerCase());
+      expect(result).toContain(ChunkStateLabels[ChunkState.ABORTING]);
     });
 
     it('should render the raw state value within a span for unknown state', () => {

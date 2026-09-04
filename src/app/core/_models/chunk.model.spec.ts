@@ -5,7 +5,7 @@ import { zChunkResponse } from '@generated/api/zod';
  * Guards against `ChunkState` drifting from the generated `zChunkResponse` schema, which
  * is the actual source of truth for what the backend can send. Two independent failure
  * modes are covered: `ChunkState` claiming a value the backend never sends, and the
- * backend's schema accepting a value `ChunkState` (and therefore `ChunkStateLabel`) doesn't
+ * backend's schema accepting a value `ChunkState` (and therefore `ChunkStateLabels`) doesn't
  * know about yet - the second only surfaces after a regeneration, which is the point.
  */
 describe('ChunkState / zChunkResponse drift guardrail', () => {
