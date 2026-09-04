@@ -163,79 +163,6 @@ export type UserResponse = {
   >;
 };
 
-export type UserSingleResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
-  };
-  links: {
-    self: string;
-  };
-  data: {
-    id: number;
-    type: 'user';
-    attributes: {
-      name: string;
-      email?: string;
-      isValid?: boolean;
-      isComputedPassword?: boolean;
-      lastLoginDate?: number;
-      registeredSince?: number;
-      sessionLifetime?: number;
-      globalPermissionGroupId?: number;
-      yubikey?: string;
-      otp1?: string;
-      otp2?: string;
-      otp3?: string;
-      otp4?: string;
-    };
-    links: {
-      self: string;
-    };
-    relationships: {
-      accessGroups: {
-        links: {
-          self: string;
-          related: string;
-        };
-        data?: Array<{
-          type: 'accessGroup';
-          id: number;
-        }>;
-      };
-      globalPermissionGroup: {
-        links: {
-          self: string;
-          related: string;
-        };
-        data?: {
-          type: 'globalPermissionGroup';
-          id: number;
-        } | null;
-      };
-    };
-  };
-  included?: Array<
-    | {
-        id: number;
-        type: 'globalPermissionGroup';
-        attributes: {
-          name: string;
-          permissions: {
-            [key: string]: boolean;
-          };
-        };
-      }
-    | {
-        id: number;
-        type: 'accessGroup';
-        attributes: {
-          groupName: string;
-        };
-      }
-  >;
-};
-
 export type UserPostPatchResponse = {
   jsonapi: {
     version: string;
@@ -398,11 +325,11 @@ export type UserCountResponse = {
   };
   meta: {
     /**
-     * Number of objects matching the given filters
+     * Number of objects accessible to the current user matching the given filters
      */
     count: number;
     /**
-     * Number of objects without any filter applied, only present when `include_total=true` was requested
+     * Number of objects accessible to the current user without any filter applied, only present when `include_total=true` was requested
      */
     total_count?: number;
   };
@@ -622,7 +549,7 @@ export type GetUsersCountData = {
       [key: string]: string;
     };
     /**
-     * Also report the number of objects without any filter applied, as `meta.total_count`
+     * Also report the number of accessible objects without any filter applied, as `meta.total_count`
      */
     include_total?: boolean;
   };

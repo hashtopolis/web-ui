@@ -445,11 +445,11 @@ export type ConfigCountResponse = {
   };
   meta: {
     /**
-     * Number of objects matching the given filters
+     * Number of objects accessible to the current user matching the given filters
      */
     count: number;
     /**
-     * Number of objects without any filter applied, only present when `include_total=true` was requested
+     * Number of objects accessible to the current user without any filter applied, only present when `include_total=true` was requested
      */
     total_count?: number;
   };
@@ -601,7 +601,7 @@ export type GetConfigsCountData = {
       [key: string]: string;
     };
     /**
-     * Also report the number of objects without any filter applied, as `meta.total_count`
+     * Also report the number of accessible objects without any filter applied, as `meta.total_count`
      */
     include_total?: boolean;
   };
