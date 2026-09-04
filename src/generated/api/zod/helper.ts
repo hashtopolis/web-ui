@@ -16,7 +16,7 @@ import {
   zTaskWrapperDisplayResponse,
   zTaskWrapperSingleResponse
 } from './task-wrapper';
-import { zUserResourceObject, zUserSingleResponse } from './user';
+import { zUserResourceObject } from './user';
 
 export const zAbortChunkHelperApi = z.object({
   chunkId: z.int().optional()
@@ -571,9 +571,9 @@ export const zPostCreateSupertaskResponse = zTaskWrapperSingleResponse;
 export const zGetCurrentUserResponse = zCurrentUserHelperApiResponse;
 
 /**
- * successful operation
+ * No content
  */
-export const zPatchCurrentUserResponse = zUserSingleResponse;
+export const zPatchCurrentUserResponse = z.void();
 
 /**
  * hashlistId is the Id of the hashlist where you want to export the hashes of.

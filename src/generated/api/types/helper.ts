@@ -15,7 +15,7 @@ import type {
   TaskWrapperDisplayResponse,
   TaskWrapperSingleResponse
 } from './task-wrapper';
-import type { UserResourceObject, UserSingleResponse } from './user';
+import type { UserResourceObject } from './user';
 
 export type AbortChunkHelperApi = {
   chunkId?: number;
@@ -519,7 +519,7 @@ export type GetTaskwrapperdisplaysCountData = {
       [key: string]: string;
     };
     /**
-     * Also report the number of objects without any filter applied, as `meta.total_count`
+     * Also report the number of accessible objects without any filter applied, as `meta.total_count`
      */
     include_total?: boolean;
   };
@@ -1122,9 +1122,9 @@ export type PatchCurrentUserError = PatchCurrentUserErrors[keyof PatchCurrentUse
 
 export type PatchCurrentUserResponses = {
   /**
-   * successful operation
+   * No content
    */
-  200: UserSingleResponse;
+  204: void;
 };
 
 export type PatchCurrentUserResponse = PatchCurrentUserResponses[keyof PatchCurrentUserResponses];

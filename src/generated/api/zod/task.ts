@@ -165,6 +165,7 @@ export const zTaskPatch = z.object({
       isSmall: z.boolean().optional(),
       maxAgents: z.int().optional(),
       notes: z.string().optional(),
+      preprocessorCommand: z.string().optional(),
       priority: z.int().optional(),
       statusTimer: z.int().optional(),
       taskName: z.string().optional()
@@ -186,6 +187,7 @@ export const zTaskPatchMultiple = z.object({
         isSmall: z.boolean().optional(),
         maxAgents: z.int().optional(),
         notes: z.string().optional(),
+        preprocessorCommand: z.string().optional(),
         priority: z.int().optional(),
         statusTimer: z.int().optional(),
         taskName: z.string().optional()
