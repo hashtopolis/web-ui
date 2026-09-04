@@ -167,7 +167,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
   renderState(chunk: JChunk): SafeHtml {
     const label = ChunkStateLabels[chunk.state];
     if (!label) {
-      return this.sanitize(`${chunk.state}`);
+      return this.sanitize(`<span class="pill">${chunk.state}</span>`);
     }
 
     return this.sanitize(`<span class="pill pill-${label.toLowerCase()}">${label}</span>`);

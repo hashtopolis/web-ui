@@ -382,11 +382,11 @@ describe('ChunksTableComponent', () => {
       expect(result).toContain(ChunkStateLabel.ABORTING);
     });
 
-    it('should render plain state for unknown state', () => {
+    it('should render the raw state value within a span for unknown state', () => {
       const chunk = { state: 99 } as unknown as JChunk;
       const result = component.renderState(chunk);
 
-      expect(result).toBe('99');
+      expect(result).toBe('<span class="pill">99</span>');
     });
 
     it('should handle undefined state', () => {
