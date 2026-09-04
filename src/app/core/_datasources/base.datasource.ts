@@ -8,7 +8,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
 import { BaseModel, DynamicModel } from '@models/base.model';
-import { DEFAULT_PAGE_SIZE, UIConfig } from '@models/config-ui.model';
+import { DEFAULT_PAGE_SIZE, TableSortDirection, UIConfig } from '@models/config-ui.model';
 import { Filter } from '@models/request-params.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -248,7 +248,7 @@ export abstract class BaseDataSource<
    */
   protected applySorting(data: T[]): T[] {
     if (!this.sortingColumn) return data;
-    const isAscending = this.sortingColumn.direction === 'asc';
+    const isAscending = this.sortingColumn.direction === TableSortDirection.ASC;
     const sortKey = this.sortingColumn.dataKey;
     return [...data].sort((a, b) => {
       const aValue = (a as DynamicModel)[sortKey];

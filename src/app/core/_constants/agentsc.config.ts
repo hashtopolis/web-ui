@@ -32,8 +32,14 @@ export const IgnoreErrors = {
 } as const;
 export type IgnoreErrors = (typeof IgnoreErrors)[keyof typeof IgnoreErrors];
 
+export const IgnoreErrorsLabels: Record<IgnoreErrors, string> = {
+  [IgnoreErrors.NO]: 'Deactivate agent on error',
+  [IgnoreErrors.IGNORE_SAVE]: 'Keep agent running, but save errors',
+  [IgnoreErrors.IGNORE_NOSAVE]: 'Keep agent running and discard errors'
+};
+
 export const IGNORE_ERROR_CHOICES = [
-  { id: IgnoreErrors.NO, name: 'Deactivate agent on error' },
-  { id: IgnoreErrors.IGNORE_SAVE, name: 'Keep agent running, but save errors' },
-  { id: IgnoreErrors.IGNORE_NOSAVE, name: 'Keep agent running and discard errors' }
+  { id: IgnoreErrors.NO, name: IgnoreErrorsLabels[IgnoreErrors.NO] },
+  { id: IgnoreErrors.IGNORE_SAVE, name: IgnoreErrorsLabels[IgnoreErrors.IGNORE_SAVE] },
+  { id: IgnoreErrors.IGNORE_NOSAVE, name: IgnoreErrorsLabels[IgnoreErrors.IGNORE_NOSAVE] }
 ];

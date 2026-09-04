@@ -18,6 +18,8 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 
+import { CheckboxColumnType } from '@components/tables/ht-table/ht-table.models';
+
 import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
@@ -260,7 +262,7 @@ export class WrbulkComponent implements OnInit {
    * @param event - The event data containing attack command and files.
    */
   onUpdateForm(event: TaskSelectFile): void {
-    if (event.type === 'CMD') {
+    if (event.type === CheckboxColumnType.CMD) {
       this.createForm.patchValue({
         attackCmd: event.attackCmd,
         baseFiles: event.files

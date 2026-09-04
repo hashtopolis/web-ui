@@ -15,7 +15,7 @@ import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { ChunksDataSource } from '@datasources/chunks.datasource';
 
-import { chunkStates } from '@src/app/core/_constants/chunks.config';
+import { ChunkStateLabels } from '@src/app/core/_constants/chunks.config';
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertToLocale } from '@src/app/shared/utils/util';
@@ -158,12 +158,12 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   renderState(chunk: JChunk): SafeHtml {
-    let html = `${chunk.state}`;
-    if (chunk.state && chunk.state in chunkStates) {
-      html = `<span class="pill pill-${chunkStates[chunk.state].toLowerCase()}">${chunkStates[chunk.state]}</span>`;
+    const label = ChunkStateLabels[chunk.state];
+    if (!label) {
+      return this.sanitize(`${chunk.state}`);
     }
 
-    return this.sanitize(html);
+    return this.sanitize(`<span class="pill pill-${label.toLowerCase()}">${label}</span>`);
   }
 
   renderTimeSpent(chunk: JChunk): SafeHtml {

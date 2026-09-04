@@ -2,6 +2,8 @@ import { JAccessGroup } from '@models/access-group.model';
 import { BaseModel } from '@models/base.model';
 import { AccessGroupId, FileId } from '@models/id.types';
 
+import { CheckboxColumnType } from '@components/tables/ht-table/ht-table.models';
+
 /**
  * Different file types
  * - `WORDLIST` Wordlist/dictionary
@@ -41,7 +43,7 @@ export interface TaskSelectFile {
   attackCmd: string;
   files: FileId[];
   otherFiles: FileId[];
-  type: string;
+  type: CheckboxColumnType;
 }
 
 /**

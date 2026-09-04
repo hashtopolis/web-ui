@@ -100,17 +100,30 @@ export interface UIConfig {
 export type UIConfigKeys = keyof UIConfig;
 
 /**
+ * Sort direction of a table column. `NONE` means unsorted. Shares its literal domain with
+ * Angular Material's own `SortDirection` (`@angular/material/sort`) by coincidence rather than
+ * dependency - kept as our own declaration since this type flows through zod validation and
+ * localStorage persistence, which shouldn't be coupled to a UI library's type.
+ */
+export const TableSortDirection = {
+  ASC: 'asc',
+  DESC: 'desc',
+  NONE: ''
+} as const;
+export type TableSortDirection = (typeof TableSortDirection)[keyof typeof TableSortDirection];
+
+/**
  * Interface definition for Sorting
  * @prop id         Column id
  * @prop dataKey    Data key to sort
  * @prop isSortable Enable sorting: true, disable sorting: false
- * @prop direction  Sorting direction ('asc', 'desc'
+ * @prop direction  Sorting direction
  */
 export interface Sorting {
   id: number;
   dataKey: string;
   isSortable: boolean;
-  direction: 'asc' | 'desc' | '';
+  direction: TableSortDirection;
   parent?: string | undefined;
 }
 
@@ -134,7 +147,7 @@ const _uiConfigDefault = {
         id: NotificationsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -151,7 +164,7 @@ const _uiConfigDefault = {
         id: ApiTokensTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'desc'
+        direction: TableSortDirection.DESC
       },
       search: ''
     },
@@ -162,7 +175,7 @@ const _uiConfigDefault = {
         id: VouchersTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -173,7 +186,7 @@ const _uiConfigDefault = {
         id: PermissionsTableCol.NAME,
         dataKey: 'name',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -192,7 +205,7 @@ const _uiConfigDefault = {
         id: CracksTableCol.FOUND,
         dataKey: 'timeCracked',
         isSortable: true,
-        direction: 'desc'
+        direction: TableSortDirection.DESC
       },
       search: ''
     },
@@ -211,7 +224,7 @@ const _uiConfigDefault = {
         id: AgentsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -229,7 +242,7 @@ const _uiConfigDefault = {
         id: AgentErrorTableCol.TIME,
         dataKey: 'time',
         isSortable: true,
-        direction: 'desc'
+        direction: TableSortDirection.DESC
       },
       search: ''
     },
@@ -251,7 +264,7 @@ const _uiConfigDefault = {
         id: AgentsStatusTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -272,7 +285,7 @@ const _uiConfigDefault = {
         id: TasksAgentsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -293,7 +306,7 @@ const _uiConfigDefault = {
         id: ChunksTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -311,7 +324,7 @@ const _uiConfigDefault = {
         id: HashlistsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -328,7 +341,7 @@ const _uiConfigDefault = {
         id: HashlistsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -345,7 +358,7 @@ const _uiConfigDefault = {
         id: SuperHashlistsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -361,7 +374,7 @@ const _uiConfigDefault = {
         id: HashtypesTableCol.HASHTYPE,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -378,7 +391,7 @@ const _uiConfigDefault = {
         id: FilesTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -395,7 +408,7 @@ const _uiConfigDefault = {
         id: FilesTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -412,7 +425,7 @@ const _uiConfigDefault = {
         id: FilesTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -429,7 +442,7 @@ const _uiConfigDefault = {
         id: FilesTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -441,7 +454,7 @@ const _uiConfigDefault = {
         id: FilesTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -452,7 +465,7 @@ const _uiConfigDefault = {
         id: FilesAttackTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -463,7 +476,7 @@ const _uiConfigDefault = {
         id: CrackersTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -474,7 +487,7 @@ const _uiConfigDefault = {
         id: PreprocessorsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -492,7 +505,7 @@ const _uiConfigDefault = {
         id: AgentBinariesTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -508,7 +521,7 @@ const _uiConfigDefault = {
         id: HealthChecksTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -526,7 +539,7 @@ const _uiConfigDefault = {
         id: HealthCheckAgentsTableCol.AGENT_ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -545,7 +558,7 @@ const _uiConfigDefault = {
         id: PretasksTableCol.PRIORITY,
         dataKey: 'priority',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -569,7 +582,7 @@ const _uiConfigDefault = {
         id: TaskTableCol.PRIORITY,
         dataKey: 'taskWrapperPriority',
         isSortable: true,
-        direction: 'desc'
+        direction: TableSortDirection.DESC
       },
       search: ''
     },
@@ -589,7 +602,7 @@ const _uiConfigDefault = {
         id: TasksChunksTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -610,7 +623,7 @@ const _uiConfigDefault = {
         id: TasksSupertasksDataSourceTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -621,7 +634,7 @@ const _uiConfigDefault = {
         id: SupertasksTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -637,7 +650,7 @@ const _uiConfigDefault = {
         id: SupertasksPretasksTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -657,7 +670,7 @@ const _uiConfigDefault = {
         id: PretasksTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -668,7 +681,7 @@ const _uiConfigDefault = {
         id: TaskTableCol.ID,
         dataKey: 'taskWrapperId',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -686,7 +699,7 @@ const _uiConfigDefault = {
         id: HashesTableCol.TIMECRACKED,
         dataKey: 'timeCracked',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -702,7 +715,7 @@ const _uiConfigDefault = {
         id: SearchHashTableCol.HASH,
         dataKey: 'hash',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -722,7 +735,7 @@ const _uiConfigDefault = {
         id: UsersTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -733,7 +746,7 @@ const _uiConfigDefault = {
         id: LogsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -749,7 +762,7 @@ const _uiConfigDefault = {
         id: AccessGroupsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -760,7 +773,7 @@ const _uiConfigDefault = {
         id: AccessGroupsUsersTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -777,7 +790,7 @@ const _uiConfigDefault = {
         id: AccessPermissionGroupsUserTableCol.NAME,
         dataKey: 'name',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -793,7 +806,7 @@ const _uiConfigDefault = {
         id: AccessPermissionGroupsUsersTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     },
@@ -804,7 +817,7 @@ const _uiConfigDefault = {
         id: AccessGroupsAgentsTableCol.ID,
         dataKey: 'id',
         isSortable: true,
-        direction: 'asc'
+        direction: TableSortDirection.ASC
       },
       search: ''
     }

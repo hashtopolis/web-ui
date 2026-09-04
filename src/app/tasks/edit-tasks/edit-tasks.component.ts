@@ -18,6 +18,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { ThinJAgent } from '@models/agent.model';
+import { TableSortDirection } from '@models/config-ui.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JHashtype } from '@models/hashtype.model';
@@ -535,7 +536,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         value: this.editedTaskIndex,
         operator: FilterType.EQUAL
       })
-      .addSorting({ dataKey: 'speedId', direction: 'desc', isSortable: true })
+      .addSorting({ dataKey: 'speedId', direction: TableSortDirection.DESC, isSortable: true })
       .setPageSize(requestLimit);
 
     this.gs.getAll(SERV.SPEEDS, speedParams.create()).subscribe((response: ResponseWrapper) => {

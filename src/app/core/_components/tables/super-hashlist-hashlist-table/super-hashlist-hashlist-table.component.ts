@@ -22,7 +22,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 
 import { HashlistsDataSource } from '@datasources/hashlists.datasource';
 
-import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
+import { HashListFormatLabels } from '@src/app/core/_constants/hashlist.config';
 
 @Component({
   selector: 'app-superhashlist-hashlist-table',
@@ -90,8 +90,8 @@ export class SuperHashlistsHashlistsTableComponent extends BaseTableComponent im
         id: SuperHashlistHashlistTableCol.FORMAT,
         dataKey: 'format',
         isSortable: true,
-        render: (hashlist: JHashlist) => this.sanitize(HashListFormatLabel[hashlist.format!]),
-        export: async (hashlist: JHashlist) => HashListFormatLabel[hashlist.format!]
+        render: (hashlist: JHashlist) => this.sanitize(HashListFormatLabels[hashlist.format!]),
+        export: async (hashlist: JHashlist) => HashListFormatLabels[hashlist.format!]
       }
     ];
 

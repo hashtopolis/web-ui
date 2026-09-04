@@ -34,6 +34,8 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { TaskTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
 
+import { CheckboxColumnType } from '@components/tables/ht-table/ht-table.models';
+
 import {
   CRACKER_TYPE_FIELD_MAPPING,
   CRACKER_VERSION_FIELD_MAPPING,
@@ -304,7 +306,7 @@ export class NewTasksComponent implements OnInit {
    * @param event - The event data containing attack command and files.
    */
   protected onUpdateForm(event: TaskSelectFile): void {
-    if (event.type === 'CMD') {
+    if (event.type === CheckboxColumnType.CMD) {
       this.form.patchValue({
         attackCmd: event.attackCmd,
         files: event.files

@@ -9,7 +9,7 @@ export const HashListFormat = {
 } as const;
 export type HashListFormat = (typeof HashListFormat)[keyof typeof HashListFormat];
 
-export const HashListFormatLabel: Record<number, string> = {
+export const HashListFormatLabels: Record<HashListFormat, string> = {
   [HashListFormat.TEXT]: 'Text',
   [HashListFormat.HCCAPX_PMKID]: 'HCCAPX / PMKID',
   [HashListFormat.BINARY]: 'Binary',
@@ -40,12 +40,18 @@ export const HashcatBrainFeature = {
 } as const;
 export type HashcatBrainFeature = (typeof HashcatBrainFeature)[keyof typeof HashcatBrainFeature];
 
+export const HashcatBrainFeatureLabels: Record<HashcatBrainFeature, string> = {
+  [HashcatBrainFeature.HASHED_PASSWORDS]: 'Send hashed passwords',
+  [HashcatBrainFeature.ATTACK_POSITIONS]: 'Send attack positions',
+  [HashcatBrainFeature.HASHED_PASSWORDS_AND_ATTACK_POSITIONS]: 'Send hashed passwords and attack positions'
+};
+
 export const hashcatbrainFormat = [
-  { id: HashcatBrainFeature.HASHED_PASSWORDS, name: 'Send hashed passwords' },
-  { id: HashcatBrainFeature.ATTACK_POSITIONS, name: 'Send attack positions' },
+  { id: HashcatBrainFeature.HASHED_PASSWORDS, name: HashcatBrainFeatureLabels[HashcatBrainFeature.HASHED_PASSWORDS] },
+  { id: HashcatBrainFeature.ATTACK_POSITIONS, name: HashcatBrainFeatureLabels[HashcatBrainFeature.ATTACK_POSITIONS] },
   {
     id: HashcatBrainFeature.HASHED_PASSWORDS_AND_ATTACK_POSITIONS,
-    name: 'Send hashed passwords and attack positions'
+    name: HashcatBrainFeatureLabels[HashcatBrainFeature.HASHED_PASSWORDS_AND_ATTACK_POSITIONS]
   }
 ];
 
@@ -60,9 +66,16 @@ export const HashSource = {
 } as const;
 export type HashSource = (typeof HashSource)[keyof typeof HashSource];
 
+export const HashSourceLabels: Record<HashSource, string> = {
+  [HashSource.PASTE]: 'Paste Hash(es)',
+  [HashSource.UPLOAD]: 'Upload Input',
+  [HashSource.IMPORT]: 'Import from server directory',
+  [HashSource.URL]: 'URL download'
+};
+
 export const hashSource = [
-  { id: HashSource.PASTE, name: 'Paste Hash(es)' },
-  { id: HashSource.UPLOAD, name: 'Upload Input' },
-  { id: HashSource.IMPORT, name: 'Import from server directory' },
-  { id: HashSource.URL, name: 'URL download' }
+  { id: HashSource.PASTE, name: HashSourceLabels[HashSource.PASTE] },
+  { id: HashSource.UPLOAD, name: HashSourceLabels[HashSource.UPLOAD] },
+  { id: HashSource.IMPORT, name: HashSourceLabels[HashSource.IMPORT] },
+  { id: HashSource.URL, name: HashSourceLabels[HashSource.URL] }
 ];

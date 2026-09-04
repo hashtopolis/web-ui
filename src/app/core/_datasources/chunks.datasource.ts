@@ -1,10 +1,11 @@
+import { ChunkState } from '@constants/chunks.config';
 import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
 import { zChunkListResponse } from '@generated/api/zod';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
-import { CHUNK_STATE_RUNNING, JChunk } from '@models/chunk.model';
+import { JChunk } from '@models/chunk.model';
 import { Filter, FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
@@ -59,7 +60,7 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
           if (chunk.agent != undefined) {
             chunk.agentName = chunk.agent.agentName;
           }
-          chunk.isRunning = chunk.state === CHUNK_STATE_RUNNING;
+          chunk.isRunning = chunk.state === ChunkState.RUNNING;
         });
 
         const length = response.meta.page.total_elements;

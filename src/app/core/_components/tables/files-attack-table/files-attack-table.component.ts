@@ -7,7 +7,7 @@ import {
   FilesAttackTableCol,
   FilesAttackTableColumnLabel
 } from '@components/tables/files-attack-table/files-attack-table.constants';
-import { CheckboxChangeEvent, HTTableColumn } from '@components/tables/ht-table/ht-table.models';
+import { CheckboxChangeEvent, CheckboxColumnType, HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 import { FilesDataSource } from '@datasources/files.datasource';
 
@@ -19,7 +19,7 @@ interface PrepareAttackResult {
   attackCmd: string;
   files: number[];
   otherFiles: number[];
-  type: string;
+  type: CheckboxColumnType;
 }
 
 @Component({
@@ -114,7 +114,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
 
   onPrepareAttack(form: AttackCommandData, event: CheckboxChangeEvent): PrepareAttackResult {
     let currentCmd;
-    if (event.columnType === 'CMD') {
+    if (event.columnType === CheckboxColumnType.CMD) {
       currentCmd = form.attackCmd;
     } else {
       currentCmd = form.preprocessorCommand || '';
@@ -124,7 +124,7 @@ export class FilesAttackTableComponent extends BaseTableComponent implements OnI
     const fileName = String(row.filename);
     const fileId = event.row.id;
     let newFileIds;
-    if (event.columnType === 'CMD') {
+    if (event.columnType === CheckboxColumnType.CMD) {
       newFileIds = [...form.files];
     } else {
       newFileIds = form.otherFiles ? [...form.otherFiles] : [];
