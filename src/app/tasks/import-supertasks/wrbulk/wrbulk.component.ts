@@ -6,7 +6,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
-import { TaskSelectFile } from '@models/file.model';
+import { FileType, TaskSelectFile } from '@models/file.model';
 import { HorizontalNav } from '@models/horizontalnav.model';
 import { CrackerBinaryTypeId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
@@ -17,6 +17,8 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
+
+import { CheckboxColumnType } from '@components/tables/ht-table/ht-table.models';
 
 import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { benchmarkType } from '@src/app/core/_constants/tasks.config';
@@ -52,6 +54,7 @@ export interface WrbulkForm {
   standalone: false
 })
 export class WrbulkComponent implements OnInit {
+  protected readonly FileType = FileType;
   /**
    * Horizontal menu and redirection links.
    */
@@ -259,7 +262,7 @@ export class WrbulkComponent implements OnInit {
    * @param event - The event data containing attack command and files.
    */
   onUpdateForm(event: TaskSelectFile): void {
-    if (event.type === 'CMD') {
+    if (event.type === CheckboxColumnType.CMD) {
       this.createForm.patchValue({
         attackCmd: event.attackCmd,
         baseFiles: event.files

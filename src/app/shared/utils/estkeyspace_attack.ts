@@ -10,6 +10,18 @@ import { DynamicModel } from '@models/base.model';
 import { JFile } from '@models/file.model';
 
 /**
+ * Hashcat attack mode as passed via `-a` on the attack command line.
+ */
+export const HashcatAttackMode = {
+  STRAIGHT: 0,
+  COMBINATION: 1,
+  BRUTE_FORCE: 3,
+  HYBRID_WORDLIST_MASK: 6,
+  HYBRID_MASK_WORDLIST: 7
+} as const;
+export type HashcatAttackMode = (typeof HashcatAttackMode)[keyof typeof HashcatAttackMode];
+
+/**
  * Interface representing the options parsed from an attack command.
  *
  * - `ruleFiles`: List of rule files applied in the attack.
@@ -89,8 +101,8 @@ export const calculateKeyspace = (
 
   parser.parse(args);
 
-  // Handle brute-force attack type (attackType === 3) first, no need for files
-  if (options.attackType === 3) {
+  // Handle brute-force attacks first, no need for files
+  if (options.attackType === HashcatAttackMode.BRUTE_FORCE) {
     for (const posArg of options.posArgs) {
       if (posArg.includes('?')) {
         const keyspace = attacktype ? options.attackType : maskToKeyspace(posArg);
@@ -112,7 +124,7 @@ export const calculateKeyspace = (
   const mpow = counts.reduce((a, i) => a * i, 1);
 
   // For other attacks, return keyspace or attack type
-  if (mpow > 0 && options.attackType !== 3) {
+  if (mpow > 0 && options.attackType !== HashcatAttackMode.BRUTE_FORCE) {
     return attacktype ? options.attackType : mpow;
   }
 

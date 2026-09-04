@@ -1,3 +1,4 @@
+import { HashListFormat } from '@constants/hashlist.config';
 import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse, zHashlistListResponse } from '@generated/api/zod';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
@@ -5,7 +6,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
-import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
+import {
+  DEFAULT_CRACKER_BINARY_TYPE_NAME,
+  JCrackerBinary,
+  JCrackerBinaryType,
+  zCrackerBinaryTypeList
+} from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
 import { CrackerBinaryId, CrackerBinaryTypeId, HashlistId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
@@ -156,7 +162,7 @@ export class ApplyHashlistComponent implements OnInit {
   loadHashlistSelectOptions() {
     const requestParams = new RequestParamBuilder()
       .addFilter({ field: 'isArchived', operator: FilterType.EQUAL, value: false })
-      .addFilter({ field: 'format', operator: FilterType.EQUAL, value: 0 })
+      .addFilter({ field: 'format', operator: FilterType.EQUAL, value: HashListFormat.TEXT })
       .create();
 
     this.gs
@@ -187,7 +193,7 @@ export class ApplyHashlistComponent implements OnInit {
         );
         this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
         let id: number = 0;
-        const hashcatOption = this.selectCrackertype.find((obj) => obj.name === 'hashcat');
+        const hashcatOption = this.selectCrackertype.find((obj) => obj.name === DEFAULT_CRACKER_BINARY_TYPE_NAME);
         if (hashcatOption?.id) {
           id = hashcatOption.id;
         } else {

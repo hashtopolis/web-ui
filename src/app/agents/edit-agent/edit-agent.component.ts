@@ -1,3 +1,4 @@
+import { HttpStatus } from '@constants/http.config';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
 import { zAgentResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
@@ -138,9 +139,9 @@ export class EditAgentComponent implements OnInit {
     const httpError = error as HttpErrorResponse;
     const status = httpError?.status;
 
-    if (status === 404) {
+    if (status === HttpStatus.NOT_FOUND) {
       this.router.navigate(['/not-found']);
-    } else if (status === 403) {
+    } else if (status === HttpStatus.FORBIDDEN) {
       this.router.navigate(['/forbidden']);
     } else {
       this.alert.showErrorMessage('Error loading agent details');
@@ -200,7 +201,7 @@ export class EditAgentComponent implements OnInit {
 
       // If the server fails while resolving included relations (500+),
       // try once more without the `include` params so the primary resource can still load.
-      if (httpErr?.status && httpErr.status >= 500) {
+      if (httpErr?.status && httpErr.status >= HttpStatus.INTERNAL_SERVER_ERROR) {
         const response = await lastValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
 
         // Degraded fallback: no includes loaded due to server error

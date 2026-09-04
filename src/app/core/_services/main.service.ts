@@ -1,3 +1,4 @@
+import { HttpMethod } from '@constants/http.config';
 import { Observable, catchError, debounceTime, forkJoin, of, switchMap, throwError } from 'rxjs';
 
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
@@ -13,9 +14,15 @@ import { setParameter } from '@src/app/core/_services/buildparams';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { environment } from '@src/environments/environment';
 
+/** The two methods the `helper` endpoints accept. */
+type HelperHttpMethod = typeof HttpMethod.GET | typeof HttpMethod.POST;
+
 interface JsonApiRelationshipData {
   data: { type: string; id: number }[];
 }
+
+/** Debounce applied to mutating requests so rapid repeat submits collapse into one. */
+const MUTATION_DEBOUNCE_MS = 2000;
 
 @Injectable({
   providedIn: 'root'
@@ -222,7 +229,9 @@ export class GlobalService {
       objectdata.push({ id: object.id, type: serviceConfig.RESOURCE });
     }
     const data = { data: objectdata };
-    return this.http.delete<object>(this.cs.getEndpoint() + serviceConfig.URL, { body: data }).pipe(debounceTime(2000));
+    return this.http
+      .delete<object>(this.cs.getEndpoint() + serviceConfig.URL, { body: data })
+      .pipe(debounceTime(MUTATION_DEBOUNCE_MS));
   }
 
   /**
@@ -237,7 +246,7 @@ export class GlobalService {
     const serializedData = new JsonAPISerializer().serialize({ stuff: item });
     return this.http
       .patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, serializedData)
-      .pipe(debounceTime(2000));
+      .pipe(debounceTime(MUTATION_DEBOUNCE_MS));
   }
 
   /**
@@ -261,7 +270,9 @@ export class GlobalService {
       });
     }
     const data = { data: objectdata };
-    return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL, data).pipe(debounceTime(2000));
+    return this.http
+      .patch<object>(this.cs.getEndpoint() + serviceConfig.URL, data)
+      .pipe(debounceTime(MUTATION_DEBOUNCE_MS));
   }
 
   postRelationships(
@@ -272,7 +283,7 @@ export class GlobalService {
   ): Observable<object> {
     return this.http
       .post<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
-      .pipe(debounceTime(2000));
+      .pipe(debounceTime(MUTATION_DEBOUNCE_MS));
   }
 
   deleteRelationships(
@@ -285,13 +296,13 @@ export class GlobalService {
       .delete<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, {
         body: data
       })
-      .pipe(debounceTime(2000));
+      .pipe(debounceTime(MUTATION_DEBOUNCE_MS));
   }
 
   getRelationships(serviceConfig: ServiceConfig, id: number, relType: string): Observable<ResponseWrapper> {
     return this.http
       .get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType)
-      .pipe(debounceTime(2000));
+      .pipe(debounceTime(MUTATION_DEBOUNCE_MS));
   }
 
   /**
@@ -337,12 +348,12 @@ export class GlobalService {
     serviceConfig: ServiceConfig,
     option: HelperEndpoint,
     arr?: Record<string, unknown>,
-    method: 'POST' | 'GET' = 'POST',
+    method: HelperHttpMethod = HttpMethod.POST,
     httpOptions?: { headers?: HttpHeaders }
   ): Observable<T> {
     const url = `${this.cs.getEndpoint()}${serviceConfig.URL}/${option}`;
 
-    if (method === 'GET') {
+    if (method === HttpMethod.GET) {
       let params = new HttpParams();
       if (arr) {
         for (const [key, value] of Object.entries(arr)) {

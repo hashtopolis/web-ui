@@ -108,6 +108,7 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   filterableColumns: HTTableColumn[] = [];
   colSelect = COL_SELECT;
   colRowAction = COL_ROW_ACTION;
+  checkboxColumnType = CheckboxColumnType;
 
   /** Whether a row-action column will be rendered -> if present will be sticky if inner part is scrollable*/
   private colRowActionPresent = false;

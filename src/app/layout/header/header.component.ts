@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { BaseModel } from '@models/base.model';
 import { UIConfig } from '@models/config-ui.model';
+import { BuiltInTheme } from '@models/config-ui.model';
 
 import { AuthService } from '@services/access/auth.service';
 import { PermissionService } from '@services/permission/permission.service';
@@ -65,7 +66,7 @@ export class HeaderComponent implements OnInit {
   protected uiSettings: UISettingsUtilityClass;
   private username = '';
   isDarkMode = false;
-  currentTheme = 'light';
+  currentTheme: string = BuiltInTheme.LIGHT;
   themeOptions: RuntimeThemeOption[] = [];
 
   // Before showing header check Authentification
@@ -138,11 +139,11 @@ export class HeaderComponent implements OnInit {
       return option.icon;
     }
 
-    if (this.currentTheme === 'light') {
+    if (this.currentTheme === BuiltInTheme.LIGHT) {
       return 'light_mode';
     }
 
-    if (this.currentTheme === 'dark') {
+    if (this.currentTheme === BuiltInTheme.DARK) {
       return 'dark_mode';
     }
 

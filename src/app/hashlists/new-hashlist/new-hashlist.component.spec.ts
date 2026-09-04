@@ -1,3 +1,4 @@
+import { HttpHeaderName } from '@constants/http.config';
 import { concat, of, throwError } from 'rxjs';
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
@@ -334,7 +335,7 @@ describe('NewHashlistComponent', () => {
 
       // The component handles the error itself, so it tells the interceptor to skip the modal.
       const httpOptions = gsSpy.create.calls.mostRecent().args[2];
-      expect(httpOptions?.headers?.get('X-Skip-Error-Dialog')).toBe('true');
+      expect(httpOptions?.headers?.get(HttpHeaderName.SKIP_ERROR_DIALOG)).toBe('true');
 
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('Failed to create Hashlist: Hashlist has too many lines!');
       expect(routerSpy.navigate).not.toHaveBeenCalled();
@@ -349,7 +350,7 @@ describe('NewHashlistComponent', () => {
       const call = gsSpy.chelper.calls.mostRecent();
       expect(call.args[1]).toBe('importFile');
       const httpOptions = call.args[4];
-      expect(httpOptions?.headers?.get('X-Skip-Error-Dialog')).toBe('true');
+      expect(httpOptions?.headers?.get(HttpHeaderName.SKIP_ERROR_DIALOG)).toBe('true');
     }));
   });
 

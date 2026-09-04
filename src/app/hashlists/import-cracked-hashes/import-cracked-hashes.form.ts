@@ -1,3 +1,5 @@
+import { HashSource } from '@constants/hashlist.config';
+
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 /**
@@ -9,7 +11,7 @@ export interface ImportCrackedHashesForm {
   fieldSeparator: FormControl<string>;
   isSalted: FormControl<boolean>;
   hashCount: FormControl<number>;
-  sourceType: FormControl<string>;
+  sourceType: FormControl<HashSource>;
   sourceData: FormControl<string>;
   hashes: FormControl<string>;
   conflictResolution: FormControl<boolean>;
@@ -28,7 +30,7 @@ export const getImportCrackedHashesForm = () => {
     }),
     isSalted: new FormControl<boolean>({ value: false, disabled: true }, { nonNullable: true }),
     hashCount: new FormControl<number>({ value: 0, disabled: true }, { nonNullable: true }),
-    sourceType: new FormControl<string>('paste', { nonNullable: true }),
+    sourceType: new FormControl<HashSource>(HashSource.PASTE, { nonNullable: true }),
     sourceData: new FormControl<string>('', { nonNullable: true }),
     hashes: new FormControl<string>('', { nonNullable: true }),
     conflictResolution: new FormControl<boolean>(false, { nonNullable: true })

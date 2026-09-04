@@ -157,9 +157,3 @@ export const zOptionalIdRouteParams = z.object({
 export const zHashesRouteParams = z.object({
   id: z.string()
 });
-
-export const zHashesQueryParams = z.object({
-  crackpos: z.string().optional(),
-  filter: z.string().optional(),
-  display: z.string().optional()
-});

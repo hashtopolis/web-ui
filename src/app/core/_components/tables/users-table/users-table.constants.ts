@@ -23,4 +23,4 @@ export const UsersTableColumnLabel = {
 export const UsersTableStatus = {
   VALID: 'Valid',
   INVALID: 'Invalid/Not activated'
-};
+} as const;

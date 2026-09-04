@@ -1,3 +1,5 @@
+import { HashesViewType } from '@constants/hashes.config';
+
 import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
@@ -23,7 +25,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 })
 export class HashesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
   @Input() id: number;
-  @Input() dataType: string;
+  @Input() dataType: HashesViewType;
   @Input() filterParam: string;
 
   tableColumns: HTTableColumn[] = [];

@@ -1,4 +1,4 @@
-<app-page [title]="type === 3 ? 'Superhashlist details' : 'Hashlist details'" subtitle="Import Cracks">
+<app-page [title]="type === HashListFormat.SUPERHASHLIST ? 'Superhashlist details' : 'Hashlist details'" subtitle="Import Cracks">
   <div class="flex flex-col gap-3">
     <div class="col-md-7">
       @if (!isLoading) {
@@ -35,7 +35,7 @@
               <input-select title="Hash source" formControlName="sourceType" [items]="selectSource"></input-select>
             </div>
 
-            @if (sourceType === 'paste') {
+            @if (sourceType === HashSource.PASTE) {
               <div class="flex gap-0 items-start">
                 <input-text-area
                   class="basis-2/5 grow-0 shrink-0 min-w-0"
@@ -53,7 +53,7 @@
               </div>
             }
 
-            @if (sourceType === 'upload') {
+            @if (sourceType === HashSource.UPLOAD) {
               <div>
                 <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
                 @if (uploadProgress > 0) {
@@ -65,7 +65,7 @@
               </div>
             }
 
-            @if (sourceType === 'import') {
+            @if (sourceType === HashSource.IMPORT) {
               <div>
                 @if (isLoadingServerFiles) {
                   <p>Loading files from server import directory...</p>
@@ -83,7 +83,7 @@
               </div>
             }
 
-            @if (sourceType === 'url') {
+            @if (sourceType === HashSource.URL) {
               <input-text
                 title="URL path"
                 formControlName="sourceData"

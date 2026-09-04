@@ -1,3 +1,4 @@
+import { HTTP_SKIP_CACHE_HEADER_CONFIG } from '@constants/http.config';
 import { HttpCacheInterceptor } from '@interceptors/http-cache.interceptor';
 import { lastValueFrom } from 'rxjs';
 
@@ -8,6 +9,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { CacheGetResult, HttpCacheService } from '@services/shared/http-cache.service';
 import { SessionStorageService } from '@services/storage/session-storage.service';
+
 import { DEFAULT_STALE_TIME_MS, DEFAULT_TTL_MS } from './http-cache.interceptor';
 
 describe('HttpCacheInterceptor', () => {
@@ -138,7 +140,7 @@ describe('HttpCacheInterceptor', () => {
     const testData = { id: 1, name: 'Test Data' };
 
     // First request with X-Cache-Skip
-    httpClient.get(testUrl, { headers: { 'X-Cache-Skip': 'true' } }).subscribe((data) => {
+    httpClient.get(testUrl, { headers: HTTP_SKIP_CACHE_HEADER_CONFIG }).subscribe((data) => {
       expect(data).toEqual(testData);
     });
 
@@ -146,7 +148,7 @@ describe('HttpCacheInterceptor', () => {
     firstReq.flush(testData);
 
     // Second request should also hit the network (not cached)
-    httpClient.get(testUrl, { headers: { 'X-Cache-Skip': 'true' } }).subscribe((data) => {
+    httpClient.get(testUrl, { headers: HTTP_SKIP_CACHE_HEADER_CONFIG }).subscribe((data) => {
       expect(data).toEqual(testData);
     });
 

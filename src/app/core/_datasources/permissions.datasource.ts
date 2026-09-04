@@ -1,3 +1,4 @@
+import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
 import { zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { EMPTY, catchError, finalize } from 'rxjs';
 
@@ -29,7 +30,7 @@ export class PermissionsDataSource extends BaseDataSource<JGlobalPermissionGroup
     params = this.applyFilterWithPaginationReset(params, activeFilter, query);
 
     // Create headers to skip error dialog for filter validation errors
-    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const httpOptions = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
     const permissions$ = this.service.getAll(SERV.ACCESS_PERMISSIONS_GROUPS, params.create(), httpOptions);
 
     this.subscriptions.push(

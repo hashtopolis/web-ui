@@ -1,3 +1,4 @@
+import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
 import { Observable } from 'rxjs';
 import * as tus from 'tus-js-client';
 
@@ -31,17 +32,12 @@ export class UploadTUSService {
   private chunked = environment.config.chunkSizeTUS;
 
   /**
-   * The storage key for retrieving user data from local storage.
-   */
-  static readonly STORAGE_KEY = 'userData';
-
-  /**
    * Represents the ongoing TUS upload. It is initialized as null.
    */
   private tusUpload: tus.Upload | null = null;
 
   private readonly skipErrorDialogHeaders = {
-    headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' })
+    headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG)
   };
 
   /**

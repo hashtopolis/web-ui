@@ -1,3 +1,4 @@
+import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
 import { zHashlistListResponse, zHashlistResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
@@ -31,7 +32,7 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   loadAll(query?: Filter): void {
     this.loading = true;
     // Create headers to skip error dialog for filter validation errors
-    const httpOptions = { headers: new HttpHeaders({ 'X-Skip-Error-Dialog': 'true' }) };
+    const httpOptions = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
 
     if (this.superHashListID) {
       const params = new RequestParamBuilder().addInclude('hashlists').addInclude('hashType');

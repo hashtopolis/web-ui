@@ -18,6 +18,8 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { TaskTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
 
+import { CheckboxColumnType } from '@components/tables/ht-table/ht-table.models';
+
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { NewTasksComponent } from '@src/app/tasks/new-tasks/new-tasks.component';
 import { mockResponse } from '@src/app/testing/mock-response';
@@ -1009,7 +1011,7 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       component['onUpdateForm']({
-        type: 'PREPROCESSOR',
+        type: CheckboxColumnType.CMD_PREPRO,
         attackCmd: '--prince-elem-cnt-min=1',
         files: [],
         otherFiles: []
