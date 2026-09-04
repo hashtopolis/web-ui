@@ -1,0 +1,72 @@
+name: OpenAPI Sync
+
+on:
+  pull_request:
+    branches: ['master']
+  push:
+    branches: ['master']
+  workflow_dispatch:
+    inputs:
+      backend-ref:
+        description: 'hashtopolis/server ref to compare against (overrides .backend-ref)'
+        required: false
+  schedule:
+    # Nightly drift monitor against backend master (does not affect PR status).
+    - cron: '30 4 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  # Deterministic checks: the committed spec matches the pinned backend commit,
+  # the spec lints clean, and the generated code matches the committed spec.
+  sync-check:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check committed spec matches the pinned backend spec
+        env:
+          BACKEND_REF: ${{ github.event.inputs.backend-ref }}
+        run: node scripts/check-openapi-sync.mjs ${BACKEND_REF:+--ref "$BACKEND_REF"}
+
+      - name: Lint OpenAPI schema
+        run: npm run lint:openapi
+
+      - name: Check generated code matches the committed spec
+        run: |
+          npm run generate:api
+          if ! git diff --exit-code -- src/generated; then
+            echo "::error file=openapi.json::src/generated is out of date. Run 'npm run generate:api' and commit the result."
+            exit 1
+          fi
+
+  # Non-blocking freshness monitor: is the pin falling behind backend master?
+  # A failure here means it is time to bump .backend-ref and regenerate;
+  # it never reddens a pull request.
+  drift-monitor:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Compare committed spec against backend master
+        run: node scripts/check-openapi-sync.mjs --ref master
