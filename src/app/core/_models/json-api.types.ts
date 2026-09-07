@@ -35,9 +35,8 @@ type DataItemOf<T> = T extends { data: (infer D)[] } ? D : T extends { data: inf
  * A JSON:API-compliant document carries `relationships` on the resource object (inside `data`),
  * not on the envelope, so we dig into the data item to find them.
  */
-type ExtractRelationships<T> = DataItemOf<T> extends { relationships?: infer R }
-  ? NonNullable<R>
-  : Record<string, never>;
+type ExtractRelationships<T> =
+  DataItemOf<T> extends { relationships?: infer R } ? NonNullable<R> : Record<string, never>;
 
 /** Extract the union of included resource types from a JSON:API envelope. */
 type ExtractIncludedUnion<T> = T extends { included?: (infer I)[] } ? I : never;

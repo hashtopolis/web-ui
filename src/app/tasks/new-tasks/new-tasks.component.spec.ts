@@ -1,3 +1,11 @@
+import {
+  zCrackerBinaryListResponse,
+  zCrackerBinaryTypeListResponse,
+  zHashlistListResponse,
+  zPreTaskResponse,
+  zPreprocessorListResponse,
+  zTaskResponse
+} from '@generated/api/zod';
 import { Observable, of, throwError } from 'rxjs';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -19,14 +27,6 @@ import { UIConfigService } from '@services/shared/storage.service';
 import { TaskTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
 
 import { CheckboxColumnType } from '@components/tables/ht-table/ht-table.models';
-import {
-  zCrackerBinaryListResponse,
-  zCrackerBinaryTypeListResponse,
-  zHashlistListResponse,
-  zPreTaskResponse,
-  zPreprocessorListResponse,
-  zTaskResponse
-} from '@generated/api/zod';
 
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { NewTasksComponent } from '@src/app/tasks/new-tasks/new-tasks.component';
@@ -834,9 +834,7 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       // Override only CRACKERS responses for the next value change
-      globalServiceSpy.getAll.and.callFake(
-        buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(multiVersionResponse) })
-      );
+      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(multiVersionResponse) }));
 
       component.form.controls.crackerBinaryTypeId.setValue(1);
       await fixture.whenStable();
