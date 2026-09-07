@@ -60,7 +60,10 @@
         <div class="smaller-pass-strength">
           <app-pass-strenght [passwordToCheck]="newPasswordValueFromForm"></app-pass-strenght>
         </div>
-        @if (changepasswordFormGroup.hasError('passwordMismatch') && changepasswordFormGroup.touched) {
+        @if (
+          changepasswordFormGroup.hasError('passwordMismatch') &&
+          changepasswordFormGroup.controls.confirmNewPassword.touched
+        ) {
           <mat-error> Passwords do not match </mat-error>
         }
         <grid-buttons>

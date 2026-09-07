@@ -261,6 +261,54 @@ describe('AccountSettingsComponent', () => {
       expect(confirmPasswordControl.hasError('required')).toBeTrue();
     });
 
+    it('shows validation only for the password field that has been visited', fakeAsync(() => {
+      const form = component.changepasswordFormGroup;
+      const oldPasswordHost = fixture.debugElement.query(By.css('[data-testid="input-oldPassword"]'));
+      const newPasswordHost = fixture.debugElement.query(By.css('[data-testid="input-newPassword"]'));
+      const confirmPasswordHost = fixture.debugElement.query(By.css('[data-testid="input-confirmNewPassword"]'));
+
+      const oldPasswordInput = oldPasswordHost.query(By.css('input')).nativeElement as HTMLInputElement;
+      oldPasswordInput.value = 'oldpassword';
+      oldPasswordInput.dispatchEvent(new Event('input'));
+      oldPasswordInput.dispatchEvent(new Event('blur'));
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      expect(form.controls.oldPassword.touched).toBeTrue();
+      expect(form.controls.newPassword.touched).toBeFalse();
+      expect(form.controls.confirmNewPassword.touched).toBeFalse();
+      expect(newPasswordHost.query(By.css('.field-stack')).nativeElement.classList).not.toContain('is-invalid');
+      expect(confirmPasswordHost.query(By.css('.field-stack')).nativeElement.classList).not.toContain('is-invalid');
+
+      const newPasswordInput = newPasswordHost.query(By.css('input')).nativeElement as HTMLInputElement;
+      newPasswordInput.dispatchEvent(new Event('blur'));
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      expect(form.controls.newPassword.touched).toBeTrue();
+      expect(form.controls.confirmNewPassword.touched).toBeFalse();
+      expect(newPasswordHost.query(By.css('.field-stack')).nativeElement.classList).toContain('is-invalid');
+      expect(confirmPasswordHost.query(By.css('.field-stack')).nativeElement.classList).not.toContain('is-invalid');
+    }));
+
+    it('shows every invalid password field after an invalid submission', fakeAsync(() => {
+      component.onSubmitPass();
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      expect(component.changepasswordFormGroup.controls.oldPassword.touched).toBeTrue();
+      expect(component.changepasswordFormGroup.controls.newPassword.touched).toBeTrue();
+      expect(component.changepasswordFormGroup.controls.confirmNewPassword.touched).toBeTrue();
+
+      for (const testId of ['input-oldPassword', 'input-newPassword', 'input-confirmNewPassword']) {
+        const field = fixture.debugElement.query(By.css(`[data-testid="${testId}"] .field-stack`));
+        expect(field.nativeElement.classList).toContain('is-invalid');
+      }
+    }));
+
     it('validates password length', () => {
       const newPasswordControl = component.changepasswordFormGroup.controls.newPassword;
       const confirmPasswordControl = component.changepasswordFormGroup.controls.confirmNewPassword;
