@@ -13,7 +13,7 @@ export const StaticChunkingModeLabels: Record<StaticChunkingMode, string> = {
   [StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS]: 'Fixed number of chunks'
 };
 
-export const staticChunking: SelectOption<number>[] = [
+export const StaticChunkingModeOptions: SelectOption<number>[] = [
   { id: StaticChunkingMode.NONE, name: StaticChunkingModeLabels[StaticChunkingMode.NONE] },
   { id: StaticChunkingMode.FIXED_CHUNK_SIZE, name: StaticChunkingModeLabels[StaticChunkingMode.FIXED_CHUNK_SIZE] },
   {
@@ -22,7 +22,7 @@ export const staticChunking: SelectOption<number>[] = [
   }
 ];
 
-export const benchmarkType = [
+export const BenchmarkTypeOptions = [
   { id: false, name: 'Runtime Benchmark' },
   { id: true, name: 'Speed Test' }
 ];

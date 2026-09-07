@@ -22,7 +22,7 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
-import { HashSource, hashSource } from '@src/app/core/_constants/hashlist.config';
+import { HashSource, HashSourceOptions } from '@src/app/core/_constants/hashlist.config';
 import { StaticArrayKind, StaticArrayPipe } from '@src/app/core/_pipes/static-array.pipe';
 import {
   ImportCrackedHashesForm,
@@ -58,7 +58,7 @@ export class ImportCrackedHashesComponent implements OnInit {
   type: number; // Hashlist or Superhashlist
   protected readonly HashListFormat = HashListFormat;
 
-  selectSource = hashSource;
+  selectSource = HashSourceOptions;
   protected readonly HashSource = HashSource;
 
   selectedFiles: FileList | null = null;

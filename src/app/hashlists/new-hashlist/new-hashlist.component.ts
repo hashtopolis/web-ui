@@ -29,10 +29,10 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import {
   HCCAPX_PMKID_HASH_TYPE_IDS,
   HashListFormat,
+  HashListFormatOptions,
   HashSource,
-  hashSource,
-  hashcatbrainFormat,
-  hashlistFormat
+  HashSourceOptions,
+  HashcatBrainFeatureOptions
 } from '@src/app/core/_constants/hashlist.config';
 import { ACCESS_GROUP_FIELD_MAPPING, HASHTYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';
@@ -76,8 +76,8 @@ export class NewHashlistComponent implements OnInit {
   // Lists of Selected inputs
   selectAccessgroup: SelectOption<AccessGroupId>[];
   selectHashtypes: SelectOption<HashTypeId>[];
-  selectFormat = hashlistFormat;
-  selectSource = hashSource;
+  selectFormat = HashListFormatOptions;
+  selectSource = HashSourceOptions;
   protected readonly HashSource = HashSource;
 
   // Lists of Hashtypes
@@ -85,7 +85,7 @@ export class NewHashlistComponent implements OnInit {
 
   //Hashcat Brain Mode
   brainenabled: number;
-  selectFormatbrain = hashcatbrainFormat;
+  selectFormatbrain = HashcatBrainFeatureOptions;
 
   // Upload Hashlists
   selectedFiles: FileList | null = null;

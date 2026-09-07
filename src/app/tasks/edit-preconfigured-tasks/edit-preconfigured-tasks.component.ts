@@ -22,8 +22,8 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { ConfigService } from '@services/shared/config.service';
 
-import { yesNo } from '@src/app/core/_constants/general.config';
-import { benchmarkType } from '@src/app/core/_constants/tasks.config';
+import { YesNoOptions } from '@src/app/core/_constants/general.config';
+import { BenchmarkTypeOptions } from '@src/app/core/_constants/tasks.config';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 
 /**
@@ -45,8 +45,8 @@ export class EditPreconfiguredTasksComponent implements OnInit {
   isUpdatingLoading = false;
 
   /** Select Options. */
-  selectYesno = yesNo;
-  selectBenchmarktype = benchmarkType;
+  selectYesno = YesNoOptions;
+  selectBenchmarktype = BenchmarkTypeOptions;
 
   // Edit Options
   editedPretaskIndex: number;

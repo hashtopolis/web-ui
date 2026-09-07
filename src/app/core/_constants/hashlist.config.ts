@@ -24,7 +24,7 @@ export const HashListFormatLabels: Record<HashListFormat, string> = {
 export const HCCAPX_PMKID_HASH_TYPE_IDS: readonly number[] = [2500, 16800, 16801];
 
 /** Formats a user can pick when creating a hashlist (superhashlists are created separately). */
-export const hashlistFormat = [
+export const HashListFormatOptions = [
   { id: HashListFormat.TEXT, name: 'Text' },
   { id: HashListFormat.HCCAPX_PMKID, name: 'HCCAPX / PMKID' },
   { id: HashListFormat.BINARY, name: 'Binary file (single hash)' }
@@ -46,7 +46,7 @@ export const HashcatBrainFeatureLabels: Record<HashcatBrainFeature, string> = {
   [HashcatBrainFeature.HASHED_PASSWORDS_AND_ATTACK_POSITIONS]: 'Send hashed passwords and attack positions'
 };
 
-export const hashcatbrainFormat = [
+export const HashcatBrainFeatureOptions = [
   { id: HashcatBrainFeature.HASHED_PASSWORDS, name: HashcatBrainFeatureLabels[HashcatBrainFeature.HASHED_PASSWORDS] },
   { id: HashcatBrainFeature.ATTACK_POSITIONS, name: HashcatBrainFeatureLabels[HashcatBrainFeature.ATTACK_POSITIONS] },
   {
@@ -73,7 +73,7 @@ export const HashSourceLabels: Record<HashSource, string> = {
   [HashSource.URL]: 'URL download'
 };
 
-export const hashSource = [
+export const HashSourceOptions = [
   { id: HashSource.PASTE, name: HashSourceLabels[HashSource.PASTE] },
   { id: HashSource.UPLOAD, name: HashSourceLabels[HashSource.UPLOAD] },
   { id: HashSource.IMPORT, name: HashSourceLabels[HashSource.IMPORT] },

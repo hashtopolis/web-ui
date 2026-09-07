@@ -21,7 +21,7 @@ import { UIConfigService } from '@services/shared/storage.service';
 import { CheckboxColumnType } from '@components/tables/ht-table/ht-table.models';
 
 import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { benchmarkType } from '@src/app/core/_constants/tasks.config';
+import { BenchmarkTypeOptions } from '@src/app/core/_constants/tasks.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 interface WrbulkFormValue {
@@ -70,7 +70,7 @@ export class WrbulkComponent implements OnInit {
   createForm: FormGroup<WrbulkForm>;
 
   /** Select Options. */
-  selectBenchmarktype = benchmarkType;
+  selectBenchmarktype = BenchmarkTypeOptions;
   selectCrackertype: SelectOption<CrackerBinaryTypeId>[] | undefined = undefined;
 
   /** Select Options Mapping */

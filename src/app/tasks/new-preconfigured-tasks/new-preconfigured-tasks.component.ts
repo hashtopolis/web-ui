@@ -22,7 +22,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 
 import { CRACKER_TYPE_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { benchmarkType } from '@src/app/core/_constants/tasks.config';
+import { BenchmarkTypeOptions } from '@src/app/core/_constants/tasks.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { NewPretaskForm, getNewPretaskForm } from '@src/app/tasks/new-preconfigured-tasks/new-preconfigured-tasks.form';
 
@@ -37,7 +37,7 @@ export class NewPreconfiguredTasksComponent implements OnInit {
   protected readonly FileType = FileType;
   createForm: FormGroup<NewPretaskForm>;
 
-  selectBenchmarktype = benchmarkType;
+  selectBenchmarktype = BenchmarkTypeOptions;
   selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
   isCreatingLoading = false;
 

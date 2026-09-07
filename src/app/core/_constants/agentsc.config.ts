@@ -38,7 +38,7 @@ export const IgnoreErrorsLabels: Record<IgnoreErrors, string> = {
   [IgnoreErrors.IGNORE_NOSAVE]: 'Keep agent running and discard errors'
 };
 
-export const IGNORE_ERROR_CHOICES = [
+export const IgnoreErrorsOptions = [
   { id: IgnoreErrors.NO, name: IgnoreErrorsLabels[IgnoreErrors.NO] },
   { id: IgnoreErrors.IGNORE_SAVE, name: IgnoreErrorsLabels[IgnoreErrors.IGNORE_SAVE] },
   { id: IgnoreErrors.IGNORE_NOSAVE, name: IgnoreErrorsLabels[IgnoreErrors.IGNORE_NOSAVE] }

@@ -1,5 +1,5 @@
 import { CRACKER_TYPE_FIELD_MAPPING } from '@constants/select.config';
-import { benchmarkType } from '@constants/tasks.config';
+import { BenchmarkTypeOptions } from '@constants/tasks.config';
 import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
@@ -61,7 +61,7 @@ export class MasksComponent implements OnInit {
   createForm: FormGroup;
 
   /** Select Options. */
-  selectBenchmarktype = benchmarkType;
+  selectBenchmarktype = BenchmarkTypeOptions;
   selectCrackertype: SelectOption<CrackerBinaryTypeId>[] | undefined = undefined;
 
   /** Select Options Mapping */

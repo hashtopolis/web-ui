@@ -16,7 +16,12 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
-import { HealthCheckHashType, HealthCheckType, attack, hashtype } from '@src/app/core/_constants/healthchecks.config';
+import {
+  HealthCheckHashType,
+  HealthCheckHashTypeOptions,
+  HealthCheckType,
+  HealthCheckTypeOptions
+} from '@src/app/core/_constants/healthchecks.config';
 import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
@@ -40,8 +45,8 @@ export class NewHealthChecksComponent implements OnInit {
   isCreatingLoading = false;
 
   // Lists of Selected inputs
-  selectAttack = attack;
-  selectHashtypes = hashtype;
+  selectAttack = HealthCheckTypeOptions;
+  selectHashtypes = HealthCheckHashTypeOptions;
   selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
   selectCrackerversions: SelectOption<CrackerBinaryId>[] = [];
 

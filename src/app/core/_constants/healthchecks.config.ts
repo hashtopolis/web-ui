@@ -24,9 +24,11 @@ export const HealthCheckHashTypeLabels: Record<HealthCheckHashType, string> = {
   [HealthCheckHashType.BCRYPT]: 'BCRYPT'
 };
 
-export const attack = [{ id: HealthCheckType.BRUTE_FORCE, name: HealthCheckTypeLabels[HealthCheckType.BRUTE_FORCE] }];
+export const HealthCheckTypeOptions = [
+  { id: HealthCheckType.BRUTE_FORCE, name: HealthCheckTypeLabels[HealthCheckType.BRUTE_FORCE] }
+];
 
-export const hashtype = [
+export const HealthCheckHashTypeOptions = [
   { id: HealthCheckHashType.MD5, name: HealthCheckHashTypeLabels[HealthCheckHashType.MD5] },
   { id: HealthCheckHashType.BCRYPT, name: HealthCheckHashTypeLabels[HealthCheckHashType.BCRYPT] }
 ];
