@@ -7,7 +7,7 @@ import { ServiceConfig } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { ConfigService } from '@services/shared/config.service';
 
-describe('GlobalService — debounced mutating requests', () => {
+describe('GlobalService — debounced mutating requests (leading + trailing)', () => {
   let service: GlobalService;
   let httpMock: HttpTestingController;
 
@@ -32,42 +32,44 @@ describe('GlobalService — debounced mutating requests', () => {
     httpMock.verify();
   });
 
-  it('does not send a request until the debounce window has elapsed with no further calls', fakeAsync(() => {
+  it('fires the first update() call for a resource immediately, without waiting out the debounce window', fakeAsync(() => {
     service.update(serviceConfig, 1, { name: 'first' }).subscribe();
 
-    tick(1999);
-    expect(httpMock.match(() => true).length).toBe(0);
-
-    tick(1);
     const req = httpMock.expectOne('http://localhost/hashlist/1');
     expect(req.request.method).toBe('PATCH');
+    expect(JSON.stringify(req.request.body)).toContain('first');
     req.flush({});
+
+    tick(2000); // settle the cooldown timer this leading call started
   }));
 
-  it('coalesces rapid update() calls for the same id into a single request carrying the last payload', fakeAsync(() => {
+  it('coalesces a call made during the cooldown window into a single trailing request with the latest payload, without dropping the leading request', fakeAsync(() => {
     let result1: unknown;
     let result2: unknown;
 
     service.update(serviceConfig, 1, { name: 'first' }).subscribe((r) => (result1 = r));
-    tick(500);
+    const leadingReq = httpMock.expectOne('http://localhost/hashlist/1');
+    expect(JSON.stringify(leadingReq.request.body)).toContain('first');
+    leadingReq.flush({ ok: 'first' });
+    expect(result1).toEqual({ ok: 'first' });
+
+    tick(200);
     service.update(serviceConfig, 1, { name: 'second' }).subscribe((r) => (result2 = r));
-    tick(2000);
+    // Still inside the cooldown window started by the leading call — nothing sent yet.
+    expect(httpMock.match(() => true).length).toBe(0);
 
-    const req = httpMock.expectOne('http://localhost/hashlist/1');
-    expect(req.request.method).toBe('PATCH');
-    expect(JSON.stringify(req.request.body)).toContain('second');
-    expect(JSON.stringify(req.request.body)).not.toContain('first');
+    tick(1800); // reach the end of the 2s cooldown window
+    const trailingReq = httpMock.expectOne('http://localhost/hashlist/1');
+    expect(JSON.stringify(trailingReq.request.body)).toContain('second');
+    trailingReq.flush({ ok: 'second' });
+    expect(result2).toEqual({ ok: 'second' });
 
-    req.flush({ ok: true });
-
-    expect(result1).toEqual({ ok: true });
-    expect(result2).toEqual({ ok: true });
+    tick(2000); // settle the new cooldown timer the trailing call started
   }));
 
-  it('does not coalesce update() calls for different ids', fakeAsync(() => {
+  it('does not coalesce update() calls for different ids — both fire immediately', fakeAsync(() => {
     service.update(serviceConfig, 1, { name: 'a' }).subscribe();
     service.update(serviceConfig, 2, { name: 'b' }).subscribe();
-    tick(2000);
 
     const req1 = httpMock.expectOne('http://localhost/hashlist/1');
     const req2 = httpMock.expectOne('http://localhost/hashlist/2');
@@ -75,19 +77,21 @@ describe('GlobalService — debounced mutating requests', () => {
     expect(req2.request.method).toBe('PATCH');
     req1.flush({});
     req2.flush({});
+
+    tick(2000); // settle both leading calls' cooldown timers
   }));
 
-  it('sends a fresh request for a later call once the previous debounce window has already fired', fakeAsync(() => {
+  it('fires a fresh immediate call for a later edit once the previous cooldown has fully elapsed with nothing pending', fakeAsync(() => {
     service.update(serviceConfig, 1, { name: 'first' }).subscribe();
-    tick(2000);
-    const firstReq = httpMock.expectOne('http://localhost/hashlist/1');
-    expect(JSON.stringify(firstReq.request.body)).toContain('first');
-    firstReq.flush({});
+    httpMock.expectOne('http://localhost/hashlist/1').flush({});
+
+    tick(2000); // let the cooldown window close out with no trailing call pending
 
     service.update(serviceConfig, 1, { name: 'second' }).subscribe();
-    tick(2000);
-    const secondReq = httpMock.expectOne('http://localhost/hashlist/1');
-    expect(JSON.stringify(secondReq.request.body)).toContain('second');
-    secondReq.flush({});
+    const req = httpMock.expectOne('http://localhost/hashlist/1');
+    expect(JSON.stringify(req.request.body)).toContain('second');
+    req.flush({});
+
+    tick(2000); // settle the new cooldown timer the second leading call started
   }));
 });
