@@ -95,7 +95,7 @@ export type HashResponse = {
           taskId: number;
           skip: number;
           length: number;
-          agentId: number;
+          agentId: number | null;
           dispatchTime: number;
           solveTime: number;
           checkpoint: number;
@@ -192,7 +192,7 @@ export type HashListResponse = {
           taskId: number;
           skip: number;
           length: number;
-          agentId: number;
+          agentId: number | null;
           dispatchTime: number;
           solveTime: number;
           checkpoint: number;

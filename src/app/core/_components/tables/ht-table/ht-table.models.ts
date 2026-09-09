@@ -55,6 +55,8 @@ export interface HTTableRouterLink {
   routerLink: Array<string | number> | null;
   tooltip?: string | undefined;
   icon?: { faIcon?: IconDefinition | undefined; tooltip?: string | undefined };
+  /** Render a plain-text entry (routerLink null, no onClick) in the muted foreground color, e.g. "(deleted)". */
+  muted?: boolean;
   // click handler for cells that trigger an action
   onClick?: () => void;
   visualGraph?: {

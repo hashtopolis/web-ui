@@ -294,17 +294,28 @@ export class BaseTableComponent {
   }
 
   /**
-   * Render agent edit link to be displayed in HTML code given a chunk instance
+   * Render agent edit link to be displayed in HTML code given a chunk instance.
+   * A chunk whose agent was deleted has a null agentId and shows a muted
+   * "(deleted)" placeholder instead of a link.
    * @param chunk - chunk model to render agent router link for
    * @return observable object containing a router link array
    */
   renderAgentLinkFromChunk(chunk: JChunk): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (chunk) {
-      links.push({
-        routerLink: ['/agents', 'show-agents', chunk.agentId, 'edit'],
-        label: chunk.agentName?.trim() || String(chunk.agentId)
-      });
+      if (chunk.agentId === null) {
+        links.push({
+          routerLink: null,
+          label: '(deleted)',
+          muted: true,
+          tooltip: 'The agent that worked this chunk has been deleted'
+        });
+      } else {
+        links.push({
+          routerLink: ['/agents', 'show-agents', chunk.agentId, 'edit'],
+          label: chunk.agentName?.trim() || String(chunk.agentId)
+        });
+      }
     }
     return of(links);
   }

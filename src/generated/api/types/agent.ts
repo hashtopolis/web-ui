@@ -202,7 +202,7 @@ export type AgentResponse = {
           taskId: number;
           skip: number;
           length: number;
-          agentId: number;
+          agentId: number | null;
           dispatchTime: number;
           solveTime: number;
           checkpoint: number;
@@ -413,7 +413,7 @@ export type AgentPostPatchResponse = {
           taskId: number;
           skip: number;
           length: number;
-          agentId: number;
+          agentId: number | null;
           dispatchTime: number;
           solveTime: number;
           checkpoint: number;
@@ -633,7 +633,7 @@ export type AgentListResponse = {
           taskId: number;
           skip: number;
           length: number;
-          agentId: number;
+          agentId: number | null;
           dispatchTime: number;
           solveTime: number;
           checkpoint: number;
