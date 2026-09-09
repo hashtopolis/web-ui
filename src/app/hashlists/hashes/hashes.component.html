@@ -1,15 +1,15 @@
 <grid-main>
-  @if (whichView === 'chunks' || whichView === 'tasks' || whichView === 'hashlists') {
+  @if (whichView === HashesViewType.CHUNKS || whichView === HashesViewType.TASKS || whichView === HashesViewType.HASHLISTS) {
     <h2 class="text-lg font-medium text-heading-foreground mb-4">
       Hashes of
       @switch (whichView) {
-        @case ('chunks') {
+        @case (HashesViewType.CHUNKS) {
           chunk
         }
-        @case ('tasks') {
+        @case (HashesViewType.TASKS) {
           task
         }
-        @case ('hashlists') {
+        @case (HashesViewType.HASHLISTS) {
           hashlist
         }
       }

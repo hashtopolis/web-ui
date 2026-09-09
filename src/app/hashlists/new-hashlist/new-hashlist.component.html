@@ -74,7 +74,7 @@
         <input-check title="Secret Data" formControlName="isSecret"></input-check>
       </app-form-row>
 
-      @if (sourceType === 'paste') {
+      @if (sourceType === HashSource.PASTE) {
         <div class="flex flex-col gap-3">
           <input-text-area title="Paste Hash(es)" formControlName="sourceData"></input-text-area>
           <grid-buttons>
@@ -84,7 +84,7 @@
         </div>
       }
 
-      @if (sourceType === 'upload') {
+      @if (sourceType === HashSource.UPLOAD) {
         <div class="flex flex-col gap-3">
           <input-file formControlName="sourceData" (filesSelected)="onFilesSelected($event)"></input-file>
 
@@ -113,7 +113,7 @@
         </div>
       }
 
-      @if (sourceType === 'import') {
+      @if (sourceType === HashSource.IMPORT) {
         <div class="flex flex-col gap-3">
           @if (isLoadingServerFiles) {
             <div class="loading-spinner">
@@ -138,7 +138,7 @@
         </div>
       }
 
-      @if (sourceType === 'url') {
+      @if (sourceType === HashSource.URL) {
         <div class="flex flex-col gap-3">
           <input-text
             title="URL path"

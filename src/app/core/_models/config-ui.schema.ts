@@ -1,7 +1,7 @@
 import { DateFormat, TimeFormat } from '@constants/settings.config';
 import { z } from 'zod';
 
-import { uiConfigDefault } from '@models/config-ui.model';
+import { TableSortDirection, uiConfigDefault } from '@models/config-ui.model';
 
 /**
  * Server config values that get cached into the `uis` localStorage key.
@@ -87,7 +87,7 @@ export const sortingSchema = z.object({
   id: z.coerce.number(),
   dataKey: z.string(),
   isSortable: z.boolean(),
-  direction: z.enum(['asc', 'desc', '']),
+  direction: z.enum([TableSortDirection.ASC, TableSortDirection.DESC, TableSortDirection.NONE]),
   parent: z.string().optional()
 });
 

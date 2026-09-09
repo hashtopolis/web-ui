@@ -21,6 +21,9 @@ import { DEFAULT_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 import { NewUserForm, getNewUserForm } from '@src/app/users/new-user/new-user.form';
 
+/** Session lifetime a newly created user starts with (1 hour). */
+const DEFAULT_SESSION_LIFETIME_SECONDS = 3600;
+
 @Component({
   selector: 'app-new-user',
   templateUrl: './new-user.component.html',
@@ -77,7 +80,7 @@ export class NewUserComponent implements OnInit {
         email: this.newUserForm.value.email,
         globalPermissionGroupId: this.newUserForm.value.globalPermissionGroupId,
         isValid: this.newUserForm.value.isValid,
-        sessionLifetime: 3600
+        sessionLifetime: DEFAULT_SESSION_LIFETIME_SECONDS
       };
 
       await firstValueFrom(this.gs.create(SERV.USERS, payload));

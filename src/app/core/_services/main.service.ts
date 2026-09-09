@@ -1,3 +1,4 @@
+import { HttpMethod } from '@constants/http.config';
 import { Observable, catchError, forkJoin, of, switchMap, throwError } from 'rxjs';
 
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
@@ -13,9 +14,15 @@ import { setParameter } from '@src/app/core/_services/buildparams';
 import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { environment } from '@src/environments/environment';
 
+/** The two methods the `helper` endpoints accept. */
+type HelperHttpMethod = typeof HttpMethod.GET | typeof HttpMethod.POST;
+
 interface JsonApiRelationshipData {
   data: { type: string; id: number }[];
 }
+
+/** Debounce applied to mutating requests so rapid repeat submits collapse into one. */
+const MUTATION_DEBOUNCE_MS = 2000;
 
 @Injectable({
   providedIn: 'root'
@@ -333,12 +340,12 @@ export class GlobalService {
     serviceConfig: ServiceConfig,
     option: HelperEndpoint,
     arr?: Record<string, unknown>,
-    method: 'POST' | 'GET' = 'POST',
+    method: HelperHttpMethod = HttpMethod.POST,
     httpOptions?: { headers?: HttpHeaders }
   ): Observable<T> {
     const url = `${this.cs.getEndpoint()}${serviceConfig.URL}/${option}`;
 
-    if (method === 'GET') {
+    if (method === HttpMethod.GET) {
       let params = new HttpParams();
       if (arr) {
         for (const [key, value] of Object.entries(arr)) {

@@ -1,3 +1,4 @@
+import { HttpStatus } from '@constants/http.config';
 import { zPreTaskResponse } from '@generated/api/zod';
 import { lastValueFrom } from 'rxjs';
 
@@ -21,8 +22,8 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { ConfigService } from '@services/shared/config.service';
 
-import { yesNo } from '@src/app/core/_constants/general.config';
-import { benchmarkType } from '@src/app/core/_constants/tasks.config';
+import { YesNoOptions } from '@src/app/core/_constants/general.config';
+import { BenchmarkTypeOptions } from '@src/app/core/_constants/tasks.config';
 import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attack-command.validator';
 
 /**
@@ -44,8 +45,8 @@ export class EditPreconfiguredTasksComponent implements OnInit {
   isUpdatingLoading = false;
 
   /** Select Options. */
-  selectYesno = yesNo;
-  selectBenchmarktype = benchmarkType;
+  selectYesno = YesNoOptions;
+  selectBenchmarktype = BenchmarkTypeOptions;
 
   // Edit Options
   editedPretaskIndex: number;
@@ -87,12 +88,12 @@ export class EditPreconfiguredTasksComponent implements OnInit {
       this.isLoading = false;
     } catch (e: unknown) {
       const status = e instanceof HttpErrorResponse ? e.status : undefined;
-      if (status === 403) {
+      if (status === HttpStatus.FORBIDDEN) {
         this.router.navigateByUrl('/forbidden');
         return;
       }
 
-      if (status === 404) {
+      if (status === HttpStatus.NOT_FOUND) {
         this.router.navigateByUrl('/not-found');
         return;
       }

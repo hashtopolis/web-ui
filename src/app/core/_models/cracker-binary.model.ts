@@ -3,6 +3,9 @@ import { z } from 'zod';
 import { BaseModel } from '@models/base.model';
 import { CrackerBinaryTypeId } from '@models/id.types';
 
+/** Name of the cracker binary type task forms preselect when it is available. */
+export const DEFAULT_CRACKER_BINARY_TYPE_NAME = 'hashcat';
+
 /**
  * Interface definition for cracker binary
  * @extends BaseModel

@@ -7,7 +7,7 @@ import { AfterViewInit, Component, ElementRef, OnInit, PLATFORM_ID, inject } fro
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 
-import { UIConfig } from '@models/config-ui.model';
+import { Layout, UIConfig } from '@models/config-ui.model';
 import { UiSettings, uisSettingsSchema } from '@models/config-ui.schema';
 import { UserData, userDataSchema } from '@models/user-data.schema';
 
@@ -155,9 +155,9 @@ export class AppComponent implements OnInit, AfterViewInit {
     const classes: string[] = [];
     if (this.uiSettings) {
       const layout = this.uiSettings.getSetting('layout');
-      if (layout === 'fixed') {
+      if (layout === Layout.FIXED) {
         classes.push('fixed-width-layout');
-      } else if (layout === 'full') {
+      } else if (layout === Layout.FULL) {
         classes.push('full-width-layout');
       }
 
@@ -178,7 +178,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   checkLogin() {
-    const userData = localStorage.getItem<UserData>('userData', userDataSchema);
+    const userData = localStorage.getItem<UserData>(AuthService.STORAGE_KEY, userDataSchema);
     if (!userData) {
       return;
     }

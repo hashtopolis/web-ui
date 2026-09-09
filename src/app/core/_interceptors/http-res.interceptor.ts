@@ -1,3 +1,4 @@
+import { HttpHeaderName, HttpStatus } from '@constants/http.config';
 import { Observable, catchError, throwError } from 'rxjs';
 
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
@@ -17,7 +18,7 @@ export class HttpResInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     // If request contains this header, don't show modal/snackbar for errors
-    const skipDialog: boolean = req.headers.has('X-Skip-Error-Dialog');
+    const skipDialog: boolean = req.headers.has(HttpHeaderName.SKIP_ERROR_DIALOG);
 
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -42,21 +43,21 @@ export class HttpResInterceptor implements HttpInterceptor {
     const status = error?.status || 0;
     let showAlert: boolean = false;
 
-    if (error.status === 401) {
+    if (error.status === HttpStatus.UNAUTHORIZED) {
       errmsg = 'Invalid credentials. Please try again.';
-    } else if (error.status === 403) {
+    } else if (error.status === HttpStatus.FORBIDDEN) {
       if (error.error?.title) {
         errmsg = error.error.title;
       } else {
         errmsg = `You don't have permissions. Please contact your Administrator.`;
       }
       showAlert = true;
-    } else if (error.status === 404 && !req.url.includes('config.json')) {
+    } else if (error.status === HttpStatus.NOT_FOUND && !req.url.includes('config.json')) {
       errmsg = `The requested URL was not found.`;
-    } else if (error.status === 409 && req.url.includes('crackertypes')) {
+    } else if (error.status === HttpStatus.CONFLICT && req.url.includes('crackertypes')) {
       errmsg = error.error.title;
       showAlert = true;
-    } else if (error.status === 0) {
+    } else if (error.status === HttpStatus.NETWORK_ERROR) {
       errmsg = `Network error. Please verify the IP address (${this.extractIpAndPort(req.url)}) and try again.`;
     } else {
       errmsg = error.error?.title || 'An unknown error occurred.';

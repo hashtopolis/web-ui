@@ -109,6 +109,9 @@ export function randomColor(): string {
   return `#${componentToHex(rgb[0])}${componentToHex(rgb[1])}${componentToHex(rgb[2])}`;
 }
 
+/** Midpoint of the 0-255 brightness range that separates light from dark colors. */
+const BRIGHTNESS_MIDPOINT = 128;
+
 /**
  * Returns true when black text reads better than white on `hex`.
  * Uses the W3C AERT YIQ brightness formula (https://www.w3.org/TR/AERT/#color-contrast).
@@ -127,7 +130,7 @@ export function isColorLight(hex: string | null | undefined): boolean {
     return false;
   }
   const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-  return brightness > 128;
+  return brightness > BRIGHTNESS_MIDPOINT;
 }
 
 /**

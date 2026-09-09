@@ -25,7 +25,6 @@ import { PreconfiguredTasksComponent } from '@src/app/tasks/preconfigured-tasks/
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
 import { ShowTasksComponent } from '@src/app/tasks/show-tasks/show-tasks.component';
 import { ApplyHashlistComponent } from '@src/app/tasks/supertasks/applyhashlist.component';
-import { ModalPretasksComponent } from '@src/app/tasks/supertasks/modal-pretasks/modal-pretasks.component';
 import { SupertasksComponent } from '@src/app/tasks/supertasks/supertasks.component';
 
 /**
@@ -42,7 +41,6 @@ import { SupertasksComponent } from '@src/app/tasks/supertasks/supertasks.compon
     EditSupertasksComponent,
     NewSupertasksComponent,
     ApplyHashlistComponent,
-    ModalPretasksComponent,
     ModalSubtasksComponent,
     SupertasksComponent,
     ShowTasksComponent,
@@ -66,6 +64,6 @@ import { SupertasksComponent } from '@src/app/tasks/supertasks/supertasks.compon
     MatButtonToggleGroup,
     TaskSpeedGraphComponent
   ],
-  exports: [ModalPretasksComponent, ModalSubtasksComponent, ShowTasksComponent, NewTasksComponent]
+  exports: [ModalSubtasksComponent, ShowTasksComponent, NewTasksComponent]
 })
 export class TasksComponentsModule {}

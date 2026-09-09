@@ -8,12 +8,13 @@ import { CrackerBinaryId, CrackerBinaryTypeId, PreprocessorId, TaskWrapperId } f
 import { SpeedStat } from '@models/speed-stat.model';
 
 /**
- * Enum definition for taskType (task or supertask)
+ * Definition for taskType (task or supertask)
  */
-export enum TaskType {
-  TASK = 0,
-  SUPERTASK = 1
-}
+export const TaskType = {
+  TASK: 0,
+  SUPERTASK: 1
+} as const;
+export type TaskType = (typeof TaskType)[keyof typeof TaskType];
 
 /**
  * Common attributes shared between tasks and task wrappers
@@ -159,9 +160,10 @@ export type JTaskWrapperDisplayOverview = JTaskWrapperDisplayWith<
   'totalAssignedAgents' | 'searched' | 'dispatched' | 'status' | 'currentSpeed'
 >;
 
-export enum TaskStatus {
-  RUNNING = 1,
-  IDLE = 2,
-  COMPLETED = 3,
-  SKIPPED = 4
-}
+export const TaskStatus = {
+  RUNNING: 1,
+  IDLE: 2,
+  COMPLETED: 3,
+  SKIPPED: 4
+} as const;
+export type TaskStatus = (typeof TaskStatus)[keyof typeof TaskStatus];

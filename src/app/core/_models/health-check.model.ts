@@ -1,22 +1,10 @@
+import { HealthCheckHashType } from '@constants/healthchecks.config';
+
 import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashtype } from '@models/hashtype.model';
 import { AgentId, CrackerBinaryId, HashTypeId, HealthCheckId } from '@models/id.types';
-
-/**
- * Different health check types
- * - `BRUTE_FORCE` Health check using brute-force attack
- * @enum
- */
-// @TODO: Check this
-export enum HealthCheckType {
-  MD5 = 0,
-  BCRYPT = 3200
-}
-
-/** Health check status values matching the generated Zod schema. */
-export type HealthCheckStatusValue = -1 | 0 | 1;
 
 /**
  * Health check status
@@ -25,10 +13,11 @@ export type HealthCheckStatusValue = -1 | 0 | 1;
  * - `COMPLETED`  Health check is completed
  */
 export const HealthCheckStatus = {
-  ABORTED: -1 as const,
-  RUNNING: 0 as const,
-  COMPLETED: 1 as const
-};
+  ABORTED: -1,
+  RUNNING: 0,
+  COMPLETED: 1
+} as const;
+export type HealthCheckStatus = (typeof HealthCheckStatus)[keyof typeof HealthCheckStatus];
 
 /**
  * Interface definition for a health check
@@ -36,7 +25,8 @@ export const HealthCheckStatus = {
  */
 export interface JHealthCheck extends BaseModel {
   attackCmd: string;
-  checkType: HealthCheckType;
+  /** The API declares `checkType` with the hashcat mode values, not the `HealthCheckType` attack modes. */
+  checkType: HealthCheckHashType;
   crackerBinaryId: CrackerBinaryId;
   crackerBinary?: JCrackerBinary;
   expectedCracks: number;
@@ -45,7 +35,7 @@ export interface JHealthCheck extends BaseModel {
   hashTypeId?: HashTypeId;
   hashType?: JHashtype;
   hashTypeDescription?: string | undefined;
-  status: HealthCheckStatusValue;
+  status: HealthCheckStatus;
   time: number;
 }
 
@@ -56,7 +46,7 @@ export interface JHealthCheck extends BaseModel {
 export interface JHealthCheckAgent extends BaseModel {
   healthCheckId: HealthCheckId;
   agentId: AgentId;
-  status: HealthCheckStatusValue;
+  status: HealthCheckStatus;
   cracked: number;
   numGpus: number;
   start: number;

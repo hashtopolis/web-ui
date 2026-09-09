@@ -20,7 +20,7 @@ import { TABLE_TRUNCATE_MAX_LENGTH } from '@components/tables/table-truncate/tab
 
 import { CracksDataSource } from '@datasources/cracks.datasource';
 
-import { HashListFormatLabel } from '@src/app/core/_constants/hashlist.config';
+import { HashListFormatLabels } from '@src/app/core/_constants/hashlist.config';
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { ShowTruncatedDataDialogComponent } from '@src/app/shared/dialog/show-truncated-data.dialog/show-truncated-data.dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
@@ -120,9 +120,9 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'hashlistId',
         isSortable: true,
         render: (crack: JHash) =>
-          crack.hashlist?.format !== undefined ? this.sanitize(HashListFormatLabel[crack.hashlist.format]) : '',
+          crack.hashlist?.format !== undefined ? this.sanitize(HashListFormatLabels[crack.hashlist.format]) : '',
         export: async (crack: JHash) =>
-          crack.hashlist?.format !== undefined ? HashListFormatLabel[crack.hashlist.format] : ''
+          crack.hashlist?.format !== undefined ? HashListFormatLabels[crack.hashlist.format] : ''
       }
     ];
   }
