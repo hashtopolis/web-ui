@@ -7,13 +7,22 @@ export const StaticChunkingMode = {
 } as const;
 export type StaticChunkingMode = (typeof StaticChunkingMode)[keyof typeof StaticChunkingMode];
 
-export const staticChunking: SelectOption<number>[] = [
-  { id: StaticChunkingMode.NONE, name: 'No' },
-  { id: StaticChunkingMode.FIXED_CHUNK_SIZE, name: 'Fixed chunk size' },
-  { id: StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS, name: 'Fixed number of chunks' }
+export const StaticChunkingModeLabels: Record<StaticChunkingMode, string> = {
+  [StaticChunkingMode.NONE]: 'No',
+  [StaticChunkingMode.FIXED_CHUNK_SIZE]: 'Fixed chunk size',
+  [StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS]: 'Fixed number of chunks'
+};
+
+export const StaticChunkingModeOptions: SelectOption<number>[] = [
+  { id: StaticChunkingMode.NONE, name: StaticChunkingModeLabels[StaticChunkingMode.NONE] },
+  { id: StaticChunkingMode.FIXED_CHUNK_SIZE, name: StaticChunkingModeLabels[StaticChunkingMode.FIXED_CHUNK_SIZE] },
+  {
+    id: StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS,
+    name: StaticChunkingModeLabels[StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS]
+  }
 ];
 
-export const benchmarkType = [
+export const BenchmarkTypeOptions = [
   { id: false, name: 'Runtime Benchmark' },
   { id: true, name: 'Speed Test' }
 ];

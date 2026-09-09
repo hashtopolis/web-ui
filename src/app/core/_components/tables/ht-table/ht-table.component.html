@@ -189,7 +189,7 @@
               @if (isCmdTask) {
                 <mat-checkbox
                   (click)="$event.stopPropagation()"
-                  (change)="toggleAttack($event, row, 'CMD')"
+                  (change)="toggleAttack($event, row, checkboxColumnType.CMD)"
                   [checked]="isSelected(row)"
                 />
               }
@@ -200,7 +200,7 @@
             @if (isCmdPreproAttack) {
               <mat-checkbox
                 (click)="$event.stopPropagation()"
-                (change)="toggleAttack($event, row, 'CMD_PREPRO')"
+                (change)="toggleAttack($event, row, checkboxColumnType.CMD_PREPRO)"
                 [checked]="isPreproSelected(row)"
               />
             }

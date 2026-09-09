@@ -1,10 +1,10 @@
 import { IconDefinition } from '@fortawesome/angular-fontawesome';
 import { Observable } from 'rxjs';
 
-import { SortDirection } from '@angular/material/sort';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { BaseModel } from '@models/base.model';
+import { TableSortDirection } from '@models/config-ui.model';
 
 export type DataType =
   | 'agents'
@@ -82,7 +82,11 @@ export interface HTTableEditable<T> {
 }
 
 /** Column type for checkbox toggle events in attack file tables. */
-export type CheckboxColumnType = 'CMD' | 'CMD_PREPRO';
+export const CheckboxColumnType = {
+  CMD: 'CMD',
+  CMD_PREPRO: 'CMD_PREPRO'
+} as const;
+export type CheckboxColumnType = (typeof CheckboxColumnType)[keyof typeof CheckboxColumnType];
 
 export interface CheckboxChangeEvent {
   row: BaseModel;
@@ -147,7 +151,7 @@ export interface customCellColorInput {
 export interface SortingColumn {
   id?: number;
   dataKey: string;
-  direction: SortDirection | string;
+  direction: TableSortDirection;
   isSortable: boolean;
   parent?: string | undefined; // Parent is in order to build sort queries for relationships
 }

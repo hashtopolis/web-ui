@@ -1,4 +1,5 @@
 import { BaseModel } from '@models/base.model';
+import { TableSortDirection } from '@models/config-ui.model';
 
 import { SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
@@ -125,7 +126,7 @@ export class RequestParamBuilder<Inc extends string = never, Agg extends string 
    */
   addSorting(sortingColumn: SortingColumn): this {
     if (sortingColumn.dataKey && sortingColumn.isSortable) {
-      const direction = sortingColumn.direction === 'asc' ? '' : '-';
+      const direction = sortingColumn.direction === TableSortDirection.ASC ? '' : '-';
       const parent = sortingColumn.parent ? `${sortingColumn.parent}.` : '';
       this.params.sortOrder = this.addToArray<string>(
         this.params.sortOrder,

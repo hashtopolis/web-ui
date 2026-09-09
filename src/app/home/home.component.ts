@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { BuiltInTheme } from '@models/config-ui.model';
 import { TaskType } from '@models/task.model';
 
 import { PermissionService } from '@services/permission/permission.service';
@@ -44,7 +45,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   /** Whether dark mode is enabled */
   isDarkMode = false;
-  currentTheme: UIConfig['theme'] = 'light';
+  currentTheme: UIConfig['theme'] = BuiltInTheme.LIGHT;
 
   /** Dashboard statistics counters */
   activeAgents = 0;
@@ -91,7 +92,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor() {
     this.uiSettings = new UISettingsUtilityClass(this.service);
-    this.currentTheme = this.uiSettings.getSetting('theme') ?? 'light';
+    this.currentTheme = this.uiSettings.getSetting('theme') ?? BuiltInTheme.LIGHT;
     this.isDarkMode = this.themeService.isDark(this.currentTheme);
   }
 

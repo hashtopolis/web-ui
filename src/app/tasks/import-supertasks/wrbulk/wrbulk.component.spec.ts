@@ -12,6 +12,8 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 
+import { CheckboxColumnType } from '@components/tables/ht-table/ht-table.models';
+
 import { WrbulkComponent } from '@src/app/tasks/import-supertasks/wrbulk/wrbulk.component';
 
 const MOCK_CRACKER_TYPES_RESPONSE = {
@@ -340,7 +342,7 @@ describe('WrbulkComponent', () => {
 
   it('should update iterFiles on non-CMD event', () => {
     component.onUpdateForm({
-      type: 'ITER',
+      type: CheckboxColumnType.CMD_PREPRO,
       attackCmd: '',
       files: [],
       otherFiles: [30, 40]

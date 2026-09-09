@@ -1,4 +1,5 @@
 /// <reference types="jasmine" />
+import { HttpHeaderName } from '@constants/http.config';
 import { zAgentAssignmentListResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
 
@@ -235,7 +236,7 @@ describe('AgentsDataSource', () => {
       expect(firstCallArgs[0]).toEqual(SERV.AGENT_ASSIGN);
 
       const httpOptions = firstCallArgs[2] as { headers?: { get(name: string): string | null } } | undefined;
-      expect(httpOptions?.headers?.get('X-Cache-Skip')).toBe('true');
+      expect(httpOptions?.headers?.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
     }));
 
     it('should filter assignments by the stored taskId', fakeAsync(() => {

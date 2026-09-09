@@ -1,11 +1,11 @@
 <div #chartContainer [style.display]="hasData ? 'block' : 'none'" class="w-full h-[var(--chart-height-default)]"></div>
 
 <div [style.display]="!hasData ? 'block' : 'none'">
-  @if (statType === 1) {
+  @if (statType === ASC.GPU_TEMP) {
     <p>Device(s) temperature data unavailable</p>
-  } @else if (statType === 2) {
+  } @else if (statType === ASC.GPU_UTIL) {
     <p>GPU utilisation data unavailable</p>
-  } @else if (statType === 3) {
+  } @else if (statType === ASC.CPU_UTIL) {
     <p>CPU utilisation data unavailable</p>
   }
 </div>

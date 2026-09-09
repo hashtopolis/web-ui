@@ -26,7 +26,9 @@ export class AgentStatGraphComponent implements OnChanges, OnDestroy {
   /**
    * The stat type to filter and render (e.g., ASC.GPU_TEMP, ASC.CPU_UTIL).
    */
-  @Input() statType: number;
+  @Input() statType: ASC;
+
+  protected readonly ASC = ASC;
 
   /**
    * DOM element used as the chart container.
@@ -64,7 +66,7 @@ export class AgentStatGraphComponent implements OnChanges, OnDestroy {
   /**
    * Builds chart options using filtered agent statistics.
    */
-  private buildOption(agentStats: JAgentStat[], statType: number): EChartsCoreOption {
+  private buildOption(agentStats: JAgentStat[], statType: ASC): EChartsCoreOption {
     const filteredStats = agentStats.filter((s) => s.statType === statType);
 
     // Configure chart title based on stat type

@@ -5,7 +5,12 @@ import { Component, DestroyRef, EventEmitter, Injector, Input, OnDestroy, OnInit
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PageEvent } from '@angular/material/paginator';
 
-import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
+import {
+  DEFAULT_CRACKER_BINARY_TYPE_NAME,
+  JCrackerBinary,
+  JCrackerBinaryType,
+  zCrackerBinaryTypeList
+} from '@models/cracker-binary.model';
 import { CrackerBinaryId, CrackerBinaryTypeId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
@@ -150,7 +155,9 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
       return;
     }
 
-    const preferredType = this.crackerTypes.find((item) => item.name?.toLowerCase() === 'hashcat')?.id;
+    const preferredType = this.crackerTypes.find(
+      (item) => item.name?.toLowerCase() === DEFAULT_CRACKER_BINARY_TYPE_NAME
+    )?.id;
     const fallbackType = this.crackerTypes[0]?.id;
     const defaultType = (preferredType ?? fallbackType) as CrackerBinaryTypeId;
 

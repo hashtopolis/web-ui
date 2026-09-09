@@ -1,14 +1,19 @@
-export const filters = [
-  { _id: 'cracked', name: 'Cracked' },
-  { _id: 'cracked', name: 'Uncracked' },
-  { _id: '', name: 'All' }
-];
+/**
+ * Which parent resource the hashes view is scoped to.
+ */
+export const HashesViewType = {
+  CHUNKS: 'chunks',
+  TASKS: 'tasks',
+  HASHLISTS: 'hashlists'
+} as const;
+export type HashesViewType = (typeof HashesViewType)[keyof typeof HashesViewType];
 
-export const displays = [
-  { _id: '', name: 'Hashes + Plaintexts' },
-  { _id: 'hash', name: 'Hashes only' },
-  { _id: 'plain', name: 'Plaintexts only' },
-  { _id: 'hpc', name: 'Hashes + Plaintexts + Crackposition' },
-  { _id: 'hc', name: 'Hashes + Crackposition' },
-  { _id: 'pc', name: 'Plaintexts + Crackposition' }
-];
+/**
+ * `cracked` filter values for the hashes view. An empty id means "no filter".
+ */
+export const HashesFilter = {
+  CRACKED: 'cracked',
+  UNCRACKED: 'uncracked',
+  ALL: ''
+} as const;
+export type HashesFilter = (typeof HashesFilter)[keyof typeof HashesFilter];

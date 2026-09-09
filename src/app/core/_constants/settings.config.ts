@@ -14,6 +14,19 @@ export interface Option {
   value: number | string | boolean;
 }
 
+export const Layout = {
+  FULL: 'full',
+  FIXED: 'fixed'
+} as const;
+export type Layout = (typeof Layout)[keyof typeof Layout];
+
+export const BuiltInTheme = {
+  LIGHT: 'light',
+  DARK: 'dark'
+} as const;
+export type BuiltInTheme = (typeof BuiltInTheme)[keyof typeof BuiltInTheme];
+export type Theme = BuiltInTheme | (string & {});
+
 export const DateFormat = {
   DAY_MONTH_YEAR_SLASH: 'dd/MM/yyyy',
   DAY_MONTH_YEAR_DOT: 'dd.MM.yyyy',
@@ -79,33 +92,57 @@ export const browserTimeFormat = (): TimeFormat =>
     : TimeFormat.TWENTY_FOUR_HOUR;
 
 export const layouts: Setting[] = [
-  { value: 'fixed', description: 'Fixed width layout' },
-  { value: 'full', description: 'Full screen layout' }
+  { value: Layout.FIXED, description: 'Fixed width layout' },
+  { value: Layout.FULL, description: 'Full screen layout' }
 ];
 
 export const themes: Setting[] = [
-  { value: 'light', description: 'Light Mode' },
-  { value: 'dark', description: 'Dark Mode' }
+  { value: BuiltInTheme.LIGHT, description: 'Light Mode' },
+  { value: BuiltInTheme.DARK, description: 'Dark Mode' }
 ];
+
+/**
+ * Server log verbosity, matching the server's `logLevel` config value.
+ */
+export const ServerLogLevel = {
+  TRACE: 0,
+  DEBUG: 10,
+  INFO: 20,
+  WARNING: 30,
+  ERROR: 40,
+  FATAL: 50
+} as const;
+export type ServerLogLevel = (typeof ServerLogLevel)[keyof typeof ServerLogLevel];
 
 /**
  * Logs, used in general settings
  **/
 export const serverlog = [
-  { value: 0, label: 'TRACE' },
-  { value: 10, label: 'DEBUG' },
-  { value: 20, label: 'INFO' },
-  { value: 30, label: 'WARNING' },
-  { value: 40, label: 'ERROR' },
-  { value: 50, label: 'FATAL' }
+  { value: ServerLogLevel.TRACE, label: 'TRACE' },
+  { value: ServerLogLevel.DEBUG, label: 'DEBUG' },
+  { value: ServerLogLevel.INFO, label: 'INFO' },
+  { value: ServerLogLevel.WARNING, label: 'WARNING' },
+  { value: ServerLogLevel.ERROR, label: 'ERROR' },
+  { value: ServerLogLevel.FATAL, label: 'FATAL' }
 ];
+
+/**
+ * Proxy protocol the server uses for outgoing requests.
+ */
+export const ProxyType = {
+  HTTP: 'HTTP',
+  HTTPS: 'HTTPS',
+  SOCKS4: 'SOCKS4',
+  SOCKS5: 'SOCKS5'
+} as const;
+export type ProxyType = (typeof ProxyType)[keyof typeof ProxyType];
 
 /**
  * Proxy type, used in general settings
  **/
 export const proxytype = [
-  { value: 'HTTP', label: 'HTTP' },
-  { value: 'HTTPS', label: 'HTTPS' },
-  { value: 'SOCKS4', label: 'SOCKS4' },
-  { value: 'SOCKS5', label: 'SOCKS5' }
+  { value: ProxyType.HTTP, label: ProxyType.HTTP },
+  { value: ProxyType.HTTPS, label: ProxyType.HTTPS },
+  { value: ProxyType.SOCKS4, label: ProxyType.SOCKS4 },
+  { value: ProxyType.SOCKS5, label: ProxyType.SOCKS5 }
 ];

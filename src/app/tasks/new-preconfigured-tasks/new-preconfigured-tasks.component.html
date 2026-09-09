@@ -84,7 +84,7 @@
             <span><strong>Wordlists</strong></span>
           </mat-expansion-panel-header>
           <app-files-attack-table
-            [fileType]="0"
+            [fileType]="FileType.WORDLIST"
             [formData]="getFormData()"
             (updateFormEvent)="onUpdateForm($event)"
           ></app-files-attack-table>
@@ -95,7 +95,7 @@
             <span><strong>Rules</strong></span>
           </mat-expansion-panel-header>
           <app-files-attack-table
-            [fileType]="1"
+            [fileType]="FileType.RULES"
             [formData]="getFormData()"
             (updateFormEvent)="onUpdateForm($event)"
           ></app-files-attack-table>
@@ -106,7 +106,7 @@
             <span><strong>Other</strong></span>
           </mat-expansion-panel-header>
           <app-files-attack-table
-            [fileType]="2"
+            [fileType]="FileType.OTHER"
             [formData]="getFormData()"
             (updateFormEvent)="onUpdateForm($event)"
           ></app-files-attack-table>

@@ -3,230 +3,230 @@
  **/
 
 // // AGENT
-export enum Agent {
-  CREATE = 'permAgentCreate',
-  DELETE = 'permAgentDelete',
-  READ = 'permAgentRead',
-  UPDATE = 'permAgentUpdate'
-}
+export const Agent = {
+  CREATE: 'permAgentCreate',
+  DELETE: 'permAgentDelete',
+  READ: 'permAgentRead',
+  UPDATE: 'permAgentUpdate'
+} as const;
 // // AGENT STAT
-export enum AgentStat {
-  CREATE = 'permAgentStatCreate',
-  DELETE = 'permAgentStatDelete',
-  READ = 'permAgentStatRead',
-  UPDATE = 'permAgentStatUpdate'
-}
+export const AgentStat = {
+  CREATE: 'permAgentStatCreate',
+  DELETE: 'permAgentStatDelete',
+  READ: 'permAgentStatRead',
+  UPDATE: 'permAgentStatUpdate'
+} as const;
 
-export enum AgentAssignment {
-  CREATE = 'permAgentAssignmentCreate',
-  DELETE = 'permAgentAssignmentDelete',
-  READ = 'permAgentAssignmentRead',
-  UPDATE = 'permAgentAssignmentUpdate'
-}
+export const AgentAssignment = {
+  CREATE: 'permAgentAssignmentCreate',
+  DELETE: 'permAgentAssignmentDelete',
+  READ: 'permAgentAssignmentRead',
+  UPDATE: 'permAgentAssignmentUpdate'
+} as const;
 
-export enum AgentError {
-  READ = 'permAgentErrorRead'
-}
+export const AgentError = {
+  READ: 'permAgentErrorRead'
+} as const;
 
 // // VOUCHER
-export enum Voucher {
-  CREATE = 'permRegVoucherCreate',
-  DELETE = 'permRegVoucherDelete',
-  READ = 'permRegVoucherRead',
-  UPDATE = 'permRegVoucherUpdate'
-}
+export const Voucher = {
+  CREATE: 'permRegVoucherCreate',
+  DELETE: 'permRegVoucherDelete',
+  READ: 'permRegVoucherRead',
+  UPDATE: 'permRegVoucherUpdate'
+} as const;
 // // TASK
-export enum Task {
-  CREATE = 'permTaskCreate',
-  DELETE = 'permTaskDelete',
-  READ = 'permTaskRead',
-  UPDATE = 'permTaskUpdate'
-}
+export const Task = {
+  CREATE: 'permTaskCreate',
+  DELETE: 'permTaskDelete',
+  READ: 'permTaskRead',
+  UPDATE: 'permTaskUpdate'
+} as const;
 // // PRETASK
-export enum Pretask {
-  CREATE = 'permPretaskCreate',
-  DELETE = 'permPretaskDelete',
-  READ = 'permPretaskRead',
-  UPDATE = 'permPretaskUpdate'
-}
+export const Pretask = {
+  CREATE: 'permPretaskCreate',
+  DELETE: 'permPretaskDelete',
+  READ: 'permPretaskRead',
+  UPDATE: 'permPretaskUpdate'
+} as const;
 // // SUPERTASK
-export enum SuperTask {
-  CREATE = 'permSupertaskCreate',
-  DELETE = 'permSupertaskDelete',
-  READ = 'permSupertaskRead',
-  UPDATE = 'permSupertaskUpdate'
-}
+export const SuperTask = {
+  CREATE: 'permSupertaskCreate',
+  DELETE: 'permSupertaskDelete',
+  READ: 'permSupertaskRead',
+  UPDATE: 'permSupertaskUpdate'
+} as const;
 // // TASK WRAPPER  (Running supertask)
-export enum TaskWrapper {
-  CREATE = 'permTaskWrapperCreate',
-  UPDATE = 'permTaskWrapperUpdate',
-  READ = 'permTaskWrapperRead'
-}
+export const TaskWrapper = {
+  CREATE: 'permTaskWrapperCreate',
+  UPDATE: 'permTaskWrapperUpdate',
+  READ: 'permTaskWrapperRead'
+} as const;
 // // CHUNK
-export enum Chunk {
-  DELETE = 'permChunkDelete',
-  READ = 'permChunkRead',
-  UPDATE = 'permChunkUpdate'
-}
+export const Chunk = {
+  DELETE: 'permChunkDelete',
+  READ: 'permChunkRead',
+  UPDATE: 'permChunkUpdate'
+} as const;
 // // Speed
-export enum Speed {
-  READ = 'permSpeedRead'
-}
+export const Speed = {
+  READ: 'permSpeedRead'
+} as const;
 // // HASH-LIST
-export enum Hashlist {
-  CREATE = 'permHashlistCreate',
-  DELETE = 'permHashlistDelete',
-  READ = 'permHashlistRead',
-  UPDATE = 'permHashlistUpdate'
-}
+export const Hashlist = {
+  CREATE: 'permHashlistCreate',
+  DELETE: 'permHashlistDelete',
+  READ: 'permHashlistRead',
+  UPDATE: 'permHashlistUpdate'
+} as const;
 // // SUPER-HASHLIST
-export enum SuperHashlist {
-  CREATE = 'permHashlistHashlistCreate',
-  READ = 'permHashlistHashlistRead',
-  UPDATE = 'permHashlistHashlistUpdate',
-  DELETE = 'permHashlistHashlistDelete'
-}
+export const SuperHashlist = {
+  CREATE: 'permHashlistHashlistCreate',
+  READ: 'permHashlistHashlistRead',
+  UPDATE: 'permHashlistHashlistUpdate',
+  DELETE: 'permHashlistHashlistDelete'
+} as const;
 // // HASH
-export enum Hash {
-  READ = 'permHashRead'
-}
+export const Hash = {
+  READ: 'permHashRead'
+} as const;
 // // FILE
-export enum File {
-  CREATE = 'permFileCreate',
-  DELETE = 'permFileDelete',
-  READ = 'permFileRead',
-  UPDATE = 'permFileUpdate'
-}
+export const File = {
+  CREATE: 'permFileCreate',
+  DELETE: 'permFileDelete',
+  READ: 'permFileRead',
+  UPDATE: 'permFileUpdate'
+} as const;
 // // CONFIG
-export enum Config {
-  CREATE = 'permConfigCreate',
-  DELETE = 'permConfigDelete',
-  READ = 'permConfigRead',
-  UPDATE = 'permConfigUpdate'
-}
+export const Config = {
+  CREATE: 'permConfigCreate',
+  DELETE: 'permConfigDelete',
+  READ: 'permConfigRead',
+  UPDATE: 'permConfigUpdate'
+} as const;
 // // AGENT BINARY
-export enum AgentBinary {
-  CREATE = 'permAgentBinaryCreate',
-  DELETE = 'permAgentBinaryDelete',
-  READ = 'permAgentBinaryRead',
-  UPDATE = 'permAgentBinaryUpdate'
-}
+export const AgentBinary = {
+  CREATE: 'permAgentBinaryCreate',
+  DELETE: 'permAgentBinaryDelete',
+  READ: 'permAgentBinaryRead',
+  UPDATE: 'permAgentBinaryUpdate'
+} as const;
 // // CRACKER BINARY
-export enum CrackerBinary {
-  CREATE = 'permCrackerBinaryCreate',
-  DELETE = 'permCrackerBinaryDelete',
-  READ = 'permCrackerBinaryRead',
-  UPDATE = 'permCrackerBinaryUpdate'
-}
+export const CrackerBinary = {
+  CREATE: 'permCrackerBinaryCreate',
+  DELETE: 'permCrackerBinaryDelete',
+  READ: 'permCrackerBinaryRead',
+  UPDATE: 'permCrackerBinaryUpdate'
+} as const;
 // // CRACKER BINARY TYPE
-export enum CrackerBinaryType {
-  CREATE = 'permCrackerBinaryTypeCreate',
-  DELETE = 'permCrackerBinaryTypeDelete',
-  READ = 'permCrackerBinaryTypeRead',
-  UPDATE = 'permCrackerBinaryTypeUpdate'
-}
+export const CrackerBinaryType = {
+  CREATE: 'permCrackerBinaryTypeCreate',
+  DELETE: 'permCrackerBinaryTypeDelete',
+  READ: 'permCrackerBinaryTypeRead',
+  UPDATE: 'permCrackerBinaryTypeUpdate'
+} as const;
 // // PREPROCESSOR
-export enum Prepro {
-  CREATE = 'permPreprocessorCreate',
-  DELETE = 'permPreprocessorDelete',
-  READ = 'permPreprocessorRead',
-  UPDATE = 'permPreprocessorUpdate'
-}
+export const Prepro = {
+  CREATE: 'permPreprocessorCreate',
+  DELETE: 'permPreprocessorDelete',
+  READ: 'permPreprocessorRead',
+  UPDATE: 'permPreprocessorUpdate'
+} as const;
 // // HASHTYPES
-export enum Hashtype {
-  CREATE = 'permHashTypeCreate',
-  DELETE = 'permHashTypeDelete',
-  READ = 'permHashTypeRead',
-  UPDATE = 'permHashTypeUpdate'
-}
+export const Hashtype = {
+  CREATE: 'permHashTypeCreate',
+  DELETE: 'permHashTypeDelete',
+  READ: 'permHashTypeRead',
+  UPDATE: 'permHashTypeUpdate'
+} as const;
 // // HEALTH CHECK
-export enum HealthCheck {
-  CREATE = 'permHealthCheckCreate',
-  DELETE = 'permHealthCheckDelete',
-  READ = 'permHealthCheckRead',
-  UPDATE = 'permHealthCheckUpdate'
-}
+export const HealthCheck = {
+  CREATE: 'permHealthCheckCreate',
+  DELETE: 'permHealthCheckDelete',
+  READ: 'permHealthCheckRead',
+  UPDATE: 'permHealthCheckUpdate'
+} as const;
 // // HEALTH CHECK AGENT
-export enum HealthCheckAgent {
-  CREATE = 'permHealthCheckAgentCreate',
-  DELETE = 'permHealthCheckAgentDelete',
-  READ = 'permHealthCheckAgentRead',
-  UPDATE = 'permHealthCheckAgentUpdate'
-}
+export const HealthCheckAgent = {
+  CREATE: 'permHealthCheckAgentCreate',
+  DELETE: 'permHealthCheckAgentDelete',
+  READ: 'permHealthCheckAgentRead',
+  UPDATE: 'permHealthCheckAgentUpdate'
+} as const;
 // // LOGS
-export enum Logs {
-  READ = 'permLogEntryRead'
-}
+export const Logs = {
+  READ: 'permLogEntryRead'
+} as const;
 // // USER
-export enum User {
-  CREATE = 'permUserCreate',
-  DELETE = 'permUserDelete',
-  READ = 'permUserRead',
-  UPDATE = 'permUserUpdate'
-}
+export const User = {
+  CREATE: 'permUserCreate',
+  DELETE: 'permUserDelete',
+  READ: 'permUserRead',
+  UPDATE: 'permUserUpdate'
+} as const;
 // // RIGHT GROUP
-export enum RightGroup {
-  CREATE = 'permRightGroupCreate',
-  DELETE = 'permRightGroupDelete',
-  READ = 'permRightGroupRead',
-  UPDATE = 'permRightGroupUpdate'
-}
+export const RightGroup = {
+  CREATE: 'permRightGroupCreate',
+  DELETE: 'permRightGroupDelete',
+  READ: 'permRightGroupRead',
+  UPDATE: 'permRightGroupUpdate'
+} as const;
 // // GROUP ACCESS
-export enum GroupAccess {
-  CREATE = 'permAccessGroupCreate',
-  DELETE = 'permAccessGroupDelete',
-  READ = 'permAccessGroupRead',
-  UPDATE = 'permAccessGroupUpdate'
-}
+export const GroupAccess = {
+  CREATE: 'permAccessGroupCreate',
+  DELETE: 'permAccessGroupDelete',
+  READ: 'permAccessGroupRead',
+  UPDATE: 'permAccessGroupUpdate'
+} as const;
 // // NOTIFICATIONS
-export enum Notif {
-  CREATE = 'permNotificationSettingCreate',
-  DELETE = 'permNotificationSettingDelete',
-  READ = 'permNotificationSettingRead',
-  UPDATE = 'permNotificationSettingUpdate'
-}
+export const Notif = {
+  CREATE: 'permNotificationSettingCreate',
+  DELETE: 'permNotificationSettingDelete',
+  READ: 'permNotificationSettingRead',
+  UPDATE: 'permNotificationSettingUpdate'
+} as const;
 // // JWT API KEY
-export enum JwtApiKey {
-  CREATE = 'permJwtApiKeyCreate',
-  DELETE = 'permJwtApiKeyDelete',
-  READ = 'permJwtApiKeyRead',
-  UPDATE = 'permJwtApiKeyUpdate'
-}
+export const JwtApiKey = {
+  CREATE: 'permJwtApiKeyCreate',
+  DELETE: 'permJwtApiKeyDelete',
+  READ: 'permJwtApiKeyRead',
+  UPDATE: 'permJwtApiKeyUpdate'
+} as const;
 
-export class Perm {
-  static readonly Agent = Agent;
-  static readonly AgentStat = AgentStat;
-  static readonly AgentAssignment = AgentAssignment;
-  static readonly AgentError = AgentError;
-  static readonly Voucher = Voucher;
-  static readonly Task = Task;
-  static readonly Pretask = Pretask;
-  static readonly SuperTask = SuperTask;
-  static readonly TaskWrapper = TaskWrapper;
-  static readonly Chunk = Chunk;
-  static readonly Speed = Speed;
-  static readonly Hashlist = Hashlist;
-  static readonly SuperHashlist = SuperHashlist;
-  static readonly Hash = Hash;
-  static readonly File = File;
-  static readonly Config = Config;
-  static readonly AgentBinary = AgentBinary;
-  static readonly CrackerBinary = CrackerBinary;
-  static readonly CrackerBinaryType = CrackerBinaryType;
-  static readonly Prepro = Prepro;
-  static readonly Hashtype = Hashtype;
-  static readonly HealthCheck = HealthCheck;
-  static readonly HealthCheckAgent = HealthCheckAgent;
-  static readonly Logs = Logs;
-  static readonly User = User;
-  static readonly RightGroup = RightGroup;
-  static readonly GroupAccess = GroupAccess;
-  static readonly Notif = Notif;
-  static readonly JwtApiKey = JwtApiKey;
-}
+export const Perm = {
+  Agent,
+  AgentStat,
+  AgentAssignment,
+  AgentError,
+  Voucher,
+  Task,
+  Pretask,
+  SuperTask,
+  TaskWrapper,
+  Chunk,
+  Speed,
+  Hashlist,
+  SuperHashlist,
+  Hash,
+  File,
+  Config,
+  AgentBinary,
+  CrackerBinary,
+  CrackerBinaryType,
+  Prepro,
+  Hashtype,
+  HealthCheck,
+  HealthCheckAgent,
+  Logs,
+  User,
+  RightGroup,
+  GroupAccess,
+  Notif,
+  JwtApiKey
+} as const;
 
-type NestedEnumValues<T> = T extends Record<string, string> ? T[keyof T] : never;
+type PermissionGroupValues<T> = T[keyof T];
 
 export type PermissionValues = {
-  [K in keyof typeof Perm]: NestedEnumValues<(typeof Perm)[K]>;
+  [K in keyof typeof Perm]: PermissionGroupValues<(typeof Perm)[K]>;
 }[keyof typeof Perm];
