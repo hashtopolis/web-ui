@@ -1,4 +1,4 @@
-import { Observable, catchError, debounceTime, forkJoin, of, switchMap, throwError } from 'rxjs';
+import { Observable, catchError, forkJoin, of, switchMap, throwError } from 'rxjs';
 
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -222,7 +222,7 @@ export class GlobalService {
       objectdata.push({ id: object.id, type: serviceConfig.RESOURCE });
     }
     const data = { data: objectdata };
-    return this.http.delete<object>(this.cs.getEndpoint() + serviceConfig.URL, { body: data }).pipe(debounceTime(2000));
+    return this.http.delete<object>(this.cs.getEndpoint() + serviceConfig.URL, { body: data });
   }
 
   /**
@@ -236,8 +236,7 @@ export class GlobalService {
     const item = { type: serviceConfig.RESOURCE, id: id, ...arr };
     const serializedData = new JsonAPISerializer().serialize({ stuff: item });
     return this.http
-      .patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, serializedData)
-      .pipe(debounceTime(2000));
+      .patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, serializedData);
   }
 
   /**
@@ -261,7 +260,7 @@ export class GlobalService {
       });
     }
     const data = { data: objectdata };
-    return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL, data).pipe(debounceTime(2000));
+    return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL, data);
   }
 
   postRelationships(
@@ -271,8 +270,7 @@ export class GlobalService {
     data: JsonApiRelationshipData
   ): Observable<object> {
     return this.http
-      .post<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
-      .pipe(debounceTime(2000));
+      .post<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data);
   }
 
   deleteRelationships(
@@ -284,14 +282,12 @@ export class GlobalService {
     return this.http
       .delete<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, {
         body: data
-      })
-      .pipe(debounceTime(2000));
+      });
   }
 
   getRelationships(serviceConfig: ServiceConfig, id: number, relType: string): Observable<ResponseWrapper> {
     return this.http
-      .get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType)
-      .pipe(debounceTime(2000));
+      .get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType);
   }
 
   /**
