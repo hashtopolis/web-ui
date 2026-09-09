@@ -21,9 +21,6 @@ interface JsonApiRelationshipData {
   data: { type: string; id: number }[];
 }
 
-/** Debounce applied to mutating requests so rapid repeat submits collapse into one. */
-const MUTATION_DEBOUNCE_MS = 2000;
-
 @Injectable({
   providedIn: 'root'
 })
@@ -242,8 +239,7 @@ export class GlobalService {
   update(serviceConfig: ServiceConfig, id: number, arr: Record<string, unknown>): Observable<object> {
     const item = { type: serviceConfig.RESOURCE, id: id, ...arr };
     const serializedData = new JsonAPISerializer().serialize({ stuff: item });
-    return this.http
-      .patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, serializedData);
+    return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, serializedData);
   }
 
   /**
@@ -276,8 +272,10 @@ export class GlobalService {
     relType: string,
     data: JsonApiRelationshipData
   ): Observable<object> {
-    return this.http
-      .post<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data);
+    return this.http.post<object>(
+      this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType,
+      data
+    );
   }
 
   deleteRelationships(
@@ -286,15 +284,16 @@ export class GlobalService {
     relType: string,
     data: JsonApiRelationshipData
   ): Observable<object> {
-    return this.http
-      .delete<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, {
+    return this.http.delete<object>(
+      this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType,
+      {
         body: data
-      });
+      }
+    );
   }
 
   getRelationships(serviceConfig: ServiceConfig, id: number, relType: string): Observable<ResponseWrapper> {
-    return this.http
-      .get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType);
+    return this.http.get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType);
   }
 
   /**
