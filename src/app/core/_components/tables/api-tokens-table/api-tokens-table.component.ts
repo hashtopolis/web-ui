@@ -14,6 +14,7 @@ import { ApiTokensRoleService } from '@services/roles/user/api-tokens-role.servi
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import {
+  API_TOKEN_NAME_MAX_LENGTH,
   ApiTokensRowAction,
   ApiTokensTableCol,
   ApiTokensTableColumnLabel,
@@ -69,7 +70,8 @@ export class ApiTokensTableComponent extends BaseTableComponent implements OnIni
         return {
           data: token,
           value: token.tokenName ?? '',
-          action: ApiTokensTableEditableAction.CHANGE_TOKEN_NAME
+          action: ApiTokensTableEditableAction.CHANGE_TOKEN_NAME,
+          maxLength: API_TOKEN_NAME_MAX_LENGTH
         };
       };
     } else {
@@ -164,6 +166,12 @@ export class ApiTokensTableComponent extends BaseTableComponent implements OnIni
     const newName = value.trim();
     if ((token.tokenName ?? '') === newName) {
       this.alertService.showInfoMessage('Nothing changed');
+      return;
+    }
+    if (newName.length > API_TOKEN_NAME_MAX_LENGTH) {
+      this.alertService.showErrorMessage(
+        `Token name is limited to ${API_TOKEN_NAME_MAX_LENGTH} characters (got ${newName.length}).`
+      );
       return;
     }
 

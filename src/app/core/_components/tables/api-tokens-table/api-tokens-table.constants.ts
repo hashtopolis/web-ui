@@ -28,3 +28,6 @@ export const ApiTokensTableEditableAction = {
 } as const;
 export type ApiTokensTableEditableAction =
   (typeof ApiTokensTableEditableAction)[keyof typeof ApiTokensTableEditableAction];
+
+/** Mirrors the server-side limit on the token name (same cap as the create form). */
+export const API_TOKEN_NAME_MAX_LENGTH = 100;

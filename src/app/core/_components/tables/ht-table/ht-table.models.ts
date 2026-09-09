@@ -70,6 +70,8 @@ export interface HTTableEditable<T> {
   data: T;
   value: string;
   action: string;
+  // Optional hard cap on the number of characters that can be typed/pasted into the edit input.
+  maxLength?: number;
   disabled?: boolean;
   // Optional matTooltip text for the cell — useful for explaining why a disabled cell can't be toggled.
   tooltip?: string;
