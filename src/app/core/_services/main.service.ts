@@ -1,4 +1,4 @@
-import { Observable, Subject, catchError, forkJoin, map, of, switchMap, take, throttle, throwError, timer } from 'rxjs';
+import { Observable, Subject, catchError, debounceTime, forkJoin, of, share, switchMap, take, throwError } from 'rxjs';
 
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -17,19 +17,14 @@ interface JsonApiRelationshipData {
   data: { type: string; id: number }[];
 }
 
-// Wraps a debounced request's outcome so it can flow through a plain Subject relay without
-// erroring it out (an rxjs error notification would permanently terminate the Subject).
-type DebounceEnvelope<T> = { ok: true; value: T } | { ok: false; error: unknown };
-
 @Injectable({
   providedIn: 'root'
 })
 export class GlobalService {
-  // Per-key debounce groups for `debounceRequest`, keyed e.g. by resource id. Each key's trigger
-  // Subject feeds a throttle pipeline that is subscribed exactly once, permanently, right when the
-  // key is first used (see below for why), and relays outcomes into `debounceResults`.
+  // Per-key debounce groups for `debounceRequest`. Each key gets its own trigger Subject
+  // and shared result stream so unrelated resources never debounce against each other.
   private readonly debounceTriggers = new Map<string, Subject<() => Observable<unknown>>>();
-  private readonly debounceResults = new Map<string, Subject<DebounceEnvelope<unknown>>>();
+  private readonly debounceResults = new Map<string, Observable<unknown>>();
 
   constructor(
     private http: HttpClient,
@@ -45,54 +40,37 @@ export class GlobalService {
    * *emitting the already-received response* to the subscriber. Repeated calls still fire one
    * HTTP request each, just with delayed delivery.
    *
-   * This instead defers *creating* the request (via `requestFactory`) to a leading+trailing
-   * throttle per `key`: the first call for a key fires immediately (no artificial delay for a
-   * one-off action). Further calls that arrive while that cooldown window is still running don't
-   * fire on their own — the latest one is remembered and sent once as a single trailing request
-   * when the window ends, which then starts a new cooldown. Every caller for a key receives the
-   * result of whichever actual request (leading or trailing) their call ended up part of.
-   *
-   * The throttle pipeline is subscribed once, permanently, rather than lazily via `share()`. Each
-   * individual caller only stays subscribed until *their* result arrives (then unsubscribes), so
-   * with `share()`'s default ref-counting, the moment a leading call's lone subscriber got its
-   * result there'd be zero subscribers left — tearing down the throttle's internal cooldown timer
-   * before a since-then call could ever see it, making every call look like a fresh leading edge.
+   * This instead defers *creating* the request (via `requestFactory`) until `time` ms have
+   * passed without another call for the same `key`. Calls that arrive within that window reset
+   * the timer and replace the pending request, so only the last one is actually sent — and every
+   * caller for that key (including earlier ones still waiting) receives that single request's result.
    */
   private debounceRequest<T>(key: string, requestFactory: () => Observable<T>, time = 2000): Observable<T> {
     if (!this.debounceTriggers.has(key)) {
       const trigger$ = new Subject<() => Observable<T>>();
-      const relay$ = new Subject<DebounceEnvelope<T>>();
-
-      trigger$
-        .pipe(
-          throttle(() => timer(time), { leading: true, trailing: true }),
-          switchMap((factory) =>
-            factory().pipe(
-              map((value): DebounceEnvelope<T> => ({ ok: true, value })),
-              catchError((error) => of<DebounceEnvelope<T>>({ ok: false, error }))
-            )
-          )
-        )
-        .subscribe((envelope) => relay$.next(envelope));
-
+      const result$ = trigger$.pipe(
+        debounceTime(time),
+        switchMap((factory) => factory()),
+        share()
+      );
       this.debounceTriggers.set(key, trigger$ as Subject<() => Observable<unknown>>);
-      this.debounceResults.set(key, relay$ as Subject<DebounceEnvelope<unknown>>);
+      this.debounceResults.set(key, result$ as Observable<unknown>);
     }
 
     const trigger$ = this.debounceTriggers.get(key) as Subject<() => Observable<T>>;
-    const relay$ = this.debounceResults.get(key) as Subject<DebounceEnvelope<T>>;
+    const result$ = this.debounceResults.get(key) as Observable<T>;
 
     return new Observable<T>((subscriber) => {
-      const subscription = relay$.pipe(take(1)).subscribe((envelope) => {
-        if (envelope.ok) {
-          subscriber.next(envelope.value);
-          subscriber.complete();
-        } else {
-          subscriber.error(envelope.error);
-        }
-      });
+      const subscription = result$.pipe(take(1)).subscribe(subscriber);
       trigger$.next(requestFactory);
-      return () => subscription.unsubscribe();
+      return () => {
+        subscription.unsubscribe();
+        // Once nobody is waiting on this key anymore, drop it so the maps don't grow forever.
+        if (!trigger$.observed) {
+          this.debounceTriggers.delete(key);
+          this.debounceResults.delete(key);
+        }
+      };
     });
   }
 
