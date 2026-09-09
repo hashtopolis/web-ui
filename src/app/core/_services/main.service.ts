@@ -1,4 +1,4 @@
-import { Observable, Subject, catchError, debounceTime, forkJoin, of, share, switchMap, take, throwError } from 'rxjs';
+import { Observable, catchError, debounceTime, forkJoin, of, switchMap, throwError } from 'rxjs';
 
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -21,58 +21,11 @@ interface JsonApiRelationshipData {
   providedIn: 'root'
 })
 export class GlobalService {
-  // Per-key debounce groups for `debounceRequest`. Each key gets its own trigger Subject
-  // and shared result stream so unrelated resources never debounce against each other.
-  private readonly debounceTriggers = new Map<string, Subject<() => Observable<unknown>>>();
-  private readonly debounceResults = new Map<string, Observable<unknown>>();
-
   constructor(
     private http: HttpClient,
     private as: AuthService,
     private cs: ConfigService
   ) {}
-
-  /**
-   * Debounces mutating (or otherwise rate-sensitive) requests that target the same resource.
-   *
-   * `debounceTime` piped directly onto an HttpClient observable does NOT debounce the request:
-   * HttpClient sends the request as soon as it's subscribed, and `debounceTime` only delays
-   * *emitting the already-received response* to the subscriber. Repeated calls still fire one
-   * HTTP request each, just with delayed delivery.
-   *
-   * This instead defers *creating* the request (via `requestFactory`) until `time` ms have
-   * passed without another call for the same `key`. Calls that arrive within that window reset
-   * the timer and replace the pending request, so only the last one is actually sent — and every
-   * caller for that key (including earlier ones still waiting) receives that single request's result.
-   */
-  private debounceRequest<T>(key: string, requestFactory: () => Observable<T>, time = 2000): Observable<T> {
-    if (!this.debounceTriggers.has(key)) {
-      const trigger$ = new Subject<() => Observable<T>>();
-      const result$ = trigger$.pipe(
-        debounceTime(time),
-        switchMap((factory) => factory()),
-        share()
-      );
-      this.debounceTriggers.set(key, trigger$ as Subject<() => Observable<unknown>>);
-      this.debounceResults.set(key, result$ as Observable<unknown>);
-    }
-
-    const trigger$ = this.debounceTriggers.get(key) as Subject<() => Observable<T>>;
-    const result$ = this.debounceResults.get(key) as Observable<T>;
-
-    return new Observable<T>((subscriber) => {
-      const subscription = result$.pipe(take(1)).subscribe(subscriber);
-      trigger$.next(requestFactory);
-      return () => {
-        subscription.unsubscribe();
-        // Once nobody is waiting on this key anymore, drop it so the maps don't grow forever.
-        if (!trigger$.observed) {
-          this.debounceTriggers.delete(key);
-          this.debounceResults.delete(key);
-        }
-      };
-    });
-  }
 
   /**
    * Get logged user id
@@ -269,13 +222,7 @@ export class GlobalService {
       objectdata.push({ id: object.id, type: serviceConfig.RESOURCE });
     }
     const data = { data: objectdata };
-    const key = `bulkDelete:${serviceConfig.URL}:${objects
-      .map((object) => object.id)
-      .sort((a, b) => a - b)
-      .join(',')}`;
-    return this.debounceRequest(key, () =>
-      this.http.delete<object>(this.cs.getEndpoint() + serviceConfig.URL, { body: data })
-    );
+    return this.http.delete<object>(this.cs.getEndpoint() + serviceConfig.URL, { body: data }).pipe(debounceTime(2000));
   }
 
   /**
@@ -288,10 +235,9 @@ export class GlobalService {
   update(serviceConfig: ServiceConfig, id: number, arr: Record<string, unknown>): Observable<object> {
     const item = { type: serviceConfig.RESOURCE, id: id, ...arr };
     const serializedData = new JsonAPISerializer().serialize({ stuff: item });
-    const key = `update:${serviceConfig.URL}:${id}`;
-    return this.debounceRequest(key, () =>
-      this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, serializedData)
-    );
+    return this.http
+      .patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, serializedData)
+      .pipe(debounceTime(2000));
   }
 
   /**
@@ -315,11 +261,7 @@ export class GlobalService {
       });
     }
     const data = { data: objectdata };
-    const key = `bulkUpdate:${serviceConfig.URL}:${objects
-      .map((object) => object.id)
-      .sort((a, b) => a - b)
-      .join(',')}`;
-    return this.debounceRequest(key, () => this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL, data));
+    return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL, data).pipe(debounceTime(2000));
   }
 
   postRelationships(
@@ -328,10 +270,9 @@ export class GlobalService {
     relType: string,
     data: JsonApiRelationshipData
   ): Observable<object> {
-    const key = `postRelationships:${serviceConfig.URL}:${id}:${relType}`;
-    return this.debounceRequest(key, () =>
-      this.http.post<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
-    );
+    return this.http
+      .post<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
+      .pipe(debounceTime(2000));
   }
 
   deleteRelationships(
@@ -340,19 +281,17 @@ export class GlobalService {
     relType: string,
     data: JsonApiRelationshipData
   ): Observable<object> {
-    const key = `deleteRelationships:${serviceConfig.URL}:${id}:${relType}`;
-    return this.debounceRequest(key, () =>
-      this.http.delete<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, {
+    return this.http
+      .delete<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, {
         body: data
       })
-    );
+      .pipe(debounceTime(2000));
   }
 
   getRelationships(serviceConfig: ServiceConfig, id: number, relType: string): Observable<ResponseWrapper> {
-    const key = `getRelationships:${serviceConfig.URL}:${id}:${relType}`;
-    return this.debounceRequest(key, () =>
-      this.http.get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType)
-    );
+    return this.http
+      .get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType)
+      .pipe(debounceTime(2000));
   }
 
   /**
