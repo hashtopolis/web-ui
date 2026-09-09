@@ -291,12 +291,13 @@ export class EditSupertasksComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.loadData();
-          this.alert.showSuccessMessage(`Successfully updated Supertask #${this.editedSTIndex}!`);
+          this.router.navigate(['tasks/supertasks']).then(() => {
+            this.alert.showSuccessMessage('Supertask data has been updated successfully');
+          });
         },
         error: (err: unknown) => {
           console.error('Error updating Supertask:', err);
-          this.alert.showErrorMessage(`Error updating Supertask #${this.editedSTIndex}!`);
+          this.alert.showErrorMessage(`Error updating Supertask`);
         }
       });
   }
