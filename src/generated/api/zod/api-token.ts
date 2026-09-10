@@ -8,6 +8,7 @@ export const zApiTokenCreate = z.object({
       startValid: z.number(),
       endValid: z.number(),
       userId: z.int().nullish(),
+      tokenName: z.string(),
       isRevoked: z.boolean()
     })
   })
@@ -17,7 +18,8 @@ export const zApiTokenPatch = z.object({
   data: z.object({
     type: z.literal('apiToken'),
     attributes: z.object({
-      isRevoked: z.boolean().optional()
+      isRevoked: z.boolean().optional(),
+      tokenName: z.string().optional()
     })
   })
 });
@@ -28,7 +30,8 @@ export const zApiTokenPatchMultiple = z.object({
       id: z.int(),
       type: z.literal('apiToken'),
       attributes: z.object({
-        isRevoked: z.boolean().optional()
+        isRevoked: z.boolean().optional(),
+        tokenName: z.string().optional()
       })
     })
   )
@@ -58,6 +61,7 @@ export const zApiTokenResponse = z.object({
       startValid: z.number(),
       endValid: z.number(),
       userId: z.int().nullable(),
+      tokenName: z.string(),
       isRevoked: z.boolean(),
       token: z.string().optional()
     }),
@@ -119,6 +123,7 @@ export const zApiTokenPostPatchResponse = z.object({
       startValid: z.number(),
       endValid: z.number(),
       userId: z.int().nullable(),
+      tokenName: z.string(),
       isRevoked: z.boolean(),
       token: z.string().optional()
     }),
@@ -205,6 +210,7 @@ export const zApiTokenListResponse = z.object({
         startValid: z.number(),
         endValid: z.number(),
         userId: z.int().nullable(),
+        tokenName: z.string(),
         isRevoked: z.boolean(),
         token: z.string().optional()
       }),
