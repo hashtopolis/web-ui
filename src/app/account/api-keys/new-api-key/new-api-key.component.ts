@@ -86,7 +86,7 @@ export class NewApiKeyComponent implements OnInit {
       return;
     }
 
-    const { validFrom, validUntil, scopes } = this.form.getRawValue();
+    const { tokenName, validFrom, validUntil, scopes } = this.form.getRawValue();
     if (!validFrom || !validUntil) {
       this.alert.showErrorMessage('Please select a valid date range.');
       return;
@@ -95,6 +95,7 @@ export class NewApiKeyComponent implements OnInit {
     this.submitting = true;
     try {
       const payload = {
+        tokenName: tokenName.trim(),
         scopes,
         startValid: unixTimestampFromDate(startOfDay(validFrom)),
         // endValid is an *exclusive* cutoff: the token is valid through the

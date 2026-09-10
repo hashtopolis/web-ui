@@ -24,6 +24,13 @@
         <span class="help-block text-critical">"Valid Until" must be on or after "Valid From".</span>
       }
 
+      <input-text
+        title="Token Name"
+        formControlName="tokenName"
+        hint="Optional label to identify this API key"
+        [maxLength]="100"
+      ></input-text>
+
       <div class="flex flex-col gap-2 mt-2">
         <span class="font-medium">Scopes</span>
         @if (loadingScopes) {
