@@ -47,11 +47,6 @@ export type UserResponse = {
       registeredSince?: number;
       sessionLifetime?: number;
       globalPermissionGroupId?: number;
-      yubikey?: string;
-      otp1?: string;
-      otp2?: string;
-      otp3?: string;
-      otp4?: string;
     };
   };
   relationships?: {
@@ -114,11 +109,6 @@ export type UserPostPatchResponse = {
       registeredSince: number;
       sessionLifetime: number;
       globalPermissionGroupId: number;
-      yubikey: string;
-      otp1: string;
-      otp2: string;
-      otp3: string;
-      otp4: string;
     };
   };
 };
@@ -147,11 +137,6 @@ export type UserListResponse = {
       registeredSince?: number;
       sessionLifetime?: number;
       globalPermissionGroupId?: number;
-      yubikey?: string;
-      otp1?: string;
-      otp2?: string;
-      otp3?: string;
-      otp4?: string;
     };
   }>;
   relationships?: {

@@ -141,12 +141,7 @@ describe('NewNotificationComponent', () => {
           lastLoginDate: 1720000000,
           registeredSince: 1700000000,
           sessionLifetime: 3600,
-          globalPermissionGroupId: 1,
-          yubikey: '',
-          otp1: '',
-          otp2: '',
-          otp3: '',
-          otp4: ''
+          globalPermissionGroupId: 1
         }
       },
       {
@@ -160,12 +155,7 @@ describe('NewNotificationComponent', () => {
           lastLoginDate: 1719900000,
           registeredSince: 1705000000,
           sessionLifetime: 3600,
-          globalPermissionGroupId: 2,
-          yubikey: '',
-          otp1: '',
-          otp2: '',
-          otp3: '',
-          otp4: ''
+          globalPermissionGroupId: 2
         }
       }
     ]
