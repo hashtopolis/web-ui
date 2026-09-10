@@ -115,11 +115,6 @@ export type GlobalPermissionGroupResponse = {
       registeredSince?: number;
       sessionLifetime?: number;
       globalPermissionGroupId?: number;
-      yubikey?: string;
-      otp1?: string;
-      otp2?: string;
-      otp3?: string;
-      otp4?: string;
     };
   }>;
 };
@@ -169,11 +164,6 @@ export type GlobalPermissionGroupPostPatchResponse = {
       registeredSince?: number;
       sessionLifetime?: number;
       globalPermissionGroupId?: number;
-      yubikey?: string;
-      otp1?: string;
-      otp2?: string;
-      otp3?: string;
-      otp4?: string;
     };
   }>;
 };
@@ -232,11 +222,6 @@ export type GlobalPermissionGroupListResponse = {
       registeredSince?: number;
       sessionLifetime?: number;
       globalPermissionGroupId?: number;
-      yubikey?: string;
-      otp1?: string;
-      otp2?: string;
-      otp3?: string;
-      otp4?: string;
     };
   }>;
 };
