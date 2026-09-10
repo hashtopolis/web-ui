@@ -8,6 +8,7 @@ export type ApiTokenCreate = {
       startValid: number;
       endValid: number;
       userId?: number | null;
+      tokenName: string;
       isRevoked: boolean;
     };
   };
@@ -18,6 +19,7 @@ export type ApiTokenPatch = {
     type: 'apiToken';
     attributes: {
       isRevoked?: boolean;
+      tokenName?: string;
     };
   };
 };
@@ -28,6 +30,7 @@ export type ApiTokenPatchMultiple = {
     type: 'apiToken';
     attributes: {
       isRevoked?: boolean;
+      tokenName?: string;
     };
   }>;
 };
@@ -54,6 +57,7 @@ export type ApiTokenResponse = {
       startValid: number;
       endValid: number;
       userId: number | null;
+      tokenName: string;
       isRevoked: boolean;
       token?: string;
     };
@@ -109,6 +113,7 @@ export type ApiTokenPostPatchResponse = {
       startValid: number;
       endValid: number;
       userId: number | null;
+      tokenName: string;
       isRevoked: boolean;
       token?: string;
     };
@@ -173,6 +178,7 @@ export type ApiTokenListResponse = {
       startValid: number;
       endValid: number;
       userId: number | null;
+      tokenName: string;
       isRevoked: boolean;
       token?: string;
     };

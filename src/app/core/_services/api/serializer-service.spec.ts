@@ -142,7 +142,7 @@ describe('JsonAPISerializer', () => {
       const apiToken = mockResource(
         'apiToken',
         22,
-        { startValid: 1785743381, endValid: 1785829781, userId: 1, isRevoked: false },
+        { startValid: 1785743381, endValid: 1785829781, userId: 1, tokenName: 'ci', isRevoked: false },
         ['user']
       );
       const body = mockResponse({ data: [apiToken], included: [strippedUser] });

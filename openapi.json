@@ -18368,9 +18368,10 @@
                   "startValid": { "type": "integer", "format": "int64" },
                   "endValid": { "type": "integer", "format": "int64" },
                   "userId": { "type": ["integer", "null"] },
+                  "tokenName": { "type": "string" },
                   "isRevoked": { "type": "boolean" }
                 },
-                "required": ["scopes", "startValid", "endValid", "isRevoked"]
+                "required": ["scopes", "startValid", "endValid", "tokenName", "isRevoked"]
               }
             }
           }
@@ -18385,7 +18386,10 @@
             "required": ["type", "attributes"],
             "properties": {
               "type": { "type": "string", "const": "apiToken" },
-              "attributes": { "type": "object", "properties": { "isRevoked": { "type": "boolean" } } }
+              "attributes": {
+                "type": "object",
+                "properties": { "isRevoked": { "type": "boolean" }, "tokenName": { "type": "string" } }
+              }
             }
           }
         }
@@ -18402,7 +18406,10 @@
               "properties": {
                 "id": { "type": "integer", "example": 1 },
                 "type": { "type": "string", "const": "apiToken" },
-                "attributes": { "type": "object", "properties": { "isRevoked": { "type": "boolean" } } }
+                "attributes": {
+                  "type": "object",
+                  "properties": { "isRevoked": { "type": "boolean" }, "tokenName": { "type": "string" } }
+                }
               }
             }
           }
@@ -18454,11 +18461,12 @@
               "type": { "type": "string", "const": "apiToken" },
               "attributes": {
                 "type": "object",
-                "required": ["startValid", "endValid", "userId", "isRevoked"],
+                "required": ["startValid", "endValid", "userId", "tokenName", "isRevoked"],
                 "properties": {
                   "startValid": { "type": "integer", "format": "int64" },
                   "endValid": { "type": "integer", "format": "int64" },
                   "userId": { "type": ["integer", "null"] },
+                  "tokenName": { "type": "string" },
                   "isRevoked": { "type": "boolean" },
                   "token": { "type": "string" }
                 }
@@ -18564,11 +18572,12 @@
               "type": { "type": "string", "const": "apiToken" },
               "attributes": {
                 "type": "object",
-                "required": ["startValid", "endValid", "userId", "isRevoked"],
+                "required": ["startValid", "endValid", "userId", "tokenName", "isRevoked"],
                 "properties": {
                   "startValid": { "type": "integer", "format": "int64" },
                   "endValid": { "type": "integer", "format": "int64" },
                   "userId": { "type": ["integer", "null"] },
+                  "tokenName": { "type": "string" },
                   "isRevoked": { "type": "boolean" },
                   "token": { "type": "string" }
                 }
@@ -18702,11 +18711,12 @@
                 "type": { "type": "string", "const": "apiToken" },
                 "attributes": {
                   "type": "object",
-                  "required": ["startValid", "endValid", "userId", "isRevoked"],
+                  "required": ["startValid", "endValid", "userId", "tokenName", "isRevoked"],
                   "properties": {
                     "startValid": { "type": "integer", "format": "int64" },
                     "endValid": { "type": "integer", "format": "int64" },
                     "userId": { "type": ["integer", "null"] },
+                    "tokenName": { "type": "string" },
                     "isRevoked": { "type": "boolean" },
                     "token": { "type": "string" }
                   }
