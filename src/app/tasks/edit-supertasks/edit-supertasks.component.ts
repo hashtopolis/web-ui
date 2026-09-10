@@ -1,10 +1,11 @@
 import { HttpStatus } from '@constants/http.config';
 import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod';
+import { finalize } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, DestroyRef, Input, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { PretaskId } from '@models/id.types';
@@ -35,6 +36,9 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
 export class EditSupertasksComponent implements OnInit {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
+
+  /** Flag indicating whether the supertask name is currently being updated. */
+  isUpdatingSupertask = false;
 
   /** Form group for the new Supertask. */
   updateForm: FormGroup;
@@ -94,9 +98,10 @@ export class EditSupertasksComponent implements OnInit {
    */
   buildForm(): void {
     // Form details
+    const canEdit = this.roleService.hasRole('edit');
     this.viewForm = new FormGroup({
       supertaskId: new FormControl({ value: '', disabled: true }),
-      supertaskName: new FormControl({ value: '', disabled: true })
+      supertaskName: new FormControl({ value: '', disabled: !canEdit }, canEdit ? [Validators.required] : [])
     });
 
     // Form add pretasks
@@ -123,15 +128,19 @@ export class EditSupertasksComponent implements OnInit {
         next: (response: ResponseWrapper) => {
           const supertask: JSuperTask = this.serializer.deserialize(response, zSupertaskResponse);
           this.editName = supertask.supertaskName;
+          const canEdit = this.roleService.hasRole('edit');
           this.viewForm = new FormGroup({
             supertaskId: new FormControl({
               value: supertask.id,
               disabled: true
             }),
-            supertaskName: new FormControl({
-              value: supertask.supertaskName,
-              disabled: true
-            })
+            supertaskName: new FormControl(
+              {
+                value: supertask.supertaskName,
+                disabled: !canEdit
+              },
+              canEdit ? [Validators.required] : []
+            )
           });
 
           if (this.roleService.hasRole('editSupertaskPreTasks')) {
@@ -169,9 +178,13 @@ export class EditSupertasksComponent implements OnInit {
                 next: (response2: ResponseWrapper) => {
                   const supertask2: JSuperTask = this.serializer.deserialize(response2, zSupertaskResponse);
                   this.editName = supertask2.supertaskName;
+                  const canEdit2 = this.roleService.hasRole('edit');
                   this.viewForm = new FormGroup({
                     supertaskId: new FormControl({ value: supertask2.id, disabled: true }),
-                    supertaskName: new FormControl({ value: supertask2.supertaskName, disabled: true })
+                    supertaskName: new FormControl(
+                      { value: supertask2.supertaskName, disabled: !canEdit2 },
+                      canEdit2 ? [Validators.required] : []
+                    )
                   });
                   // still try to load pretasks list for selection
                   this.gs
@@ -258,6 +271,36 @@ export class EditSupertasksComponent implements OnInit {
       this.updateForm.markAllAsTouched();
       this.updateForm.updateValueAndValidity();
     }
+  }
+
+  /**
+   * Handles updating the supertask
+   */
+  onUpdate(): void {
+    const nameControl = this.viewForm.get('supertaskName');
+    if (!nameControl || nameControl.invalid) {
+      nameControl?.markAsTouched();
+      return;
+    }
+
+    this.isUpdatingSupertask = true;
+    this.gs
+      .update(SERV.SUPER_TASKS, this.editedSTIndex, { supertaskName: nameControl.value })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => (this.isUpdatingSupertask = false))
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate(['tasks/supertasks']).then(() => {
+            this.alert.showSuccessMessage('Supertask data has been updated successfully');
+          });
+        },
+        error: (err: unknown) => {
+          console.error('Error updating Supertask:', err);
+          this.alert.showErrorMessage(`Error updating Supertask`);
+        }
+      });
   }
 
   /**

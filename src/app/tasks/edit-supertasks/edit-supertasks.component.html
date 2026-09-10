@@ -5,11 +5,19 @@
         <input-text title="ID" formControlName="supertaskId"></input-text>
       </app-form-row>
       <app-form-row>
-        <input-text title="Name" formControlName="supertaskName"></input-text>
+        <input-text
+          title="Name"
+          formControlName="supertaskName"
+          [isRequired]="roleService.hasRole('edit')"
+        ></input-text>
       </app-form-row>
       <grid-buttons>
         @if (roleService.hasRole('delete')) {
           <button-submit name="Delete" (click)="onDelete()" type="delete"></button-submit>
+        }
+        @if (roleService.hasRole('edit')) {
+          <button-submit name="Update" (click)="onUpdate()" [loading]="isUpdatingSupertask">
+          </button-submit>
         }
         @if (roleService.hasRole('editSupertaskApplyHashlist')) {
           <button-submit [name]="'Apply to Hashlist'" [routerLink]="['/tasks/', editedSTIndex, 'applyhashlist']">
