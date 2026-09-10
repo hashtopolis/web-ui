@@ -590,6 +590,7 @@ export const zTaskWrapperDisplayResponse = z.object({
       hashTypeId: z.int(),
       hashTypeDescription: z.string(),
       groupName: z.string(),
+      hashlistIsSecret: z.boolean(),
       // Aggregate fields — present only when requested via aggregate[taskwrapperdisplay]=...
       status: z.int().optional(),
       totalAssignedAgents: z.int().optional(),
@@ -703,6 +704,7 @@ export const zTaskWrapperDisplayListResponse = z.object({
         hashTypeId: z.int(),
         hashTypeDescription: z.string(),
         groupName: z.string(),
+        hashlistIsSecret: z.boolean(),
         // Aggregate fields — present only when requested via aggregate[taskwrapperdisplay]=...
         status: z.int().optional(),
         totalAssignedAgents: z.int().optional(),
