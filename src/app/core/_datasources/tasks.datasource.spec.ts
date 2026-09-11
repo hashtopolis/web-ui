@@ -1,4 +1,6 @@
 /// <reference types="jasmine" />
+import type { TaskWrapperDisplayListResponse } from '@generated/api/types';
+import { zTaskWrapperDisplayListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
@@ -7,24 +9,65 @@ import { TestBed } from '@angular/core/testing';
 import { ResponseWrapper } from '@models/response.model';
 
 import { GlobalService } from '@services/main.service';
-import { UIConfigService } from '@services/shared/storage.service';
-import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
 import { HttpCacheService } from '@services/shared/http-cache.service';
+import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
+import { UIConfigService } from '@services/shared/storage.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
-import { TasksDataSource } from './tasks.datasource';
-import { mockResponse } from '@src/app/testing/mock-response';
-import { UIConfig } from '@models/config-ui.model';
+import { TasksDataSource } from '@datasources/tasks.datasource';
 
-function buildMockResponse(taskWrappers: { id: number; attributes: Record<string, unknown> }[]): ResponseWrapper {
-  return mockResponse({
+import { mockValidResponse } from '@src/app/testing/mock-response';
+
+type TaskWrapperDisplayAttributes = TaskWrapperDisplayListResponse['data'][number]['attributes'];
+
+function taskWrapperDisplayAttributes(
+  overrides: Partial<TaskWrapperDisplayAttributes> = {}
+): TaskWrapperDisplayAttributes {
+  return {
+    taskWrapperPriority: 0,
+    taskWrapperMaxAgents: 0,
+    taskType: 0,
+    hashlistId: 1,
+    accessGroupId: 1,
+    taskWrapperName: '',
+    displayName: 'Task',
+    taskWrapperIsArchived: false,
+    cracked: 0,
+    taskId: 1,
+    taskName: 'Task',
+    color: null,
+    attackCmd: '',
+    chunkTime: 600,
+    statusTimer: 5,
+    keyspace: 0,
+    keyspaceProgress: 0,
+    taskPriority: 0,
+    taskMaxAgents: 0,
+    isSmall: false,
+    isCpuTask: false,
+    taskIsArchived: false,
+    preprocessorId: 0,
+    hashlistName: 'hashlist',
+    hashCount: 0,
+    hashlistCracked: 0,
+    hashTypeId: 0,
+    hashTypeDescription: 'MD5',
+    groupName: 'Default',
+    ...overrides
+  };
+}
+
+function buildMockResponse(
+  taskWrappers: { id: number; attributes: Partial<TaskWrapperDisplayAttributes> }[]
+): ResponseWrapper {
+  return mockValidResponse(zTaskWrapperDisplayListResponse, {
     data: taskWrappers.map((t) => ({
       id: t.id,
       type: 'taskWrapperDisplay',
-      attributes: t.attributes
+      attributes: taskWrapperDisplayAttributes(t.attributes)
     })),
     meta: { page: { total_elements: taskWrappers.length } },
-    links: { self: '/test', next: null, prev: null }
+    links: { self: '/test', first: '/test', last: null, next: null, prev: null }
   });
 }
 
@@ -38,9 +81,13 @@ describe('TasksDataSource', () => {
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges']);
     const uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
     uiServiceSpy.getUISettings.and.returnValue({});
-    const autoRefreshSpy = jasmine.createSpyObj('AutoRefreshService', ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'], {
-      refresh$: of()
-    });
+    const autoRefreshSpy = jasmine.createSpyObj(
+      'AutoRefreshService',
+      ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'],
+      {
+        refresh$: of()
+      }
+    );
     const cacheSpy = jasmine.createSpyObj('HttpCacheService', ['invalidate']);
     const storageSpy = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
     storageSpy.getItem.and.returnValue(null);
@@ -64,7 +111,7 @@ describe('TasksDataSource', () => {
     it('should set taskWrapperId from id when API does not return taskWrapperId', () => {
       const response = buildMockResponse([
         { id: 5, attributes: { displayName: 'Task A', taskType: 1 } },
-        { id: 10, attributes: { displayName: 'Task B', taskType: 2 } }
+        { id: 10, attributes: { displayName: 'Task B', taskType: 1 } }
       ]);
       gsSpy.getAll.and.returnValue(of(response));
 
@@ -73,18 +120,6 @@ describe('TasksDataSource', () => {
       const data = dataSource.getOriginalData();
       expect(data[0].taskWrapperId).toBe(5);
       expect(data[1].taskWrapperId).toBe(10);
-    });
-
-    it('should keep existing taskWrapperId if API returns it', () => {
-      const response = buildMockResponse([
-        { id: 5, attributes: { displayName: 'Task A', taskWrapperId: 99 } }
-      ]);
-      gsSpy.getAll.and.returnValue(of(response));
-
-      dataSource.loadAll();
-
-      const data = dataSource.getOriginalData();
-      expect(data[0].taskWrapperId).toBe(99);
     });
 
     it('should preserve all other fields when mapping taskWrapperId', () => {

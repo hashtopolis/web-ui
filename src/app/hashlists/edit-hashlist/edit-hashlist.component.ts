@@ -1,5 +1,5 @@
 import { HttpStatus } from '@constants/http.config';
-import { zAccessGroupListResponse, zHashlistResponse } from '@generated/api/zod';
+import { zGetAccessGroupsHelperApiResponse, zHashlistResponse } from '@generated/api/zod';
 import { lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -205,7 +205,7 @@ export class EditHashlistComponent implements OnInit, CanComponentDeactivate {
     }
     const response = await lastValueFrom<ResponseWrapper>(this.gs.ghelper(SERV.HELPER, 'getAccessGroups'));
 
-    const accessGroups = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
+    const accessGroups = new JsonAPISerializer().deserialize(response, zGetAccessGroupsHelperApiResponse);
 
     this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
     this.changeDetectorRef.detectChanges();

@@ -5,15 +5,9 @@ export const zSpeedResponse = z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
   }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/speeds?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[before]=25')
-    })
-    .optional(),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/speeds/1')
+  }),
   data: z.object({
     id: z.int(),
     type: z.literal('speed'),
@@ -22,10 +16,11 @@ export const zSpeedResponse = z.object({
       taskId: z.int(),
       speed: z.number(),
       time: z.number()
-    })
-  }),
-  relationships: z
-    .object({
+    }),
+    links: z.object({
+      self: z.string().default('/api/v2/ui/speeds/1')
+    }),
+    relationships: z.object({
       agent: z.object({
         links: z.object({
           self: z.string().default('/api/v2/ui/speeds/relationships/agent'),
@@ -51,7 +46,7 @@ export const zSpeedResponse = z.object({
           .nullish()
       })
     })
-    .optional(),
+  }),
   included: z
     .array(
       z.union([
@@ -115,15 +110,33 @@ export const zSpeedListResponse = z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
   }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/speeds?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/speeds?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/speeds?page[size]=25&page[before]=25')
+  links: z.object({
+    self: z.string().default('/api/v2/ui/speeds?page[size]=25'),
+    first: z.string().default('/api/v2/ui/speeds?page[size]=25'),
+    last: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/speeds?page[size]=25&page[before]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      ),
+    next: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/speeds?page[size]=25&page[after]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      ),
+    prev: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/speeds?page[size]=25&page[before]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      )
+  }),
+  meta: z.object({
+    page: z.object({
+      total_elements: z.int()
     })
-    .optional(),
+  }),
   data: z.array(
     z.object({
       id: z.int(),
@@ -133,37 +146,38 @@ export const zSpeedListResponse = z.object({
         taskId: z.int(),
         speed: z.number(),
         time: z.number()
+      }),
+      links: z.object({
+        self: z.string().default('/api/v2/ui/speeds/1')
+      }),
+      relationships: z.object({
+        agent: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/speeds/relationships/agent'),
+            related: z.string().default('/api/v2/ui/speeds/agent')
+          }),
+          data: z
+            .object({
+              type: z.literal('agent'),
+              id: z.int()
+            })
+            .nullish()
+        }),
+        task: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/speeds/relationships/task'),
+            related: z.string().default('/api/v2/ui/speeds/task')
+          }),
+          data: z
+            .object({
+              type: z.literal('task'),
+              id: z.int()
+            })
+            .nullish()
+        })
       })
     })
   ),
-  relationships: z
-    .object({
-      agent: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/speeds/relationships/agent'),
-          related: z.string().default('/api/v2/ui/speeds/agent')
-        }),
-        data: z
-          .object({
-            type: z.literal('agent'),
-            id: z.int()
-          })
-          .nullish()
-      }),
-      task: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/speeds/relationships/task'),
-          related: z.string().default('/api/v2/ui/speeds/task')
-        }),
-        data: z
-          .object({
-            type: z.literal('task'),
-            id: z.int()
-          })
-          .nullish()
-      })
-    })
-    .optional(),
   included: z
     .array(
       z.union([
@@ -222,44 +236,42 @@ export const zSpeedListResponse = z.object({
     .optional()
 });
 
+export const zSpeedCountResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  meta: z.object({
+    count: z.int(),
+    total_count: z.int().optional()
+  }),
+  data: z.array(z.record(z.string(), z.unknown())).max(0)
+});
+
 export const zSpeedRelationTask = z.object({
   data: z.object({
     type: z.literal('task'),
-    id: z.int().default(1)
+    id: z.int()
   })
 });
 
 export const zSpeedRelationTaskGetResponse = z.object({
   data: z.object({
     type: z.literal('task'),
-    id: z.int().default(1)
+    id: z.int()
   })
 });
 
-export const zGetSpeedsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+export const zGetSpeedsQuery = z.object({
+  'page[after]': z.string().optional(),
+  'page[before]': z.string().optional(),
+  'page[size]': z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    .optional(),
+  filter: z.record(z.string(), z.string()).optional(),
+  include: z.array(z.enum(['agent', 'task'])).optional()
 });
 
 /**
@@ -267,47 +279,22 @@ export const zGetSpeedsData = z.object({
  */
 export const zGetSpeedsResponse = zSpeedListResponse;
 
-export const zGetSpeedsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+export const zGetSpeedsCountQuery = z.object({
+  filter: z.record(z.string(), z.string()).optional(),
+  include_total: z.boolean().optional()
 });
 
 /**
  * successful operation
  */
-export const zGetSpeedsCountResponse = zSpeedListResponse;
+export const zGetSpeedsCountResponse = zSpeedCountResponse;
 
-export const zGetSpeedsByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetSpeedsByIdByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -315,16 +302,12 @@ export const zGetSpeedsByIdByRelationData = z.object({
  */
 export const zGetSpeedsByIdByRelationResponse = zSpeedRelationTaskGetResponse;
 
-export const zGetSpeedsByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetSpeedsByIdRelationshipsByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -332,13 +315,11 @@ export const zGetSpeedsByIdRelationshipsByRelationData = z.object({
  */
 export const zGetSpeedsByIdRelationshipsByRelationResponse = zSpeedResponse;
 
-export const zPatchSpeedsByIdRelationshipsByRelationData = z.object({
-  body: zSpeedRelationTask,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPatchSpeedsByIdRelationshipsByRelationBody = zSpeedRelationTask;
+
+export const zPatchSpeedsByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -346,19 +327,15 @@ export const zPatchSpeedsByIdRelationshipsByRelationData = z.object({
  */
 export const zPatchSpeedsByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetSpeedsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+export const zGetSpeedsByIdPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetSpeedsByIdQuery = z.object({
+  include: z.array(z.enum(['agent', 'task'])).optional()
 });
 
 /**

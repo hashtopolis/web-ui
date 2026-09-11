@@ -1,4 +1,4 @@
-import type { ErrorResponse, NotFoundResponse } from './common';
+import type { ErrorResponse } from './common';
 
 export type SupertaskCreate = {
   data: {
@@ -19,35 +19,52 @@ export type SupertaskPatch = {
   };
 };
 
+export type SupertaskPatchMultiple = {
+  data: Array<{
+    id: number;
+    type: 'supertask';
+    attributes: {
+      supertaskName?: string;
+    };
+  }>;
+};
+
+export type SupertaskDeleteMultiple = {
+  data: Array<{
+    id: number;
+    type: 'supertask';
+  }>;
+};
+
 export type SupertaskResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
   data: {
     id: number;
     type: 'supertask';
     attributes: {
       supertaskName: string;
+      amountPretasks?: number;
     };
-  };
-  relationships?: {
-    pretasks: {
-      links: {
-        self: string;
-        related: string;
+    links: {
+      self: string;
+    };
+    relationships: {
+      pretasks: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'preTask';
+          id: number;
+        }>;
       };
-      data?: Array<{
-        type: 'preTask';
-        id: number;
-      }>;
     };
   };
   included?: Array<{
@@ -71,23 +88,34 @@ export type SupertaskResponse = {
 };
 
 export type SupertaskSingleResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+  };
   data: {
     id: number;
     type: 'supertask';
     attributes: {
       supertaskName: string;
+      amountPretasks?: number;
     };
-  };
-  relationships?: {
-    pretasks: {
-      links: {
-        self: string;
-        related: string;
+    links: {
+      self: string;
+    };
+    relationships: {
+      pretasks: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'preTask';
+          id: number;
+        }>;
       };
-      data?: Array<{
-        type: 'preTask';
-        id: number;
-      }>;
     };
   };
   included?: Array<{
@@ -115,44 +143,30 @@ export type SupertaskPostPatchResponse = {
     version: string;
     ext?: Array<string>;
   };
+  links: {
+    self: string;
+  };
   data: {
     id: number;
     type: 'supertask';
     attributes: {
       supertaskName: string;
+      amountPretasks?: number;
     };
-  };
-};
-
-export type SupertaskListResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
-  };
-  links?: {
-    self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
-  };
-  data: Array<{
-    id: number;
-    type: 'supertask';
-    attributes: {
-      supertaskName: string;
+    links: {
+      self: string;
     };
-  }>;
-  relationships?: {
-    pretasks: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      pretasks: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'preTask';
+          id: number;
+        }>;
       };
-      data?: Array<{
-        type: 'preTask';
-        id: number;
-      }>;
     };
   };
   included?: Array<{
@@ -175,6 +189,89 @@ export type SupertaskListResponse = {
   }>;
 };
 
+export type SupertaskListResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
+  };
+  data: Array<{
+    id: number;
+    type: 'supertask';
+    attributes: {
+      supertaskName: string;
+      amountPretasks?: number;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      pretasks: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'preTask';
+          id: number;
+        }>;
+      };
+    };
+  }>;
+  included?: Array<{
+    id: number;
+    type: 'preTask';
+    attributes: {
+      taskName: string;
+      attackCmd: string;
+      chunkTime: number;
+      statusTimer: number;
+      color: string;
+      isSmall: boolean;
+      isCpuTask: boolean;
+      useNewBench: boolean;
+      priority: number;
+      maxAgents: number;
+      isMaskImport: boolean;
+      crackerBinaryTypeId: number;
+    };
+  }>;
+};
+
+export type SupertaskCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects accessible to the current user matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects accessible to the current user without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
 export type SupertaskRelationPretasks = {
   data: Array<{
     type: 'pretasks';
@@ -190,7 +287,7 @@ export type SupertaskRelationPretasksGetResponse = {
 };
 
 export type DeleteSupertasksData = {
-  body?: never;
+  body: SupertaskDeleteMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/supertasks';
@@ -205,43 +302,71 @@ export type DeleteSupertasksErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
 };
 
 export type DeleteSupertasksError = DeleteSupertasksErrors[keyof DeleteSupertasksErrors];
 
 export type DeleteSupertasksResponses = {
   /**
-   * successful operation
+   * successfully deleted
    */
-  200: unknown;
+  204: void;
 };
+
+export type DeleteSupertasksResponse = DeleteSupertasksResponses[keyof DeleteSupertasksResponses];
 
 export type GetSupertasksData = {
   body?: never;
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"supertaskId": 123}}` -> `eyJwcmltYXJ5Ijp7InN1cGVydGFza0lkIjogMTIzfX0=`
      */
-    'page[after]'?: number;
+    'page[after]'?: string;
     /**
-     * Pointer to paginate to retrieve the data before the value provided
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"supertaskId": 123}}` -> `eyJwcmltYXJ5Ijp7InN1cGVydGFza0lkIjogMTIzfX0=`
      */
-    'page[before]'?: number;
+    'page[before]'?: string;
     /**
      * Amout of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[supertaskId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Relationships to include in the response, comma seperated. Possible options: pretasks
      */
-    include?: string;
+    include?: Array<'pretasks'>;
+    /**
+     * Aggregated fields to include by type (comma separated values). Possible options: supertask: amountPretasks
+     */
+    aggregate?: {
+      [key: string]: string;
+    };
   };
   url: '/api/v2/ui/supertasks';
 };
@@ -255,6 +380,10 @@ export type GetSupertasksErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetSupertasksError = GetSupertasksErrors[keyof GetSupertasksErrors];
@@ -269,7 +398,7 @@ export type GetSupertasksResponses = {
 export type GetSupertasksResponse = GetSupertasksResponses[keyof GetSupertasksResponses];
 
 export type PatchSupertasksData = {
-  body?: never;
+  body: SupertaskPatchMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/supertasks';
@@ -284,16 +413,30 @@ export type PatchSupertasksErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchSupertasksError = PatchSupertasksErrors[keyof PatchSupertasksErrors];
 
 export type PatchSupertasksResponses = {
   /**
-   * successful operation
+   * successfully updated
    */
-  200: unknown;
+  204: void;
 };
+
+export type PatchSupertasksResponse = PatchSupertasksResponses[keyof PatchSupertasksResponses];
 
 export type PostSupertasksData = {
   body: SupertaskCreate;
@@ -311,6 +454,14 @@ export type PostSupertasksErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostSupertasksError = PostSupertasksErrors[keyof PostSupertasksErrors];
@@ -329,27 +480,15 @@ export type GetSupertasksCountData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
-     */
-    'page[after]'?: number;
-    /**
-     * Pointer to paginate to retrieve the data before the value provided
-     */
-    'page[before]'?: number;
-    /**
-     * Amout of data to retrieve inside a single page
-     */
-    'page[size]'?: number;
-    /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[supertaskId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Also report the number of accessible objects without any filter applied, as `meta.total_count`
      */
-    include?: string;
+    include_total?: boolean;
   };
   url: '/api/v2/ui/supertasks/count';
 };
@@ -363,6 +502,10 @@ export type GetSupertasksCountErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetSupertasksCountError = GetSupertasksCountErrors[keyof GetSupertasksCountErrors];
@@ -371,7 +514,7 @@ export type GetSupertasksCountResponses = {
   /**
    * successful operation
    */
-  200: SupertaskListResponse;
+  200: SupertaskCountResponse;
 };
 
 export type GetSupertasksCountResponse = GetSupertasksCountResponses[keyof GetSupertasksCountResponses];
@@ -396,9 +539,13 @@ export type GetSupertasksByIdByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetSupertasksByIdByRelationError =
@@ -434,9 +581,13 @@ export type DeleteSupertasksByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteSupertasksByIdRelationshipsByRelationError =
@@ -472,9 +623,13 @@ export type GetSupertasksByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetSupertasksByIdRelationshipsByRelationError =
@@ -510,9 +665,17 @@ export type PatchSupertasksByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchSupertasksByIdRelationshipsByRelationError =
@@ -529,9 +692,7 @@ export type PatchSupertasksByIdRelationshipsByRelationResponse =
   PatchSupertasksByIdRelationshipsByRelationResponses[keyof PatchSupertasksByIdRelationshipsByRelationResponses];
 
 export type PostSupertasksByIdRelationshipsByRelationData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body: SupertaskRelationPretasks;
   path: {
     id: number;
     relation: string;
@@ -550,9 +711,17 @@ export type PostSupertasksByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostSupertasksByIdRelationshipsByRelationError =
@@ -569,9 +738,7 @@ export type PostSupertasksByIdRelationshipsByRelationResponse =
   PostSupertasksByIdRelationshipsByRelationResponses[keyof PostSupertasksByIdRelationshipsByRelationResponses];
 
 export type DeleteSupertasksByIdData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body?: never;
   path: {
     id: number;
   };
@@ -589,9 +756,13 @@ export type DeleteSupertasksByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteSupertasksByIdError = DeleteSupertasksByIdErrors[keyof DeleteSupertasksByIdErrors];
@@ -612,9 +783,9 @@ export type GetSupertasksByIdData = {
   };
   query?: {
     /**
-     * Items to include. Comma seperated
+     * Relationships to include in the response, comma seperated. Possible options: pretasks
      */
-    include?: string;
+    include?: Array<'pretasks'>;
   };
   url: '/api/v2/ui/supertasks/{id}';
 };
@@ -629,9 +800,13 @@ export type GetSupertasksByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetSupertasksByIdError = GetSupertasksByIdErrors[keyof GetSupertasksByIdErrors];
@@ -664,9 +839,17 @@ export type PatchSupertasksByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchSupertasksByIdError = PatchSupertasksByIdErrors[keyof PatchSupertasksByIdErrors];

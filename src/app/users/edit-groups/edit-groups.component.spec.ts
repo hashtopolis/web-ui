@@ -1,4 +1,4 @@
-import { zAccessGroupListResponse, zUserListResponse } from '@generated/api/zod';
+import { zAccessGroupListResponse, zAccessGroupResponse, zUserListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -18,17 +18,17 @@ import { AccessGroupsAgentsTableComponent } from '@components/tables/access-grou
 import { AccessGroupsUserTableComponent } from '@components/tables/access-groups-users-table/access-groups-users-table.component';
 
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
-import { mockResponse } from '@src/app/testing/mock-response';
+import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 import { EditGroupsComponent } from '@src/app/users/edit-groups/edit-groups.component';
 
-const mockAccessGroupResponse: ResponseWrapper = mockResponse({
+const mockAccessGroupResponse: ResponseWrapper = mockValidResponse(zAccessGroupResponse, {
   data: {
     id: 1,
     type: 'accessGroup',
     attributes: {
       groupName: 'Test Group'
     }
-  } as never
+  }
 });
 
 /**
@@ -42,10 +42,7 @@ const mockAccessGroupResponse: ResponseWrapper = mockResponse({
 describe('EditGroupsComponent deserialization', () => {
   let serializer: JsonAPISerializer;
 
-  const jsonapi = { version: '1.1' };
-
-  const userListBody = {
-    jsonapi,
+  const userListBody = mockValidResponse(zUserListResponse, {
     data: [
       {
         id: 10,
@@ -86,7 +83,7 @@ describe('EditGroupsComponent deserialization', () => {
         }
       }
     ]
-  };
+  });
 
   beforeEach(() => {
     serializer = new JsonAPISerializer();

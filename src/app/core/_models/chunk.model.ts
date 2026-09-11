@@ -16,7 +16,8 @@ export interface JChunk extends BaseModel {
   format?: string;
   skip: number;
   length: number;
-  agentId: AgentId;
+  /** Null once the agent that worked the chunk has been deleted (the server nulls it, see AgentUtils::deleteDependencies). */
+  agentId: AgentId | null;
   agent?: JAgent;
   agentName?: string | undefined;
   dispatchTime: number;

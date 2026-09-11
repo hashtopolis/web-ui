@@ -26,8 +26,17 @@ type JsonaRuntimeProps = {
 
 // ── Relationship resolution types ────────────────────────────────
 
-/** Extract the typed relationships object from a JSON:API envelope. */
-type ExtractRelationships<T> = T extends { relationships?: infer R } ? NonNullable<R> : Record<string, never>;
+/** Resolve the resource object (the `data` item) of a JSON:API envelope, for both array and single responses. */
+type DataItemOf<T> = T extends { data: (infer D)[] } ? D : T extends { data: infer D } ? D : T;
+
+/**
+ * Extract the typed relationships object from a JSON:API envelope.
+ *
+ * A JSON:API-compliant document carries `relationships` on the resource object (inside `data`),
+ * not on the envelope, so we dig into the data item to find them.
+ */
+type ExtractRelationships<T> =
+  DataItemOf<T> extends { relationships?: infer R } ? NonNullable<R> : Record<string, never>;
 
 /** Extract the union of included resource types from a JSON:API envelope. */
 type ExtractIncludedUnion<T> = T extends { included?: (infer I)[] } ? I : never;

@@ -13,20 +13,39 @@ export const zTaskWrapperPatch = z.object({
   })
 });
 
+export const zTaskWrapperPatchMultiple = z.object({
+  data: z.array(
+    z.object({
+      id: z.int(),
+      type: z.literal('taskWrapper'),
+      attributes: z.object({
+        accessGroupId: z.int().optional(),
+        isArchived: z.boolean().optional(),
+        maxAgents: z.int().optional(),
+        priority: z.int().optional(),
+        taskWrapperName: z.string().optional()
+      })
+    })
+  )
+});
+
+export const zTaskWrapperDeleteMultiple = z.object({
+  data: z.array(
+    z.object({
+      id: z.int(),
+      type: z.literal('taskWrapper')
+    })
+  )
+});
+
 export const zTaskWrapperResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
   }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/taskwrappers?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=25')
-    })
-    .optional(),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/taskwrappers/1')
+  }),
   data: z.object({
     id: z.int(),
     type: z.literal('taskWrapper'),
@@ -39,10 +58,11 @@ export const zTaskWrapperResponse = z.object({
       taskWrapperName: z.string(),
       isArchived: z.boolean(),
       cracked: z.int()
-    })
-  }),
-  relationships: z
-    .object({
+    }),
+    links: z.object({
+      self: z.string().default('/api/v2/ui/taskwrappers/1')
+    }),
+    relationships: z.object({
       accessGroup: z.object({
         links: z.object({
           self: z.string().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
@@ -106,7 +126,7 @@ export const zTaskWrapperResponse = z.object({
           .optional()
       })
     })
-    .optional(),
+  }),
   included: z
     .array(
       z.union([
@@ -181,6 +201,13 @@ export const zTaskWrapperResponse = z.object({
 });
 
 export const zTaskWrapperSingleResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/taskwrappers/1')
+  }),
   data: z.object({
     id: z.int(),
     type: z.literal('taskWrapper'),
@@ -193,10 +220,11 @@ export const zTaskWrapperSingleResponse = z.object({
       taskWrapperName: z.string(),
       isArchived: z.boolean(),
       cracked: z.int()
-    })
-  }),
-  relationships: z
-    .object({
+    }),
+    links: z.object({
+      self: z.string().default('/api/v2/ui/taskwrappers/1')
+    }),
+    relationships: z.object({
       accessGroup: z.object({
         links: z.object({
           self: z.string().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
@@ -260,7 +288,7 @@ export const zTaskWrapperSingleResponse = z.object({
           .optional()
       })
     })
-    .optional(),
+  }),
   included: z
     .array(
       z.union([
@@ -339,6 +367,9 @@ export const zTaskWrapperPostPatchResponse = z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
   }),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/taskwrappers/1')
+  }),
   data: z.object({
     id: z.int(),
     type: z.literal('taskWrapper'),
@@ -351,42 +382,11 @@ export const zTaskWrapperPostPatchResponse = z.object({
       taskWrapperName: z.string(),
       isArchived: z.boolean(),
       cracked: z.int()
-    })
-  })
-});
-
-export const zTaskWrapperListResponse = z.object({
-  jsonapi: z.object({
-    version: z.string().default('1.1'),
-    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
-  }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/taskwrappers?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/taskwrappers?page[size]=25&page[before]=25')
-    })
-    .optional(),
-  data: z.array(
-    z.object({
-      id: z.int(),
-      type: z.literal('taskWrapper'),
-      attributes: z.object({
-        priority: z.int(),
-        maxAgents: z.int(),
-        taskType: z.union([z.literal(0), z.literal(1)]),
-        hashlistId: z.int(),
-        accessGroupId: z.int(),
-        taskWrapperName: z.string(),
-        isArchived: z.boolean(),
-        cracked: z.int()
-      })
-    })
-  ),
-  relationships: z
-    .object({
+    }),
+    links: z.object({
+      self: z.string().default('/api/v2/ui/taskwrappers/1')
+    }),
+    relationships: z.object({
       accessGroup: z.object({
         links: z.object({
           self: z.string().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
@@ -450,7 +450,7 @@ export const zTaskWrapperListResponse = z.object({
           .optional()
       })
     })
-    .optional(),
+  }),
   included: z
     .array(
       z.union([
@@ -524,11 +524,211 @@ export const zTaskWrapperListResponse = z.object({
     .optional()
 });
 
+export const zTaskWrapperListResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/taskwrappers?page[size]=25'),
+    first: z.string().default('/api/v2/ui/taskwrappers?page[size]=25'),
+    last: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/taskwrappers?page[size]=25&page[before]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      ),
+    next: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/taskwrappers?page[size]=25&page[after]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      ),
+    prev: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/taskwrappers?page[size]=25&page[before]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      )
+  }),
+  meta: z.object({
+    page: z.object({
+      total_elements: z.int()
+    })
+  }),
+  data: z.array(
+    z.object({
+      id: z.int(),
+      type: z.literal('taskWrapper'),
+      attributes: z.object({
+        priority: z.int(),
+        maxAgents: z.int(),
+        taskType: z.union([z.literal(0), z.literal(1)]),
+        hashlistId: z.int(),
+        accessGroupId: z.int(),
+        taskWrapperName: z.string(),
+        isArchived: z.boolean(),
+        cracked: z.int()
+      }),
+      links: z.object({
+        self: z.string().default('/api/v2/ui/taskwrappers/1')
+      }),
+      relationships: z.object({
+        accessGroup: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/taskwrappers/relationships/accessGroup'),
+            related: z.string().default('/api/v2/ui/taskwrappers/accessGroup')
+          }),
+          data: z
+            .object({
+              type: z.literal('accessGroup'),
+              id: z.int()
+            })
+            .nullish()
+        }),
+        hashType: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashType'),
+            related: z.string().default('/api/v2/ui/taskwrappers/hashType')
+          }),
+          data: z
+            .object({
+              type: z.literal('hashType'),
+              id: z.int()
+            })
+            .nullish()
+        }),
+        hashlist: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/taskwrappers/relationships/hashlist'),
+            related: z.string().default('/api/v2/ui/taskwrappers/hashlist')
+          }),
+          data: z
+            .object({
+              type: z.literal('hashlist'),
+              id: z.int()
+            })
+            .nullish()
+        }),
+        task: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/taskwrappers/relationships/task'),
+            related: z.string().default('/api/v2/ui/taskwrappers/task')
+          }),
+          data: z
+            .object({
+              type: z.literal('task'),
+              id: z.int()
+            })
+            .nullish()
+        }),
+        tasks: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/taskwrappers/relationships/tasks'),
+            related: z.string().default('/api/v2/ui/taskwrappers/tasks')
+          }),
+          data: z
+            .array(
+              z.object({
+                type: z.literal('task'),
+                id: z.int()
+              })
+            )
+            .optional()
+        })
+      })
+    })
+  ),
+  included: z
+    .array(
+      z.union([
+        z.object({
+          id: z.int(),
+          type: z.literal('accessGroup'),
+          attributes: z.object({
+            groupName: z.string()
+          })
+        }),
+        z.object({
+          id: z.int(),
+          type: z.literal('hashlist'),
+          attributes: z.object({
+            name: z.string(),
+            format: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3)]),
+            hashTypeId: z.int(),
+            hashCount: z.int(),
+            separator: z.string().nullable(),
+            cracked: z.int(),
+            isSecret: z.boolean(),
+            isHexSalt: z.boolean(),
+            isSalted: z.boolean(),
+            accessGroupId: z.int(),
+            notes: z.string(),
+            useBrain: z.boolean(),
+            brainFeatures: z.int(),
+            isArchived: z.boolean()
+          })
+        }),
+        z.object({
+          id: z.int(),
+          type: z.literal('hashType'),
+          attributes: z.object({
+            description: z.string(),
+            isSalted: z.boolean(),
+            isSlowHash: z.boolean()
+          })
+        }),
+        z.object({
+          id: z.int(),
+          type: z.literal('task'),
+          attributes: z.object({
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            keyspace: z.number(),
+            keyspaceProgress: z.number(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            color: z.string().nullable(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            skipKeyspace: z.number(),
+            crackerBinaryId: z.int(),
+            crackerBinaryTypeId: z.int().nullable(),
+            taskWrapperId: z.int(),
+            isArchived: z.boolean(),
+            notes: z.string(),
+            staticChunks: z.int(),
+            chunkSize: z.number(),
+            forcePipe: z.boolean(),
+            preprocessorId: z.int(),
+            preprocessorCommand: z.string()
+          })
+        })
+      ])
+    )
+    .optional()
+});
+
+export const zTaskWrapperCountResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  meta: z.object({
+    count: z.int(),
+    total_count: z.int().optional()
+  }),
+  data: z.array(z.record(z.string(), z.unknown())).max(0)
+});
+
 export const zTaskWrapperRelationTasks = z.object({
   data: z.array(
     z.object({
       type: z.literal('tasks'),
-      id: z.int().default(1)
+      id: z.int()
     })
   )
 });
@@ -537,7 +737,7 @@ export const zTaskWrapperRelationTasksGetResponse = z.object({
   data: z.array(
     z.object({
       type: z.literal('tasks'),
-      id: z.int().default(1)
+      id: z.int()
     })
   )
 });
@@ -547,20 +747,13 @@ export const zTaskWrapperDisplayResponse = z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
   }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/taskwrapperdisplays?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[before]=25')
-    })
-    .optional(),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/taskwrapperdisplays/1')
+  }),
   data: z.object({
     id: z.int(),
     type: z.literal('taskWrapperDisplay'),
     attributes: z.object({
-      taskWrapperId: z.int().nullish(),
       taskWrapperPriority: z.int(),
       taskWrapperMaxAgents: z.int(),
       taskType: z.union([z.literal(0), z.literal(1)]),
@@ -570,9 +763,9 @@ export const zTaskWrapperDisplayResponse = z.object({
       displayName: z.string(),
       taskWrapperIsArchived: z.boolean(),
       cracked: z.int(),
-      // Task-derived columns are null for supertask wrappers
       taskId: z.int().nullable(),
       taskName: z.string().nullable(),
+      color: z.string().nullable(),
       attackCmd: z.string().nullable(),
       chunkTime: z.int().nullable(),
       statusTimer: z.int().nullable(),
@@ -590,19 +783,19 @@ export const zTaskWrapperDisplayResponse = z.object({
       hashTypeId: z.int(),
       hashTypeDescription: z.string(),
       groupName: z.string(),
-      // Aggregate fields — present only when requested via aggregate[taskwrapperdisplay]=...
-      status: z.int().optional(),
       totalAssignedAgents: z.int().optional(),
       dispatched: z.string().optional(),
       searched: z.string().optional(),
-      cprogress: z.int().optional(),
+      status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
+      currentSpeed: z.int().optional(),
       estimatedTime: z.int().optional(),
-      timeSpent: z.int().optional(),
-      currentSpeed: z.int().optional()
-    })
-  }),
-  relationships: z
-    .object({
+      cprogress: z.int().optional(),
+      timeSpent: z.int().optional()
+    }),
+    links: z.object({
+      self: z.string().default('/api/v2/ui/taskwrapperdisplays/1')
+    }),
+    relationships: z.object({
       tasks: z.object({
         links: z.object({
           self: z.string().default('/api/v2/ui/taskwrapperdisplays/relationships/tasks'),
@@ -618,7 +811,7 @@ export const zTaskWrapperDisplayResponse = z.object({
           .optional()
       })
     })
-    .optional(),
+  }),
   included: z
     .array(
       z.object({
@@ -659,21 +852,38 @@ export const zTaskWrapperDisplayListResponse = z.object({
     version: z.string().default('1.1'),
     ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
   }),
-  links: z
-    .object({
-      self: z.string().default('/api/v2/ui/taskwrapperdisplays?page[size]=25'),
-      first: z.string().optional().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[after]=0'),
-      last: z.string().optional().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[before]=500'),
-      next: z.string().nullish().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[after]=25'),
-      previous: z.string().nullish().default('/api/v2/ui/taskwrapperdisplays?page[size]=25&page[before]=25')
+  links: z.object({
+    self: z.string().default('/api/v2/ui/taskwrapperdisplays?page[size]=25'),
+    first: z.string().default('/api/v2/ui/taskwrapperdisplays?page[size]=25'),
+    last: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/taskwrapperdisplays?page[size]=25&page[before]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      ),
+    next: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/taskwrapperdisplays?page[size]=25&page[after]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      ),
+    prev: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/taskwrapperdisplays?page[size]=25&page[before]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      )
+  }),
+  meta: z.object({
+    page: z.object({
+      total_elements: z.int()
     })
-    .optional(),
+  }),
   data: z.array(
     z.object({
       id: z.int(),
       type: z.literal('taskWrapperDisplay'),
       attributes: z.object({
-        taskWrapperId: z.int().nullish(),
         taskWrapperPriority: z.int(),
         taskWrapperMaxAgents: z.int(),
         taskType: z.union([z.literal(0), z.literal(1)]),
@@ -683,9 +893,9 @@ export const zTaskWrapperDisplayListResponse = z.object({
         displayName: z.string(),
         taskWrapperIsArchived: z.boolean(),
         cracked: z.int(),
-        // Task-derived columns are null for supertask wrappers (view LEFT JOINs Task on taskType=0).
         taskId: z.int().nullable(),
         taskName: z.string().nullable(),
+        color: z.string().nullable(),
         attackCmd: z.string().nullable(),
         chunkTime: z.int().nullable(),
         statusTimer: z.int().nullable(),
@@ -703,36 +913,36 @@ export const zTaskWrapperDisplayListResponse = z.object({
         hashTypeId: z.int(),
         hashTypeDescription: z.string(),
         groupName: z.string(),
-        // Aggregate fields — present only when requested via aggregate[taskwrapperdisplay]=...
-        status: z.int().optional(),
         totalAssignedAgents: z.int().optional(),
         dispatched: z.string().optional(),
         searched: z.string().optional(),
-        cprogress: z.int().optional(),
+        status: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
+        currentSpeed: z.int().optional(),
         estimatedTime: z.int().optional(),
-        timeSpent: z.int().optional(),
-        currentSpeed: z.int().optional()
+        cprogress: z.int().optional(),
+        timeSpent: z.int().optional()
+      }),
+      links: z.object({
+        self: z.string().default('/api/v2/ui/taskwrapperdisplays/1')
+      }),
+      relationships: z.object({
+        tasks: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/taskwrapperdisplays/relationships/tasks'),
+            related: z.string().default('/api/v2/ui/taskwrapperdisplays/tasks')
+          }),
+          data: z
+            .array(
+              z.object({
+                type: z.literal('task'),
+                id: z.int()
+              })
+            )
+            .optional()
+        })
       })
     })
   ),
-  relationships: z
-    .object({
-      tasks: z.object({
-        links: z.object({
-          self: z.string().default('/api/v2/ui/taskwrapperdisplays/relationships/tasks'),
-          related: z.string().default('/api/v2/ui/taskwrapperdisplays/tasks')
-        }),
-        data: z
-          .array(
-            z.object({
-              type: z.literal('task'),
-              id: z.int()
-            })
-          )
-          .optional()
-      })
-    })
-    .optional(),
   included: z
     .array(
       z.object({
@@ -768,11 +978,23 @@ export const zTaskWrapperDisplayListResponse = z.object({
     .optional()
 });
 
+export const zTaskWrapperDisplayCountResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  meta: z.object({
+    count: z.int(),
+    total_count: z.int().optional()
+  }),
+  data: z.array(z.record(z.string(), z.unknown())).max(0)
+});
+
 export const zTaskWrapperDisplayRelationTasks = z.object({
   data: z.array(
     z.object({
       type: z.literal('tasks'),
-      id: z.int().default(1)
+      id: z.int()
     })
   )
 });
@@ -781,41 +1003,28 @@ export const zTaskWrapperDisplayRelationTasksGetResponse = z.object({
   data: z.array(
     z.object({
       type: z.literal('tasks'),
-      id: z.int().default(1)
+      id: z.int()
     })
   )
 });
 
-export const zDeleteTaskwrappersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zDeleteTaskwrappersBody = zTaskWrapperDeleteMultiple;
 
-export const zGetTaskwrappersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+/**
+ * successfully deleted
+ */
+export const zDeleteTaskwrappersResponse = z.void();
+
+export const zGetTaskwrappersQuery = z.object({
+  'page[after]': z.string().optional(),
+  'page[before]': z.string().optional(),
+  'page[size]': z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    .optional(),
+  filter: z.record(z.string(), z.string()).optional(),
+  include: z.array(z.enum(['accessGroup', 'hashlist', 'hashType', 'task', 'tasks'])).optional()
 });
 
 /**
@@ -823,53 +1032,29 @@ export const zGetTaskwrappersData = z.object({
  */
 export const zGetTaskwrappersResponse = zTaskWrapperListResponse;
 
-export const zPatchTaskwrappersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPatchTaskwrappersBody = zTaskWrapperPatchMultiple;
 
-export const zGetTaskwrappersCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[before]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.unknown()).optional(),
-      include: z.string().optional()
-    })
-    .optional()
+/**
+ * successfully updated
+ */
+export const zPatchTaskwrappersResponse = z.void();
+
+export const zGetTaskwrappersCountQuery = z.object({
+  filter: z.record(z.string(), z.string()).optional(),
+  include_total: z.boolean().optional()
 });
 
 /**
  * successful operation
  */
-export const zGetTaskwrappersCountResponse = zTaskWrapperListResponse;
+export const zGetTaskwrappersCountResponse = zTaskWrapperCountResponse;
 
-export const zGetTaskwrappersByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetTaskwrappersByIdByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -877,13 +1062,11 @@ export const zGetTaskwrappersByIdByRelationData = z.object({
  */
 export const zGetTaskwrappersByIdByRelationResponse = zTaskWrapperRelationTasksGetResponse;
 
-export const zDeleteTaskwrappersByIdRelationshipsByRelationData = z.object({
-  body: zTaskWrapperRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zDeleteTaskwrappersByIdRelationshipsByRelationBody = zTaskWrapperRelationTasks;
+
+export const zDeleteTaskwrappersByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -891,16 +1074,12 @@ export const zDeleteTaskwrappersByIdRelationshipsByRelationData = z.object({
  */
 export const zDeleteTaskwrappersByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetTaskwrappersByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetTaskwrappersByIdRelationshipsByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -908,13 +1087,11 @@ export const zGetTaskwrappersByIdRelationshipsByRelationData = z.object({
  */
 export const zGetTaskwrappersByIdRelationshipsByRelationResponse = zTaskWrapperResponse;
 
-export const zPatchTaskwrappersByIdRelationshipsByRelationData = z.object({
-  body: zTaskWrapperRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPatchTaskwrappersByIdRelationshipsByRelationBody = zTaskWrapperRelationTasks;
+
+export const zPatchTaskwrappersByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -922,13 +1099,11 @@ export const zPatchTaskwrappersByIdRelationshipsByRelationData = z.object({
  */
 export const zPatchTaskwrappersByIdRelationshipsByRelationResponse = z.void();
 
-export const zPostTaskwrappersByIdRelationshipsByRelationData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPostTaskwrappersByIdRelationshipsByRelationBody = zTaskWrapperRelationTasks;
+
+export const zPostTaskwrappersByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -936,12 +1111,8 @@ export const zPostTaskwrappersByIdRelationshipsByRelationData = z.object({
  */
 export const zPostTaskwrappersByIdRelationshipsByRelationResponse = z.void();
 
-export const zDeleteTaskwrappersByIdData = z.object({
-  body: z.record(z.string(), z.unknown()),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zDeleteTaskwrappersByIdPath = z.object({
+  id: z.int()
 });
 
 /**
@@ -949,19 +1120,15 @@ export const zDeleteTaskwrappersByIdData = z.object({
  */
 export const zDeleteTaskwrappersByIdResponse = z.void();
 
-export const zGetTaskwrappersByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.string().optional()
-    })
-    .optional()
+export const zGetTaskwrappersByIdPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetTaskwrappersByIdQuery = z.object({
+  include: z.array(z.enum(['accessGroup', 'hashlist', 'hashType', 'task', 'tasks'])).optional()
 });
 
 /**
@@ -969,12 +1136,10 @@ export const zGetTaskwrappersByIdData = z.object({
  */
 export const zGetTaskwrappersByIdResponse = zTaskWrapperResponse;
 
-export const zPatchTaskwrappersByIdData = z.object({
-  body: zTaskWrapperPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zPatchTaskwrappersByIdBody = zTaskWrapperPatch;
+
+export const zPatchTaskwrappersByIdPath = z.object({
+  id: z.int()
 });
 
 /**

@@ -8,6 +8,12 @@
   overflow: visible;
 }
 
+// Plain-text placeholder for a reference that no longer resolves, e.g. "(deleted)".
+.muted {
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+
 // Action links (onClick, no href) need an explicit pointer cursor.
 a.link[role='button'] {
   cursor: pointer;
