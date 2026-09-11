@@ -1,5 +1,5 @@
 import { HttpMethod } from '@constants/http.config';
-import { Observable, catchError, debounceTime, forkJoin, of, switchMap, throwError } from 'rxjs';
+import { Observable, catchError, forkJoin, of, switchMap, throwError } from 'rxjs';
 
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -20,9 +20,6 @@ type HelperHttpMethod = typeof HttpMethod.GET | typeof HttpMethod.POST;
 interface JsonApiRelationshipData {
   data: { type: string; id: number }[];
 }
-
-/** Debounce applied to mutating requests so rapid repeat submits collapse into one. */
-const MUTATION_DEBOUNCE_MS = 2000;
 
 @Injectable({
   providedIn: 'root'
@@ -229,9 +226,7 @@ export class GlobalService {
       objectdata.push({ id: object.id, type: serviceConfig.RESOURCE });
     }
     const data = { data: objectdata };
-    return this.http
-      .delete<object>(this.cs.getEndpoint() + serviceConfig.URL, { body: data })
-      .pipe(debounceTime(MUTATION_DEBOUNCE_MS));
+    return this.http.delete<object>(this.cs.getEndpoint() + serviceConfig.URL, { body: data });
   }
 
   /**
@@ -244,9 +239,7 @@ export class GlobalService {
   update(serviceConfig: ServiceConfig, id: number, arr: Record<string, unknown>): Observable<object> {
     const item = { type: serviceConfig.RESOURCE, id: id, ...arr };
     const serializedData = new JsonAPISerializer().serialize({ stuff: item });
-    return this.http
-      .patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, serializedData)
-      .pipe(debounceTime(MUTATION_DEBOUNCE_MS));
+    return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id, serializedData);
   }
 
   /**
@@ -270,9 +263,7 @@ export class GlobalService {
       });
     }
     const data = { data: objectdata };
-    return this.http
-      .patch<object>(this.cs.getEndpoint() + serviceConfig.URL, data)
-      .pipe(debounceTime(MUTATION_DEBOUNCE_MS));
+    return this.http.patch<object>(this.cs.getEndpoint() + serviceConfig.URL, data);
   }
 
   postRelationships(
@@ -281,9 +272,10 @@ export class GlobalService {
     relType: string,
     data: JsonApiRelationshipData
   ): Observable<object> {
-    return this.http
-      .post<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, data)
-      .pipe(debounceTime(MUTATION_DEBOUNCE_MS));
+    return this.http.post<object>(
+      this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType,
+      data
+    );
   }
 
   deleteRelationships(
@@ -292,17 +284,16 @@ export class GlobalService {
     relType: string,
     data: JsonApiRelationshipData
   ): Observable<object> {
-    return this.http
-      .delete<object>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType, {
+    return this.http.delete<object>(
+      this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType,
+      {
         body: data
-      })
-      .pipe(debounceTime(MUTATION_DEBOUNCE_MS));
+      }
+    );
   }
 
   getRelationships(serviceConfig: ServiceConfig, id: number, relType: string): Observable<ResponseWrapper> {
-    return this.http
-      .get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType)
-      .pipe(debounceTime(MUTATION_DEBOUNCE_MS));
+    return this.http.get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType);
   }
 
   /**
