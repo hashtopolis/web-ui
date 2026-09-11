@@ -121,12 +121,7 @@ describe('EditAgentComponent', () => {
       lastLoginDate: 1,
       registeredSince: 1,
       sessionLifetime: 3600,
-      globalPermissionGroupId: 1,
-      yubikey: '0',
-      otp1: '',
-      otp2: '',
-      otp3: '',
-      otp4: ''
+      globalPermissionGroupId: 1
     }
   };
 

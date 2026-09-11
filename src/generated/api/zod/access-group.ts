@@ -85,12 +85,7 @@ export const zAccessGroupResponse = z.object({
             lastLoginDate: z.number().optional(),
             registeredSince: z.number().optional(),
             sessionLifetime: z.int().optional(),
-            globalPermissionGroupId: z.int().optional(),
-            yubikey: z.string().optional(),
-            otp1: z.string().optional(),
-            otp2: z.string().optional(),
-            otp3: z.string().optional(),
-            otp4: z.string().optional()
+            globalPermissionGroupId: z.int().optional()
           })
         }),
         z.object({
@@ -202,12 +197,7 @@ export const zAccessGroupListResponse = z.object({
             lastLoginDate: z.number().optional(),
             registeredSince: z.number().optional(),
             sessionLifetime: z.int().optional(),
-            globalPermissionGroupId: z.int().optional(),
-            yubikey: z.string().optional(),
-            otp1: z.string().optional(),
-            otp2: z.string().optional(),
-            otp3: z.string().optional(),
-            otp4: z.string().optional()
+            globalPermissionGroupId: z.int().optional()
           })
         }),
         z.object({

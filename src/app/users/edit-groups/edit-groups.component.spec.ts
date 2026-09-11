@@ -58,12 +58,7 @@ describe('EditGroupsComponent deserialization', () => {
           lastLoginDate: 1752647000,
           registeredSince: 1744086300,
           sessionLifetime: 3600,
-          globalPermissionGroupId: 2,
-          yubikey: '0',
-          otp1: '',
-          otp2: '',
-          otp3: '',
-          otp4: ''
+          globalPermissionGroupId: 2
         }
       },
       {
@@ -77,12 +72,7 @@ describe('EditGroupsComponent deserialization', () => {
           lastLoginDate: 1752647100,
           registeredSince: 1744086400,
           sessionLifetime: 7200,
-          globalPermissionGroupId: 1,
-          yubikey: '0',
-          otp1: '',
-          otp2: '',
-          otp3: '',
-          otp4: ''
+          globalPermissionGroupId: 1
         }
       }
     ]

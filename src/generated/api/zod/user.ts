@@ -48,12 +48,7 @@ export const zUserResponse = z.object({
       lastLoginDate: z.number().optional(),
       registeredSince: z.number().optional(),
       sessionLifetime: z.int().optional(),
-      globalPermissionGroupId: z.int().optional(),
-      yubikey: z.string().optional(),
-      otp1: z.string().optional(),
-      otp2: z.string().optional(),
-      otp3: z.string().optional(),
-      otp4: z.string().optional()
+      globalPermissionGroupId: z.int().optional()
     })
   }),
   relationships: z
@@ -125,12 +120,7 @@ export const zUserPostPatchResponse = z.object({
       lastLoginDate: z.number(),
       registeredSince: z.number(),
       sessionLifetime: z.int(),
-      globalPermissionGroupId: z.int(),
-      yubikey: z.string(),
-      otp1: z.string(),
-      otp2: z.string(),
-      otp3: z.string(),
-      otp4: z.string()
+      globalPermissionGroupId: z.int()
     })
   })
 });
@@ -161,12 +151,7 @@ export const zUserListResponse = z.object({
         lastLoginDate: z.number().optional(),
         registeredSince: z.number().optional(),
         sessionLifetime: z.int().optional(),
-        globalPermissionGroupId: z.int().optional(),
-        yubikey: z.string().optional(),
-        otp1: z.string().optional(),
-        otp2: z.string().optional(),
-        otp3: z.string().optional(),
-        otp4: z.string().optional()
+        globalPermissionGroupId: z.int().optional()
       })
     })
   ),
