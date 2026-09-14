@@ -361,7 +361,7 @@ describe('AccountSettingsComponent', () => {
     it('Submits password form and resets on success', fakeAsync(() => {
       // Arrange
       const chelperSpy = spyOn(component['gs'], 'chelper').and.returnValue(
-        of({ meta: { 'Change password': 'Password changed successfully' } })
+        of(mockResponse({ meta: { 'Change password': 'Password changed successfully' } }))
       );
       const resetSpy = spyOn(component, 'resetPasswordForm');
 
