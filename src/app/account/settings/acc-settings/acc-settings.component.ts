@@ -13,11 +13,10 @@ import { JUser } from '@models/user.model';
 
 import { SERV } from '@services/main.config';
 
-import { changeOwnPasswordResponseSchema } from '@src/app/account/settings/acc-settings/acc-settings.schema';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { emailValidator } from '@src/app/core/_validators/email.validator';
 import { passwordMatchValidator } from '@src/app/core/_validators/password.validator';
-import { zCurrentUserHelperApiResponse } from '@src/generated/api/zod';
+import { zChangeOwnPasswordHelperApiResponse, zCurrentUserHelperApiResponse } from '@src/generated/api/zod';
 
 export interface UpdateUserPassword {
   oldPassword: string;
@@ -193,7 +192,7 @@ export class AccountSettingsComponent implements OnInit {
       .chelper(SERV.HELPER, 'changeOwnPassword', { ...payload })
       .pipe(
         map((r) => {
-          const parseResult = changeOwnPasswordResponseSchema.safeParse(r);
+          const parseResult = zChangeOwnPasswordHelperApiResponse.safeParse(r);
           if (!parseResult.success) {
             console.error('Password change response validation failed', parseResult.error);
             this.alert.showErrorMessage('Unexpected response from server.');
