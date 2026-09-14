@@ -2,6 +2,8 @@ import { zAccessGroupListResponse, zApiTokenListResponse, zUserListResponse, zUs
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 
+import { mockResource, mockResponse } from '@src/app/testing/mock-response';
+
 describe('JsonAPISerializer', () => {
   let serializer: JsonAPISerializer;
 
@@ -23,34 +25,16 @@ describe('JsonAPISerializer', () => {
     otp4: ''
   };
 
-  const singleUserBody = {
-    jsonapi,
-    data: {
-      id: 1,
-      type: 'user',
-      attributes: userAttributes
-    }
-  };
+  const USER_RELATIONS = ['accessGroups', 'globalPermissionGroup'] as const;
 
-  const userListBody = {
-    jsonapi,
+  const singleUserBody = { jsonapi, links: {}, data: mockResource('user', 1, userAttributes, USER_RELATIONS) };
+
+  const userListBody = mockResponse({
     data: [
-      {
-        id: 1,
-        type: 'user',
-        attributes: userAttributes
-      },
-      {
-        id: 2,
-        type: 'user',
-        attributes: {
-          ...userAttributes,
-          name: 'testuser',
-          email: 'test@example.com'
-        }
-      }
+      mockResource('user', 1, userAttributes, USER_RELATIONS),
+      mockResource('user', 2, { ...userAttributes, name: 'testuser', email: 'test@example.com' }, USER_RELATIONS)
     ]
-  };
+  });
 
   beforeEach(() => {
     serializer = new JsonAPISerializer();
@@ -130,18 +114,15 @@ describe('JsonAPISerializer', () => {
   });
 
   describe('permission-stripped user responses', () => {
-    const strippedUser = {
-      id: 1,
-      type: 'user',
-      attributes: { name: 'admin' }
-    };
-    const strippedSingleBody = { jsonapi, data: strippedUser };
-    const strippedListBody = { jsonapi, data: [strippedUser] };
+    // A permission-stripped resource keeps its full JSON:API plumbing (`links` + `relationships`);
+    // the server only drops non-public *attributes*. See the server's AbstractBaseAPI::obj2Resource(),
+    // where permission filtering happens inside the attribute loop and never touches links/relationships.
+    const strippedUser = mockResource('user', 1, { name: 'admin' }, USER_RELATIONS);
 
     it('does not log an error for a stripped single-object response', () => {
       const consoleSpy = spyOn(console, 'error');
 
-      const user = serializer.deserialize(strippedSingleBody, zUserResponse);
+      const user = serializer.deserialize(mockResponse({ data: strippedUser }), zUserResponse);
 
       expect(consoleSpy).not.toHaveBeenCalled();
       expect(user.name).toBe('admin');
@@ -150,7 +131,7 @@ describe('JsonAPISerializer', () => {
     it('does not log an error for a stripped list response', () => {
       const consoleSpy = spyOn(console, 'error');
 
-      const users = serializer.deserialize(strippedListBody, zUserListResponse);
+      const users = serializer.deserialize(mockResponse({ data: [strippedUser] }), zUserListResponse);
 
       expect(consoleSpy).not.toHaveBeenCalled();
       expect(users[0].name).toBe('admin');
@@ -158,17 +139,13 @@ describe('JsonAPISerializer', () => {
 
     it('does not log an error for a stripped user included by another entity', () => {
       const consoleSpy = spyOn(console, 'error');
-      const body = {
-        jsonapi,
-        data: [
-          {
-            id: 22,
-            type: 'apiToken',
-            attributes: { startValid: 1785743381, endValid: 1785829781, userId: 1, isRevoked: false }
-          }
-        ],
-        included: [strippedUser]
-      };
+      const apiToken = mockResource(
+        'apiToken',
+        22,
+        { startValid: 1785743381, endValid: 1785829781, userId: 1, tokenName: 'ci', isRevoked: false },
+        ['user']
+      );
+      const body = mockResponse({ data: [apiToken], included: [strippedUser] });
 
       serializer.deserialize(body, zApiTokenListResponse);
 
@@ -177,7 +154,7 @@ describe('JsonAPISerializer', () => {
 
     it('still logs an error when a stripped user misses its public attribute', () => {
       const consoleSpy = spyOn(console, 'error');
-      const body = { jsonapi, data: [{ id: 1, type: 'user', attributes: {} }] };
+      const body = mockResponse({ data: [mockResource('user', 1, {}, USER_RELATIONS)] });
 
       serializer.deserialize(body, zUserListResponse);
 

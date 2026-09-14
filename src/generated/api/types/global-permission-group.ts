@@ -1,4 +1,30 @@
-import type { ErrorResponse, NotFoundResponse } from './common';
+import type { ErrorResponse } from './common';
+
+export type GlobalPermissionGroupResourceObject = {
+  id: number;
+  type: 'globalPermissionGroup';
+  attributes: {
+    name: string;
+    permissions: {
+      [key: string]: boolean;
+    };
+  };
+  links: {
+    self: string;
+  };
+  relationships: {
+    userMembers: {
+      links: {
+        self: string;
+        related: string;
+      };
+      data?: Array<{
+        type: 'user';
+        id: number;
+      }>;
+    };
+  };
+};
 
 export type GlobalPermissionGroupCreate = {
   data: {
@@ -24,17 +50,33 @@ export type GlobalPermissionGroupPatch = {
   };
 };
 
+export type GlobalPermissionGroupPatchMultiple = {
+  data: Array<{
+    id: number;
+    type: 'globalPermissionGroup';
+    attributes: {
+      name?: string;
+      permissions?: {
+        [key: string]: boolean;
+      };
+    };
+  }>;
+};
+
+export type GlobalPermissionGroupDeleteMultiple = {
+  data: Array<{
+    id: number;
+    type: 'globalPermissionGroup';
+  }>;
+};
+
 export type GlobalPermissionGroupResponse = {
   jsonapi: {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
   data: {
     id: number;
@@ -45,17 +87,20 @@ export type GlobalPermissionGroupResponse = {
         [key: string]: boolean;
       };
     };
-  };
-  relationships?: {
-    userMembers: {
-      links: {
-        self: string;
-        related: string;
+    links: {
+      self: string;
+    };
+    relationships: {
+      userMembers: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'user';
+          id: number;
+        }>;
       };
-      data?: Array<{
-        type: 'user';
-        id: number;
-      }>;
     };
   };
   included?: Array<{
@@ -84,6 +129,9 @@ export type GlobalPermissionGroupPostPatchResponse = {
     version: string;
     ext?: Array<string>;
   };
+  links: {
+    self: string;
+  };
   data: {
     id: number;
     type: 'globalPermissionGroup';
@@ -93,41 +141,20 @@ export type GlobalPermissionGroupPostPatchResponse = {
         [key: string]: boolean;
       };
     };
-  };
-};
-
-export type GlobalPermissionGroupListResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
-  };
-  links?: {
-    self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
-  };
-  data: Array<{
-    id: number;
-    type: 'globalPermissionGroup';
-    attributes: {
-      name: string;
-      permissions: {
-        [key: string]: boolean;
-      };
+    links: {
+      self: string;
     };
-  }>;
-  relationships?: {
-    userMembers: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      userMembers: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'user';
+          id: number;
+        }>;
       };
-      data?: Array<{
-        type: 'user';
-        id: number;
-      }>;
     };
   };
   included?: Array<{
@@ -151,6 +178,92 @@ export type GlobalPermissionGroupListResponse = {
   }>;
 };
 
+export type GlobalPermissionGroupListResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
+  };
+  data: Array<{
+    id: number;
+    type: 'globalPermissionGroup';
+    attributes: {
+      name: string;
+      permissions: {
+        [key: string]: boolean;
+      };
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      userMembers: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'user';
+          id: number;
+        }>;
+      };
+    };
+  }>;
+  included?: Array<{
+    id: number;
+    type: 'user';
+    attributes: {
+      name: string;
+      email?: string;
+      isValid?: boolean;
+      isComputedPassword?: boolean;
+      lastLoginDate?: number;
+      registeredSince?: number;
+      sessionLifetime?: number;
+      globalPermissionGroupId?: number;
+      yubikey?: string;
+      otp1?: string;
+      otp2?: string;
+      otp3?: string;
+      otp4?: string;
+    };
+  }>;
+};
+
+export type GlobalPermissionGroupCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects accessible to the current user matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects accessible to the current user without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
 export type GlobalPermissionGroupRelationUserMembers = {
   data: Array<{
     type: 'userMembers';
@@ -166,7 +279,7 @@ export type GlobalPermissionGroupRelationUserMembersGetResponse = {
 };
 
 export type DeleteGlobalpermissiongroupsData = {
-  body?: never;
+  body: GlobalPermissionGroupDeleteMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/globalpermissiongroups';
@@ -181,6 +294,14 @@ export type DeleteGlobalpermissiongroupsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
 };
 
 export type DeleteGlobalpermissiongroupsError =
@@ -188,37 +309,52 @@ export type DeleteGlobalpermissiongroupsError =
 
 export type DeleteGlobalpermissiongroupsResponses = {
   /**
-   * successful operation
+   * successfully deleted
    */
-  200: unknown;
+  204: void;
 };
+
+export type DeleteGlobalpermissiongroupsResponse =
+  DeleteGlobalpermissiongroupsResponses[keyof DeleteGlobalpermissiongroupsResponses];
 
 export type GetGlobalpermissiongroupsData = {
   body?: never;
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"rightGroupId": 123}}` -> `eyJwcmltYXJ5Ijp7InJpZ2h0R3JvdXBJZCI6IDEyM319`
      */
-    'page[after]'?: number;
+    'page[after]'?: string;
     /**
-     * Pointer to paginate to retrieve the data before the value provided
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"rightGroupId": 123}}` -> `eyJwcmltYXJ5Ijp7InJpZ2h0R3JvdXBJZCI6IDEyM319`
      */
-    'page[before]'?: number;
+    'page[before]'?: string;
     /**
      * Amout of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[rightGroupId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Relationships to include in the response, comma seperated. Possible options: userMembers
      */
-    include?: string;
+    include?: Array<'userMembers'>;
   };
   url: '/api/v2/ui/globalpermissiongroups';
 };
@@ -232,6 +368,10 @@ export type GetGlobalpermissiongroupsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetGlobalpermissiongroupsError = GetGlobalpermissiongroupsErrors[keyof GetGlobalpermissiongroupsErrors];
@@ -247,7 +387,7 @@ export type GetGlobalpermissiongroupsResponse =
   GetGlobalpermissiongroupsResponses[keyof GetGlobalpermissiongroupsResponses];
 
 export type PatchGlobalpermissiongroupsData = {
-  body?: never;
+  body: GlobalPermissionGroupPatchMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/globalpermissiongroups';
@@ -262,6 +402,18 @@ export type PatchGlobalpermissiongroupsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchGlobalpermissiongroupsError =
@@ -269,10 +421,13 @@ export type PatchGlobalpermissiongroupsError =
 
 export type PatchGlobalpermissiongroupsResponses = {
   /**
-   * successful operation
+   * successfully updated
    */
-  200: unknown;
+  204: void;
 };
+
+export type PatchGlobalpermissiongroupsResponse =
+  PatchGlobalpermissiongroupsResponses[keyof PatchGlobalpermissiongroupsResponses];
 
 export type PostGlobalpermissiongroupsData = {
   body: GlobalPermissionGroupCreate;
@@ -290,6 +445,14 @@ export type PostGlobalpermissiongroupsErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostGlobalpermissiongroupsError = PostGlobalpermissiongroupsErrors[keyof PostGlobalpermissiongroupsErrors];
@@ -309,27 +472,15 @@ export type GetGlobalpermissiongroupsCountData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
-     */
-    'page[after]'?: number;
-    /**
-     * Pointer to paginate to retrieve the data before the value provided
-     */
-    'page[before]'?: number;
-    /**
-     * Amout of data to retrieve inside a single page
-     */
-    'page[size]'?: number;
-    /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[rightGroupId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Also report the number of accessible objects without any filter applied, as `meta.total_count`
      */
-    include?: string;
+    include_total?: boolean;
   };
   url: '/api/v2/ui/globalpermissiongroups/count';
 };
@@ -343,6 +494,10 @@ export type GetGlobalpermissiongroupsCountErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetGlobalpermissiongroupsCountError =
@@ -352,7 +507,7 @@ export type GetGlobalpermissiongroupsCountResponses = {
   /**
    * successful operation
    */
-  200: GlobalPermissionGroupListResponse;
+  200: GlobalPermissionGroupCountResponse;
 };
 
 export type GetGlobalpermissiongroupsCountResponse =
@@ -378,9 +533,13 @@ export type GetGlobalpermissiongroupsByIdByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetGlobalpermissiongroupsByIdByRelationError =
@@ -416,9 +575,13 @@ export type DeleteGlobalpermissiongroupsByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteGlobalpermissiongroupsByIdRelationshipsByRelationError =
@@ -454,9 +617,13 @@ export type GetGlobalpermissiongroupsByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetGlobalpermissiongroupsByIdRelationshipsByRelationError =
@@ -492,9 +659,17 @@ export type PatchGlobalpermissiongroupsByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchGlobalpermissiongroupsByIdRelationshipsByRelationError =
@@ -511,9 +686,7 @@ export type PatchGlobalpermissiongroupsByIdRelationshipsByRelationResponse =
   PatchGlobalpermissiongroupsByIdRelationshipsByRelationResponses[keyof PatchGlobalpermissiongroupsByIdRelationshipsByRelationResponses];
 
 export type PostGlobalpermissiongroupsByIdRelationshipsByRelationData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body: GlobalPermissionGroupRelationUserMembers;
   path: {
     id: number;
     relation: string;
@@ -532,9 +705,17 @@ export type PostGlobalpermissiongroupsByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostGlobalpermissiongroupsByIdRelationshipsByRelationError =
@@ -551,9 +732,7 @@ export type PostGlobalpermissiongroupsByIdRelationshipsByRelationResponse =
   PostGlobalpermissiongroupsByIdRelationshipsByRelationResponses[keyof PostGlobalpermissiongroupsByIdRelationshipsByRelationResponses];
 
 export type DeleteGlobalpermissiongroupsByIdData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body?: never;
   path: {
     id: number;
   };
@@ -571,9 +750,13 @@ export type DeleteGlobalpermissiongroupsByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteGlobalpermissiongroupsByIdError =
@@ -596,9 +779,9 @@ export type GetGlobalpermissiongroupsByIdData = {
   };
   query?: {
     /**
-     * Items to include. Comma seperated
+     * Relationships to include in the response, comma seperated. Possible options: userMembers
      */
-    include?: string;
+    include?: Array<'userMembers'>;
   };
   url: '/api/v2/ui/globalpermissiongroups/{id}';
 };
@@ -613,9 +796,13 @@ export type GetGlobalpermissiongroupsByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetGlobalpermissiongroupsByIdError =
@@ -650,9 +837,17 @@ export type PatchGlobalpermissiongroupsByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchGlobalpermissiongroupsByIdError =

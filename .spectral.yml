@@ -1,2 +1,30 @@
+# OpenAPI lint ruleset for the APIv2 (JSON:API) spec the frontend consumes.
+#
+# The spec is generated and served by the backend, so the single source of
+# truth for what counts as a violation lives with the backend, in
+# server/.github/openapi/. The two files under ./openapi-lint/ are verbatim
+# copies of that ruleset and MUST be kept in sync with it (do not edit them
+# here); this wrapper only adds the two frontend-specific adjustments below.
 extends:
-  - https://raw.githubusercontent.com/jmlue42/spectral-jsonapi-ruleset/main/.spectral.yml
+  - ./openapi-lint/spectral-hashtopolis.yml
+
+rules:
+  # Spectral's JSONPath filter for this rule reads `@.enum` without a null
+  # guard and crashes on any `null` inside an example (stoplight/spectral-rulesets).
+  # The backend runs a Spectral build where this does not fire; our pinned CLI
+  # does, so it is disabled here rather than in the vendored ruleset.
+  duplicated-entry-in-enum: off
+
+# `overrides` are NOT inherited through `extends`, so the auth/token exemptions
+# from spectral-hashtopolis.yml are repeated here. Keep in sync with the
+# `overrides` block of ./openapi-lint/spectral-hashtopolis.yml.
+overrides:
+  # /api/v2/auth/token exchanges basic auth credentials for a JWT. It is not a
+  # JSON:API resource endpoint: it takes a scope list and answers a plain
+  # application/json body (see token.routes.php).
+  - files:
+      - "**#/paths/~1api~1v2~1auth~1token"
+    rules:
+      content-type: off
+      400-response-code: off
+      403-response-code: off

@@ -1,5 +1,5 @@
+import { zGetCompletedCountHelperApiResponse, zGetCracksPerDayHelperApiResponse } from '@generated/api/zod';
 import { Observable, Subscription, catchError, forkJoin, map, of } from 'rxjs';
-import { z } from 'zod';
 
 import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -266,18 +266,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private getCompletedCounts$(): Observable<void> {
-    const completedCountSchema = z.object({
-      data: z.object({
-        completedTasks: z.number(),
-        completedSupertasks: z.number()
-      })
-    });
-
     return this.gs.ghelper(SERV.HELPER, 'getCompletedCount').pipe(
       map((res: ResponseWrapper) => {
-        const { data } = completedCountSchema.parse(res);
-        this.completedTasks = data.completedTasks;
-        this.completedSupertasks = data.completedSupertasks;
+        const { meta } = zGetCompletedCountHelperApiResponse.parse(res);
+        this.completedTasks = meta.completedTasks;
+        this.completedSupertasks = meta.completedSupertasks;
       }),
       catchError((err) => {
         console.error('Failed to fetch completed counts:', err);
@@ -315,14 +308,10 @@ export class HomeComponent implements OnInit, OnDestroy {
    * @returns Observable<void> completing when data is loaded or errored
    */
   private updateHeatmapData$(): Observable<void> {
-    const cracksPerDaySchema = z.object({
-      data: z.record(z.string(), z.number())
-    });
-
     return this.gs.ghelper(SERV.HELPER, 'getCracksPerDay').pipe(
       map((res: ResponseWrapper) => {
-        const parsed = cracksPerDaySchema.parse(res);
-        const rawData = parsed.data;
+        const parsed = zGetCracksPerDayHelperApiResponse.parse(res);
+        const rawData = parsed.meta;
 
         const today = new Date();
         const allDays: [string, number][] = [];
