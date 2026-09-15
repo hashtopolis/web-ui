@@ -22,12 +22,29 @@ export class HttpResInterceptor implements HttpInterceptor {
 
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (skipDialog) {
+        if (skipDialog || this.isRecoverableAuthFailure(error)) {
           return throwError(() => error);
         }
         return this.handleError(req, error);
       })
     );
+  }
+
+  /**
+   * Whether the failure is one `AuthInterceptorService` will answer by renewing the session and
+   * resending the request.
+   *
+   * This interceptor sits closer to the network than the auth interceptor, so it sees such a failure
+   * first. Reporting it would put an error in front of the user for a recovery they never needed to
+   * know about, and the auth interceptor still logs out visibly when the renewal fails.
+   */
+  private isRecoverableAuthFailure(error: HttpErrorResponse): boolean {
+    if (error.status !== HttpStatus.UNAUTHORIZED && !this.authService.isAccessTokenExpired()) {
+      return false;
+    }
+    // Only a stored session can be renewed; without one there is nothing to recover and the
+    // failure is the user's to see
+    return this.authService.token !== null;
   }
 
   /**
