@@ -38,12 +38,7 @@ const MOCK_USER = {
   isValid: true,
   accessGroups: [{ id: 1, type: 'accessGroup', groupName: 'Default Group' }],
   isComputedPassword: false,
-  otp1: '',
-  otp2: '',
-  otp3: '',
-  otp4: '',
-  sessionLifetime: 0,
-  yubikey: ''
+  sessionLifetime: 0
 } satisfies JUser;
 
 const MOCK_PERMISSION_GROUPS: JGlobalPermissionGroup[] = [MOCK_PERMISSION_GROUP];

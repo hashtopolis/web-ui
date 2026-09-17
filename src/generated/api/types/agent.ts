@@ -160,11 +160,6 @@ export type AgentResponse = {
           registeredSince?: number;
           sessionLifetime?: number;
           globalPermissionGroupId?: number;
-          yubikey?: string;
-          otp1?: string;
-          otp2?: string;
-          otp3?: string;
-          otp4?: string;
         };
       }
     | {
@@ -371,11 +366,6 @@ export type AgentPostPatchResponse = {
           registeredSince?: number;
           sessionLifetime?: number;
           globalPermissionGroupId?: number;
-          yubikey?: string;
-          otp1?: string;
-          otp2?: string;
-          otp3?: string;
-          otp4?: string;
         };
       }
     | {
@@ -591,11 +581,6 @@ export type AgentListResponse = {
           registeredSince?: number;
           sessionLifetime?: number;
           globalPermissionGroupId?: number;
-          yubikey?: string;
-          otp1?: string;
-          otp2?: string;
-          otp3?: string;
-          otp4?: string;
         };
       }
     | {

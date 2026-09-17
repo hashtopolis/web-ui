@@ -19,12 +19,7 @@ export interface JUser extends BaseModel {
   isValid?: boolean | undefined;
   lastLoginDate?: number | undefined;
   name: string;
-  otp1?: string | undefined;
-  otp2?: string | undefined;
-  otp3?: string | undefined;
-  otp4?: string | undefined;
   registeredSince?: number | undefined;
   sessionLifetime?: number | undefined;
-  yubikey?: string | undefined;
   accessGroups?: JAccessGroup[];
 }
