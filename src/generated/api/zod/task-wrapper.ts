@@ -918,7 +918,6 @@ export const zTaskWrapperDisplayListResponse = z.object({
         groupName: z.string(),
         hashlistIsSecret: z.boolean(),
         // Aggregate fields — present only when requested via aggregate[taskwrapperdisplay]=...
-        status: z.int().optional(),
         totalAssignedAgents: z.int().optional(),
         dispatched: z.string().optional(),
         searched: z.string().optional(),
