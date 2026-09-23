@@ -1,6 +1,17 @@
 import { Buffer } from 'buffer';
 
-import { BehaviorSubject, Observable, ReplaySubject, Subject, of, switchMap, take, throwError } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  ReplaySubject,
+  Subject,
+  firstValueFrom,
+  from,
+  of,
+  switchMap,
+  take,
+  throwError
+} from 'rxjs';
 import { catchError, distinctUntilChanged, finalize, map, shareReplay, tap } from 'rxjs/operators';
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
@@ -45,6 +56,9 @@ export class AuthService {
    * request and modest clock skew, short enough that a renewal is rare.
    */
   private static readonly REFRESH_LEAD_TIME_MS = 60_000;
+
+  /** Name of the Web Lock that keeps two tabs from renewing the same single-use cookie at once. */
+  private static readonly REFRESH_LOCK = 'hashtopolis-refresh-token';
 
   /**
    * The renewal currently in flight, shared by every caller so that a burst of requests hitting an
@@ -330,19 +344,57 @@ export class AuthService {
       return this.refreshInFlight$;
     }
 
-    this.refreshInFlight$ = this.http
+    this.refreshInFlight$ = from(this.refreshExclusively()).pipe(
+      finalize(() => {
+        this.refreshInFlight$ = null;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+
+    return this.refreshInFlight$;
+  }
+
+  /**
+   * Renews the session with the other tabs of this origin held off.
+   *
+   * The cookie is single use: the backend consumes it and answers with a replacement, and a second
+   * exchange of the same one is treated as the leak it would be, ending every session of that login.
+   * The field above only coalesces callers inside one tab, and each tab runs its own copy of this
+   * service over one shared cookie, so without a lock two tabs renewing at the same moment would log
+   * the user out of both.
+   *
+   * @returns The refreshed session data.
+   */
+  private async refreshExclusively(): Promise<AuthData> {
+    // Web Locks needs a secure context; where it is missing, fall back to renewing unsynchronised
+    if (!navigator.locks) {
+      return firstValueFrom(this.requestRefresh());
+    }
+
+    return navigator.locks.request(AuthService.REFRESH_LOCK, async () => {
+      const stored: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
+
+      /* A tab that held the lock first has already renewed and written the result to local storage,
+         which every tab shares. Adopt that rather than spending the replacement cookie again. */
+      if (stored?._token && !this.isAccessTokenExpiring()) {
+        const expires = stored._expires instanceof Date ? stored._expires : new Date(stored._expires);
+        return this.storeSession(stored._token, expires, stored.userId, stored.canonicalUsername);
+      }
+
+      return firstValueFrom(this.requestRefresh());
+    });
+  }
+
+  /**
+   * The exchange itself. The cookie is HttpOnly and scoped to this one path, so it is never read
+   * here: the browser attaches it and the backend answers with a rotated one.
+   */
+  private requestRefresh(): Observable<AuthData> {
+    return this.http
       .post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/refresh', null, {
         withCredentials: true
       })
-      .pipe(
-        map((resData) => this.storeRefreshedSession(resData.token, +resData.expires)),
-        finalize(() => {
-          this.refreshInFlight$ = null;
-        }),
-        shareReplay({ bufferSize: 1, refCount: false })
-      );
-
-    return this.refreshInFlight$;
+      .pipe(map((resData) => this.storeRefreshedSession(resData.token, +resData.expires)));
   }
 
   /**
