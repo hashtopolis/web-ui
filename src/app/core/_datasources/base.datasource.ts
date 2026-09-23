@@ -114,7 +114,7 @@ export abstract class BaseDataSource<
     this.service = injector.get(GlobalService);
     this.uiService = injector.get(UIConfigService);
     this.permissionService = injector.get(PermissionService);
-    this.serializer = new JsonAPISerializer();
+    this.serializer = injector.get(JsonAPISerializer);
     this.autoRefreshService = injector.get(AutoRefreshService);
     this.cacheService = injector.get(HttpCacheService);
 

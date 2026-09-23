@@ -24,6 +24,11 @@
     <div class="flex flex-wrap items-start gap-2">
       <input-text title="ID" [value]="token.id + ''" [readonly]="true"></input-text>
       <input-text
+        title="Token Name"
+        [value]="token.tokenName?.trim() || '—'"
+        [readonly]="true"
+      ></input-text>
+      <input-text
         title="Status"
         [value]="status ?? '' | titlecase"
         [icon]="

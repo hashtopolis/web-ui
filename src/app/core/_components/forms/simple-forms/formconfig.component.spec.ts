@@ -1,3 +1,4 @@
+import { zConfigListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -17,7 +18,7 @@ import { CookieService } from '@services/shared/cookies.service';
 import { UIConfigService } from '@services/shared/storage.service';
 
 import { FormConfigComponent } from '@src/app/core/_components/forms/simple-forms/formconfig.component';
-import { mockResponse } from '@src/app/testing/mock-response';
+import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 
 describe('FormConfigComponent', () => {
   let component: FormConfigComponent;
@@ -75,7 +76,7 @@ describe('FormConfigComponent', () => {
 
   it('should convert numeric string values to numbers for select fields', () => {
     // Mock API response with serverLogLevel = '30' (WARNING)
-    const mockApiResponse = mockResponse({
+    const mockApiResponse = mockValidResponse(zConfigListResponse, {
       data: [
         {
           type: 'config',
@@ -114,7 +115,7 @@ describe('FormConfigComponent', () => {
 
   it('should convert numeric string values to numbers for agentStatTension select field', () => {
     // Mock API response with agentStatTension = '1' (Bezier curves)
-    const mockApiResponse = mockResponse({
+    const mockApiResponse = mockValidResponse(zConfigListResponse, {
       data: [
         {
           type: 'config',
@@ -151,7 +152,7 @@ describe('FormConfigComponent', () => {
 
   it('should convert "1" and "0" to booleans only for checkbox fields', () => {
     // Mock API response with checkbox and select fields
-    const mockApiResponse = mockResponse({
+    const mockApiResponse = mockValidResponse(zConfigListResponse, {
       data: [
         {
           type: 'config',
@@ -206,7 +207,7 @@ describe('FormConfigComponent', () => {
 
   it('should preserve string values that are not numeric', () => {
     // Mock API response with text field
-    const mockApiResponse = mockResponse({
+    const mockApiResponse = mockValidResponse(zConfigListResponse, {
       data: [
         {
           type: 'config',
@@ -238,7 +239,7 @@ describe('FormConfigComponent', () => {
   });
 
   it('should set form ids and mark the form as loaded after loadEdit', () => {
-    const mockApiResponse = mockResponse({
+    const mockApiResponse = mockValidResponse(zConfigListResponse, {
       data: [
         {
           type: 'config',

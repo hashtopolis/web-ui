@@ -55,6 +55,8 @@ export interface HTTableRouterLink {
   routerLink: Array<string | number> | null;
   tooltip?: string | undefined;
   icon?: { faIcon?: IconDefinition | undefined; tooltip?: string | undefined };
+  /** Render a plain-text entry (routerLink null, no onClick) in the muted foreground color, e.g. "(deleted)". */
+  muted?: boolean;
   // click handler for cells that trigger an action
   onClick?: () => void;
   visualGraph?: {
@@ -70,6 +72,8 @@ export interface HTTableEditable<T> {
   data: T;
   value: string;
   action: string;
+  // Optional hard cap on the number of characters that can be typed/pasted into the edit input.
+  maxLength?: number;
   disabled?: boolean;
   // Optional matTooltip text for the cell — useful for explaining why a disabled cell can't be toggled.
   tooltip?: string;

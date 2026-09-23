@@ -11,6 +11,7 @@ import { endOfDay, startOfDay } from '@src/app/shared/utils/datetime';
  * `scopes` is an array of permission keys from the `Perm` enum tree (e.g. `permTaskRead`).
  */
 export interface NewApiKeyForm {
+  tokenName: FormControl<string>;
   validFrom: FormControl<Date | null>;
   validUntil: FormControl<Date | null>;
   scopes: FormControl<PermissionValues[]>;
@@ -36,6 +37,7 @@ export const getNewApiKeyForm = (validityDays: number): FormGroup<NewApiKeyForm>
 
   return new FormGroup<NewApiKeyForm>(
     {
+      tokenName: new FormControl<string>('', { nonNullable: true }),
       validFrom: new FormControl<Date | null>(validFrom, [Validators.required]),
       validUntil: new FormControl<Date | null>(validUntil, [Validators.required]),
       scopes: new FormControl<PermissionValues[]>([], { nonNullable: true, validators: [Validators.required] })

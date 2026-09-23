@@ -2,7 +2,7 @@
  * This module contains the component class to create a new hashlist
  */
 import { HTTP_SKIP_ERROR_HEADER_CONFIG, HttpMethod } from '@constants/http.config';
-import { zAccessGroupListResponse, zConfigResponse, zHashTypeListResponse } from '@generated/api/zod';
+import { zConfigResponse, zGetAccessGroupsHelperApiResponse, zHashTypeListResponse } from '@generated/api/zod';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -174,7 +174,10 @@ export class NewHashlistComponent implements OnInit {
       .ghelper(SERV.HELPER, 'getAccessGroups')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response: ResponseWrapper) => {
-        const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(response, zAccessGroupListResponse);
+        const accessGroups: JAccessGroup[] = new JsonAPISerializer().deserialize(
+          response,
+          zGetAccessGroupsHelperApiResponse
+        );
         this.selectAccessgroup = transformSelectOptions(accessGroups, ACCESS_GROUP_FIELD_MAPPING);
         if (this.selectAccessgroup.length > 0 && this.form.controls.accessGroupId.value === null) {
           this.form.patchValue({ accessGroupId: this.selectAccessgroup[0].id });

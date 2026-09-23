@@ -1,4 +1,4 @@
-import type { ErrorResponse, NotFoundResponse } from './common';
+import type { ErrorResponse } from './common';
 
 export type ApiTokenCreate = {
   data: {
@@ -7,7 +7,8 @@ export type ApiTokenCreate = {
       scopes: Array<number>;
       startValid: number;
       endValid: number;
-      userId: number;
+      userId?: number | null;
+      tokenName: string;
       isRevoked: boolean;
     };
   };
@@ -18,8 +19,27 @@ export type ApiTokenPatch = {
     type: 'apiToken';
     attributes: {
       isRevoked?: boolean;
+      tokenName?: string;
     };
   };
+};
+
+export type ApiTokenPatchMultiple = {
+  data: Array<{
+    id: number;
+    type: 'apiToken';
+    attributes: {
+      isRevoked?: boolean;
+      tokenName?: string;
+    };
+  }>;
+};
+
+export type ApiTokenDeleteMultiple = {
+  data: Array<{
+    id: number;
+    type: 'apiToken';
+  }>;
 };
 
 export type ApiTokenResponse = {
@@ -27,12 +47,8 @@ export type ApiTokenResponse = {
     version: string;
     ext?: Array<string>;
   };
-  links?: {
+  links: {
     self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
   };
   data: {
     id: number;
@@ -40,21 +56,25 @@ export type ApiTokenResponse = {
     attributes: {
       startValid: number;
       endValid: number;
-      userId: number;
+      userId: number | null;
+      tokenName: string;
       isRevoked: boolean;
       token?: string;
     };
-  };
-  relationships?: {
-    user: {
-      links: {
-        self: string;
-        related: string;
+    links: {
+      self: string;
+    };
+    relationships: {
+      user: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'user';
+          id: number;
+        } | null;
       };
-      data?: {
-        type: 'user';
-        id: number;
-      } | null;
     };
   };
   included?: Array<{
@@ -69,11 +89,6 @@ export type ApiTokenResponse = {
       registeredSince?: number;
       sessionLifetime?: number;
       globalPermissionGroupId?: number;
-      yubikey?: string;
-      otp1?: string;
-      otp2?: string;
-      otp3?: string;
-      otp4?: string;
     };
   }>;
 };
@@ -83,52 +98,34 @@ export type ApiTokenPostPatchResponse = {
     version: string;
     ext?: Array<string>;
   };
+  links: {
+    self: string;
+  };
   data: {
     id: number;
     type: 'apiToken';
     attributes: {
       startValid: number;
       endValid: number;
-      userId: number;
+      userId: number | null;
+      tokenName: string;
       isRevoked: boolean;
       token?: string;
     };
-  };
-};
-
-export type ApiTokenListResponse = {
-  jsonapi: {
-    version: string;
-    ext?: Array<string>;
-  };
-  links?: {
-    self: string;
-    first?: string;
-    last?: string;
-    next?: string | null;
-    previous?: string | null;
-  };
-  data: Array<{
-    id: number;
-    type: 'apiToken';
-    attributes: {
-      startValid: number;
-      endValid: number;
-      userId: number;
-      isRevoked: boolean;
-      token?: string;
+    links: {
+      self: string;
     };
-  }>;
-  relationships?: {
-    user: {
-      links: {
-        self: string;
-        related: string;
+    relationships: {
+      user: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'user';
+          id: number;
+        } | null;
       };
-      data?: {
-        type: 'user';
-        id: number;
-      } | null;
     };
   };
   included?: Array<{
@@ -143,12 +140,90 @@ export type ApiTokenListResponse = {
       registeredSince?: number;
       sessionLifetime?: number;
       globalPermissionGroupId?: number;
-      yubikey?: string;
-      otp1?: string;
-      otp2?: string;
-      otp3?: string;
-      otp4?: string;
     };
+  }>;
+};
+
+export type ApiTokenListResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
+  };
+  data: Array<{
+    id: number;
+    type: 'apiToken';
+    attributes: {
+      startValid: number;
+      endValid: number;
+      userId: number | null;
+      tokenName: string;
+      isRevoked: boolean;
+      token?: string;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      user: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'user';
+          id: number;
+        } | null;
+      };
+    };
+  }>;
+  included?: Array<{
+    id: number;
+    type: 'user';
+    attributes: {
+      name: string;
+      email?: string;
+      isValid?: boolean;
+      isComputedPassword?: boolean;
+      lastLoginDate?: number;
+      registeredSince?: number;
+      sessionLifetime?: number;
+      globalPermissionGroupId?: number;
+    };
+  }>;
+};
+
+export type ApiTokenCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects accessible to the current user matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects accessible to the current user without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
   }>;
 };
 
@@ -167,7 +242,7 @@ export type ApiTokenRelationUserGetResponse = {
 };
 
 export type DeleteApiTokensData = {
-  body?: never;
+  body: ApiTokenDeleteMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/apiTokens';
@@ -182,43 +257,65 @@ export type DeleteApiTokensErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
 };
 
 export type DeleteApiTokensError = DeleteApiTokensErrors[keyof DeleteApiTokensErrors];
 
 export type DeleteApiTokensResponses = {
   /**
-   * successful operation
+   * successfully deleted
    */
-  200: unknown;
+  204: void;
 };
+
+export type DeleteApiTokensResponse = DeleteApiTokensResponses[keyof DeleteApiTokensResponses];
 
 export type GetApiTokensData = {
   body?: never;
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"jwtApiKeyId": 123}}` -> `eyJwcmltYXJ5Ijp7Imp3dEFwaUtleUlkIjogMTIzfX0=`
      */
-    'page[after]'?: number;
+    'page[after]'?: string;
     /**
-     * Pointer to paginate to retrieve the data before the value provided
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"jwtApiKeyId": 123}}` -> `eyJwcmltYXJ5Ijp7Imp3dEFwaUtleUlkIjogMTIzfX0=`
      */
-    'page[before]'?: number;
+    'page[before]'?: string;
     /**
      * Amout of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[jwtApiKeyId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Relationships to include in the response, comma seperated. Possible options: user
      */
-    include?: string;
+    include?: Array<'user'>;
   };
   url: '/api/v2/ui/apiTokens';
 };
@@ -232,6 +329,10 @@ export type GetApiTokensErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetApiTokensError = GetApiTokensErrors[keyof GetApiTokensErrors];
@@ -246,7 +347,7 @@ export type GetApiTokensResponses = {
 export type GetApiTokensResponse = GetApiTokensResponses[keyof GetApiTokensResponses];
 
 export type PatchApiTokensData = {
-  body?: never;
+  body: ApiTokenPatchMultiple;
   path?: never;
   query?: never;
   url: '/api/v2/ui/apiTokens';
@@ -261,16 +362,30 @@ export type PatchApiTokensErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchApiTokensError = PatchApiTokensErrors[keyof PatchApiTokensErrors];
 
 export type PatchApiTokensResponses = {
   /**
-   * successful operation
+   * successfully updated
    */
-  200: unknown;
+  204: void;
 };
+
+export type PatchApiTokensResponse = PatchApiTokensResponses[keyof PatchApiTokensResponses];
 
 export type PostApiTokensData = {
   body: ApiTokenCreate;
@@ -288,6 +403,14 @@ export type PostApiTokensErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostApiTokensError = PostApiTokensErrors[keyof PostApiTokensErrors];
@@ -306,27 +429,15 @@ export type GetApiTokensCountData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
-     */
-    'page[after]'?: number;
-    /**
-     * Pointer to paginate to retrieve the data before the value provided
-     */
-    'page[before]'?: number;
-    /**
-     * Amout of data to retrieve inside a single page
-     */
-    'page[size]'?: number;
-    /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[jwtApiKeyId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Also report the number of accessible objects without any filter applied, as `meta.total_count`
      */
-    include?: string;
+    include_total?: boolean;
   };
   url: '/api/v2/ui/apiTokens/count';
 };
@@ -340,6 +451,10 @@ export type GetApiTokensCountErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetApiTokensCountError = GetApiTokensCountErrors[keyof GetApiTokensCountErrors];
@@ -348,7 +463,7 @@ export type GetApiTokensCountResponses = {
   /**
    * successful operation
    */
-  200: ApiTokenListResponse;
+  200: ApiTokenCountResponse;
 };
 
 export type GetApiTokensCountResponse = GetApiTokensCountResponses[keyof GetApiTokensCountResponses];
@@ -373,9 +488,13 @@ export type GetApiTokensByIdByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetApiTokensByIdByRelationError = GetApiTokensByIdByRelationErrors[keyof GetApiTokensByIdByRelationErrors];
@@ -410,9 +529,13 @@ export type GetApiTokensByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetApiTokensByIdRelationshipsByRelationError =
@@ -448,9 +571,17 @@ export type PatchApiTokensByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchApiTokensByIdRelationshipsByRelationError =
@@ -467,9 +598,7 @@ export type PatchApiTokensByIdRelationshipsByRelationResponse =
   PatchApiTokensByIdRelationshipsByRelationResponses[keyof PatchApiTokensByIdRelationshipsByRelationResponses];
 
 export type DeleteApiTokensByIdData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body?: never;
   path: {
     id: number;
   };
@@ -487,9 +616,13 @@ export type DeleteApiTokensByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteApiTokensByIdError = DeleteApiTokensByIdErrors[keyof DeleteApiTokensByIdErrors];
@@ -510,9 +643,9 @@ export type GetApiTokensByIdData = {
   };
   query?: {
     /**
-     * Items to include. Comma seperated
+     * Relationships to include in the response, comma seperated. Possible options: user
      */
-    include?: string;
+    include?: Array<'user'>;
   };
   url: '/api/v2/ui/apiTokens/{id}';
 };
@@ -527,9 +660,13 @@ export type GetApiTokensByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetApiTokensByIdError = GetApiTokensByIdErrors[keyof GetApiTokensByIdErrors];
@@ -562,9 +699,17 @@ export type PatchApiTokensByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchApiTokensByIdError = PatchApiTokensByIdErrors[keyof PatchApiTokensByIdErrors];

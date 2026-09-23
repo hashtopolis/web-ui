@@ -41,12 +41,7 @@ describe('AccountSettingsComponent', () => {
       lastLoginDate: 1752647017,
       registeredSince: 1744086356,
       sessionLifetime: 3600,
-      globalPermissionGroupId: 1,
-      yubikey: '0',
-      otp1: '',
-      otp2: '',
-      otp3: '',
-      otp4: ''
+      globalPermissionGroupId: 1
     }
   };
 
@@ -85,12 +80,7 @@ describe('AccountSettingsComponent', () => {
     lastLoginDate: userResponse.attributes.lastLoginDate,
     registeredSince: userResponse.attributes.registeredSince,
     sessionLifetime: userResponse.attributes.sessionLifetime,
-    globalPermissionGroupId: userResponse.attributes.globalPermissionGroupId,
-    yubikey: userResponse.attributes.yubikey,
-    otp1: userResponse.attributes.otp1,
-    otp2: userResponse.attributes.otp2,
-    otp3: userResponse.attributes.otp3,
-    otp4: userResponse.attributes.otp4
+    globalPermissionGroupId: userResponse.attributes.globalPermissionGroupId
   };
 
   beforeEach(async () => {
@@ -361,7 +351,7 @@ describe('AccountSettingsComponent', () => {
     it('Submits password form and resets on success', fakeAsync(() => {
       // Arrange
       const chelperSpy = spyOn(component['gs'], 'chelper').and.returnValue(
-        of({ meta: { 'Change password': 'Password changed successfully' } })
+        of(mockResponse({ meta: { 'Change password': 'Password changed successfully' } }))
       );
       const resetSpy = spyOn(component, 'resetPasswordForm');
 

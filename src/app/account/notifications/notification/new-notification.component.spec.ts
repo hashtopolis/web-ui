@@ -1,4 +1,5 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { zAgentListResponse, zHashlistListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { TJsonApiData } from 'jsona/lib/JsonaTypes';
 import { of } from 'rxjs';
 import { PipesModule } from 'src/app/shared/pipes.module';
@@ -26,7 +27,7 @@ import { NewNotificationComponent } from '@src/app/account/notifications/notific
 import { ACTION, NOTIF } from '@src/app/core/_constants/notifications.config';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { findEl, setFieldValue } from '@src/app/spec-helpers/element.spec-helper';
-import { mockResponse } from '@src/app/testing/mock-response';
+import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 
 let loader: HarnessLoader;
 
@@ -37,7 +38,7 @@ describe('NewNotificationComponent', () => {
 
   // Sample data for agents, tasks, hashlist, and users
   // Attributes must match the Zod schemas (zAgentListResponse, zTaskListResponse, etc.)
-  const agentValues: ResponseWrapper = mockResponse({
+  const agentValues: ResponseWrapper = mockValidResponse(zAgentListResponse, {
     data: [
       {
         id: 1,
@@ -63,7 +64,7 @@ describe('NewNotificationComponent', () => {
     ]
   });
 
-  const taskValues: ResponseWrapper = mockResponse({
+  const taskValues: ResponseWrapper = mockValidResponse(zTaskListResponse, {
     data: [
       {
         id: 101,
@@ -128,7 +129,7 @@ describe('NewNotificationComponent', () => {
     ]
   });
 
-  const userValues: ResponseWrapper = mockResponse({
+  const userValues: ResponseWrapper = mockValidResponse(zUserListResponse, {
     data: [
       {
         id: 1,
@@ -141,12 +142,7 @@ describe('NewNotificationComponent', () => {
           lastLoginDate: 1720000000,
           registeredSince: 1700000000,
           sessionLifetime: 3600,
-          globalPermissionGroupId: 1,
-          yubikey: '',
-          otp1: '',
-          otp2: '',
-          otp3: '',
-          otp4: ''
+          globalPermissionGroupId: 1
         }
       },
       {
@@ -160,18 +156,13 @@ describe('NewNotificationComponent', () => {
           lastLoginDate: 1719900000,
           registeredSince: 1705000000,
           sessionLifetime: 3600,
-          globalPermissionGroupId: 2,
-          yubikey: '',
-          otp1: '',
-          otp2: '',
-          otp3: '',
-          otp4: ''
+          globalPermissionGroupId: 2
         }
       }
     ]
   });
 
-  const hashlistValues: ResponseWrapper = mockResponse({
+  const hashlistValues: ResponseWrapper = mockValidResponse(zHashlistListResponse, {
     data: [
       {
         id: 1,

@@ -2,21 +2,13 @@ export type ClientOptions = {
   baseUrl: `${string}://${string}` | (string & {});
 };
 
+/**
+ * RFC 7807 problem document
+ */
 export type ErrorResponse = {
   title?: string;
   type?: string;
   status: number;
-};
-
-export type NotFoundResponse = {
-  message: string;
-  exception?: {
-    type?: string;
-    code?: number;
-    message?: string;
-    file?: string;
-    line?: number;
-  };
 };
 
 export type Token = {

@@ -1,3 +1,4 @@
+import { zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
 
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -13,7 +14,7 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import { InputModule } from '@src/app/shared/input/input.module';
-import { mockResponse } from '@src/app/testing/mock-response';
+import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 import { NewUserComponent } from '@src/app/users/new-user/new-user.component';
 
 describe('NewUserComponent', () => {
@@ -24,7 +25,7 @@ describe('NewUserComponent', () => {
   let mockRouter: jasmine.SpyObj<Router>;
   let mockAlertService: jasmine.SpyObj<AlertService>;
 
-  const mockPermissionResponse: ResponseWrapper = mockResponse({
+  const mockPermissionResponse: ResponseWrapper = mockValidResponse(zGlobalPermissionGroupListResponse, {
     data: [
       {
         id: 1,

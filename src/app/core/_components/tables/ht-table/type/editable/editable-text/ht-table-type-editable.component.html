@@ -16,6 +16,7 @@
           #editableInput
           type="text"
           [(ngModel)]="editable.value"
+          [attr.maxlength]="editable.maxLength"
           [class.hidden]="!editMode"
           (blur)="onBlur($event)"
           (focus)="onFocus($event)"

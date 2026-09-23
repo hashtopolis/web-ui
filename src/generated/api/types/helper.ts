@@ -1,31 +1,62 @@
-import type { ErrorResponse, NotFoundResponse } from './common';
+import type { AccessGroupResourceObject } from './access-group';
+import type { ErrorResponse } from './common';
+import type { ConfigResourceObject } from './config';
 import type { FileSingleResponse } from './file';
+import type { GlobalPermissionGroupResourceObject } from './global-permission-group';
+import type { HashResourceObject } from './hash';
 import type { HashlistSingleResponse } from './hashlist';
 import type { SupertaskSingleResponse } from './supertask';
+import type { TaskResourceObject } from './task';
 import type {
+  TaskWrapperDisplayCountResponse,
   TaskWrapperDisplayListResponse,
   TaskWrapperDisplayRelationTasks,
   TaskWrapperDisplayRelationTasksGetResponse,
   TaskWrapperDisplayResponse,
   TaskWrapperSingleResponse
 } from './task-wrapper';
+import type { UserResourceObject } from './user';
 
 export type AbortChunkHelperApi = {
   chunkId?: number;
 };
 
-export type AbortChunkHelperApiResponse = Array<{
-  Abort?: string;
-}>;
+export type AbortChunkHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    Abort?: string;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
 
 export type AssignAgentHelperApi = {
   agentId?: number;
   taskId?: number;
 };
 
-export type AssignAgentHelperApiResponse = Array<{
-  Assign?: string;
-}>;
+export type AssignAgentHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    Assign?: string;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
 
 export type BulkSupertaskBuilderHelperApi = {
   name?: string;
@@ -45,9 +76,21 @@ export type ChangeOwnPasswordHelperApi = {
   confirmPassword?: string;
 };
 
-export type ChangeOwnPasswordHelperApiResponse = Array<{
-  'Change password'?: string;
-}>;
+export type ChangeOwnPasswordHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    'Change password'?: string;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
 
 export type CreateSuperHashlistHelperApi = {
   hashlistIds?: Array<number>;
@@ -58,6 +101,14 @@ export type CreateSupertaskHelperApi = {
   supertaskTemplateId?: number;
   hashlistId?: number;
   crackerVersionId?: number;
+};
+
+export type CurrentUserHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  data: UserResourceObject;
 };
 
 export type ExportCrackedHashesHelperApi = {
@@ -72,6 +123,82 @@ export type ExportWordlistHelperApi = {
   hashlistId?: number;
 };
 
+export type GetAccessGroupsHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  data: Array<AccessGroupResourceObject>;
+};
+
+export type GetBestTasksAgentResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  data: Array<TaskResourceObject>;
+};
+
+export type GetCompletedCountHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    completedTasks?: number;
+    completedSupertasks?: number;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type GetCracksOfTaskHelperResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  data: Array<HashResourceObject>;
+};
+
+export type GetCracksPerDayHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  /**
+   * Map of date (YYYY-MM-DD) to the number of hashes cracked on that day; days without cracks are omitted.
+   */
+  meta: {
+    [key: string]: number;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type GetGlobalConfigHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  data: Array<ConfigResourceObject>;
+};
+
+export type GetUserPermissionHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  data: GlobalPermissionGroupResourceObject;
+};
+
 export type ImportCrackedHashesHelperApi = {
   hashlistId?: number;
   sourceType?: string;
@@ -80,18 +207,47 @@ export type ImportCrackedHashesHelperApi = {
   overwrite?: number;
 };
 
-export type ImportCrackedHashesHelperApiResponse = Array<{
-  totalLines?: number;
-  newCracked?: number;
-  alreadyCracked?: number;
-  invalid?: number;
-  notFound?: number;
-  processTime?: number;
-  tooLongPlaintexts?: number;
-}>;
+export type ImportCrackedHashesHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    totalLines?: number;
+    newCracked?: number;
+    alreadyCracked?: number;
+    invalid?: number;
+    notFound?: number;
+    processTime?: number;
+    tooLongPlaintexts?: number;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
 
 export type ImportFileHelperApi = {
   [key: string]: unknown;
+};
+
+export type ImportFileHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    file?: string;
+    size?: number;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
 };
 
 export type MaskSupertaskBuilderHelperApi = {
@@ -109,17 +265,41 @@ export type PurgeTaskHelperApi = {
   taskId?: number;
 };
 
-export type PurgeTaskHelperApiResponse = Array<{
-  Purge?: string;
-}>;
+export type PurgeTaskHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    Purge?: string;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
 
 export type RebuildChunkCacheHelperApi = {
   [key: string]: unknown;
 };
 
-export type RebuildChunkCacheHelperApiResponse = Array<{
-  Rebuild?: string;
-}>;
+export type RebuildChunkCacheHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    Rebuild?: string;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
 
 export type RecountFileLinesHelperApi = {
   fileId?: number;
@@ -129,26 +309,62 @@ export type RescanGlobalFilesHelperApi = {
   [key: string]: unknown;
 };
 
-export type RescanGlobalFilesHelperApiResponse = Array<{
-  Rescan?: string;
-}>;
+export type RescanGlobalFilesHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    Rescan?: string;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
 
 export type ResetChunkHelperApi = {
   chunkId?: number;
 };
 
-export type ResetChunkHelperApiResponse = Array<{
-  Reset?: string;
-}>;
+export type ResetChunkHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    Reset?: string;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
 
 export type ResetUserPasswordHelperApi = {
   email?: string;
   username?: string;
 };
 
-export type ResetUserPasswordHelperApiResponse = Array<{
-  Reset?: string;
-}>;
+export type ResetUserPasswordHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    Reset?: string;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
 
 export type SearchHashesHelperApi = {
   searchData?: string;
@@ -156,58 +372,112 @@ export type SearchHashesHelperApi = {
   isSalted?: boolean;
 };
 
-export type SearchHashesHelperApiResponse = Array<{
-  0?: {
-    [key: string]: unknown;
+export type SearchHashesHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
   };
-  1?: {
-    [key: string]: unknown;
+  meta: {
+    0?: {
+      [key: string]: unknown;
+    };
+    1?: {
+      [key: string]: unknown;
+    };
   };
-}>;
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
 
 export type SetUserPasswordHelperApi = {
   userId?: number;
   password?: string;
 };
 
-export type SetUserPasswordHelperApiResponse = Array<{
-  'Set password'?: string;
-}>;
+export type SetUserPasswordHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    'Set password'?: string;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
 
 export type UnassignAgentHelperApi = {
   agentId?: number;
 };
 
-export type UnassignAgentHelperApiResponse = Array<{
-  Unassign?: string;
-}>;
+export type UnassignAgentHelperApiResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    Unassign?: string;
+  };
+  /**
+   * Always empty: a helper answers with meta only.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
 
 export type GetTaskwrapperdisplaysData = {
   body?: never;
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"taskWrapperId": 123}}` -> `eyJwcmltYXJ5Ijp7InRhc2tXcmFwcGVySWQiOiAxMjN9fQ==`
      */
-    'page[after]'?: number;
+    'page[after]'?: string;
     /**
-     * Pointer to paginate to retrieve the data before the value provided
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"taskWrapperId": 123}}` -> `eyJwcmltYXJ5Ijp7InRhc2tXcmFwcGVySWQiOiAxMjN9fQ==`
      */
-    'page[before]'?: number;
+    'page[before]'?: string;
     /**
      * Amout of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[taskWrapperId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Relationships to include in the response, comma seperated. Possible options: tasks
      */
-    include?: string;
+    include?: Array<'tasks'>;
+    /**
+     * Aggregated fields to include by type (comma separated values). Possible options: taskwrapperdisplay: totalAssignedAgents, dispatched, searched, status, currentSpeed, estimatedTime, cprogress, timeSpent
+     */
+    aggregate?: {
+      [key: string]: string;
+    };
   };
   url: '/api/v2/ui/taskwrapperdisplays';
 };
@@ -221,6 +491,10 @@ export type GetTaskwrapperdisplaysErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetTaskwrapperdisplaysError = GetTaskwrapperdisplaysErrors[keyof GetTaskwrapperdisplaysErrors];
@@ -239,27 +513,15 @@ export type GetTaskwrapperdisplaysCountData = {
   path?: never;
   query?: {
     /**
-     * Pointer to paginate to retrieve the data after the value provided
-     */
-    'page[after]'?: number;
-    /**
-     * Pointer to paginate to retrieve the data before the value provided
-     */
-    'page[before]'?: number;
-    /**
-     * Amout of data to retrieve inside a single page
-     */
-    'page[size]'?: number;
-    /**
-     * Filters results using a query
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[taskWrapperId__gt]=200`.
      */
     filter?: {
-      [key: string]: unknown;
+      [key: string]: string;
     };
     /**
-     * Items to include, comma seperated. Possible options: Array
+     * Also report the number of accessible objects without any filter applied, as `meta.total_count`
      */
-    include?: string;
+    include_total?: boolean;
   };
   url: '/api/v2/ui/taskwrapperdisplays/count';
 };
@@ -273,6 +535,10 @@ export type GetTaskwrapperdisplaysCountErrors = {
    * Authentication failed
    */
   401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
 };
 
 export type GetTaskwrapperdisplaysCountError =
@@ -282,7 +548,7 @@ export type GetTaskwrapperdisplaysCountResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperDisplayListResponse;
+  200: TaskWrapperDisplayCountResponse;
 };
 
 export type GetTaskwrapperdisplaysCountResponse =
@@ -308,9 +574,13 @@ export type GetTaskwrapperdisplaysByIdByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetTaskwrapperdisplaysByIdByRelationError =
@@ -346,9 +616,13 @@ export type DeleteTaskwrapperdisplaysByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type DeleteTaskwrapperdisplaysByIdRelationshipsByRelationError =
@@ -384,9 +658,13 @@ export type GetTaskwrapperdisplaysByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetTaskwrapperdisplaysByIdRelationshipsByRelationError =
@@ -422,9 +700,17 @@ export type PatchTaskwrapperdisplaysByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PatchTaskwrapperdisplaysByIdRelationshipsByRelationError =
@@ -441,9 +727,7 @@ export type PatchTaskwrapperdisplaysByIdRelationshipsByRelationResponse =
   PatchTaskwrapperdisplaysByIdRelationshipsByRelationResponses[keyof PatchTaskwrapperdisplaysByIdRelationshipsByRelationResponses];
 
 export type PostTaskwrapperdisplaysByIdRelationshipsByRelationData = {
-  body: {
-    [key: string]: unknown;
-  };
+  body: TaskWrapperDisplayRelationTasks;
   path: {
     id: number;
     relation: string;
@@ -462,9 +746,17 @@ export type PostTaskwrapperdisplaysByIdRelationshipsByRelationErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
 };
 
 export type PostTaskwrapperdisplaysByIdRelationshipsByRelationError =
@@ -487,9 +779,9 @@ export type GetTaskwrapperdisplaysByIdData = {
   };
   query?: {
     /**
-     * Items to include. Comma seperated
+     * Relationships to include in the response, comma seperated. Possible options: tasks
      */
-    include?: string;
+    include?: Array<'tasks'>;
   };
   url: '/api/v2/ui/taskwrapperdisplays/{id}';
 };
@@ -504,9 +796,13 @@ export type GetTaskwrapperdisplaysByIdErrors = {
    */
   401: ErrorResponse;
   /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
    * Not Found
    */
-  404: NotFoundResponse;
+  404: ErrorResponse;
 };
 
 export type GetTaskwrapperdisplaysByIdError = GetTaskwrapperdisplaysByIdErrors[keyof GetTaskwrapperdisplaysByIdErrors];
@@ -523,13 +819,34 @@ export type GetTaskwrapperdisplaysByIdResponse =
 
 export type PostAbortChunkData = {
   /**
-   * ChunkID is the ID of the chunk that needs to be aborted.<br />
+   * ChunkID is the ID of the chunk that needs to be aborted.
    */
   body: AbortChunkHelperApi;
   path?: never;
   query?: never;
   url: '/api/v2/helper/abortChunk';
 };
+
+export type PostAbortChunkErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostAbortChunkError = PostAbortChunkErrors[keyof PostAbortChunkErrors];
 
 export type PostAbortChunkResponses = {
   /**
@@ -542,13 +859,34 @@ export type PostAbortChunkResponse = PostAbortChunkResponses[keyof PostAbortChun
 
 export type PostAssignAgentData = {
   /**
-   * The agentId is the Id of the agent that has to be assigned to the task.<br />The taskId is the Id of the task that will be assigned to the agent. If this is set to 0,<br />the agent will be unassigned from its current assigned task.<br />
+   * The agentId is the Id of the agent that has to be assigned to the task.<br />The taskId is the Id of the task that will be assigned to the agent. If this is set to 0,<br />the agent will be unassigned from its current assigned task.
    */
   body: AssignAgentHelperApi;
   path?: never;
   query?: never;
   url: '/api/v2/helper/assignAgent';
 };
+
+export type PostAssignAgentErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostAssignAgentError = PostAssignAgentErrors[keyof PostAssignAgentErrors];
 
 export type PostAssignAgentResponses = {
   /**
@@ -566,6 +904,27 @@ export type PostBulkSupertaskBuilderData = {
   url: '/api/v2/helper/bulkSupertaskBuilder';
 };
 
+export type PostBulkSupertaskBuilderErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostBulkSupertaskBuilderError = PostBulkSupertaskBuilderErrors[keyof PostBulkSupertaskBuilderErrors];
+
 export type PostBulkSupertaskBuilderResponses = {
   /**
    * successful operation
@@ -578,13 +937,34 @@ export type PostBulkSupertaskBuilderResponse =
 
 export type PostChangeOwnPasswordData = {
   /**
-   * oldPassword is the current password of the user.<br />newPassword is the new password that you want to set.<br />confirmPassword is the new password again to confirm it.<br />
+   * oldPassword is the current password of the user.<br />newPassword is the new password that you want to set.<br />confirmPassword is the new password again to confirm it.
    */
   body: ChangeOwnPasswordHelperApi;
   path?: never;
   query?: never;
   url: '/api/v2/helper/changeOwnPassword';
 };
+
+export type PostChangeOwnPasswordErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostChangeOwnPasswordError = PostChangeOwnPasswordErrors[keyof PostChangeOwnPasswordErrors];
 
 export type PostChangeOwnPasswordResponses = {
   /**
@@ -597,13 +977,34 @@ export type PostChangeOwnPasswordResponse = PostChangeOwnPasswordResponses[keyof
 
 export type PostCreateSuperHashlistData = {
   /**
-   * HashlistIds is an array of hashlist ids of the hashlists that have to be combined into a superHashlist.<br />Name is the name of the newly created superHashlist.<br />
+   * HashlistIds is an array of hashlist ids of the hashlists that have to be combined into a superHashlist.<br />Name is the name of the newly created superHashlist.
    */
   body: CreateSuperHashlistHelperApi;
   path?: never;
   query?: never;
   url: '/api/v2/helper/createSuperHashlist';
 };
+
+export type PostCreateSuperHashlistErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostCreateSuperHashlistError = PostCreateSuperHashlistErrors[keyof PostCreateSuperHashlistErrors];
 
 export type PostCreateSuperHashlistResponses = {
   /**
@@ -616,13 +1017,34 @@ export type PostCreateSuperHashlistResponse = PostCreateSuperHashlistResponses[k
 
 export type PostCreateSupertaskData = {
   /**
-   * supertaskTemplateId is the the Id of the supertasktemplate of which you want to create a supertask of.<br />hashlistId is the Id of the hashlist that has to be used for the supertask.<br />crackerVersionId is the Id of the crackerversion that is used for the created supertask.<br />
+   * supertaskTemplateId is the the Id of the supertasktemplate of which you want to create a supertask of.<br />hashlistId is the Id of the hashlist that has to be used for the supertask.<br />crackerVersionId is the Id of the crackerversion that is used for the created supertask.
    */
   body: CreateSupertaskHelperApi;
   path?: never;
   query?: never;
   url: '/api/v2/helper/createSupertask';
 };
+
+export type PostCreateSupertaskErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostCreateSupertaskError = PostCreateSupertaskErrors[keyof PostCreateSupertaskErrors];
 
 export type PostCreateSupertaskResponses = {
   /**
@@ -640,12 +1062,35 @@ export type GetCurrentUserData = {
   url: '/api/v2/helper/currentUser';
 };
 
+export type GetCurrentUserErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetCurrentUserError = GetCurrentUserErrors[keyof GetCurrentUserErrors];
+
 export type GetCurrentUserResponses = {
   /**
    * successful operation
    */
-  200: unknown;
+  200: CurrentUserHelperApiResponse;
 };
+
+export type GetCurrentUserResponse = GetCurrentUserResponses[keyof GetCurrentUserResponses];
 
 export type PatchCurrentUserData = {
   body?: never;
@@ -654,22 +1099,66 @@ export type PatchCurrentUserData = {
   url: '/api/v2/helper/currentUser';
 };
 
+export type PatchCurrentUserErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PatchCurrentUserError = PatchCurrentUserErrors[keyof PatchCurrentUserErrors];
+
 export type PatchCurrentUserResponses = {
   /**
-   * successful operation
+   * No content
    */
-  200: unknown;
+  204: void;
 };
+
+export type PatchCurrentUserResponse = PatchCurrentUserResponses[keyof PatchCurrentUserResponses];
 
 export type PostExportCrackedHashesData = {
   /**
-   * hashlistId is the Id of the hashlist where you want to export the hashes of.<br />
+   * hashlistId is the Id of the hashlist where you want to export the hashes of.
    */
   body: ExportCrackedHashesHelperApi;
   path?: never;
   query?: never;
   url: '/api/v2/helper/exportCrackedHashes';
 };
+
+export type PostExportCrackedHashesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostExportCrackedHashesError = PostExportCrackedHashesErrors[keyof PostExportCrackedHashesErrors];
 
 export type PostExportCrackedHashesResponses = {
   /**
@@ -682,13 +1171,34 @@ export type PostExportCrackedHashesResponse = PostExportCrackedHashesResponses[k
 
 export type PostExportLeftHashesData = {
   /**
-   * hashlistId is the id of the hashlist where you want to export the uncracked hashes of.<br />
+   * hashlistId is the id of the hashlist where you want to export the uncracked hashes of.
    */
   body: ExportLeftHashesHelperApi;
   path?: never;
   query?: never;
   url: '/api/v2/helper/exportLeftHashes';
 };
+
+export type PostExportLeftHashesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostExportLeftHashesError = PostExportLeftHashesErrors[keyof PostExportLeftHashesErrors];
 
 export type PostExportLeftHashesResponses = {
   /**
@@ -701,13 +1211,34 @@ export type PostExportLeftHashesResponse = PostExportLeftHashesResponses[keyof P
 
 export type PostExportWordlistData = {
   /**
-   * hashlistId is the Id of the hashlist where you want to export the wordlist of.<br />
+   * hashlistId is the Id of the hashlist where you want to export the wordlist of.
    */
   body: ExportWordlistHelperApi;
   path?: never;
   query?: never;
   url: '/api/v2/helper/exportWordlist';
 };
+
+export type PostExportWordlistErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostExportWordlistError = PostExportWordlistErrors[keyof PostExportWordlistErrors];
 
 export type PostExportWordlistResponses = {
   /**
@@ -725,12 +1256,35 @@ export type GetGetAccessGroupsData = {
   url: '/api/v2/helper/getAccessGroups';
 };
 
+export type GetGetAccessGroupsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetGetAccessGroupsError = GetGetAccessGroupsErrors[keyof GetGetAccessGroupsErrors];
+
 export type GetGetAccessGroupsResponses = {
   /**
    * successful operation
    */
-  200: unknown;
+  200: GetAccessGroupsHelperApiResponse;
 };
+
+export type GetGetAccessGroupsResponse = GetGetAccessGroupsResponses[keyof GetGetAccessGroupsResponses];
 
 export type GetGetAgentBinaryData = {
   body?: never;
@@ -743,6 +1297,27 @@ export type GetGetAgentBinaryData = {
   };
   url: '/api/v2/helper/getAgentBinary';
 };
+
+export type GetGetAgentBinaryErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetGetAgentBinaryError = GetGetAgentBinaryErrors[keyof GetGetAgentBinaryErrors];
 
 export type GetGetAgentBinaryResponses = {
   /**
@@ -763,12 +1338,72 @@ export type GetGetBestTasksAgentData = {
   url: '/api/v2/helper/getBestTasksAgent';
 };
 
+export type GetGetBestTasksAgentErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetGetBestTasksAgentError = GetGetBestTasksAgentErrors[keyof GetGetBestTasksAgentErrors];
+
 export type GetGetBestTasksAgentResponses = {
   /**
    * successful operation
    */
-  200: unknown;
+  200: GetBestTasksAgentResponse;
 };
+
+export type GetGetBestTasksAgentResponse = GetGetBestTasksAgentResponses[keyof GetGetBestTasksAgentResponses];
+
+export type GetGetCompletedCountData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/api/v2/helper/getCompletedCount';
+};
+
+export type GetGetCompletedCountErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetGetCompletedCountError = GetGetCompletedCountErrors[keyof GetGetCompletedCountErrors];
+
+export type GetGetCompletedCountResponses = {
+  /**
+   * successful operation
+   */
+  200: GetCompletedCountHelperApiResponse;
+};
+
+export type GetGetCompletedCountResponse = GetGetCompletedCountResponses[keyof GetGetCompletedCountResponses];
 
 export type GetGetCracksOfTaskData = {
   body?: never;
@@ -782,12 +1417,72 @@ export type GetGetCracksOfTaskData = {
   url: '/api/v2/helper/getCracksOfTask';
 };
 
+export type GetGetCracksOfTaskErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetGetCracksOfTaskError = GetGetCracksOfTaskErrors[keyof GetGetCracksOfTaskErrors];
+
 export type GetGetCracksOfTaskResponses = {
   /**
    * successful operation
    */
-  200: unknown;
+  200: GetCracksOfTaskHelperResponse;
 };
+
+export type GetGetCracksOfTaskResponse = GetGetCracksOfTaskResponses[keyof GetGetCracksOfTaskResponses];
+
+export type GetGetCracksPerDayData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/api/v2/helper/getCracksPerDay';
+};
+
+export type GetGetCracksPerDayErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetGetCracksPerDayError = GetGetCracksPerDayErrors[keyof GetGetCracksPerDayErrors];
+
+export type GetGetCracksPerDayResponses = {
+  /**
+   * successful operation
+   */
+  200: GetCracksPerDayHelperApiResponse;
+};
+
+export type GetGetCracksPerDayResponse = GetGetCracksPerDayResponses[keyof GetGetCracksPerDayResponses];
 
 export type GetGetFileData = {
   body?: never;
@@ -801,12 +1496,70 @@ export type GetGetFileData = {
   url: '/api/v2/helper/getFile';
 };
 
+export type GetGetFileErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetGetFileError = GetGetFileErrors[keyof GetGetFileErrors];
+
 export type GetGetFileResponses = {
   /**
    * successful operation
    */
   200: unknown;
 };
+
+export type GetGetGlobalConfigData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/api/v2/helper/getGlobalConfig';
+};
+
+export type GetGetGlobalConfigErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetGetGlobalConfigError = GetGetGlobalConfigErrors[keyof GetGetGlobalConfigErrors];
+
+export type GetGetGlobalConfigResponses = {
+  /**
+   * successful operation
+   */
+  200: GetGlobalConfigHelperApiResponse;
+};
+
+export type GetGetGlobalConfigResponse = GetGetGlobalConfigResponses[keyof GetGetGlobalConfigResponses];
 
 export type GetGetTaskProgressImageData = {
   body?: never;
@@ -824,6 +1577,27 @@ export type GetGetTaskProgressImageData = {
   url: '/api/v2/helper/getTaskProgressImage';
 };
 
+export type GetGetTaskProgressImageErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetGetTaskProgressImageError = GetGetTaskProgressImageErrors[keyof GetGetTaskProgressImageErrors];
+
 export type GetGetTaskProgressImageResponses = {
   /**
    * successful operation
@@ -838,22 +1612,66 @@ export type GetGetUserPermissionData = {
   url: '/api/v2/helper/getUserPermission';
 };
 
+export type GetGetUserPermissionErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetGetUserPermissionError = GetGetUserPermissionErrors[keyof GetGetUserPermissionErrors];
+
 export type GetGetUserPermissionResponses = {
   /**
    * successful operation
    */
-  200: unknown;
+  200: GetUserPermissionHelperApiResponse;
 };
+
+export type GetGetUserPermissionResponse = GetGetUserPermissionResponses[keyof GetGetUserPermissionResponses];
 
 export type PostImportCrackedHashesData = {
   /**
-   * HashlistId is the Id of the hashlist where you want to import the cracked hashes into.<br />SourceData is the cracked hashes you want to import.<br />Seperator is the seperator that has been used for the salt in the hashes.<br />
+   * HashlistId is the Id of the hashlist where you want to import the cracked hashes into.<br />SourceData is the cracked hashes you want to import.<br />Seperator is the seperator that has been used for the salt in the hashes.
    */
   body: ImportCrackedHashesHelperApi;
   path?: never;
   query?: never;
   url: '/api/v2/helper/importCrackedHashes';
 };
+
+export type PostImportCrackedHashesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostImportCrackedHashesError = PostImportCrackedHashesErrors[keyof PostImportCrackedHashesErrors];
 
 export type PostImportCrackedHashesResponses = {
   /**
@@ -871,16 +1689,39 @@ export type GetImportFileData = {
   url: '/api/v2/helper/importFile';
 };
 
+export type GetImportFileErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetImportFileError = GetImportFileErrors[keyof GetImportFileErrors];
+
 export type GetImportFileResponses = {
   /**
    * successful operation
    */
-  200: unknown;
+  200: ImportFileHelperApiResponse;
 };
+
+export type GetImportFileResponse = GetImportFileResponses[keyof GetImportFileResponses];
 
 export type PostImportFileData = {
   /**
-   * Import file has no POST parameters<br />
+   * Import file has no POST parameters
    */
   body: ImportFileHelperApi;
   headers: {
@@ -907,54 +1748,117 @@ export type PostImportFileData = {
   url: '/api/v2/helper/importFile';
 };
 
+export type PostImportFileErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostImportFileError = PostImportFileErrors[keyof PostImportFileErrors];
+
 export type PostImportFileResponses = {
   /**
    * successful operation
    */
-  200: unknown;
+  200: ImportFileHelperApiResponse;
   /**
-   * successful operation
+   * Upload created
    */
-  201: Blob | File;
+  201: unknown;
 };
 
 export type PostImportFileResponse = PostImportFileResponses[keyof PostImportFileResponses];
 
-export type DeleteImportFileById09aF32Data = {
+export type DeleteImportFileByIdData = {
   body?: never;
   path: {
-    32: string;
     id: number;
   };
   query?: never;
-  url: '/api/v2/helper/importFile/{id}-[0-9a-f]{32}}';
+  url: '/api/v2/helper/importFile/{id}';
 };
 
-export type DeleteImportFileById09aF32Responses = {
+export type DeleteImportFileByIdErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteImportFileByIdError = DeleteImportFileByIdErrors[keyof DeleteImportFileByIdErrors];
+
+export type DeleteImportFileByIdResponses = {
   /**
    * successful operation
    */
-  200: unknown;
+  200: ImportFileHelperApiResponse;
 };
 
-export type HeadImportFileById09aF32Data = {
+export type DeleteImportFileByIdResponse = DeleteImportFileByIdResponses[keyof DeleteImportFileByIdResponses];
+
+export type HeadImportFileByIdData = {
   body?: never;
   path: {
-    32: string;
     id: number;
   };
   query?: never;
-  url: '/api/v2/helper/importFile/{id}-[0-9a-f]{32}}';
+  url: '/api/v2/helper/importFile/{id}';
 };
 
-export type HeadImportFileById09aF32Responses = {
+export type HeadImportFileByIdErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type HeadImportFileByIdError = HeadImportFileByIdErrors[keyof HeadImportFileByIdErrors];
+
+export type HeadImportFileByIdResponses = {
   /**
    * successful request
    */
   200: unknown;
 };
 
-export type PatchImportFileById09aF32Data = {
+export type PatchImportFileByIdData = {
   /**
    * The binary data to push to the file
    */
@@ -967,26 +1871,45 @@ export type PatchImportFileById09aF32Data = {
     'Content-Type': 'application/offset+octet-stream';
   };
   path: {
-    32: string;
     id: number;
   };
   query?: never;
-  url: '/api/v2/helper/importFile/{id}-[0-9a-f]{32}}';
+  url: '/api/v2/helper/importFile/{id}';
 };
 
-export type PatchImportFileById09aF32Responses = {
+export type PatchImportFileByIdErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PatchImportFileByIdError = PatchImportFileByIdErrors[keyof PatchImportFileByIdErrors];
+
+export type PatchImportFileByIdResponses = {
   /**
    * successful operation
    */
-  200: unknown;
+  200: ImportFileHelperApiResponse;
   /**
    * Chunk accepted
    */
   204: void;
 };
 
-export type PatchImportFileById09aF32Response =
-  PatchImportFileById09aF32Responses[keyof PatchImportFileById09aF32Responses];
+export type PatchImportFileByIdResponse = PatchImportFileByIdResponses[keyof PatchImportFileByIdResponses];
 
 export type PostMaskSupertaskBuilderData = {
   body: MaskSupertaskBuilderHelperApi;
@@ -994,6 +1917,27 @@ export type PostMaskSupertaskBuilderData = {
   query?: never;
   url: '/api/v2/helper/maskSupertaskBuilder';
 };
+
+export type PostMaskSupertaskBuilderErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostMaskSupertaskBuilderError = PostMaskSupertaskBuilderErrors[keyof PostMaskSupertaskBuilderErrors];
 
 export type PostMaskSupertaskBuilderResponses = {
   /**
@@ -1007,13 +1951,34 @@ export type PostMaskSupertaskBuilderResponse =
 
 export type PostPurgeTaskData = {
   /**
-   * taskId is the id of the task that should be purged.<br />
+   * taskId is the id of the task that should be purged.
    */
   body: PurgeTaskHelperApi;
   path?: never;
   query?: never;
   url: '/api/v2/helper/purgeTask';
 };
+
+export type PostPurgeTaskErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostPurgeTaskError = PostPurgeTaskErrors[keyof PostPurgeTaskErrors];
 
 export type PostPurgeTaskResponses = {
   /**
@@ -1031,6 +1996,27 @@ export type PostRebuildChunkCacheData = {
   url: '/api/v2/helper/rebuildChunkCache';
 };
 
+export type PostRebuildChunkCacheErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostRebuildChunkCacheError = PostRebuildChunkCacheErrors[keyof PostRebuildChunkCacheErrors];
+
 export type PostRebuildChunkCacheResponses = {
   /**
    * successful operation
@@ -1042,13 +2028,34 @@ export type PostRebuildChunkCacheResponse = PostRebuildChunkCacheResponses[keyof
 
 export type PostRecountFileLinesData = {
   /**
-   * FileId is the id of the file that needs to be recounted.<br />
+   * FileId is the id of the file that needs to be recounted.
    */
   body: RecountFileLinesHelperApi;
   path?: never;
   query?: never;
   url: '/api/v2/helper/recountFileLines';
 };
+
+export type PostRecountFileLinesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostRecountFileLinesError = PostRecountFileLinesErrors[keyof PostRecountFileLinesErrors];
 
 export type PostRecountFileLinesResponses = {
   /**
@@ -1066,6 +2073,27 @@ export type PostRescanGlobalFilesData = {
   url: '/api/v2/helper/rescanGlobalFiles';
 };
 
+export type PostRescanGlobalFilesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostRescanGlobalFilesError = PostRescanGlobalFilesErrors[keyof PostRescanGlobalFilesErrors];
+
 export type PostRescanGlobalFilesResponses = {
   /**
    * successful operation
@@ -1077,13 +2105,34 @@ export type PostRescanGlobalFilesResponse = PostRescanGlobalFilesResponses[keyof
 
 export type PostResetChunkData = {
   /**
-   * chunkId is the id of the chunk which you want to reset.<br />
+   * chunkId is the id of the chunk which you want to reset.
    */
   body: ResetChunkHelperApi;
   path?: never;
   query?: never;
   url: '/api/v2/helper/resetChunk';
 };
+
+export type PostResetChunkErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostResetChunkError = PostResetChunkErrors[keyof PostResetChunkErrors];
 
 export type PostResetChunkResponses = {
   /**
@@ -1101,6 +2150,27 @@ export type PostResetUserPasswordData = {
   url: '/api/v2/helper/resetUserPassword';
 };
 
+export type PostResetUserPasswordErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostResetUserPasswordError = PostResetUserPasswordErrors[keyof PostResetUserPasswordErrors];
+
 export type PostResetUserPasswordResponses = {
   /**
    * successful operation
@@ -1117,6 +2187,27 @@ export type PostSearchHashesData = {
   url: '/api/v2/helper/searchHashes';
 };
 
+export type PostSearchHashesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostSearchHashesError = PostSearchHashesErrors[keyof PostSearchHashesErrors];
+
 export type PostSearchHashesResponses = {
   /**
    * successful operation
@@ -1128,13 +2219,34 @@ export type PostSearchHashesResponse = PostSearchHashesResponses[keyof PostSearc
 
 export type PostSetUserPasswordData = {
   /**
-   * userId is the id of the user of which you want to change the password.<br />password is the new password that you want to set.<br />
+   * userId is the id of the user of which you want to change the password.<br />password is the new password that you want to set.
    */
   body: SetUserPasswordHelperApi;
   path?: never;
   query?: never;
   url: '/api/v2/helper/setUserPassword';
 };
+
+export type PostSetUserPasswordErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostSetUserPasswordError = PostSetUserPasswordErrors[keyof PostSetUserPasswordErrors];
 
 export type PostSetUserPasswordResponses = {
   /**
@@ -1147,13 +2259,34 @@ export type PostSetUserPasswordResponse = PostSetUserPasswordResponses[keyof Pos
 
 export type PostUnassignAgentData = {
   /**
-   * agentId is the id of the agent which you want to unassign.<br />
+   * agentId is the id of the agent which you want to unassign.
    */
   body: UnassignAgentHelperApi;
   path?: never;
   query?: never;
   url: '/api/v2/helper/unassignAgent';
 };
+
+export type PostUnassignAgentErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostUnassignAgentError = PostUnassignAgentErrors[keyof PostUnassignAgentErrors];
 
 export type PostUnassignAgentResponses = {
   /**

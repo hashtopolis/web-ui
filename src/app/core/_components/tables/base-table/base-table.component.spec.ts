@@ -215,6 +215,17 @@ describe('BaseTableComponent', () => {
     });
   });
 
+  it('should render a muted "(deleted)" placeholder for a chunk whose agent was deleted', (done) => {
+    const chunk = { agentId: null, agentName: undefined } as JChunk;
+    component.renderAgentLinkFromChunk(chunk).subscribe((links) => {
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toBeNull();
+      expect(links[0].label).toBe('(deleted)');
+      expect(links[0].muted).toBeTrue();
+      done();
+    });
+  });
+
   it('should render user link', (done) => {
     const user = { id: 1, name: 'Test User' } as JUser;
     component.renderUserLink(user).subscribe((links) => {
