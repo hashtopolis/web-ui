@@ -510,6 +510,10 @@ export class AuthService {
    */
   private storeRefreshedSession(token: string, expiresEpochSec: number): AuthData {
     const previous: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
+    if (!previous) {
+      throw new Error('Session ended while the access token was being refreshed');
+    }
+
     const userId = this.getUserId(token) ?? previous?.userId ?? 0;
     const canonicalUsername = this.getCanonicalUsernameFromJwt(token) ?? previous?.canonicalUsername ?? '';
 
