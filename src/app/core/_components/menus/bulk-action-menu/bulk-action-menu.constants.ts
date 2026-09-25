@@ -9,6 +9,7 @@ export const BulkActionMenuLabel = {
   DELETE_HASHLISTS: 'Delete Hashlists',
   DELETE_SUPERHASHLIST: 'Delete Super-Hashlist',
   DELETE_HASHTYPES: 'Delete Hashtypes',
+  DELETE_BENCHMARKS: 'Invalidate Benchmarks',
   DELETE_FILES: 'Delete Files',
   DELETE_CRACKERS: 'Delete Crackers',
   DELETE_PREPROCESSORS: 'Delete Preprocessors',

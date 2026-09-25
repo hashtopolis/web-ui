@@ -18,6 +18,177 @@ import {
 } from './task-wrapper';
 import { zUserResourceObject } from './user';
 
+export const zBenchmarkDeleteMultiple = z.object({
+  data: z.array(
+    z.object({
+      id: z.int(),
+      type: z.literal('benchmark')
+    })
+  )
+});
+
+export const zBenchmarkResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/benchmarks/1')
+  }),
+  data: z.object({
+    id: z.int(),
+    type: z.literal('benchmark'),
+    attributes: z.object({
+      crackerBinaryId: z.int(),
+      hashMode: z.int(),
+      attackParameters: z.string(),
+      deviceSignature: z.string(),
+      benchmarkType: z.string(),
+      benchmarkValue: z.string(),
+      createTime: z.number(),
+      expireTime: z.number()
+    }),
+    links: z.object({
+      self: z.string().default('/api/v2/ui/benchmarks/1')
+    }),
+    relationships: z.object({
+      crackerBinary: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/benchmarks/relationships/crackerBinary'),
+          related: z.string().default('/api/v2/ui/benchmarks/crackerBinary')
+        }),
+        data: z
+          .object({
+            type: z.literal('crackerBinary'),
+            id: z.int()
+          })
+          .nullish()
+      })
+    })
+  }),
+  included: z
+    .array(
+      z.object({
+        id: z.int(),
+        type: z.literal('crackerBinary'),
+        attributes: z.object({
+          crackerBinaryTypeId: z.int(),
+          version: z.string(),
+          downloadUrl: z.string(),
+          binaryName: z.string()
+        })
+      })
+    )
+    .optional()
+});
+
+export const zBenchmarkListResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/benchmarks?page[size]=25'),
+    first: z.string().default('/api/v2/ui/benchmarks?page[size]=25'),
+    last: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/benchmarks?page[size]=25&page[before]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      ),
+    next: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/benchmarks?page[size]=25&page[after]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      ),
+    prev: z
+      .string()
+      .nullable()
+      .default(
+        '/api/v2/ui/benchmarks?page[size]=25&page[before]=eyJwcmltYXJ5Ijp7InNvbWVVbnFpdWVGaWVsZCI6MTIzfSwic2Vjb25kYXJ5Ijp7InNvbWVPdGhlck9wdGlvbmFsRmllbGQiOiJGb28ifX0='
+      )
+  }),
+  meta: z.object({
+    page: z.object({
+      total_elements: z.int()
+    })
+  }),
+  data: z.array(
+    z.object({
+      id: z.int(),
+      type: z.literal('benchmark'),
+      attributes: z.object({
+        crackerBinaryId: z.int(),
+        hashMode: z.int(),
+        attackParameters: z.string(),
+        deviceSignature: z.string(),
+        benchmarkType: z.string(),
+        benchmarkValue: z.string(),
+        createTime: z.number(),
+        expireTime: z.number()
+      }),
+      links: z.object({
+        self: z.string().default('/api/v2/ui/benchmarks/1')
+      }),
+      relationships: z.object({
+        crackerBinary: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/benchmarks/relationships/crackerBinary'),
+            related: z.string().default('/api/v2/ui/benchmarks/crackerBinary')
+          }),
+          data: z
+            .object({
+              type: z.literal('crackerBinary'),
+              id: z.int()
+            })
+            .nullish()
+        })
+      })
+    })
+  ),
+  included: z
+    .array(
+      z.object({
+        id: z.int(),
+        type: z.literal('crackerBinary'),
+        attributes: z.object({
+          crackerBinaryTypeId: z.int(),
+          version: z.string(),
+          downloadUrl: z.string(),
+          binaryName: z.string()
+        })
+      })
+    )
+    .optional()
+});
+
+export const zBenchmarkCountResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  meta: z.object({
+    count: z.int(),
+    total_count: z.int().optional()
+  }),
+  data: z.array(z.record(z.string(), z.unknown())).max(0)
+});
+
+export const zBenchmarkRelationCrackerBinary = z.object({
+  data: z.object({
+    type: z.literal('crackerBinary'),
+    id: z.int()
+  })
+});
+
+export const zBenchmarkRelationCrackerBinaryGetResponse = z.object({
+  data: z.object({
+    type: z.literal('crackerBinary'),
+    id: z.int()
+  })
+});
+
 export const zAbortChunkHelperApi = z.object({
   chunkId: z.int().optional()
 });
@@ -401,6 +572,103 @@ export const zUnassignAgentHelperApiResponse = z.object({
   }),
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
+
+export const zDeleteBenchmarksBody = zBenchmarkDeleteMultiple;
+
+/**
+ * successfully deleted
+ */
+export const zDeleteBenchmarksResponse = z.void();
+
+export const zGetBenchmarksQuery = z.object({
+  'page[after]': z.string().optional(),
+  'page[before]': z.string().optional(),
+  'page[size]': z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    .optional(),
+  filter: z.record(z.string(), z.string()).optional(),
+  include: z.array(z.enum(['crackerBinary'])).optional()
+});
+
+/**
+ * successful operation
+ */
+export const zGetBenchmarksResponse = zBenchmarkListResponse;
+
+export const zGetBenchmarksCountQuery = z.object({
+  filter: z.record(z.string(), z.string()).optional(),
+  include_total: z.boolean().optional()
+});
+
+/**
+ * successful operation
+ */
+export const zGetBenchmarksCountResponse = zBenchmarkCountResponse;
+
+export const zGetBenchmarksByIdByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
+});
+
+/**
+ * successful operation
+ */
+export const zGetBenchmarksByIdByRelationResponse = zBenchmarkRelationCrackerBinaryGetResponse;
+
+export const zGetBenchmarksByIdRelationshipsByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
+});
+
+/**
+ * successful operation
+ */
+export const zGetBenchmarksByIdRelationshipsByRelationResponse = zBenchmarkResponse;
+
+export const zPatchBenchmarksByIdRelationshipsByRelationBody = zBenchmarkRelationCrackerBinary;
+
+export const zPatchBenchmarksByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchBenchmarksByIdRelationshipsByRelationResponse = z.void();
+
+export const zDeleteBenchmarksByIdPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully deleted
+ */
+export const zDeleteBenchmarksByIdResponse = z.void();
+
+export const zGetBenchmarksByIdPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetBenchmarksByIdQuery = z.object({
+  include: z.array(z.enum(['crackerBinary'])).optional()
+});
+
+/**
+ * successful operation
+ */
+export const zGetBenchmarksByIdResponse = zBenchmarkResponse;
 
 export const zGetTaskwrapperdisplaysQuery = z.object({
   'page[after]': z.string().optional(),

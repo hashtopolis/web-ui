@@ -17,6 +17,157 @@ import type {
 } from './task-wrapper';
 import type { UserResourceObject } from './user';
 
+export type BenchmarkDeleteMultiple = {
+  data: Array<{
+    id: number;
+    type: 'benchmark';
+  }>;
+};
+
+export type BenchmarkResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+  };
+  data: {
+    id: number;
+    type: 'benchmark';
+    attributes: {
+      crackerBinaryId: number;
+      hashMode: number;
+      attackParameters: string;
+      deviceSignature: string;
+      benchmarkType: string;
+      benchmarkValue: string;
+      createTime: number;
+      expireTime: number;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      crackerBinary: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinary';
+          id: number;
+        } | null;
+      };
+    };
+  };
+  included?: Array<{
+    id: number;
+    type: 'crackerBinary';
+    attributes: {
+      crackerBinaryTypeId: number;
+      version: string;
+      downloadUrl: string;
+      binaryName: string;
+    };
+  }>;
+};
+
+export type BenchmarkListResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
+  };
+  data: Array<{
+    id: number;
+    type: 'benchmark';
+    attributes: {
+      crackerBinaryId: number;
+      hashMode: number;
+      attackParameters: string;
+      deviceSignature: string;
+      benchmarkType: string;
+      benchmarkValue: string;
+      createTime: number;
+      expireTime: number;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      crackerBinary: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinary';
+          id: number;
+        } | null;
+      };
+    };
+  }>;
+  included?: Array<{
+    id: number;
+    type: 'crackerBinary';
+    attributes: {
+      crackerBinaryTypeId: number;
+      version: string;
+      downloadUrl: string;
+      binaryName: string;
+    };
+  }>;
+};
+
+export type BenchmarkCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects accessible to the current user matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects accessible to the current user without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type BenchmarkRelationCrackerBinary = {
+  data: {
+    type: 'crackerBinary';
+    id: number;
+  };
+};
+
+export type BenchmarkRelationCrackerBinaryGetResponse = {
+  data: {
+    type: 'crackerBinary';
+    id: number;
+  };
+};
+
 export type AbortChunkHelperApi = {
   chunkId?: number;
 };
@@ -433,6 +584,368 @@ export type UnassignAgentHelperApiResponse = {
     [key: string]: unknown;
   }>;
 };
+
+export type DeleteBenchmarksData = {
+  body: BenchmarkDeleteMultiple;
+  path?: never;
+  query?: never;
+  url: '/api/v2/ui/benchmarks';
+};
+
+export type DeleteBenchmarksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteBenchmarksError = DeleteBenchmarksErrors[keyof DeleteBenchmarksErrors];
+
+export type DeleteBenchmarksResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteBenchmarksResponse = DeleteBenchmarksResponses[keyof DeleteBenchmarksResponses];
+
+export type GetBenchmarksData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"benchmarkId": 123}}` -> `eyJwcmltYXJ5Ijp7ImJlbmNobWFya0lkIjogMTIzfX0=`
+     */
+    'page[after]'?: string;
+    /**
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"benchmarkId": 123}}` -> `eyJwcmltYXJ5Ijp7ImJlbmNobWFya0lkIjogMTIzfX0=`
+     */
+    'page[before]'?: string;
+    /**
+     * Amout of data to retrieve inside a single page
+     */
+    'page[size]'?: number;
+    /**
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[benchmarkId__gt]=200`.
+     */
+    filter?: {
+      [key: string]: string;
+    };
+    /**
+     * Relationships to include in the response, comma seperated. Possible options: crackerBinary
+     */
+    include?: Array<'crackerBinary'>;
+  };
+  url: '/api/v2/ui/benchmarks';
+};
+
+export type GetBenchmarksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+};
+
+export type GetBenchmarksError = GetBenchmarksErrors[keyof GetBenchmarksErrors];
+
+export type GetBenchmarksResponses = {
+  /**
+   * successful operation
+   */
+  200: BenchmarkListResponse;
+};
+
+export type GetBenchmarksResponse = GetBenchmarksResponses[keyof GetBenchmarksResponses];
+
+export type GetBenchmarksCountData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[benchmarkId__gt]=200`.
+     */
+    filter?: {
+      [key: string]: string;
+    };
+    /**
+     * Also report the number of accessible objects without any filter applied, as `meta.total_count`
+     */
+    include_total?: boolean;
+  };
+  url: '/api/v2/ui/benchmarks/count';
+};
+
+export type GetBenchmarksCountErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+};
+
+export type GetBenchmarksCountError = GetBenchmarksCountErrors[keyof GetBenchmarksCountErrors];
+
+export type GetBenchmarksCountResponses = {
+  /**
+   * successful operation
+   */
+  200: BenchmarkCountResponse;
+};
+
+export type GetBenchmarksCountResponse = GetBenchmarksCountResponses[keyof GetBenchmarksCountResponses];
+
+export type GetBenchmarksByIdByRelationData = {
+  body?: never;
+  path: {
+    id: number;
+    relation: string;
+  };
+  query?: never;
+  url: '/api/v2/ui/benchmarks/{id}/{relation}';
+};
+
+export type GetBenchmarksByIdByRelationErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetBenchmarksByIdByRelationError =
+  GetBenchmarksByIdByRelationErrors[keyof GetBenchmarksByIdByRelationErrors];
+
+export type GetBenchmarksByIdByRelationResponses = {
+  /**
+   * successful operation
+   */
+  200: BenchmarkRelationCrackerBinaryGetResponse;
+};
+
+export type GetBenchmarksByIdByRelationResponse =
+  GetBenchmarksByIdByRelationResponses[keyof GetBenchmarksByIdByRelationResponses];
+
+export type GetBenchmarksByIdRelationshipsByRelationData = {
+  body?: never;
+  path: {
+    id: number;
+    relation: string;
+  };
+  query?: never;
+  url: '/api/v2/ui/benchmarks/{id}/relationships/{relation}';
+};
+
+export type GetBenchmarksByIdRelationshipsByRelationErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetBenchmarksByIdRelationshipsByRelationError =
+  GetBenchmarksByIdRelationshipsByRelationErrors[keyof GetBenchmarksByIdRelationshipsByRelationErrors];
+
+export type GetBenchmarksByIdRelationshipsByRelationResponses = {
+  /**
+   * successful operation
+   */
+  200: BenchmarkResponse;
+};
+
+export type GetBenchmarksByIdRelationshipsByRelationResponse =
+  GetBenchmarksByIdRelationshipsByRelationResponses[keyof GetBenchmarksByIdRelationshipsByRelationResponses];
+
+export type PatchBenchmarksByIdRelationshipsByRelationData = {
+  body: BenchmarkRelationCrackerBinary;
+  path: {
+    id: number;
+    relation: string;
+  };
+  query?: never;
+  url: '/api/v2/ui/benchmarks/{id}/relationships/{relation}';
+};
+
+export type PatchBenchmarksByIdRelationshipsByRelationErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchBenchmarksByIdRelationshipsByRelationError =
+  PatchBenchmarksByIdRelationshipsByRelationErrors[keyof PatchBenchmarksByIdRelationshipsByRelationErrors];
+
+export type PatchBenchmarksByIdRelationshipsByRelationResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchBenchmarksByIdRelationshipsByRelationResponse =
+  PatchBenchmarksByIdRelationshipsByRelationResponses[keyof PatchBenchmarksByIdRelationshipsByRelationResponses];
+
+export type DeleteBenchmarksByIdData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/benchmarks/{id}';
+};
+
+export type DeleteBenchmarksByIdErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteBenchmarksByIdError = DeleteBenchmarksByIdErrors[keyof DeleteBenchmarksByIdErrors];
+
+export type DeleteBenchmarksByIdResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteBenchmarksByIdResponse = DeleteBenchmarksByIdResponses[keyof DeleteBenchmarksByIdResponses];
+
+export type GetBenchmarksByIdData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: {
+    /**
+     * Relationships to include in the response, comma seperated. Possible options: crackerBinary
+     */
+    include?: Array<'crackerBinary'>;
+  };
+  url: '/api/v2/ui/benchmarks/{id}';
+};
+
+export type GetBenchmarksByIdErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetBenchmarksByIdError = GetBenchmarksByIdErrors[keyof GetBenchmarksByIdErrors];
+
+export type GetBenchmarksByIdResponses = {
+  /**
+   * successful operation
+   */
+  200: BenchmarkResponse;
+};
+
+export type GetBenchmarksByIdResponse = GetBenchmarksByIdResponses[keyof GetBenchmarksByIdResponses];
 
 export type GetTaskwrapperdisplaysData = {
   body?: never;

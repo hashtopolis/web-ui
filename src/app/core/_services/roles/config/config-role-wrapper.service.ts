@@ -3,6 +3,7 @@
  */
 import { Injectable } from '@angular/core';
 
+import { BenchmarkRoleService } from '@services/roles/config/benchmark-role.service';
 import { HashTypesRoleService } from '@services/roles/config/hashtypes-role.service';
 import { HealthCheckRoleService } from '@services/roles/config/healthcheck-role.service';
 import { LogRoleService } from '@services/roles/config/log-role.service';
@@ -16,6 +17,7 @@ export class ConfigRoleWrapperService {
   constructor(
     private settingsRoleService: SettingsRoleService,
     private hashTypesRoleService: HashTypesRoleService,
+    private benchmarkRoleService: BenchmarkRoleService,
     private healthCheckRoleService: HealthCheckRoleService,
     private logRoleService: LogRoleService,
     private notificationRoleService: NotificationsRoleService
@@ -27,6 +29,10 @@ export class ConfigRoleWrapperService {
 
   hasHashTypesRole(roleName: string): boolean {
     return this.hashTypesRoleService.hasRole(roleName);
+  }
+
+  hasBenchmarkRole(roleName: string): boolean {
+    return this.benchmarkRoleService.hasRole(roleName);
   }
 
   hasHealthCheckRole(roleName: string): boolean {

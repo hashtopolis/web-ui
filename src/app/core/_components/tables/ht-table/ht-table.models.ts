@@ -22,6 +22,7 @@ export type DataType =
   | 'search-hash'
   | 'chunks'
   | 'hashtypes'
+  | 'benchmarks'
   | 'files'
   | 'files-attack'
   | 'crackers'

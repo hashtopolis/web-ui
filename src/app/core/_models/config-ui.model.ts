@@ -21,6 +21,7 @@ import { AgentErrorTableCol } from '@components/tables/agent-error-table/agent-e
 import { AgentsStatusTableCol } from '@components/tables/agents-status-table/agents-status-table.constants';
 import { AgentsTableCol } from '@components/tables/agents-table/agents-table.constants';
 import { ApiTokensTableCol } from '@components/tables/api-tokens-table/api-tokens-table.constants';
+import { BenchmarkTableCol } from '@components/tables/benchmark-table/benchmark-table.constants';
 import { ChunksTableCol } from '@components/tables/chunks-table/chunks-table.constants';
 import { CrackersTableCol } from '@components/tables/crackers-table/crackers-table.constants';
 import { CracksTableCol } from '@components/tables/cracks-table/cracks-table.constants';
@@ -372,6 +373,27 @@ const _uiConfigDefault = {
       ],
       order: {
         id: HashtypesTableCol.HASHTYPE,
+        dataKey: 'id',
+        isSortable: true,
+        direction: TableSortDirection.ASC
+      },
+      search: ''
+    },
+    benchmarkTable: {
+      page: DEFAULT_PAGE_SIZE,
+      columns: [
+        BenchmarkTableCol.ID,
+        BenchmarkTableCol.CRACKER,
+        BenchmarkTableCol.HASH_MODE,
+        BenchmarkTableCol.ATTACK,
+        BenchmarkTableCol.DEVICE,
+        BenchmarkTableCol.TYPE,
+        BenchmarkTableCol.VALUE,
+        BenchmarkTableCol.CREATED,
+        BenchmarkTableCol.EXPIRES
+      ],
+      order: {
+        id: BenchmarkTableCol.ID,
         dataKey: 'id',
         isSortable: true,
         direction: TableSortDirection.ASC
