@@ -685,6 +685,27 @@ export class MetadataService {
       label: 'Display Cracks per Minute for Active Tasks',
       type: 'checkbox',
       tooltip: false
+    },
+    { label: 'Broken Tasks', isTitle: true },
+    {
+      name: 'brokenTaskThreshold',
+      label: 'Broken Task Threshold',
+      type: 'number',
+      tooltip:
+        'Number of distinct agents that must fail on the same task before it is marked broken instead of deactivating the agents. Set to 0 to disable marking tasks broken.'
+    },
+    {
+      name: 'brokenAgentThreshold',
+      label: 'Broken Agent Threshold',
+      type: 'number',
+      tooltip:
+        'Number of distinct tasks an agent must fail on before the agent itself is deactivated. Set to 0 to disable deactivating agents.'
+    },
+    {
+      name: 'brokenErrorWindow',
+      label: 'Broken Error Window',
+      type: 'number',
+      tooltip: 'Time window in seconds over which agent failures are counted. Set to 0 for no window.'
     }
   ];
 

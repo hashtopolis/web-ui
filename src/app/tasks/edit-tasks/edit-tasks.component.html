@@ -6,6 +6,13 @@
       @if (taskBrokenReason) {
         <span class="ml-1">{{ taskBrokenReason }}</span>
       }
+      @if (roleService.hasRole('edit')) {
+        <div class="mt-2">
+          <button matButton="filled" class="btn-submit btn-submit--primary" type="button" (click)="markNotBroken()">
+            Mark not broken
+          </button>
+        </div>
+      }
     </div>
   }
   <div class="grid grid-cols-12 gap-4">

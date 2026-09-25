@@ -3,6 +3,7 @@ import { HTTP_SKIP_CACHE_HEADER_CONFIG } from '@constants/http.config';
 import {
   zAgentAssignmentListResponse,
   zAgentListResponse,
+  zBrokenTaskListResponse,
   zHashTypeResponse,
   zSpeedListResponse,
   zTaskResponse
@@ -18,6 +19,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { ThinJAgent } from '@models/agent.model';
+import { JBrokenTask } from '@models/broken-task.model';
 import { TableSortDirection } from '@models/config-ui.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
@@ -518,6 +520,32 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   onChunkViewChange(event: MatButtonToggleChange): void {
     this.chunkview = event.value;
+  }
+
+  /**
+   * Clears the broken state of this task by deleting its BrokenTask row, which
+   * makes the task assignable again. The row is looked up via the brokentasks
+   * endpoint since only the taskId is known here.
+   */
+  markNotBroken(): void {
+    const params = new RequestParamBuilder()
+      .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex })
+      .create();
+
+    this.gs.getAll(SERV.BROKEN_TASKS, params).subscribe((response: ResponseWrapper) => {
+      const brokenTask: JBrokenTask | undefined = this.serializer.deserialize(response, zBrokenTaskListResponse)[0];
+      if (!brokenTask) {
+        this.taskIsBroken = false;
+        this.taskBrokenReason = null;
+        this.alertService.showInfoMessage('This task is no longer marked broken.');
+        return;
+      }
+      this.gs.delete(SERV.BROKEN_TASKS, brokenTask.id).subscribe(() => {
+        this.taskIsBroken = false;
+        this.taskBrokenReason = null;
+        this.alertService.showSuccessMessage('Cleared broken state on this task.');
+      });
+    });
   }
 
   purgeTask(): void {
