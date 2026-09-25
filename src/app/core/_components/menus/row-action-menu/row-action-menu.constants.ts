@@ -32,6 +32,7 @@ export const RowActionMenuLabel = {
   DELETE_SUPERTASK: 'Delete Supertask',
   DELETE_HASHLIST: 'Delete Hashlist',
   DELETE_HASHTYPE: 'Delete Hashtype',
+  DELETE_BENCHMARK: 'Invalidate Benchmark',
   DELETE_SUPERHASHLIST: 'Delete Superhashlist',
   DELETE_FILE: 'Delete File',
   DELETE_PREPROCESSOR: 'Delete Preprocessor',

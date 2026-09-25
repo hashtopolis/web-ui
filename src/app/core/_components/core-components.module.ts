@@ -39,6 +39,7 @@ import { AgentsStatusTableComponent } from '@components/tables/agents-status-tab
 import { AgentsTableComponent } from '@components/tables/agents-table/agents-table.component';
 import { ApiTokensTableComponent } from '@components/tables/api-tokens-table/api-tokens-table.component';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
+import { BenchmarkTableComponent } from '@components/tables/benchmark-table/benchmark-table.component';
 import { ChunksTableComponent } from '@components/tables/chunks-table/chunks-table.component';
 import { ColumnSelectionDialogComponent } from '@components/tables/column-selection-dialog/column-selection-dialog.component';
 import { CrackersTableComponent } from '@components/tables/crackers-table/crackers-table.component';
@@ -101,6 +102,7 @@ import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-
     AgentErrorTableComponent,
     ChunksTableComponent,
     HashtypesTableComponent,
+    BenchmarkTableComponent,
     HashlistsTableComponent,
     SuperHashlistsHashlistsTableComponent,
     HashesTableComponent,
@@ -186,6 +188,7 @@ import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-
     HashlistsTableComponent,
     HashesTableComponent,
     HashtypesTableComponent,
+    BenchmarkTableComponent,
     SuperHashlistsTableComponent,
     FilesAttackTableComponent,
     FilesTableComponent,

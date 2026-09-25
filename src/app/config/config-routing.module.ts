@@ -10,6 +10,7 @@ import { SERV } from '@services/main.config';
 import { AgentBinaryRoleService } from '@services/roles/binaries/agent-binary-role.service';
 import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
 import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
+import { BenchmarkRoleService } from '@services/roles/config/benchmark-role.service';
 import { HashTypesRoleService } from '@services/roles/config/hashtypes-role.service';
 import { HealthCheckRoleService } from '@services/roles/config/healthcheck-role.service';
 import { LogRoleService } from '@services/roles/config/log-role.service';
@@ -19,6 +20,7 @@ import { SettingsRoleService } from '@services/roles/config/settings-role.servic
 import { FormComponent } from '@components/forms/simple-forms/form.component';
 import { FormConfigComponent } from '@components/forms/simple-forms/formconfig.component';
 
+import { BenchmarkComponent } from '@src/app/config/benchmark/benchmark.component';
 import { AgentBinariesComponent } from '@src/app/config/engine/agent-binaries/agent-binaries.component';
 import { CrackersComponent } from '@src/app/config/engine/crackers/crackers.component';
 import { NewCrackerComponent } from '@src/app/config/engine/crackers/new-cracker/new-cracker.component';
@@ -139,6 +141,15 @@ const routes: MyRoute[] = [
           serviceConfig: SERV.HASHTYPES,
           responseSchema: zHashTypeResponse,
           roleServiceClass: HashTypesRoleService,
+          roleName: 'read'
+        },
+        canActivate: [CheckRole]
+      },
+      {
+        path: 'benchmark',
+        component: BenchmarkComponent,
+        data: {
+          roleServiceClass: BenchmarkRoleService,
           roleName: 'read'
         },
         canActivate: [CheckRole]
