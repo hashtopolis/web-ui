@@ -12,6 +12,7 @@
   (bulkActionClicked)="bulkActionClicked($event)"
   (rowActionClicked)="rowActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
+  (emitFullHashModal)="showFullSignature($any($event))"
   (selectedFilterColumnChanged)="selectedFilterColumn = $event"
   (backendSqlFilter)="handleBackendSqlFilter($event)"
 />

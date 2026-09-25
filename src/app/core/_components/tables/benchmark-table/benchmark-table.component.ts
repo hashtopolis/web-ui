@@ -23,6 +23,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { BenchmarkDataSource } from '@datasources/benchmark.datasource';
 
 import { FilterType } from '@src/app/core/_models/request-params.model';
+import { ShowTruncatedDataDialogComponent } from '@src/app/shared/dialog/show-truncated-data.dialog/show-truncated-data.dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -78,18 +79,19 @@ export class BenchmarkTableComponent extends BaseTableComponent implements OnIni
         id: BenchmarkTableCol.ATTACK,
         dataKey: 'attackParameters',
         isSortable: true,
-        // Signatures are opaque SHA-256 hashes, so show a short prefix; the copy
-        // button and the export still carry the full value.
-        render: (b: JBenchmark) => (b.attackParameters ?? '').substring(0, 12) + '...',
-        isCopy: true,
+        // Signatures are opaque 64-char SHA-256 hashes. Show a short middle
+        // ellipsis so the column stays narrow; the show-full button opens a
+        // dialog with the complete value, and export carries it too.
+        truncate: () => true,
+        truncateMaxLength: 20,
         export: async (b: JBenchmark) => b.attackParameters
       },
       {
         id: BenchmarkTableCol.DEVICE,
         dataKey: 'deviceSignature',
         isSortable: true,
-        render: (b: JBenchmark) => (b.deviceSignature ?? '').substring(0, 12) + '...',
-        isCopy: true,
+        truncate: () => true,
+        truncateMaxLength: 20,
         export: async (b: JBenchmark) => b.deviceSignature
       },
       {
@@ -208,6 +210,19 @@ export class BenchmarkTableComponent extends BaseTableComponent implements OnIni
       BenchmarkTableColumnLabel,
       'hashtopolis-benchmark-cache'
     );
+  }
+
+  // The signature columns are truncated, so the show-full button emits the row
+  // and this opens a dialog with both complete signatures (a row-level emit
+  // cannot say which of the two columns was clicked, so it shows both).
+  showFullSignature(benchmark: JBenchmark): void {
+    this.dialog.open(ShowTruncatedDataDialogComponent, {
+      data: {
+        hashlistName: 'benchmark #' + benchmark.id,
+        unTruncatedText:
+          'Attack signature:  ' + benchmark.attackParameters + '\n' + 'Device signature:  ' + benchmark.deviceSignature
+      }
+    });
   }
 
   /**

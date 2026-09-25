@@ -128,6 +128,8 @@ export interface HTTableColumn {
   async?(data: BaseModel): Promise<SafeHtml>;
   export?(data: BaseModel): Promise<string>;
   truncate?(data: BaseModel): boolean;
+  /** Max characters shown before a middle ellipsis in the truncate cell; defaults to TABLE_TRUNCATE_MAX_LENGTH. */
+  truncateMaxLength?: number;
   editable?(data: BaseModel): HTTableEditable<BaseModel>;
   checkbox?(data: BaseModel): HTTableEditable<BaseModel>;
   customCellColor?: customCellColorInput;
