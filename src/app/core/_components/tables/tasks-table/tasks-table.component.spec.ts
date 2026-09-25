@@ -410,6 +410,21 @@ describe('TasksTableComponent', () => {
       expect(hashTypeColumn?.render!(taskWrapper)).toBe('');
     });
 
+    it('should render HASHLISTS column with lock icon when the hashlist is secret', () => {
+      const columns = component.getColumns();
+      const hashlistsColumn = columns.find((col) => col.id === TaskTableCol.HASHLISTS);
+      const taskWrapper = {
+        hashlistIsSecret: true,
+        hashCount: 100,
+        hashlistCracked: 100
+      } as JTaskWrapperDisplay;
+
+      const icon = hashlistsColumn?.icon!(taskWrapper);
+      expect(icon?.name).toBe('lock');
+      expect(icon?.tooltip).toBe('Secret hashlist');
+      expect(icon?.cls).toBe('text-warning');
+    });
+
     it('should render HASHLISTS column with check icon when all hashes are cracked', () => {
       const columns = component.getColumns();
       const hashlistsColumn = columns.find((col) => col.id === TaskTableCol.HASHLISTS);

@@ -705,6 +705,7 @@ export type TaskWrapperDisplayResponse = {
       hashTypeId: number;
       hashTypeDescription: string;
       groupName: string;
+      hashlistIsSecret: boolean;
       totalAssignedAgents?: number;
       dispatched?: string;
       searched?: string;
@@ -811,6 +812,7 @@ export type TaskWrapperDisplayListResponse = {
       hashTypeId: number;
       hashTypeDescription: string;
       groupName: string;
+      hashlistIsSecret: boolean;
       totalAssignedAgents?: number;
       dispatched?: string;
       searched?: string;
