@@ -650,6 +650,12 @@ export class MetadataService {
       tooltip: false
     },
     {
+      name: 'chunktimeAutoTune',
+      label: 'Automatically tune chunk duration',
+      type: 'checkbox',
+      tooltip: false
+    },
+    {
       name: 'defaultBenchmark',
       label: 'Use speed benchmarking estimation',
       type: 'checkbox',
