@@ -37,6 +37,8 @@ export type TaskResourceObject = {
     cprogress?: number;
     timeSpent?: number;
     cracked?: number;
+    isBroken?: boolean;
+    brokenReason?: string | null;
   };
   links: {
     self: string;
@@ -228,6 +230,8 @@ export type TaskResponse = {
       cprogress?: number;
       timeSpent?: number;
       cracked?: number;
+      isBroken?: boolean;
+      brokenReason?: string | null;
     };
     links: {
       self: string;
@@ -425,6 +429,8 @@ export type TaskPostPatchResponse = {
       cprogress?: number;
       timeSpent?: number;
       cracked?: number;
+      isBroken?: boolean;
+      brokenReason?: string | null;
     };
     links: {
       self: string;
@@ -631,6 +637,8 @@ export type TaskListResponse = {
       cprogress?: number;
       timeSpent?: number;
       cracked?: number;
+      isBroken?: boolean;
+      brokenReason?: string | null;
     };
     links: {
       self: string;
@@ -896,7 +904,7 @@ export type GetTasksData = {
      */
     include?: Array<'crackerBinary' | 'crackerBinaryType' | 'hashlist' | 'assignedAgents' | 'files' | 'speeds'>;
     /**
-     * Aggregated fields to include by type (comma separated values). Possible options: task: totalAssignedAgents, dispatched, searched, status, totalNumberOfChunks, currentSpeed, estimatedTime, cprogress, timeSpent, cracked
+     * Aggregated fields to include by type (comma separated values). Possible options: task: totalAssignedAgents, dispatched, searched, status, totalNumberOfChunks, currentSpeed, estimatedTime, cprogress, timeSpent, cracked, isBroken, brokenReason
      */
     aggregate?: {
       [key: string]: string;

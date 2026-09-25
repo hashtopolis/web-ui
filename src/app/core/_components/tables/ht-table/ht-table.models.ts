@@ -48,6 +48,11 @@ export interface HTTableIcon {
   name: string;
   tooltip?: string;
   cls?: string;
+  // Optional FontAwesome icon rendered alongside the Material icon, for glyphs
+  // Material lacks (e.g. a skull for broken tasks). Shown after the mat-icon.
+  faIcon?: IconDefinition;
+  faTooltip?: string;
+  faCls?: string;
 }
 
 export interface HTTableRouterLink {

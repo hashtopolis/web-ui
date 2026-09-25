@@ -358,7 +358,10 @@ export class BaseTableComponent {
    * @param idLink - if true, the task ID will be used as label, otherwise the task name
    * @return observable object containing a router link array
    */
-  renderTaskLink(model: JAgent | JChunk | JAgentErrors, idLink: boolean = false): Observable<HTTableRouterLink[]> {
+  renderTaskLink(
+    model: JAgent | JChunk | JAgentErrors,
+    idLink: boolean = false
+  ): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
     if (model?.taskId) {
       links.push({

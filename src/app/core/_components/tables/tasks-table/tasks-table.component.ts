@@ -1,3 +1,5 @@
+import { faSkullCrossbones } from '@fortawesome/free-solid-svg-icons';
+import { zBrokenTaskListResponse } from '@generated/api/zod';
 import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
@@ -5,10 +7,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { DynamicModel } from '@models/base.model';
+import { JBrokenTask } from '@models/broken-task.model';
+import { ResponseWrapper } from '@models/response.model';
 import { JTaskWrapperDisplayOverview, TaskType } from '@models/task.model';
 
+import { JsonAPISerializer } from '@services/api/serializer-service';
 import { TaskContextMenuService } from '@services/context-menu/tasks/task-menu.service';
 import { SERV, ServiceConfig } from '@services/main.config';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
@@ -68,6 +74,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
   dataSource: TasksDataSource;
   isArchived = false;
   selectedFilterColumn: HTTableColumn;
+  readonly faSkullCrossbones = faSkullCrossbones;
 
   ngOnInit(): void {
     this.setColumnLabels(TaskTableColumnLabel);
@@ -368,6 +375,9 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       case RowActionMenuAction.EDIT_TASKS:
         this.rowActionEdit(event.data);
         break;
+      case RowActionMenuAction.CLEAR_BROKEN:
+        this.rowActionClearBroken(event.data);
+        break;
       case RowActionMenuAction.SHOW_SUBTASKS:
         this.rowActionEditSubtasks(event.data);
         break;
@@ -536,7 +546,18 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
 
   // --- Render functions ---
   renderStatusIcons(wrapper: JTaskWrapperDisplayOverview): HTTableIcon {
-    return taskStatusIcon(wrapper.status);
+    const icon = taskStatusIcon(wrapper.status);
+    if (wrapper.isBroken) {
+      // Broken is a per-task status: keep the running/idle glyph and flag it with
+      // a red skull so it reads at a glance in the shared status cell.
+      return {
+        ...icon,
+        faIcon: this.faSkullCrossbones,
+        faCls: 'text-destructive',
+        faTooltip: 'This task was automatically marked broken'
+      };
+    }
+    return icon;
   }
 
   private getTaskStatusLabel(wrapper: JTaskWrapperDisplayOverview): string {
@@ -618,6 +639,48 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     if (task.taskType === TaskType.TASK && task.taskId) {
       void this.router.navigate(['tasks', 'show-tasks', task.taskId, 'edit']);
     }
+  }
+
+  /**
+   * Clears the broken state of a task. The row only knows its taskId, so the
+   * BrokenTask row is looked up via the brokentasks endpoint and then deleted,
+   * which makes the task assignable again.
+   */
+  private rowActionClearBroken(wrapper: JTaskWrapperDisplayOverview): void {
+    const taskId = wrapper.taskId;
+    if (!taskId) {
+      return;
+    }
+    const serializer = this.injector.get(JsonAPISerializer);
+    const params = new RequestParamBuilder()
+      .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: taskId })
+      .create();
+
+    this.gs
+      .getAll(SERV.BROKEN_TASKS, params)
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage('Failed to resolve broken task!');
+          console.error('Failed to resolve broken task:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe((response: ResponseWrapper) => {
+        const brokenTask: JBrokenTask | undefined = serializer.deserialize(response, zBrokenTaskListResponse)[0];
+        if (!brokenTask) {
+          this.alertService.showInfoMessage('This task is no longer marked broken.');
+          this.reload();
+          return;
+        }
+        this.gs
+          .delete(SERV.BROKEN_TASKS, brokenTask.id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+            this.alertService.showSuccessMessage(`Cleared broken state on Task #${taskId}!`);
+            this.reload();
+          });
+      });
   }
 
   /**

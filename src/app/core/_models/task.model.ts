@@ -81,6 +81,8 @@ export interface JTaskAggregateFields {
   cprogress: number;
   totalNumberOfChunks: number;
   cracked: number;
+  isBroken: boolean;
+  brokenReason: string | null;
 }
 
 /** Aggregate field keys on JTask. */
@@ -131,6 +133,7 @@ export interface JTaskWrapperDisplay extends BaseModel {
   cprogress?: number | undefined;
   estimatedTime?: number | undefined;
   timeSpent?: number | undefined;
+  isBroken?: boolean;
 }
 
 /**
@@ -146,7 +149,8 @@ export type JTaskWrapperDisplayAggregates =
   | 'cprogress'
   | 'estimatedTime'
   | 'timeSpent'
-  | 'currentSpeed';
+  | 'currentSpeed'
+  | 'isBroken';
 export type JTaskWrapperDisplayConditional = JTaskWrapperDisplayAggregates;
 
 /** Task wrapper display with only the chosen subset of on-demand fields present. */
@@ -157,7 +161,7 @@ export type JTaskWrapperDisplayWith<K extends JTaskWrapperDisplayConditional> = 
 >;
 
 export type JTaskWrapperDisplayOverview = JTaskWrapperDisplayWith<
-  'totalAssignedAgents' | 'searched' | 'dispatched' | 'status' | 'currentSpeed'
+  'totalAssignedAgents' | 'searched' | 'dispatched' | 'status' | 'currentSpeed' | 'isBroken'
 >;
 
 export const TaskStatus = {

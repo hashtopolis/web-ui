@@ -81,6 +81,7 @@ export class SERV {
   public static SUPER_HASHLISTS = { URL: '/ui/superhashlists', RESOURCE: 'Superhashlists' };
   public static HASHES_COUNT = { URL: '/ui/hashes/count', RESOURCE: 'HashesCount' };
   // TASKS
+  public static BROKEN_TASKS = { URL: '/ui/brokentasks', RESOURCE: 'brokenTask' };
   public static CHUNKS = { URL: '/ui/chunks', RESOURCE: 'Chunks' };
   public static PRETASKS = { URL: '/ui/pretasks', RESOURCE: 'PreTasks' };
   public static SPEEDS = { URL: '/ui/speeds', RESOURCE: 'Speeds' };

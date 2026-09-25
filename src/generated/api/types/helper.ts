@@ -17,6 +17,185 @@ import type {
 } from './task-wrapper';
 import type { UserResourceObject } from './user';
 
+export type BrokenTaskDeleteMultiple = {
+  data: Array<{
+    id: number;
+    type: 'brokenTask';
+  }>;
+};
+
+export type BrokenTaskResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+  };
+  data: {
+    id: number;
+    type: 'brokenTask';
+    attributes: {
+      taskId: number;
+      time: number;
+      reason: string;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      task: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'task';
+          id: number;
+        } | null;
+      };
+    };
+  };
+  included?: Array<{
+    id: number;
+    type: 'task';
+    attributes: {
+      taskName: string;
+      attackCmd: string;
+      chunkTime: number;
+      statusTimer: number;
+      keyspace: number;
+      keyspaceProgress: number;
+      priority: number;
+      maxAgents: number;
+      color: string | null;
+      isSmall: boolean;
+      isCpuTask: boolean;
+      useNewBench: boolean;
+      skipKeyspace: number;
+      crackerBinaryId: number;
+      crackerBinaryTypeId: number | null;
+      taskWrapperId: number;
+      isArchived: boolean;
+      notes: string;
+      staticChunks: number;
+      chunkSize: number;
+      forcePipe: boolean;
+      preprocessorId: number;
+      preprocessorCommand: string;
+    };
+  }>;
+};
+
+export type BrokenTaskListResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+    first: string;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+  };
+  meta: {
+    page: {
+      total_elements: number;
+    };
+  };
+  data: Array<{
+    id: number;
+    type: 'brokenTask';
+    attributes: {
+      taskId: number;
+      time: number;
+      reason: string;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      task: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'task';
+          id: number;
+        } | null;
+      };
+    };
+  }>;
+  included?: Array<{
+    id: number;
+    type: 'task';
+    attributes: {
+      taskName: string;
+      attackCmd: string;
+      chunkTime: number;
+      statusTimer: number;
+      keyspace: number;
+      keyspaceProgress: number;
+      priority: number;
+      maxAgents: number;
+      color: string | null;
+      isSmall: boolean;
+      isCpuTask: boolean;
+      useNewBench: boolean;
+      skipKeyspace: number;
+      crackerBinaryId: number;
+      crackerBinaryTypeId: number | null;
+      taskWrapperId: number;
+      isArchived: boolean;
+      notes: string;
+      staticChunks: number;
+      chunkSize: number;
+      forcePipe: boolean;
+      preprocessorId: number;
+      preprocessorCommand: string;
+    };
+  }>;
+};
+
+export type BrokenTaskCountResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  meta: {
+    /**
+     * Number of objects accessible to the current user matching the given filters
+     */
+    count: number;
+    /**
+     * Number of objects accessible to the current user without any filter applied, only present when `include_total=true` was requested
+     */
+    total_count?: number;
+  };
+  /**
+   * Always empty: the count is reported under meta.
+   */
+  data: Array<{
+    [key: string]: unknown;
+  }>;
+};
+
+export type BrokenTaskRelationTask = {
+  data: {
+    type: 'task';
+    id: number;
+  };
+};
+
+export type BrokenTaskRelationTaskGetResponse = {
+  data: {
+    type: 'task';
+    id: number;
+  };
+};
+
 export type AbortChunkHelperApi = {
   chunkId?: number;
 };
@@ -434,6 +613,368 @@ export type UnassignAgentHelperApiResponse = {
   }>;
 };
 
+export type DeleteBrokentasksData = {
+  body: BrokenTaskDeleteMultiple;
+  path?: never;
+  query?: never;
+  url: '/api/v2/ui/brokentasks';
+};
+
+export type DeleteBrokentasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteBrokentasksError = DeleteBrokentasksErrors[keyof DeleteBrokentasksErrors];
+
+export type DeleteBrokentasksResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteBrokentasksResponse = DeleteBrokentasksResponses[keyof DeleteBrokentasksResponses];
+
+export type GetBrokentasksData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Pointer to paginate to retrieve the data after the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"brokenTaskId": 123}}` -> `eyJwcmltYXJ5Ijp7ImJyb2tlblRhc2tJZCI6IDEyM319`
+     */
+    'page[after]'?: string;
+    /**
+     * Pointer to paginate to retrieve the data before the object provided. Specify the `base64` encoded JSON string in a **uniquely identifiable** manner (e.g. object IDs), i.e. by using one (primary) or two (primary and secondary) fields that allow for **stable** sorting.
+     *
+     *
+     * Format: `{"primary":{"someField": 123},"secondary":{"someOtherOptionalField": "Foo"}}`
+     *
+     *
+     * Example: `{"primary":{"brokenTaskId": 123}}` -> `eyJwcmltYXJ5Ijp7ImJyb2tlblRhc2tJZCI6IDEyM319`
+     */
+    'page[before]'?: string;
+    /**
+     * Amout of data to retrieve inside a single page
+     */
+    'page[size]'?: number;
+    /**
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[brokenTaskId__gt]=200`.
+     */
+    filter?: {
+      [key: string]: string;
+    };
+    /**
+     * Relationships to include in the response, comma seperated. Possible options: task
+     */
+    include?: Array<'task'>;
+  };
+  url: '/api/v2/ui/brokentasks';
+};
+
+export type GetBrokentasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+};
+
+export type GetBrokentasksError = GetBrokentasksErrors[keyof GetBrokentasksErrors];
+
+export type GetBrokentasksResponses = {
+  /**
+   * successful operation
+   */
+  200: BrokenTaskListResponse;
+};
+
+export type GetBrokentasksResponse = GetBrokentasksResponses[keyof GetBrokentasksResponses];
+
+export type GetBrokentasksCountData = {
+  body?: never;
+  path?: never;
+  query?: {
+    /**
+     * Filters results using a query. Every key is an attribute name optionally suffixed with a comparison operator, e.g. `filter[brokenTaskId__gt]=200`.
+     */
+    filter?: {
+      [key: string]: string;
+    };
+    /**
+     * Also report the number of accessible objects without any filter applied, as `meta.total_count`
+     */
+    include_total?: boolean;
+  };
+  url: '/api/v2/ui/brokentasks/count';
+};
+
+export type GetBrokentasksCountErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+};
+
+export type GetBrokentasksCountError = GetBrokentasksCountErrors[keyof GetBrokentasksCountErrors];
+
+export type GetBrokentasksCountResponses = {
+  /**
+   * successful operation
+   */
+  200: BrokenTaskCountResponse;
+};
+
+export type GetBrokentasksCountResponse = GetBrokentasksCountResponses[keyof GetBrokentasksCountResponses];
+
+export type GetBrokentasksByIdByRelationData = {
+  body?: never;
+  path: {
+    id: number;
+    relation: string;
+  };
+  query?: never;
+  url: '/api/v2/ui/brokentasks/{id}/{relation}';
+};
+
+export type GetBrokentasksByIdByRelationErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetBrokentasksByIdByRelationError =
+  GetBrokentasksByIdByRelationErrors[keyof GetBrokentasksByIdByRelationErrors];
+
+export type GetBrokentasksByIdByRelationResponses = {
+  /**
+   * successful operation
+   */
+  200: BrokenTaskRelationTaskGetResponse;
+};
+
+export type GetBrokentasksByIdByRelationResponse =
+  GetBrokentasksByIdByRelationResponses[keyof GetBrokentasksByIdByRelationResponses];
+
+export type GetBrokentasksByIdRelationshipsByRelationData = {
+  body?: never;
+  path: {
+    id: number;
+    relation: string;
+  };
+  query?: never;
+  url: '/api/v2/ui/brokentasks/{id}/relationships/{relation}';
+};
+
+export type GetBrokentasksByIdRelationshipsByRelationErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetBrokentasksByIdRelationshipsByRelationError =
+  GetBrokentasksByIdRelationshipsByRelationErrors[keyof GetBrokentasksByIdRelationshipsByRelationErrors];
+
+export type GetBrokentasksByIdRelationshipsByRelationResponses = {
+  /**
+   * successful operation
+   */
+  200: BrokenTaskResponse;
+};
+
+export type GetBrokentasksByIdRelationshipsByRelationResponse =
+  GetBrokentasksByIdRelationshipsByRelationResponses[keyof GetBrokentasksByIdRelationshipsByRelationResponses];
+
+export type PatchBrokentasksByIdRelationshipsByRelationData = {
+  body: BrokenTaskRelationTask;
+  path: {
+    id: number;
+    relation: string;
+  };
+  query?: never;
+  url: '/api/v2/ui/brokentasks/{id}/relationships/{relation}';
+};
+
+export type PatchBrokentasksByIdRelationshipsByRelationErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchBrokentasksByIdRelationshipsByRelationError =
+  PatchBrokentasksByIdRelationshipsByRelationErrors[keyof PatchBrokentasksByIdRelationshipsByRelationErrors];
+
+export type PatchBrokentasksByIdRelationshipsByRelationResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchBrokentasksByIdRelationshipsByRelationResponse =
+  PatchBrokentasksByIdRelationshipsByRelationResponses[keyof PatchBrokentasksByIdRelationshipsByRelationResponses];
+
+export type DeleteBrokentasksByIdData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/brokentasks/{id}';
+};
+
+export type DeleteBrokentasksByIdErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteBrokentasksByIdError = DeleteBrokentasksByIdErrors[keyof DeleteBrokentasksByIdErrors];
+
+export type DeleteBrokentasksByIdResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteBrokentasksByIdResponse = DeleteBrokentasksByIdResponses[keyof DeleteBrokentasksByIdResponses];
+
+export type GetBrokentasksByIdData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: {
+    /**
+     * Relationships to include in the response, comma seperated. Possible options: task
+     */
+    include?: Array<'task'>;
+  };
+  url: '/api/v2/ui/brokentasks/{id}';
+};
+
+export type GetBrokentasksByIdErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetBrokentasksByIdError = GetBrokentasksByIdErrors[keyof GetBrokentasksByIdErrors];
+
+export type GetBrokentasksByIdResponses = {
+  /**
+   * successful operation
+   */
+  200: BrokenTaskResponse;
+};
+
+export type GetBrokentasksByIdResponse = GetBrokentasksByIdResponses[keyof GetBrokentasksByIdResponses];
+
 export type GetTaskwrapperdisplaysData = {
   body?: never;
   path?: never;
@@ -473,7 +1014,7 @@ export type GetTaskwrapperdisplaysData = {
      */
     include?: Array<'tasks'>;
     /**
-     * Aggregated fields to include by type (comma separated values). Possible options: taskwrapperdisplay: totalAssignedAgents, dispatched, searched, status, currentSpeed, estimatedTime, cprogress, timeSpent
+     * Aggregated fields to include by type (comma separated values). Possible options: taskwrapperdisplay: totalAssignedAgents, dispatched, searched, status, currentSpeed, estimatedTime, cprogress, timeSpent, isBroken
      */
     aggregate?: {
       [key: string]: string;

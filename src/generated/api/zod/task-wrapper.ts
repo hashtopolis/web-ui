@@ -790,7 +790,8 @@ export const zTaskWrapperDisplayResponse = z.object({
       currentSpeed: z.int().optional(),
       estimatedTime: z.int().optional(),
       cprogress: z.int().optional(),
-      timeSpent: z.int().optional()
+      timeSpent: z.int().optional(),
+      isBroken: z.boolean().optional()
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/taskwrapperdisplays/1')
@@ -920,7 +921,8 @@ export const zTaskWrapperDisplayListResponse = z.object({
         currentSpeed: z.int().optional(),
         estimatedTime: z.int().optional(),
         cprogress: z.int().optional(),
-        timeSpent: z.int().optional()
+        timeSpent: z.int().optional(),
+        isBroken: z.boolean().optional()
       }),
       links: z.object({
         self: z.string().default('/api/v2/ui/taskwrapperdisplays/1')

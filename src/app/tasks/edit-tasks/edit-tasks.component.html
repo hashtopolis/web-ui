@@ -1,5 +1,13 @@
 @if (!isLoading) {
 <app-page [title]="pageTitle">
+  @if (taskIsBroken) {
+    <div class="mb-4 rounded border border-red-300 bg-red-50 px-4 py-3 text-red-800 dark:border-red-700 dark:bg-red-900 dark:text-red-100" role="alert">
+      <strong>This task is broken.</strong>
+      @if (taskBrokenReason) {
+        <span class="ml-1">{{ taskBrokenReason }}</span>
+      }
+    </div>
+  }
   <div class="grid grid-cols-12 gap-4">
     <div class="col-span-12 md:col-span-6">
       <grid-main>

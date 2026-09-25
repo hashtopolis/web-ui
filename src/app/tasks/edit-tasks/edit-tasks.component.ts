@@ -51,7 +51,14 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
 
 /** Task plus the aggregates edit-tasks reads (requested via the builder in loadTask). */
 type EditedTask = JTaskWith<
-  'searched' | 'timeSpent' | 'currentSpeed' | 'estimatedTime' | 'cprogress' | 'totalNumberOfChunks'
+  | 'searched'
+  | 'timeSpent'
+  | 'currentSpeed'
+  | 'estimatedTime'
+  | 'cprogress'
+  | 'totalNumberOfChunks'
+  | 'isBroken'
+  | 'brokenReason'
 >;
 
 @Component({
@@ -66,6 +73,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   editedTaskIndex: number;
   taskWrapperId: number;
   originalValue: JTask;
+  taskIsBroken = false;
+  taskBrokenReason: string | null = null;
 
   pageTitle = 'Task';
 
@@ -136,6 +145,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
       this.originalValue = task;
       this.pageTitle = 'Task ' + (task.taskName ?? '');
+      this.taskIsBroken = task.isBroken ?? false;
+      this.taskBrokenReason = task.brokenReason ?? null;
       this.searched = task.searched ?? '';
       this.color = task.color ?? '';
       this.crackerinfo = task.crackerBinary;
@@ -277,7 +288,16 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       .addInclude('assignedAgents')
       .addAggregate({
         field: 'task',
-        values: ['searched', 'timeSpent', 'currentSpeed', 'estimatedTime', 'cprogress', 'totalNumberOfChunks'] as const
+        values: [
+          'searched',
+          'timeSpent',
+          'currentSpeed',
+          'estimatedTime',
+          'cprogress',
+          'totalNumberOfChunks',
+          'isBroken',
+          'brokenReason'
+        ] as const
       })
       .create();
 
