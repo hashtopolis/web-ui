@@ -23,6 +23,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { BenchmarkDataSource } from '@datasources/benchmark.datasource';
 
 import { FilterType } from '@src/app/core/_models/request-params.model';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-benchmark-table',
@@ -77,7 +78,9 @@ export class BenchmarkTableComponent extends BaseTableComponent implements OnIni
         id: BenchmarkTableCol.ATTACK,
         dataKey: 'attackParameters',
         isSortable: true,
-        truncate: () => true,
+        // Signatures are opaque SHA-256 hashes, so show a short prefix; the copy
+        // button and the export still carry the full value.
+        render: (b: JBenchmark) => (b.attackParameters ?? '').substring(0, 12) + '...',
         isCopy: true,
         export: async (b: JBenchmark) => b.attackParameters
       },
@@ -85,7 +88,7 @@ export class BenchmarkTableComponent extends BaseTableComponent implements OnIni
         id: BenchmarkTableCol.DEVICE,
         dataKey: 'deviceSignature',
         isSortable: true,
-        truncate: () => true,
+        render: (b: JBenchmark) => (b.deviceSignature ?? '').substring(0, 12) + '...',
         isCopy: true,
         export: async (b: JBenchmark) => b.deviceSignature
       },
@@ -105,16 +108,16 @@ export class BenchmarkTableComponent extends BaseTableComponent implements OnIni
       {
         id: BenchmarkTableCol.CREATED,
         dataKey: 'createTime',
-        isNumeric: true,
         isSortable: true,
-        export: async (b: JBenchmark) => b.createTime + ''
+        render: (b: JBenchmark) => formatUnixTimestamp(b.createTime, this.dateTimeFormat),
+        export: async (b: JBenchmark) => formatUnixTimestamp(b.createTime, this.dateTimeFormat)
       },
       {
         id: BenchmarkTableCol.EXPIRES,
         dataKey: 'expireTime',
-        isNumeric: true,
         isSortable: true,
-        export: async (b: JBenchmark) => b.expireTime + ''
+        render: (b: JBenchmark) => formatUnixTimestamp(b.expireTime, this.dateTimeFormat),
+        export: async (b: JBenchmark) => formatUnixTimestamp(b.expireTime, this.dateTimeFormat)
       }
     ];
   }
