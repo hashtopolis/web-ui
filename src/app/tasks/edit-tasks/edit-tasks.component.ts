@@ -77,6 +77,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   originalValue: JTask;
   taskIsBroken = false;
   taskBrokenReason: string | null = null;
+  brokenReasonExpanded = false;
 
   pageTitle = 'Task';
 
