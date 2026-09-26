@@ -256,7 +256,6 @@ export class HeaderComponent implements OnInit {
       });
     }
 
-
     return {
       display: taskActions.length > 0,
       label: HeaderMenuLabel.TASKS,

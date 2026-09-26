@@ -705,7 +705,8 @@ export class MetadataService {
       name: 'brokenErrorWindow',
       label: 'Broken Error Window',
       type: 'number',
-      tooltip: 'Time window in seconds over which agent failures are counted. Set to 0 for no window.'
+      tooltip:
+        'Time in seconds an agent error stays relevant when counting failures for the two thresholds above. Set to 0 to count the whole history.'
     }
   ];
 

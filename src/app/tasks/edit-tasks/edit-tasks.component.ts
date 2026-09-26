@@ -8,7 +8,7 @@ import {
   zSpeedListResponse,
   zTaskResponse
 } from '@generated/api/zod';
-import { finalize, lastValueFrom } from 'rxjs';
+import { catchError, finalize, lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
@@ -532,20 +532,38 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex })
       .create();
 
-    this.gs.getAll(SERV.BROKEN_TASKS, params).subscribe((response: ResponseWrapper) => {
-      const brokenTask: JBrokenTask | undefined = this.serializer.deserialize(response, zBrokenTaskListResponse)[0];
-      if (!brokenTask) {
-        this.taskIsBroken = false;
-        this.taskBrokenReason = null;
-        this.alertService.showInfoMessage('This task is no longer marked broken.');
-        return;
-      }
-      this.gs.delete(SERV.BROKEN_TASKS, brokenTask.id).subscribe(() => {
-        this.taskIsBroken = false;
-        this.taskBrokenReason = null;
-        this.alertService.showSuccessMessage('Cleared broken state on this task.');
+    this.gs
+      .getAll(SERV.BROKEN_TASKS, params)
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage('Failed to resolve broken task!');
+          console.error('Failed to resolve broken task:', error);
+          return [];
+        })
+      )
+      .subscribe((response: ResponseWrapper) => {
+        const brokenTask: JBrokenTask | undefined = this.serializer.deserialize(response, zBrokenTaskListResponse)[0];
+        if (!brokenTask) {
+          this.taskIsBroken = false;
+          this.taskBrokenReason = null;
+          this.alertService.showInfoMessage('This task is no longer marked broken.');
+          return;
+        }
+        this.gs
+          .delete(SERV.BROKEN_TASKS, brokenTask.id)
+          .pipe(
+            catchError((error) => {
+              this.alertService.showErrorMessage('Failed to clear broken state!');
+              console.error('Failed to clear broken state:', error);
+              return [];
+            })
+          )
+          .subscribe(() => {
+            this.taskIsBroken = false;
+            this.taskBrokenReason = null;
+            this.alertService.showSuccessMessage('Cleared broken state on this task.');
+          });
       });
-    });
   }
 
   purgeTask(): void {
