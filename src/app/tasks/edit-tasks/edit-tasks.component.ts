@@ -3,11 +3,12 @@ import { HTTP_SKIP_CACHE_HEADER_CONFIG } from '@constants/http.config';
 import {
   zAgentAssignmentListResponse,
   zAgentListResponse,
+  zBrokenTaskListResponse,
   zHashTypeResponse,
   zSpeedListResponse,
   zTaskResponse
 } from '@generated/api/zod';
-import { finalize, lastValueFrom } from 'rxjs';
+import { catchError, finalize, lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
@@ -18,6 +19,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { ThinJAgent } from '@models/agent.model';
+import { JBrokenTask } from '@models/broken-task.model';
 import { TableSortDirection } from '@models/config-ui.model';
 import { JCrackerBinary } from '@models/cracker-binary.model';
 import { JHashlist } from '@models/hashlist.model';
@@ -51,7 +53,14 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
 
 /** Task plus the aggregates edit-tasks reads (requested via the builder in loadTask). */
 type EditedTask = JTaskWith<
-  'searched' | 'timeSpent' | 'currentSpeed' | 'estimatedTime' | 'cprogress' | 'totalNumberOfChunks'
+  | 'searched'
+  | 'timeSpent'
+  | 'currentSpeed'
+  | 'estimatedTime'
+  | 'cprogress'
+  | 'totalNumberOfChunks'
+  | 'isBroken'
+  | 'brokenReason'
 >;
 
 @Component({
@@ -66,6 +75,9 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   editedTaskIndex: number;
   taskWrapperId: number;
   originalValue: JTask;
+  taskIsBroken = false;
+  taskBrokenReason: string | null = null;
+  brokenReasonExpanded = false;
 
   pageTitle = 'Task';
 
@@ -136,6 +148,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
       this.originalValue = task;
       this.pageTitle = 'Task ' + (task.taskName ?? '');
+      this.taskIsBroken = task.isBroken ?? false;
+      this.taskBrokenReason = task.brokenReason ?? null;
       this.searched = task.searched ?? '';
       this.color = task.color ?? '';
       this.crackerinfo = task.crackerBinary;
@@ -277,7 +291,16 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       .addInclude('assignedAgents')
       .addAggregate({
         field: 'task',
-        values: ['searched', 'timeSpent', 'currentSpeed', 'estimatedTime', 'cprogress', 'totalNumberOfChunks'] as const
+        values: [
+          'searched',
+          'timeSpent',
+          'currentSpeed',
+          'estimatedTime',
+          'cprogress',
+          'totalNumberOfChunks',
+          'isBroken',
+          'brokenReason'
+        ] as const
       })
       .create();
 
@@ -498,6 +521,50 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   onChunkViewChange(event: MatButtonToggleChange): void {
     this.chunkview = event.value;
+  }
+
+  /**
+   * Clears the broken state of this task by deleting its BrokenTask row, which
+   * makes the task assignable again. The row is looked up via the brokentasks
+   * endpoint since only the taskId is known here.
+   */
+  markNotBroken(): void {
+    const params = new RequestParamBuilder()
+      .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: this.editedTaskIndex })
+      .create();
+
+    this.gs
+      .getAll(SERV.BROKEN_TASKS, params)
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage('Failed to resolve broken task!');
+          console.error('Failed to resolve broken task:', error);
+          return [];
+        })
+      )
+      .subscribe((response: ResponseWrapper) => {
+        const brokenTask: JBrokenTask | undefined = this.serializer.deserialize(response, zBrokenTaskListResponse)[0];
+        if (!brokenTask) {
+          this.taskIsBroken = false;
+          this.taskBrokenReason = null;
+          this.alertService.showInfoMessage('This task is no longer marked broken.');
+          return;
+        }
+        this.gs
+          .delete(SERV.BROKEN_TASKS, brokenTask.id)
+          .pipe(
+            catchError((error) => {
+              this.alertService.showErrorMessage('Failed to clear broken state!');
+              console.error('Failed to clear broken state:', error);
+              return [];
+            })
+          )
+          .subscribe(() => {
+            this.taskIsBroken = false;
+            this.taskBrokenReason = null;
+            this.alertService.showSuccessMessage('Cleared broken state on this task.');
+          });
+      });
   }
 
   purgeTask(): void {

@@ -315,10 +315,15 @@
             }
             <!-- Check if icon function is defined -->
             @if (tableColumn.icon && tableColumn.icon(element); as icon) {
-              @if (icon.tooltip) {
-                <mat-icon [matTooltip]="icon.tooltip" [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
-              } @else {
-                <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
+              @if (icon.name) {
+                @if (icon.tooltip) {
+                  <mat-icon [matTooltip]="icon.tooltip" [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
+                } @else {
+                  <mat-icon [ngClass]="icon.cls ? icon.cls : ''">{{ icon.name }}</mat-icon>
+                }
+              }
+              @if (icon.faIcon; as faIcon) {
+                <fa-icon [icon]="faIcon" [matTooltip]="icon.faTooltip ?? ''" [ngClass]="icon.faCls ? icon.faCls : ''" />
               }
             }
           </div>

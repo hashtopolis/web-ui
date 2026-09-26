@@ -36,7 +36,9 @@ export const zTaskResourceObject = z.object({
     estimatedTime: z.int().optional(),
     cprogress: z.int().optional(),
     timeSpent: z.int().optional(),
-    cracked: z.int().optional()
+    cracked: z.int().optional(),
+    isBroken: z.boolean().optional(),
+    brokenReason: z.string().nullish()
   }),
   links: z.object({
     self: z.string().default('/api/v2/ui/tasks/1')
@@ -249,7 +251,9 @@ export const zTaskResponse = z.object({
       estimatedTime: z.int().optional(),
       cprogress: z.int().optional(),
       timeSpent: z.int().optional(),
-      cracked: z.int().optional()
+      cracked: z.int().optional(),
+      isBroken: z.boolean().optional(),
+      brokenReason: z.string().nullish()
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/tasks/1')
@@ -468,7 +472,9 @@ export const zTaskPostPatchResponse = z.object({
       estimatedTime: z.int().optional(),
       cprogress: z.int().optional(),
       timeSpent: z.int().optional(),
-      cracked: z.int().optional()
+      cracked: z.int().optional(),
+      isBroken: z.boolean().optional(),
+      brokenReason: z.string().nullish()
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/tasks/1')
@@ -712,7 +718,9 @@ export const zTaskListResponse = z.object({
         estimatedTime: z.int().optional(),
         cprogress: z.int().optional(),
         timeSpent: z.int().optional(),
-        cracked: z.int().optional()
+        cracked: z.int().optional(),
+        isBroken: z.boolean().optional(),
+        brokenReason: z.string().nullish()
       }),
       links: z.object({
         self: z.string().default('/api/v2/ui/tasks/1')

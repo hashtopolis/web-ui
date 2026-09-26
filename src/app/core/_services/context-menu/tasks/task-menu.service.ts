@@ -24,6 +24,7 @@ export class TaskContextMenuService extends ContextMenuService {
     const isSuperTaskCondition: ContextMenuCondition = { key: 'taskType', value: true };
     const isArchiveCondition: ContextMenuCondition = { key: 'taskIsArchived', value: false };
     const isUnArchiveCondition: ContextMenuCondition = { key: 'taskIsArchived', value: true };
+    const isBrokenCondition: ContextMenuCondition = { key: 'isBroken', value: true };
 
     this.addCtxEditItem(RowActionMenuLabel.EDIT_TASK, RowActionMenuAction.EDIT_TASKS, permTaskUpdate, isTaskCondition);
     this.addCtxEditItem(
@@ -48,6 +49,15 @@ export class TaskContextMenuService extends ContextMenuService {
 
     this.addCtxArchiveItem(RowActionMenuLabel.ARCHIVE_TASK, permTaskUpdate, isArchiveCondition);
     this.addCtxUnArchiveItem(RowActionMenuLabel.UNARCHIVE_TASK, permTaskUpdate, isUnArchiveCondition);
+
+    // Only broken tasks carry a BrokenTask row to clear, so gate the item on isBroken.
+    this.addCtxCustomItem({
+      label: RowActionMenuLabel.CLEAR_BROKEN_TASK,
+      action: RowActionMenuAction.CLEAR_BROKEN,
+      icon: 'healing',
+      permissions: permTaskUpdate,
+      condition: isBrokenCondition
+    });
 
     this.addCtxDeleteItem(RowActionMenuLabel.DELETE_TASK, permTaskDelete);
 

@@ -10,7 +10,9 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
-type Subtask = JTaskWith<'dispatched' | 'searched' | 'totalAssignedAgents' | 'status' | 'currentSpeed' | 'cracked'>;
+type Subtask = JTaskWith<
+  'dispatched' | 'searched' | 'totalAssignedAgents' | 'status' | 'currentSpeed' | 'cracked' | 'isBroken'
+>;
 
 export class TasksSupertasksDataSource extends BaseDataSource<Subtask> {
   private _supertTaskId = 0;
@@ -30,7 +32,15 @@ export class TasksSupertasksDataSource extends BaseDataSource<Subtask> {
       .addFilter({ field: 'taskWrapperId', operator: FilterType.EQUAL, value: this._supertTaskId })
       .addAggregate({
         field: 'task',
-        values: ['dispatched', 'searched', 'totalAssignedAgents', 'status', 'currentSpeed', 'cracked'] as const
+        values: [
+          'dispatched',
+          'searched',
+          'totalAssignedAgents',
+          'status',
+          'currentSpeed',
+          'cracked',
+          'isBroken'
+        ] as const
       })
       .create();
 

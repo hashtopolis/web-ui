@@ -713,6 +713,7 @@ export type TaskWrapperDisplayResponse = {
       estimatedTime?: number;
       cprogress?: number;
       timeSpent?: number;
+      isBroken?: boolean;
     };
     links: {
       self: string;
@@ -819,6 +820,7 @@ export type TaskWrapperDisplayListResponse = {
       estimatedTime?: number;
       cprogress?: number;
       timeSpent?: number;
+      isBroken?: boolean;
     };
     links: {
       self: string;

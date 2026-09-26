@@ -1,5 +1,33 @@
 @if (!isLoading) {
 <app-page [title]="pageTitle">
+  @if (taskIsBroken) {
+    <div class="mb-4 flex flex-col gap-3 rounded border border-red-300 bg-red-50 px-4 py-3 text-red-800 sm:flex-row sm:items-center sm:justify-between dark:border-red-700 dark:bg-red-900 dark:text-red-100" role="alert">
+      <div class="min-w-0"
+        [class.cursor-pointer]="taskBrokenReason"
+        [attr.role]="taskBrokenReason ? 'button' : null"
+        [attr.tabindex]="taskBrokenReason ? 0 : null"
+        (click)="taskBrokenReason && (brokenReasonExpanded = !brokenReasonExpanded)"
+        (keydown.enter)="taskBrokenReason && (brokenReasonExpanded = !brokenReasonExpanded)"
+        (keydown.space)="$event.preventDefault(); taskBrokenReason && (brokenReasonExpanded = !brokenReasonExpanded)"
+        [matTooltip]="taskBrokenReason ? (brokenReasonExpanded ? 'Click to collapse' : 'Click to show the full error') : ''">
+        <span [class.line-clamp-2]="!brokenReasonExpanded">
+          <strong>This task is broken.</strong>
+          @if (taskBrokenReason) {
+            <span class="ml-1">{{ taskBrokenReason }}</span>
+          }
+        </span>
+      </div>
+      @if (roleService.hasRole('edit')) {
+        <button matButton="filled" type="button" class="shrink-0 self-end whitespace-nowrap sm:self-auto"
+          style="background-color:#16a34a !important;color:#ffffff;--mdc-filled-button-icon-color:#ffffff"
+          matTooltip="Probably the attack command needs to be changed to repair this attack"
+          (click)="markNotBroken()">
+          <mat-icon>healing</mat-icon>
+          Mark not broken
+        </button>
+      }
+    </div>
+  }
   <div class="grid grid-cols-12 gap-4">
     <div class="col-span-12 md:col-span-6">
       <grid-main>
