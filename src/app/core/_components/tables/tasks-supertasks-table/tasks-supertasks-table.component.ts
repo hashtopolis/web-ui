@@ -1,3 +1,4 @@
+import { faSkullCrossbones } from '@fortawesome/free-solid-svg-icons';
 import { catchError, forkJoin, of } from 'rxjs';
 
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
@@ -27,7 +28,7 @@ import { TasksSupertasksDataSource } from '@datasources/tasks-supertasks.datasou
 
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
-type Subtask = JTaskWith<'dispatched' | 'searched' | 'totalAssignedAgents' | 'status' | 'currentSpeed'>;
+type Subtask = JTaskWith<'dispatched' | 'searched' | 'totalAssignedAgents' | 'status' | 'currentSpeed' | 'isBroken'>;
 
 @Component({
   selector: 'app-tasks-supertasks-table',
@@ -40,6 +41,7 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
 
   tableColumns: HTTableColumn[] = [];
   dataSource: TasksSupertasksDataSource;
+  readonly faSkullCrossbones = faSkullCrossbones;
 
   ngOnInit(): void {
     this.setColumnLabels(TasksSupertasksDataSourceTableColumnLabel);
@@ -304,7 +306,19 @@ export class TasksSupertasksTableComponent extends BaseTableComponent implements
   }
 
   renderStatusIcons(task: Subtask): HTTableIcon {
-    return taskStatusIcon(task.status);
+    const icon = taskStatusIcon(task.status);
+    if (task.isBroken) {
+      // A broken subtask keeps its own running/idle status and is flagged with a
+      // red skull, so the supertask's broken subtask reads at a glance while the
+      // others keep running.
+      return {
+        ...icon,
+        faIcon: this.faSkullCrossbones,
+        faCls: 'text-destructive',
+        faTooltip: 'This task was automatically marked broken'
+      };
+    }
+    return icon;
   }
 
   private getTaskStatusLabel(task: Subtask): string {
