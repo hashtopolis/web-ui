@@ -3,7 +3,7 @@ import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse, zHashlistLi
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import {
@@ -64,6 +64,9 @@ export class ApplyHashlistComponent implements OnInit {
   selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
   selectCrackerversions: SelectOption<CrackerBinaryId>[];
 
+  /** True if no cracker binary is accessible for the current user */
+  noCrackerVersionsAvailable = false;
+
   // Get Supertask Index
   editedIndex: number;
 
@@ -117,7 +120,7 @@ export class ApplyHashlistComponent implements OnInit {
       supertaskTemplateId: new FormControl<number | null>(null),
       hashlistId: new FormControl<HashlistId | null>(null),
       crackerBinaryId: new FormControl<CrackerBinaryId | null>(null),
-      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null)
+      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null, [Validators.required])
     });
   }
 
@@ -132,8 +135,8 @@ export class ApplyHashlistComponent implements OnInit {
     this.form = new FormGroup<ApplyHashlistForm>({
       supertaskTemplateId: new FormControl<number | null>(this.editedIndex),
       hashlistId: new FormControl<HashlistId | null>(null),
-      crackerBinaryId: new FormControl<CrackerBinaryId | null>(1),
-      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null)
+      crackerBinaryId: new FormControl<CrackerBinaryId | null>(null),
+      crackerBinaryTypeId: new FormControl<CrackerBinaryTypeId | null>(null, [Validators.required])
     });
 
     //subscribe to changes to handle select cracker binary
@@ -183,7 +186,6 @@ export class ApplyHashlistComponent implements OnInit {
    * Load cracker type and version select options
    */
   loadCrackerSelectOptions() {
-    // Load Cracker Types and Crackers Select Options
     this.gs
       .getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -191,29 +193,18 @@ export class ApplyHashlistComponent implements OnInit {
         const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
           new JsonAPISerializer().deserialize(response, zCrackerBinaryTypeListResponse)
         );
-        this.selectCrackertype = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
-        let id: number = 0;
-        const hashcatOption = this.selectCrackertype.find((obj) => obj.name === DEFAULT_CRACKER_BINARY_TYPE_NAME);
-        if (hashcatOption?.id) {
-          id = hashcatOption.id;
-        } else {
-          id = this.selectCrackertype.slice(-1)[0]['id'];
+        const accessibleTypes = crackerTypes.filter((type) => type.crackerVersions.length > 0);
+        this.selectCrackertype = transformSelectOptions(accessibleTypes, CRACKER_TYPE_FIELD_MAPPING);
+        if (this.selectCrackertype.length === 0) {
+          this.selectCrackerversions = [];
+          this.noCrackerVersionsAvailable = true;
+          this.changeDetectorRef.detectChanges();
+          return;
         }
-        const requestParams = new RequestParamBuilder()
-          .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
-          .create();
-        this.gs
-          .getAll(SERV.CRACKERS, requestParams)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe((response: ResponseWrapper) => {
-            const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(
-              response,
-              zCrackerBinaryListResponse
-            );
-            this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
-            const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
-            this.form.controls.crackerBinaryTypeId.patchValue(lastItem);
-          });
+        const hashcatOption = this.selectCrackertype.find((obj) => obj.name === DEFAULT_CRACKER_BINARY_TYPE_NAME);
+        const typeId = hashcatOption?.id ?? this.selectCrackertype[this.selectCrackertype.length - 1].id;
+        // triggers handleChangeBinary through the valueChanges subscription
+        this.form.controls.crackerBinaryId.setValue(typeId);
       });
   }
 
@@ -234,8 +225,10 @@ export class ApplyHashlistComponent implements OnInit {
       .subscribe((response: ResponseWrapper) => {
         const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
         this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
-        const lastItem = this.selectCrackerversions.slice(-1)[0]['id'];
+        const lastItem = this.selectCrackerversions.at(-1)?.id ?? null;
         this.form.controls.crackerBinaryTypeId.patchValue(lastItem);
+        this.noCrackerVersionsAvailable = lastItem === null;
+        this.changeDetectorRef.detectChanges();
       });
   }
 
@@ -255,10 +248,16 @@ export class ApplyHashlistComponent implements OnInit {
       this.gs
         .chelper(SERV.HELPER, 'createSupertask', adaptedFormValue)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => {
-          this.alert.showSuccessMessage('New Supertask created');
-          this.router.navigate(['tasks/show-tasks']);
-          this.isCreatingLoading = false;
+        .subscribe({
+          next: () => {
+            this.alert.showSuccessMessage('New Supertask created');
+            this.router.navigate(['tasks/show-tasks']);
+            this.isCreatingLoading = false;
+          },
+          error: () => {
+            // the global error dialog shows the reason
+            this.isCreatingLoading = false;
+          }
         });
     } else {
       this.form.markAllAsTouched();

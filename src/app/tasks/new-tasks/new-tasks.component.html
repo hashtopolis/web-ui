@@ -127,6 +127,9 @@
                   [isRequired]="true"
                 ></input-select>
               </app-form-row>
+              @if (noCrackerVersionsAvailable) {
+                <fixed-alert message="No cracker binaries are available in your access groups."></fixed-alert>
+              }
 
               <app-divider />
 
