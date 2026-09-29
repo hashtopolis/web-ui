@@ -1,7 +1,7 @@
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FileType, JFile } from '@models/file.model';
@@ -37,7 +37,7 @@ import { formatFileSize } from '@src/app/shared/utils/util';
   templateUrl: './files-table.component.html',
   standalone: false
 })
-export class FilesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
+export class FilesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {
   private _editIndex: number;
 
   @Input() fileType: FileType = FileType.WORDLIST;
@@ -96,6 +96,16 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, A
   ngAfterViewInit(): void {
     // Wait until paginator is defined
     this.dataSource.loadAll();
+    // Auto-refresh is only offered on the files pages, detail lists must not touch the shared timer
+    if (!this.isDetailPage && this.dataSource.autoRefreshService.refreshPage) {
+      this.dataSource.startAutoRefresh();
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (!this.isDetailPage) {
+      this.dataSource.stopAutoRefresh();
+    }
   }
 
   /**
@@ -357,8 +367,10 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, A
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => {
-        this.alertService.showSuccessMessage(`Recounted lines for ${file.filename}!`);
-        this.reload();
+        // The recount runs as background job, reloading now would only show the old count
+        this.alertService.showSuccessMessage(
+          `Line recount for ${file.filename} queued. The line count updates once the background job has finished.`
+        );
       });
   }
 }

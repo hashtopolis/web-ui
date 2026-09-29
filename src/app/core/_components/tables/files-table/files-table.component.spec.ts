@@ -1,9 +1,9 @@
+import { of } from 'rxjs';
+
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { of } from 'rxjs';
 
 import { BaseModel } from '@models/base.model';
 import { JFile } from '@models/file.model';
@@ -22,10 +22,13 @@ import { FilesDataSource } from '@datasources/files.datasource';
 import { ExportService } from '@src/app/core/_services/export/export.service';
 
 class MockFilesDataSource {
+  autoRefreshService = { refreshPage: false };
   loadAll() {}
   setColumns() {}
   clearFilter() {}
   reload() {}
+  startAutoRefresh() {}
+  stopAutoRefresh() {}
 }
 
 class TestFilesTableComponent extends FilesTableComponent {
@@ -70,6 +73,18 @@ describe('FilesTableComponent', () => {
     it('should expose columns for files', () => {
       expect(component.tableColumns.length).toBeGreaterThanOrEqual(1);
     });
+
+    it('should offer the auto-refresh toggle', () => {
+      const table = fixture.nativeElement.querySelector('ht-table') as { supportsAutoRefresh?: boolean };
+      expect(table.supportsAutoRefresh).toBeTrue();
+    });
+
+    it('should not offer auto-refresh when embedded as detail list', () => {
+      component.isDetailPage = true;
+      fixture.detectChanges();
+      const table = fixture.nativeElement.querySelector('ht-table') as { supportsAutoRefresh?: boolean };
+      expect(table.supportsAutoRefresh).toBeFalse();
+    });
   });
 
   describe('rowActionClicked', () => {
@@ -98,12 +113,15 @@ describe('FilesTableComponent', () => {
       expect(gs.update).toHaveBeenCalledWith(SERV.FILES, 7, { isSecret: false });
     });
 
-    it('should call the recountFileLines helper', () => {
+    it('should queue the recount without reloading the stale line count', () => {
       const file = { id: 7, filename: 'a.txt', isSecret: false } as JFile;
       component.rowActionClicked({ data: file, menuItem: { action: FilesRowAction.RECOUNT_LINES, label: '' } });
 
       expect(gs.chelper).toHaveBeenCalledWith(SERV.HELPER, 'recountFileLines', { fileId: 7 });
-      expect(component.reload).toHaveBeenCalled();
+      expect(component['alertService'].showSuccessMessage).toHaveBeenCalledWith(
+        'Line recount for a.txt queued. The line count updates once the background job has finished.'
+      );
+      expect(component.reload).not.toHaveBeenCalled();
     });
 
     it('should not update or recount on a plain edit action', () => {
@@ -113,6 +131,54 @@ describe('FilesTableComponent', () => {
 
       expect(gs.update).not.toHaveBeenCalled();
       expect(gs.chelper).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('auto-refresh lifecycle', () => {
+    function mockDataSource() {
+      return component.dataSource as unknown as MockFilesDataSource;
+    }
+
+    it('resumes auto-refresh on init when it is enabled in the settings', () => {
+      const ds = mockDataSource();
+      ds.autoRefreshService.refreshPage = true;
+      spyOn(ds, 'startAutoRefresh');
+
+      component.ngAfterViewInit();
+
+      expect(ds.startAutoRefresh).toHaveBeenCalled();
+    });
+
+    it('does not start auto-refresh on init when it is disabled in the settings', () => {
+      const ds = mockDataSource();
+      spyOn(ds, 'startAutoRefresh');
+
+      component.ngAfterViewInit();
+
+      expect(ds.startAutoRefresh).not.toHaveBeenCalled();
+    });
+
+    it('stops auto-refresh when the table is destroyed', () => {
+      const ds = mockDataSource();
+      spyOn(ds, 'stopAutoRefresh');
+
+      fixture.destroy();
+
+      expect(ds.stopAutoRefresh).toHaveBeenCalled();
+    });
+
+    it('leaves the shared auto-refresh alone when embedded as detail list', () => {
+      const ds = mockDataSource();
+      ds.autoRefreshService.refreshPage = true;
+      spyOn(ds, 'startAutoRefresh');
+      spyOn(ds, 'stopAutoRefresh');
+      component.isDetailPage = true;
+
+      component.ngAfterViewInit();
+      fixture.destroy();
+
+      expect(ds.startAutoRefresh).not.toHaveBeenCalled();
+      expect(ds.stopAutoRefresh).not.toHaveBeenCalled();
     });
   });
 

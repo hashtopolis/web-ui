@@ -11,6 +11,7 @@
   [isSortable]="isSortable"
   [isPageable]="isPageable"
   [isDetailPage]="isDetailPage"
+  [supportsAutoRefresh]="!isDetailPage"
   [showExport]="showExport"
   [filterMode]="filterMode"
   (bulkActionClicked)="bulkActionClicked($event)"
