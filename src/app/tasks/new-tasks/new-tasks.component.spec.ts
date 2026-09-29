@@ -97,7 +97,14 @@ const MOCK_CRACKER_TYPES_RESPONSE = mockValidResponse(zCrackerBinaryTypeListResp
     {
       id: 10,
       type: 'crackerBinary',
-      attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
+      attributes: {
+        crackerBinaryTypeId: 1,
+        binaryName: 'hashcat',
+        version: '6.2.6',
+        downloadUrl: '',
+        filename: null,
+        accessGroupId: 1
+      }
     }
   ]
 });
@@ -107,7 +114,14 @@ const MOCK_CRACKERS_RESPONSE = mockValidResponse(zCrackerBinaryListResponse, {
     {
       id: 10,
       type: 'crackerBinary',
-      attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
+      attributes: {
+        crackerBinaryTypeId: 1,
+        binaryName: 'hashcat',
+        version: '6.2.6',
+        downloadUrl: '',
+        filename: null,
+        accessGroupId: 1
+      }
     }
   ]
 });
@@ -225,7 +239,14 @@ const TASK_GET_BODY = {
     {
       id: 10,
       type: 'crackerBinary',
-      attributes: { version: '6.2.6', binaryName: 'hashcat', crackerBinaryTypeId: 1, downloadUrl: '' }
+      attributes: {
+        version: '6.2.6',
+        binaryName: 'hashcat',
+        crackerBinaryTypeId: 1,
+        downloadUrl: '',
+        filename: null,
+        accessGroupId: 1
+      }
     },
     { id: 1, type: 'crackerBinaryType', attributes: { typeName: 'hashcat', isChunkingAvailable: true } }
   ]
@@ -821,12 +842,26 @@ describe('NewTasksComponent', () => {
           {
             id: 10,
             type: 'crackerBinary',
-            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.5', downloadUrl: '' }
+            attributes: {
+              crackerBinaryTypeId: 1,
+              binaryName: 'hashcat',
+              version: '6.2.5',
+              downloadUrl: '',
+              filename: null,
+              accessGroupId: 1
+            }
           },
           {
             id: 11,
             type: 'crackerBinary',
-            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
+            attributes: {
+              crackerBinaryTypeId: 1,
+              binaryName: 'hashcat',
+              version: '6.2.6',
+              downloadUrl: '',
+              filename: null,
+              accessGroupId: 1
+            }
           }
         ]
       });

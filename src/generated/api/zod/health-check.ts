@@ -114,8 +114,10 @@ export const zHealthCheckResponse = z.object({
           attributes: z.object({
             crackerBinaryTypeId: z.int(),
             version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
+            downloadUrl: z.string().nullable(),
+            binaryName: z.string(),
+            filename: z.string().nullable(),
+            accessGroupId: z.int()
           })
         }),
         z.object({
@@ -219,8 +221,10 @@ export const zHealthCheckPostPatchResponse = z.object({
           attributes: z.object({
             crackerBinaryTypeId: z.int(),
             version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
+            downloadUrl: z.string().nullable(),
+            binaryName: z.string(),
+            filename: z.string().nullable(),
+            accessGroupId: z.int()
           })
         }),
         z.object({
@@ -350,8 +354,10 @@ export const zHealthCheckListResponse = z.object({
           attributes: z.object({
             crackerBinaryTypeId: z.int(),
             version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
+            downloadUrl: z.string().nullable(),
+            binaryName: z.string(),
+            filename: z.string().nullable(),
+            accessGroupId: z.int()
           })
         }),
         z.object({
