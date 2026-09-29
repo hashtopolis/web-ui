@@ -335,7 +335,11 @@ describe('NewTasksComponent', () => {
       statustimer: 5
     } as unknown as UiSettings);
 
-    alertServiceSpy = jasmine.createSpyObj('AlertService', ['showErrorMessage', 'showSuccessMessage']);
+    alertServiceSpy = jasmine.createSpyObj('AlertService', [
+      'showErrorMessage',
+      'showSuccessMessage',
+      'showInfoMessage'
+    ]);
     globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create']);
     globalServiceSpy.getAll.and.callFake(buildGetAllCallFake());
     globalServiceSpy.create.and.returnValue(of(mockResponse()));
@@ -572,6 +576,86 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       expect(component.form.controls.isArchived.value).toBe(false);
+    });
+
+    it('falls back to the latest accessible version when the copied one is not accessible', async () => {
+      // the copied task uses crackerBinaryId 10, the user can only see version 11
+      const onlyEleven = mockValidResponse(zCrackerBinaryListResponse, {
+        data: [
+          {
+            id: 11,
+            type: 'crackerBinary',
+            attributes: {
+              crackerBinaryTypeId: 1,
+              binaryName: 'hashcat',
+              version: '7.0.0',
+              downloadUrl: '',
+              filename: null,
+              accessGroupId: 1
+            }
+          }
+        ]
+      });
+      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(onlyEleven) }));
+      await initComponent(fixture);
+      expect(component.form.controls.crackerBinaryId.value).toBe(11);
+      expect(alertServiceSpy.showInfoMessage).toHaveBeenCalledWith(
+        'The cracker version of the copied task is not accessible, the latest available version was selected instead.'
+      );
+    });
+
+    it('falls back to the default type when the cracker type of the copied task is not accessible', async () => {
+      // the copied task uses type 1, the user can only see type 3 with version 30
+      const onlyTypeThree = mockValidResponse(zCrackerBinaryTypeListResponse, {
+        data: [
+          {
+            id: 3,
+            type: 'crackerBinaryType',
+            attributes: { typeName: 'generic', isChunkingAvailable: true },
+            relationships: { crackerVersions: { data: [{ type: 'crackerBinary', id: 30 }] } }
+          }
+        ],
+        included: [
+          {
+            id: 30,
+            type: 'crackerBinary',
+            attributes: {
+              crackerBinaryTypeId: 3,
+              binaryName: 'generic',
+              version: '1.0',
+              downloadUrl: '',
+              filename: null,
+              accessGroupId: 1
+            }
+          }
+        ]
+      });
+      const versionThirty = mockValidResponse(zCrackerBinaryListResponse, {
+        data: [
+          {
+            id: 30,
+            type: 'crackerBinary',
+            attributes: {
+              crackerBinaryTypeId: 3,
+              binaryName: 'generic',
+              version: '1.0',
+              downloadUrl: '',
+              filename: null,
+              accessGroupId: 1
+            }
+          }
+        ]
+      });
+      globalServiceSpy.getAll.and.callFake(
+        buildGetAllCallFake({ [SERV.CRACKERS_TYPES.URL]: of(onlyTypeThree), [SERV.CRACKERS.URL]: of(versionThirty) })
+      );
+      await initComponent(fixture);
+      expect(component.form.controls.crackerBinaryTypeId.value).toBe(3);
+      expect(component.form.controls.crackerBinaryId.value).toBe(30);
+      expect(component.noCrackerVersionsAvailable).toBeFalse();
+      expect(alertServiceSpy.showInfoMessage).toHaveBeenCalledWith(
+        'The cracker version of the copied task is not accessible, the latest available version was selected instead.'
+      );
     });
 
     it('should extract task-specific fields via extractCopyData', async () => {
@@ -892,6 +976,71 @@ describe('NewTasksComponent', () => {
       expect(crackerCtrl.errors).toEqual({ required: true });
       expect(crackerCtrl.touched).toBe(true);
       expect(crackerCtrl.dirty).toBe(true);
+    });
+  });
+
+  describe('cracker access groups', () => {
+    const TYPES_WITH_EMPTY_TYPE = mockValidResponse(zCrackerBinaryTypeListResponse, {
+      data: [
+        {
+          id: 1,
+          type: 'crackerBinaryType',
+          attributes: { typeName: 'hashcat', isChunkingAvailable: true },
+          relationships: { crackerVersions: { data: [{ type: 'crackerBinary', id: 10 }] } }
+        },
+        {
+          id: 2,
+          type: 'crackerBinaryType',
+          attributes: { typeName: 'generic', isChunkingAvailable: true },
+          relationships: { crackerVersions: { data: [] } }
+        }
+      ],
+      included: [
+        {
+          id: 10,
+          type: 'crackerBinary',
+          attributes: {
+            crackerBinaryTypeId: 1,
+            binaryName: 'hashcat',
+            version: '6.2.6',
+            downloadUrl: '',
+            filename: null,
+            accessGroupId: 1
+          }
+        }
+      ]
+    });
+
+    it('defaults crackerBinaryId to null before options are loaded', () => {
+      component.buildForm();
+      expect(component.form.controls.crackerBinaryId.value).toBeNull();
+    });
+
+    it('hides cracker types without accessible versions', async () => {
+      globalServiceSpy.getAll.and.callFake(
+        buildGetAllCallFake({ [SERV.CRACKERS_TYPES.URL]: of(TYPES_WITH_EMPTY_TYPE) })
+      );
+      await initComponent(fixture);
+      expect(component.selectCrackertype.map((o) => o.id)).toEqual([1]);
+    });
+
+    it('flags that no cracker is available when all types are empty', async () => {
+      const noVersions = mockValidResponse(zCrackerBinaryTypeListResponse, {
+        data: [
+          {
+            id: 2,
+            type: 'crackerBinaryType',
+            attributes: { typeName: 'generic', isChunkingAvailable: true },
+            relationships: { crackerVersions: { data: [] } }
+          }
+        ]
+      });
+      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.CRACKERS_TYPES.URL]: of(noVersions) }));
+      await initComponent(fixture);
+      expect(component.selectCrackertype).toEqual([]);
+      expect(component.noCrackerVersionsAvailable).toBeTrue();
+      expect(component.form.controls.crackerBinaryId.value).toBeNull();
+      expect(component.form.valid).toBeFalse();
     });
   });
 
