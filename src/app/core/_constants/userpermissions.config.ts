@@ -153,6 +153,13 @@ export const HealthCheckAgent = {
   READ: 'permHealthCheckAgentRead',
   UPDATE: 'permHealthCheckAgentUpdate'
 } as const;
+// // BACKGROUND JOB
+export const BackgroundJob = {
+  CREATE: 'permBackgroundJobCreate',
+  DELETE: 'permBackgroundJobDelete',
+  READ: 'permBackgroundJobRead',
+  UPDATE: 'permBackgroundJobUpdate'
+} as const;
 // // LOGS
 export const Logs = {
   READ: 'permLogEntryRead'
@@ -217,6 +224,7 @@ export const Perm = {
   Hashtype,
   HealthCheck,
   HealthCheckAgent,
+  BackgroundJob,
   Logs,
   User,
   RightGroup,
