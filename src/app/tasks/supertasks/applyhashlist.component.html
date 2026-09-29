@@ -19,18 +19,21 @@
           <span>Loading Hashlists...</span>
         </div>
       }
-        <input-select
-          title="Binary type"
-          formControlName="crackerBinaryId"
-          [items]="selectCrackertype"
-          [isRequired]="true"
-        ></input-select>
-        <input-select
-          title="Binary version"
-          formControlName="crackerBinaryTypeId"
-          [items]="selectCrackerversions"
-          [isRequired]="true"
-        ></input-select>
+      <input-select
+        title="Binary type"
+        formControlName="crackerBinaryId"
+        [items]="selectCrackertype"
+        [isRequired]="true"
+      ></input-select>
+      <input-select
+        title="Binary version"
+        formControlName="crackerBinaryTypeId"
+        [items]="selectCrackerversions"
+        [isRequired]="true"
+      ></input-select>
+      @if (noCrackerVersionsAvailable) {
+        <fixed-alert message="No cracker binaries are available in your access groups."></fixed-alert>
+      }
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         <button-submit [name]="'Create'" [loading]="isCreatingLoading"></button-submit>

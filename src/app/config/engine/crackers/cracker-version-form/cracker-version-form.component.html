@@ -1,0 +1,163 @@
+@if (!isLoading) {
+  <app-page [title]="pageTitle">
+    <grid-main [narrow]="true">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="flex flex-col gap-3">
+          <input-text
+            title="Binary Base Name"
+            formControlName="binaryName"
+            tooltip="Which needs to be called on the client without os-dependent extension"
+            [maxLength]="50"
+            [isRequired]="true"
+            [readonly]="!canEdit"
+          ></input-text>
+
+          <input-text
+            title="Binary Version"
+            formControlName="version"
+            [maxLength]="20"
+            [isRequired]="true"
+            [readonly]="!canEdit"
+          ></input-text>
+
+          <input-select
+            title="Access group"
+            formControlName="accessGroupId"
+            data-testid="input-select-accessGroup"
+            [items]="selectAccessGroups"
+            [isRequired]="true"
+          ></input-select>
+          @if (selectAccessGroups.length === 0) {
+            <fixed-alert
+              data-testid="no-access-groups"
+              message="You are not a member of any access group. Ask an administrator to add you to one before adding cracker versions."
+            ></fixed-alert>
+          }
+
+          @if (mode === 'create') {
+            <input-select
+              title="Source"
+              formControlName="source"
+              data-testid="input-select-source"
+              [items]="sourceOptions"
+              [isRequired]="true"
+            ></input-select>
+
+            @switch (source) {
+              @case (CrackerSource.EXTERNAL_LINK) {
+                <input-text
+                  inputType="url"
+                  title="Download URL"
+                  formControlName="downloadUrl"
+                  data-testid="input-downloadUrl"
+                  tooltip="Link where the client can download a 7zip with the binary, e.g. https://example.com/cracker-1.0.0.7z"
+                  [isRequired]="true"
+                ></input-text>
+              }
+              @case (CrackerSource.UPLOAD) {
+                <input-file formControlName="file" title="Archive (.7z)" [isRequired]="true"></input-file>
+                @if (form.controls.file.hasError('sevenZip')) {
+                  <span class="text-sm text-destructive">Only .7z archives are supported.</span>
+                }
+                @if (uploadProgress > 0) {
+                  <div class="flex flex-col gap-1">
+                    <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+                    <span>{{ uploadProgress }}%</span>
+                  </div>
+                }
+              }
+              @case (CrackerSource.SERVER_DOWNLOAD) {
+                <input-text
+                  inputType="url"
+                  title="Archive URL"
+                  formControlName="sourceUrl"
+                  data-testid="input-sourceUrl"
+                  hint="The server downloads the archive and serves it to agents."
+                  [isRequired]="true"
+                ></input-text>
+              }
+              @case (CrackerSource.SERVER_IMPORT) {
+                @if (isLoadingServerFiles) {
+                  <div class="loading-spinner">
+                    <mat-spinner diameter="24"></mat-spinner>
+                    <span>Loading files from server import directory...</span>
+                  </div>
+                } @else {
+                  <div class="flex flex-row items-end gap-2">
+                    <input-select
+                      class="flex-1"
+                      title="Server import file"
+                      formControlName="importFile"
+                      [items]="serverFileOptions"
+                      [isRequired]="true"
+                    ></input-select>
+                    <button mat-icon-button type="button" aria-label="Refresh import files" (click)="loadServerFiles()">
+                      <mat-icon>refresh</mat-icon>
+                    </button>
+                  </div>
+                  @if (serverFileOptions.length === 0) {
+                    <fixed-alert
+                      message="No .7z files found in the server import directory. Copy the archive into the import directory first."
+                    ></fixed-alert>
+                  }
+                }
+              }
+            }
+          }
+          @if (mode === 'edit') {
+            @if (isStoredOnServer) {
+              <input-text title="Download URL" formControlName="downloadUrl" [readonly]="true"></input-text>
+              <div class="flex flex-row items-center gap-3" data-testid="stored-on-server">
+                <mat-icon aria-hidden="true">cloud_done</mat-icon>
+                <span
+                  >Stored on server: <strong>{{ binary?.filename }}</strong></span
+                >
+                <button
+                  mat-stroked-button
+                  type="button"
+                  data-testid="download-button"
+                  [disabled]="isDownloading"
+                  (click)="onDownload()"
+                >
+                  <mat-icon>download</mat-icon>
+                  <span>Download</span>
+                </button>
+              </div>
+            } @else {
+              <input-text
+                inputType="url"
+                title="Download URL"
+                formControlName="downloadUrl"
+                tooltip="Link where the client can download a 7zip with the binary, e.g. https://example.com/cracker-1.0.0.7z"
+                hint="Saving a changed URL makes the server download the archive again. If that fails, nothing is changed."
+                [isRequired]="true"
+                [readonly]="!canEdit"
+              ></input-text>
+            }
+          }
+        </div>
+
+        <grid-buttons>
+          @if (mode === 'edit' && canEdit) {
+            <button-submit data-testid="delete-button" name="Delete" type="delete" (click)="onDelete()"></button-submit>
+          }
+          <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
+          @if (canEdit) {
+            <button-submit
+              data-testid="submit-button-crackerVersion"
+              [name]="mode === 'create' ? 'Create' : 'Update'"
+              [loading]="isSubmitting"
+              [disabled]="false"
+            ></button-submit>
+          }
+        </grid-buttons>
+
+        @if (form.invalid && form.touched) {
+          <span class="text-sm text-destructive" data-testid="form-validation-error"
+            >Please complete all required fields!</span
+          >
+        }
+      </form>
+    </grid-main>
+  </app-page>
+}
