@@ -1,5 +1,5 @@
-import { HttpMethod } from '@constants/http.config';
-import { Observable, catchError, forkJoin, of, switchMap, throwError } from 'rxjs';
+import { HttpHeaderName, HttpMethod } from '@constants/http.config';
+import { Observable, catchError, forkJoin, map, of, switchMap, throwError } from 'rxjs';
 
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
@@ -164,35 +164,40 @@ export class GlobalService {
   }
 
   /**
-   * Download a file from the backend
+   * Download a file from the backend helper endpoint
    * @param serviceConfig Service config for the requested endpoint (URL and resource type)
    * @param id            ID of file to get
    * @param filename      Filname to use for the downloaded file
    */
   getFile(serviceConfig: ServiceConfig, id: number, filename: string): void {
-    this.http
-      .get(`${this.cs.getEndpoint() + serviceConfig.URL}?file=${id}`, {
-        responseType: 'blob'
+    this.downloadFromUrl(`${this.cs.getEndpoint() + serviceConfig.URL}?file=${id}`, filename).subscribe({
+      error: (error) => {
+        console.error('Error downloading file:', error);
+      }
+    });
+  }
+
+  /**
+   * Download a blob from an absolute url and save it in the browser
+   * @param url       Absolute url to download from, the auth interceptor adds the bearer token
+   * @param filename  Filename to use for the downloaded file
+   * @param headers   Optional request headers (e.g. to skip the global error dialog)
+   * @returns Observable emitting once the download was handed to the browser
+   */
+  downloadFromUrl(url: string, filename: string, headers?: HttpHeaders): Observable<void> {
+    // archives can be large, never keep them in the in-memory response cache
+    const requestHeaders = (headers ?? new HttpHeaders()).set(HttpHeaderName.SKIP_CACHE, 'true');
+    return this.http.get(url, { responseType: 'blob', headers: requestHeaders }).pipe(
+      map((response: Blob) => {
+        const blob = new Blob([response], { type: response.type });
+        const objectUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = objectUrl;
+        a.download = filename;
+        a.click();
+        window.URL.revokeObjectURL(objectUrl);
       })
-      .subscribe({
-        next: (response: Blob) => {
-          // Generate Blob-URL
-          const blob = new Blob([response], { type: response.type });
-          const url = window.URL.createObjectURL(blob);
-
-          // Create a temporary ‘a’ element for download
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;
-          a.click();
-
-          // Release the URL of the blob again
-          window.URL.revokeObjectURL(url);
-        },
-        error: (error) => {
-          console.error('Fehler beim Download der Datei:', error);
-        }
-      });
+    );
   }
 
   /**
