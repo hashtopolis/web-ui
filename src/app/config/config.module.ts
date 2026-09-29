@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
 
 import { CoreComponentsModule } from '@components/core-components.module';
 
+import { BenchmarkComponent } from '@src/app/config/benchmark/benchmark.component';
 import { ConfigRoutingModule } from '@src/app/config/config-routing.module';
 import { AgentBinariesComponent } from '@src/app/config/engine/agent-binaries/agent-binaries.component';
 import { CrackersComponent } from '@src/app/config/engine/crackers/crackers.component';
@@ -29,6 +30,7 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     HealthChecksComponent,
     HashtypesComponent,
     CrackersComponent,
+    BenchmarkComponent,
     LogComponent
   ],
   imports: [
