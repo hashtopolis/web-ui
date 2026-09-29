@@ -71,6 +71,7 @@ export class SERV {
   public static HEALTH_CHECKS = { URL: '/ui/healthchecks', RESOURCE: 'HealthCheck' };
   public static HEALTH_CHECKS_AGENTS = { URL: '/ui/healthcheckagents', RESOURCE: 'HealthCheckAgents' };
   public static LOGS = { URL: '/ui/logentries', RESOURCE: 'LogEntries' };
+  public static BACKGROUND_JOBS = { URL: '/ui/backgroundJobs', RESOURCE: 'backgroundJob' };
   public static PREPROCESSORS = { URL: '/ui/preprocessors', RESOURCE: 'Preprocessors' };
   // FILES
   public static FILES = { URL: '/ui/files', RESOURCE: 'Files' };

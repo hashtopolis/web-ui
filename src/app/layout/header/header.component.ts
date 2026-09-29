@@ -481,6 +481,12 @@ export class HeaderComponent implements OnInit {
         routerLink: ['config', 'log']
       });
     }
+    if (this.configRoleWrapper.hasBackgroundJobRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.BACKGROUND_JOBS,
+        routerLink: ['config', 'background-jobs']
+      });
+    }
     return {
       display: actions.length > 0,
       label: HeaderMenuLabel.CONFIG,
