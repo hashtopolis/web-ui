@@ -979,6 +979,29 @@ describe('NewTasksComponent', () => {
     });
   });
 
+  describe('cracker binary placement', () => {
+    it('shows the cracker type and version right under the hashlist, outside the advanced settings', async () => {
+      await initComponent(fixture);
+      fixture.detectChanges();
+      const el: HTMLElement = fixture.nativeElement;
+      const hashlist = el.querySelector('[formcontrolname="hashlistId"]');
+      const type = el.querySelector('[formcontrolname="crackerBinaryTypeId"]');
+      const version = el.querySelector('[formcontrolname="crackerBinaryId"]');
+      const attackCmd = el.querySelector('[formcontrolname="attackCmd"]');
+      expect(hashlist && type && version && attackCmd)
+        .withContext('all controls rendered')
+        .toBeTruthy();
+      expect(type?.closest('mat-expansion-panel')).withContext('type not in advanced settings').toBeNull();
+      expect(version?.closest('mat-expansion-panel')).withContext('version not in advanced settings').toBeNull();
+      // document order: hashlist, cracker type, cracker version, attack command
+      const follows = (a: Element | null, b: Element | null) =>
+        !!a && !!b && (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+      expect(follows(hashlist, type)).toBeTrue();
+      expect(follows(type, version)).toBeTrue();
+      expect(follows(version, attackCmd)).toBeTrue();
+    });
+  });
+
   describe('cracker access groups', () => {
     const TYPES_WITH_EMPTY_TYPE = mockValidResponse(zCrackerBinaryTypeListResponse, {
       data: [

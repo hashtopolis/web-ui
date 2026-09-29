@@ -30,6 +30,24 @@
                   </div>
                 }
 
+                <app-form-row>
+                  <input-select
+                    title="Binary type to run task"
+                    formControlName="crackerBinaryTypeId"
+                    [items]="selectCrackertype"
+                    [isRequired]="true"
+                  ></input-select>
+                  <input-select
+                    title="Binary version"
+                    formControlName="crackerBinaryId"
+                    [items]="selectCrackerversions"
+                    [isRequired]="true"
+                  ></input-select>
+                </app-form-row>
+                @if (noCrackerVersionsAvailable) {
+                  <fixed-alert message="No cracker binaries are available in your access groups."></fixed-alert>
+                }
+
                 <input-text-area title="Attack command" formControlName="attackCmd" [isRequired]="true">
                   <button
                     type="button"
@@ -111,25 +129,6 @@
                   <input-number title="Fixed number of chunks" formControlName="chunkSize"></input-number>
                 }
               </app-form-row>
-
-              <app-divider />
-
-              <app-form-row>
-                <input-select
-                  title="Binary type to run task"
-                  formControlName="crackerBinaryTypeId"
-                  [items]="selectCrackertype"
-                ></input-select>
-                <input-select
-                  title="Binary version"
-                  formControlName="crackerBinaryId"
-                  [items]="selectCrackerversions"
-                  [isRequired]="true"
-                ></input-select>
-              </app-form-row>
-              @if (noCrackerVersionsAvailable) {
-                <fixed-alert message="No cracker binaries are available in your access groups."></fixed-alert>
-              }
 
               <app-divider />
 
