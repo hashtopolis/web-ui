@@ -69,11 +69,11 @@ export class BenchmarkTableComponent extends BaseTableComponent implements OnIni
       },
       {
         id: BenchmarkTableCol.HASH_MODE,
-        dataKey: 'hashMode',
+        dataKey: 'hashTypeId',
         isNumeric: true,
         isSortable: true,
         isSearchable: true,
-        export: async (b: JBenchmark) => b.hashMode + ''
+        export: async (b: JBenchmark) => b.hashTypeId + ''
       },
       {
         id: BenchmarkTableCol.ATTACK,

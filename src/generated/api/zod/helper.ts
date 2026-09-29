@@ -40,7 +40,7 @@ export const zBenchmarkResponse = z.object({
     type: z.literal('benchmark'),
     attributes: z.object({
       crackerBinaryId: z.int(),
-      hashMode: z.int(),
+      hashTypeId: z.int(),
       attackParameters: z.string(),
       deviceSignature: z.string(),
       benchmarkType: z.string(),
@@ -120,7 +120,7 @@ export const zBenchmarkListResponse = z.object({
       type: z.literal('benchmark'),
       attributes: z.object({
         crackerBinaryId: z.int(),
-        hashMode: z.int(),
+        hashTypeId: z.int(),
         attackParameters: z.string(),
         deviceSignature: z.string(),
         benchmarkType: z.string(),

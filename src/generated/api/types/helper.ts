@@ -37,7 +37,7 @@ export type BenchmarkResponse = {
     type: 'benchmark';
     attributes: {
       crackerBinaryId: number;
-      hashMode: number;
+      hashTypeId: number;
       attackParameters: string;
       deviceSignature: string;
       benchmarkType: string;
@@ -95,7 +95,7 @@ export type BenchmarkListResponse = {
     type: 'benchmark';
     attributes: {
       crackerBinaryId: number;
-      hashMode: number;
+      hashTypeId: number;
       attackParameters: string;
       deviceSignature: string;
       benchmarkType: string;

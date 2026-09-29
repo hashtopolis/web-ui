@@ -4,8 +4,8 @@ import { BaseModel } from '@models/base.model';
  * Interface definition for a cached benchmark result (issue #879).
  * @extends BaseModel
  * @prop crackerBinaryId   Cracker binary the benchmark was measured with
- * @prop hashMode          Hashcat hash-type (-m) the benchmark applies to
- * @prop attackParameters  SHA-256 signature of the attack (mode and rule use)
+ * @prop hashTypeId        Hashcat hash-type (-m) the benchmark applies to
+ * @prop attackParameters  SHA-256 signature of the run (attack command and salt count)
  * @prop deviceSignature   SHA-256 signature of the agent hardware
  * @prop benchmarkType     'speed' or 'run'
  * @prop benchmarkValue    The cached benchmark value
@@ -14,7 +14,7 @@ import { BaseModel } from '@models/base.model';
  */
 export interface JBenchmark extends BaseModel {
   crackerBinaryId: number;
-  hashMode: number;
+  hashTypeId: number;
   attackParameters: string;
   deviceSignature: string;
   benchmarkType: string;

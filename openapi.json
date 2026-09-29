@@ -19210,7 +19210,7 @@
                 "type": "object",
                 "required": [
                   "crackerBinaryId",
-                  "hashMode",
+                  "hashTypeId",
                   "attackParameters",
                   "deviceSignature",
                   "benchmarkType",
@@ -19220,7 +19220,7 @@
                 ],
                 "properties": {
                   "crackerBinaryId": { "type": "integer" },
-                  "hashMode": { "type": "integer" },
+                  "hashTypeId": { "type": "integer" },
                   "attackParameters": { "type": "string" },
                   "deviceSignature": { "type": "string" },
                   "benchmarkType": { "type": "string" },
@@ -19351,7 +19351,7 @@
                   "type": "object",
                   "required": [
                     "crackerBinaryId",
-                    "hashMode",
+                    "hashTypeId",
                     "attackParameters",
                     "deviceSignature",
                     "benchmarkType",
@@ -19361,7 +19361,7 @@
                   ],
                   "properties": {
                     "crackerBinaryId": { "type": "integer" },
-                    "hashMode": { "type": "integer" },
+                    "hashTypeId": { "type": "integer" },
                     "attackParameters": { "type": "string" },
                     "deviceSignature": { "type": "string" },
                     "benchmarkType": { "type": "string" },
