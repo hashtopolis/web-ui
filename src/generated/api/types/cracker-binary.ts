@@ -4,10 +4,25 @@ export type CrackerBinaryCreate = {
   data: {
     type: 'crackerBinary';
     attributes: {
+      /**
+       * Source the 7z archive is uploaded from: inline (base64 archive data in sourceData), import (filename of a file in the import directory as sourceData) or url (http/https url in sourceData, fetched by the server). Mutually exclusive with downloadUrl.
+       */
+      sourceType?: 'inline' | 'import' | 'url' | null;
+      /**
+       * Source of the archive upload, depending on sourceType: base64 encoded archive data, filename of a file in the import directory or a http/https url to fetch the archive from.
+       */
+      sourceData?: string | null;
       crackerBinaryTypeId: number;
       version: string;
-      downloadUrl: string;
+      /**
+       * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+       */
+      downloadUrl?: string | null;
       binaryName: string;
+      /**
+       * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+       */
+      accessGroupId: number;
     };
   };
 };
@@ -16,8 +31,9 @@ export type CrackerBinaryPatch = {
   data: {
     type: 'crackerBinary';
     attributes: {
+      accessGroupId?: number;
       binaryName?: string;
-      downloadUrl?: string;
+      downloadUrl?: string | null;
       version?: string;
     };
   };
@@ -28,8 +44,9 @@ export type CrackerBinaryPatchMultiple = {
     id: number;
     type: 'crackerBinary';
     attributes: {
+      accessGroupId?: number;
       binaryName?: string;
-      downloadUrl?: string;
+      downloadUrl?: string | null;
       version?: string;
     };
   }>;
@@ -56,13 +73,34 @@ export type CrackerBinaryResponse = {
     attributes: {
       crackerBinaryTypeId: number;
       version: string;
-      downloadUrl: string;
+      /**
+       * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+       */
+      downloadUrl: string | null;
       binaryName: string;
+      /**
+       * Filename of the locally stored 7z archive, null when the binary is downloaded from the downloadUrl. Cannot be provided.
+       */
+      filename: string | null;
+      /**
+       * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+       */
+      accessGroupId: number;
     };
     links: {
       self: string;
     };
     relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: number;
+        } | null;
+      };
       crackerBinaryType: {
         links: {
           self: string;
@@ -92,6 +130,13 @@ export type CrackerBinaryResponse = {
         attributes: {
           typeName: string;
           isChunkingAvailable: boolean | null;
+        };
+      }
+    | {
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+          groupName: string;
         };
       }
     | {
@@ -140,13 +185,34 @@ export type CrackerBinaryPostPatchResponse = {
     attributes: {
       crackerBinaryTypeId: number;
       version: string;
-      downloadUrl: string;
+      /**
+       * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+       */
+      downloadUrl: string | null;
       binaryName: string;
+      /**
+       * Filename of the locally stored 7z archive, null when the binary is downloaded from the downloadUrl. Cannot be provided.
+       */
+      filename: string | null;
+      /**
+       * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+       */
+      accessGroupId: number;
     };
     links: {
       self: string;
     };
     relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: number;
+        } | null;
+      };
       crackerBinaryType: {
         links: {
           self: string;
@@ -176,6 +242,13 @@ export type CrackerBinaryPostPatchResponse = {
         attributes: {
           typeName: string;
           isChunkingAvailable: boolean | null;
+        };
+      }
+    | {
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+          groupName: string;
         };
       }
     | {
@@ -233,13 +306,34 @@ export type CrackerBinaryListResponse = {
     attributes: {
       crackerBinaryTypeId: number;
       version: string;
-      downloadUrl: string;
+      /**
+       * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+       */
+      downloadUrl: string | null;
       binaryName: string;
+      /**
+       * Filename of the locally stored 7z archive, null when the binary is downloaded from the downloadUrl. Cannot be provided.
+       */
+      filename: string | null;
+      /**
+       * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+       */
+      accessGroupId: number;
     };
     links: {
       self: string;
     };
     relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: number;
+        } | null;
+      };
       crackerBinaryType: {
         links: {
           self: string;
@@ -269,6 +363,13 @@ export type CrackerBinaryListResponse = {
         attributes: {
           typeName: string;
           isChunkingAvailable: boolean | null;
+        };
+      }
+    | {
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+          groupName: string;
         };
       }
     | {
@@ -412,9 +513,9 @@ export type GetCrackersData = {
       [key: string]: string;
     };
     /**
-     * Relationships to include in the response, comma seperated. Possible options: crackerBinaryType, tasks
+     * Relationships to include in the response, comma seperated. Possible options: crackerBinaryType, accessGroup, tasks
      */
-    include?: Array<'crackerBinaryType' | 'tasks'>;
+    include?: Array<'crackerBinaryType' | 'accessGroup' | 'tasks'>;
   };
   url: '/api/v2/ui/crackers';
 };
@@ -830,9 +931,9 @@ export type GetCrackersByIdData = {
   };
   query?: {
     /**
-     * Relationships to include in the response, comma seperated. Possible options: crackerBinaryType, tasks
+     * Relationships to include in the response, comma seperated. Possible options: crackerBinaryType, accessGroup, tasks
      */
-    include?: Array<'crackerBinaryType' | 'tasks'>;
+    include?: Array<'crackerBinaryType' | 'accessGroup' | 'tasks'>;
   };
   url: '/api/v2/ui/crackers/{id}';
 };

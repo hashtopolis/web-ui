@@ -99,8 +99,10 @@ export const zCrackerBinaryTypeResponse = z.object({
           attributes: z.object({
             crackerBinaryTypeId: z.int(),
             version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
+            downloadUrl: z.string().nullable(),
+            binaryName: z.string(),
+            filename: z.string().nullable(),
+            accessGroupId: z.int()
           })
         }),
         z.object({
@@ -195,8 +197,10 @@ export const zCrackerBinaryTypePostPatchResponse = z.object({
           attributes: z.object({
             crackerBinaryTypeId: z.int(),
             version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
+            downloadUrl: z.string().nullable(),
+            binaryName: z.string(),
+            filename: z.string().nullable(),
+            accessGroupId: z.int()
           })
         }),
         z.object({
@@ -317,8 +321,10 @@ export const zCrackerBinaryTypeListResponse = z.object({
           attributes: z.object({
             crackerBinaryTypeId: z.int(),
             version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
+            downloadUrl: z.string().nullable(),
+            binaryName: z.string(),
+            filename: z.string().nullable(),
+            accessGroupId: z.int()
           })
         }),
         z.object({

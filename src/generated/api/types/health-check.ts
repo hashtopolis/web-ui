@@ -100,8 +100,19 @@ export type HealthCheckResponse = {
         attributes: {
           crackerBinaryTypeId: number;
           version: string;
-          downloadUrl: string;
+          /**
+           * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+           */
+          downloadUrl: string | null;
           binaryName: string;
+          /**
+           * Filename of the locally stored 7z archive, null when the binary is downloaded from the downloadUrl. Cannot be provided.
+           */
+          filename: string | null;
+          /**
+           * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+           */
+          accessGroupId: number;
         };
       }
     | {
@@ -193,8 +204,19 @@ export type HealthCheckPostPatchResponse = {
         attributes: {
           crackerBinaryTypeId: number;
           version: string;
-          downloadUrl: string;
+          /**
+           * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+           */
+          downloadUrl: string | null;
           binaryName: string;
+          /**
+           * Filename of the locally stored 7z archive, null when the binary is downloaded from the downloadUrl. Cannot be provided.
+           */
+          filename: string | null;
+          /**
+           * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+           */
+          accessGroupId: number;
         };
       }
     | {
@@ -295,8 +317,19 @@ export type HealthCheckListResponse = {
         attributes: {
           crackerBinaryTypeId: number;
           version: string;
-          downloadUrl: string;
+          /**
+           * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+           */
+          downloadUrl: string | null;
           binaryName: string;
+          /**
+           * Filename of the locally stored 7z archive, null when the binary is downloaded from the downloadUrl. Cannot be provided.
+           */
+          filename: string | null;
+          /**
+           * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+           */
+          accessGroupId: number;
         };
       }
     | {

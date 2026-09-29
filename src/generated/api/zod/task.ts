@@ -344,8 +344,10 @@ export const zTaskResponse = z.object({
           attributes: z.object({
             crackerBinaryTypeId: z.int(),
             version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
+            downloadUrl: z.string().nullable(),
+            binaryName: z.string(),
+            filename: z.string().nullable(),
+            accessGroupId: z.int()
           })
         }),
         z.object({
@@ -563,8 +565,10 @@ export const zTaskPostPatchResponse = z.object({
           attributes: z.object({
             crackerBinaryTypeId: z.int(),
             version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
+            downloadUrl: z.string().nullable(),
+            binaryName: z.string(),
+            filename: z.string().nullable(),
+            accessGroupId: z.int()
           })
         }),
         z.object({
@@ -808,8 +812,10 @@ export const zTaskListResponse = z.object({
           attributes: z.object({
             crackerBinaryTypeId: z.int(),
             version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
+            downloadUrl: z.string().nullable(),
+            binaryName: z.string(),
+            filename: z.string().nullable(),
+            accessGroupId: z.int()
           })
         }),
         z.object({
