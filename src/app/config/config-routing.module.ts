@@ -10,6 +10,7 @@ import { SERV } from '@services/main.config';
 import { AgentBinaryRoleService } from '@services/roles/binaries/agent-binary-role.service';
 import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
 import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
+import { BackgroundJobRoleService } from '@services/roles/config/background-job-role.service';
 import { HashTypesRoleService } from '@services/roles/config/hashtypes-role.service';
 import { HealthCheckRoleService } from '@services/roles/config/healthcheck-role.service';
 import { LogRoleService } from '@services/roles/config/log-role.service';
@@ -19,6 +20,7 @@ import { SettingsRoleService } from '@services/roles/config/settings-role.servic
 import { FormComponent } from '@components/forms/simple-forms/form.component';
 import { FormConfigComponent } from '@components/forms/simple-forms/formconfig.component';
 
+import { BackgroundJobsComponent } from '@src/app/config/background-jobs/background-jobs.component';
 import { AgentBinariesComponent } from '@src/app/config/engine/agent-binaries/agent-binaries.component';
 import { CrackerVersionFormComponent } from '@src/app/config/engine/crackers/cracker-version-form/cracker-version-form.component';
 import { CrackersComponent } from '@src/app/config/engine/crackers/crackers.component';
@@ -149,6 +151,15 @@ const routes: MyRoute[] = [
         component: LogComponent,
         data: {
           roleServiceClass: LogRoleService,
+          roleName: 'read'
+        },
+        canActivate: [CheckRole]
+      },
+      {
+        path: 'background-jobs',
+        component: BackgroundJobsComponent,
+        data: {
+          roleServiceClass: BackgroundJobRoleService,
           roleName: 'read'
         },
         canActivate: [CheckRole]

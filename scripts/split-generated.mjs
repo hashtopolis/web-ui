@@ -25,6 +25,7 @@ const RESOURCE_PREFIXES = [
   ['GlobalPermissionGroup', 'global-permission-group'],
   ['NotificationSetting', 'notification-setting'],
   ['CrackerBinaryType', 'cracker-binary-type'],
+  ['BackgroundJob', 'background-job'],
   ['HealthCheckAgent', 'health-check-agent'],
   ['AgentAssignment', 'agent-assignment'],
   ['CrackerBinary', 'cracker-binary'],
@@ -56,6 +57,7 @@ const RESOURCE_PREFIXES = [
 // Operation URL segment -> output file name (longest first)
 const OPERATION_SEGMENTS = [
   ['Globalpermissiongroups', 'global-permission-group'],
+  ['BackgroundJobs', 'background-job'],
   ['Healthcheckagents', 'health-check-agent'],
   ['Agentassignments', 'agent-assignment'],
   ['Agentbinaries', 'agent-binary'],

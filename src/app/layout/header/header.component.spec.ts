@@ -1,11 +1,12 @@
 import { BaseModel } from '@models/base.model';
 
 import { AuthService } from '@services/access/auth.service';
+import { ConfigRoleWrapperService } from '@services/roles/config/config-role-wrapper.service';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 
 import { HeaderComponent } from '@src/app/layout/header/header.component';
-import { HeaderMenuAction } from '@src/app/layout/header/header.constants';
+import { HeaderMenuAction, HeaderMenuLabel } from '@src/app/layout/header/header.constants';
 
 interface TestableHeader {
   menuItemClicked(event: ActionMenuEvent<BaseModel | undefined>): void;
@@ -55,5 +56,34 @@ describe('HeaderComponent logout', () => {
     component.menuItemClicked(otherEvent);
 
     expect(mockAuthService.logOut).not.toHaveBeenCalled();
+  });
+});
+
+describe('HeaderComponent config menu', () => {
+  function configMenu(backgroundJobRead: boolean) {
+    const wrapper = jasmine.createSpyObj<ConfigRoleWrapperService>('ConfigRoleWrapperService', [
+      'hasSettingsRole',
+      'hasHashTypesRole',
+      'hasHealthCheckRole',
+      'hasLogRole',
+      'hasNotificationRole',
+      'hasBackgroundJobRole'
+    ]);
+    wrapper.hasLogRole.and.returnValue(true);
+    wrapper.hasBackgroundJobRole.and.callFake((role: string) => role === 'read' && backgroundJobRead);
+
+    const component = Object.create(HeaderComponent.prototype) as HeaderComponent;
+    (component as unknown as { configRoleWrapper: ConfigRoleWrapperService }).configRoleWrapper = wrapper;
+    return component.getConfigMenu().actions[0];
+  }
+
+  it('shows Background Jobs after Log with the read role', () => {
+    const labels = configMenu(true).map((action) => action.label);
+    expect(labels).toEqual([HeaderMenuLabel.LOG, HeaderMenuLabel.BACKGROUND_JOBS]);
+    expect(configMenu(true)[1].routerLink).toEqual(['config', 'background-jobs']);
+  });
+
+  it('hides Background Jobs without the read role', () => {
+    expect(configMenu(false).map((action) => action.label)).toEqual([HeaderMenuLabel.LOG]);
   });
 });

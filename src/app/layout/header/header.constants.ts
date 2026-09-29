@@ -30,6 +30,7 @@ export const HeaderMenuLabel = {
   HASHTYPES: 'Hashtypes',
   HEALTH_CHECKS: 'Health Checks',
   LOG: 'Log',
+  BACKGROUND_JOBS: 'Background Jobs',
   BINARIES: 'Binaries',
   CRACKERS: 'Crackers',
   PREPROCESSORS: 'Preprocessors',

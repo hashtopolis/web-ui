@@ -37,6 +37,7 @@ export const RowActionMenuLabel = {
   DELETE_PREPROCESSOR: 'Delete Preprocessor',
   DELETE_AGENTBINARY: 'Delete Agent Binary',
   DELETE_HEALTHCHECK: 'Delete Health Check',
+  DELETE_BACKGROUND_JOB: 'Delete Background Job',
   DELETE_USER: 'Delete User',
   DELETE_ACCESSGROUP: 'Delete Access Group',
   DELETE_PERMISSION: 'Delete Permission Group',
