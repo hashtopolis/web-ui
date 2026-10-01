@@ -31,6 +31,11 @@
           [items]="selectCrackerversions"
           [isRequired]="true"
         ></input-select>
+        <input-check
+          title="Skip pretasks already completed"
+          tooltip="Skip any pretask whose attack (identical command, files and cracker version) has already been fully searched against this hashlist. Tasks whose command differs in any way, or that have not finished, are not skipped."
+          formControlName="skipCompleted"
+        ></input-check>
       <grid-buttons>
         <button-submit name="Cancel" [disabled]="false" type="cancel"></button-submit>
         <button-submit [name]="'Create'" [loading]="isCreatingLoading"></button-submit>
