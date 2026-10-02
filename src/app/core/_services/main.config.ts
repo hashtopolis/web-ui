@@ -54,7 +54,7 @@ export class SERV {
   // ACCESS
   public static AUTH = { URL: '/auth', RESOURCE: 'Auth' };
   public static ACCESS_GROUPS = { URL: '/ui/accessgroups', RESOURCE: 'AccessGroups' };
-  public static ACCESS_PERMISSIONS_GROUPS = { URL: '/ui/globalpermissiongroups', RESOURCE: 'GlobalPermissionGroups' };
+  public static ACCESS_PERMISSIONS_GROUPS = { URL: '/ui/globalpermissiongroups', RESOURCE: 'globalPermissionGroup' };
   // AGENTS
   public static AGENTS = { URL: '/ui/agents', RESOURCE: 'Agents' };
   public static AGENT_ERRORS = { URL: '/ui/agenterrors', RESOURCE: 'AgentErrors' };
