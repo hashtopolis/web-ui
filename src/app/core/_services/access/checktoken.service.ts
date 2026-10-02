@@ -23,40 +23,30 @@ export class CheckTokenService {
   }
 
   /**
-   * Checks the current user's token expiration date stored in localStorage.
-   * If no user data is found, the method exits.
-   * If the token is expired (less than 15 milliseconds remaining), the user is logged out.
+   * Brings the session back up to date when the tab becomes visible again.
    *
-   * Intended usage:
-   * - Called when the browser tab becomes visible (via the Visibility API listener).
-   * - Can also be triggered manually to ensure session validity.
+   * A backgrounded tab is where the renewal timer is least reliable: browsers throttle timers in
+   * hidden tabs, and a suspended machine does not run them at all. So rather than trusting the
+   * timer, this renews on the way back in whenever the access token is at or past its expiry.
    *
-   * Behavior:
-   * - Reads `_token` and `_expires` from `userData` in localStorage.
-   * - Calculates time remaining until expiration.
-   * - Logs out the user immediately if the token is near expiry.
-   * - Placeholder for token refresh logic when a refresh token system is implemented.
+   * The user is only sent back to the login form when the renewal itself fails, which means the
+   * refresh cookie has expired or the session was revoked.
    */
   checkTokenValidity() {
     const userData = this.localStorageService.getItem(AuthService.STORAGE_KEY);
     if (!userData) {
       return;
     }
-    const tokendate = new Date(userData._expires).getTime();
-    const currentDate = new Date().getTime();
-    const timeDifference = tokendate - currentDate;
-    // We should be refreshing but when using refresh token, we get an error "Signature verification failure"
-    // if(timeDifference > 0 && timeDifference <  600){
-    //   console.log('trying to refresh token')
-    //   this.authService.refreshToken().subscribe(
-    //     (data) => {
-    //        console.log(data)
-    //     }
-    //   );
-    // }
-    if (timeDifference < 15) {
-      this.alertService.showInfoMessage('Token expired, please log in again.');
-      this.authService.logOut();
+
+    if (!this.authService.isAccessTokenExpiring()) {
+      return;
     }
+
+    this.authService.refreshToken().subscribe({
+      error: () => {
+        this.alertService.showInfoMessage('Session expired, please log in again.');
+        this.authService.logOut();
+      }
+    });
   }
 }

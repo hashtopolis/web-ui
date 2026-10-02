@@ -93,23 +93,33 @@ export const zAgentStatCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
-export const zDeleteAgentstatsBody = zAgentStatDeleteMultiple;
+export const zDeleteAgentstatsData = z.object({
+  body: zAgentStatDeleteMultiple,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successfully deleted
  */
 export const zDeleteAgentstatsResponse = z.void();
 
-export const zGetAgentstatsQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
-  'page[size]': z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-    .optional(),
-  filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.string()).optional()
+export const zGetAgentstatsData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      'page[after]': z.string().optional(),
+      'page[before]': z.string().optional(),
+      'page[size]': z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional(),
+      filter: z.record(z.string(), z.string()).optional(),
+      include: z.array(z.string()).optional()
+    })
+    .optional()
 });
 
 /**
@@ -117,9 +127,15 @@ export const zGetAgentstatsQuery = z.object({
  */
 export const zGetAgentstatsResponse = zAgentStatListResponse;
 
-export const zGetAgentstatsCountQuery = z.object({
-  filter: z.record(z.string(), z.string()).optional(),
-  include_total: z.boolean().optional()
+export const zGetAgentstatsCountData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      filter: z.record(z.string(), z.string()).optional(),
+      include_total: z.boolean().optional()
+    })
+    .optional()
 });
 
 /**
@@ -127,8 +143,12 @@ export const zGetAgentstatsCountQuery = z.object({
  */
 export const zGetAgentstatsCountResponse = zAgentStatCountResponse;
 
-export const zDeleteAgentstatsByIdPath = z.object({
-  id: z.int()
+export const zDeleteAgentstatsByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -136,15 +156,19 @@ export const zDeleteAgentstatsByIdPath = z.object({
  */
 export const zDeleteAgentstatsByIdResponse = z.void();
 
-export const zGetAgentstatsByIdPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-});
-
-export const zGetAgentstatsByIdQuery = z.object({
-  include: z.array(z.string()).optional()
+export const zGetAgentstatsByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  }),
+  query: z
+    .object({
+      include: z.array(z.string()).optional()
+    })
+    .optional()
 });
 
 /**

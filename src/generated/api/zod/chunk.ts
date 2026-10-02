@@ -300,16 +300,22 @@ export const zChunkRelationTaskGetResponse = z.object({
   })
 });
 
-export const zGetChunksQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
-  'page[size]': z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-    .optional(),
-  filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.enum(['agent', 'task'])).optional()
+export const zGetChunksData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      'page[after]': z.string().optional(),
+      'page[before]': z.string().optional(),
+      'page[size]': z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional(),
+      filter: z.record(z.string(), z.string()).optional(),
+      include: z.array(z.enum(['agent', 'task'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -317,9 +323,15 @@ export const zGetChunksQuery = z.object({
  */
 export const zGetChunksResponse = zChunkListResponse;
 
-export const zGetChunksCountQuery = z.object({
-  filter: z.record(z.string(), z.string()).optional(),
-  include_total: z.boolean().optional()
+export const zGetChunksCountData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      filter: z.record(z.string(), z.string()).optional(),
+      include_total: z.boolean().optional()
+    })
+    .optional()
 });
 
 /**
@@ -327,12 +339,16 @@ export const zGetChunksCountQuery = z.object({
  */
 export const zGetChunksCountResponse = zChunkCountResponse;
 
-export const zGetChunksByIdByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetChunksByIdByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -340,12 +356,16 @@ export const zGetChunksByIdByRelationPath = z.object({
  */
 export const zGetChunksByIdByRelationResponse = zChunkRelationTaskGetResponse;
 
-export const zGetChunksByIdRelationshipsByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetChunksByIdRelationshipsByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -353,11 +373,13 @@ export const zGetChunksByIdRelationshipsByRelationPath = z.object({
  */
 export const zGetChunksByIdRelationshipsByRelationResponse = zChunkResponse;
 
-export const zPatchChunksByIdRelationshipsByRelationBody = zChunkRelationTask;
-
-export const zPatchChunksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchChunksByIdRelationshipsByRelationData = z.object({
+  body: zChunkRelationTask,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -365,15 +387,19 @@ export const zPatchChunksByIdRelationshipsByRelationPath = z.object({
  */
 export const zPatchChunksByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetChunksByIdPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-});
-
-export const zGetChunksByIdQuery = z.object({
-  include: z.array(z.enum(['agent', 'task'])).optional()
+export const zGetChunksByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  }),
+  query: z
+    .object({
+      include: z.array(z.enum(['agent', 'task'])).optional()
+    })
+    .optional()
 });
 
 /**

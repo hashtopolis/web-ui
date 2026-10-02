@@ -262,16 +262,22 @@ export const zSpeedRelationTaskGetResponse = z.object({
   })
 });
 
-export const zGetSpeedsQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
-  'page[size]': z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-    .optional(),
-  filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.enum(['agent', 'task'])).optional()
+export const zGetSpeedsData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      'page[after]': z.string().optional(),
+      'page[before]': z.string().optional(),
+      'page[size]': z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional(),
+      filter: z.record(z.string(), z.string()).optional(),
+      include: z.array(z.enum(['agent', 'task'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -279,9 +285,15 @@ export const zGetSpeedsQuery = z.object({
  */
 export const zGetSpeedsResponse = zSpeedListResponse;
 
-export const zGetSpeedsCountQuery = z.object({
-  filter: z.record(z.string(), z.string()).optional(),
-  include_total: z.boolean().optional()
+export const zGetSpeedsCountData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      filter: z.record(z.string(), z.string()).optional(),
+      include_total: z.boolean().optional()
+    })
+    .optional()
 });
 
 /**
@@ -289,12 +301,16 @@ export const zGetSpeedsCountQuery = z.object({
  */
 export const zGetSpeedsCountResponse = zSpeedCountResponse;
 
-export const zGetSpeedsByIdByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetSpeedsByIdByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -302,12 +318,16 @@ export const zGetSpeedsByIdByRelationPath = z.object({
  */
 export const zGetSpeedsByIdByRelationResponse = zSpeedRelationTaskGetResponse;
 
-export const zGetSpeedsByIdRelationshipsByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetSpeedsByIdRelationshipsByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -315,11 +335,13 @@ export const zGetSpeedsByIdRelationshipsByRelationPath = z.object({
  */
 export const zGetSpeedsByIdRelationshipsByRelationResponse = zSpeedResponse;
 
-export const zPatchSpeedsByIdRelationshipsByRelationBody = zSpeedRelationTask;
-
-export const zPatchSpeedsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchSpeedsByIdRelationshipsByRelationData = z.object({
+  body: zSpeedRelationTask,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -327,15 +349,19 @@ export const zPatchSpeedsByIdRelationshipsByRelationPath = z.object({
  */
 export const zPatchSpeedsByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetSpeedsByIdPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-});
-
-export const zGetSpeedsByIdQuery = z.object({
-  include: z.array(z.enum(['agent', 'task'])).optional()
+export const zGetSpeedsByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  }),
+  query: z
+    .object({
+      include: z.array(z.enum(['agent', 'task'])).optional()
+    })
+    .optional()
 });
 
 /**

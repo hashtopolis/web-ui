@@ -1,6 +1,7 @@
 import * as z from 'zod';
 
 import { zAccessGroupResourceObject } from './access-group';
+import { zToken } from './common';
 import { zConfigResourceObject } from './config';
 import { zFileSingleResponse } from './file';
 import { zGlobalPermissionGroupResourceObject } from './global-permission-group';
@@ -402,17 +403,23 @@ export const zUnassignAgentHelperApiResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
-export const zGetTaskwrapperdisplaysQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
-  'page[size]': z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-    .optional(),
-  filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.enum(['tasks'])).optional(),
-  aggregate: z.record(z.string(), z.string()).optional()
+export const zGetTaskwrapperdisplaysData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      'page[after]': z.string().optional(),
+      'page[before]': z.string().optional(),
+      'page[size]': z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional(),
+      filter: z.record(z.string(), z.string()).optional(),
+      include: z.array(z.enum(['tasks'])).optional(),
+      aggregate: z.record(z.string(), z.string()).optional()
+    })
+    .optional()
 });
 
 /**
@@ -420,9 +427,15 @@ export const zGetTaskwrapperdisplaysQuery = z.object({
  */
 export const zGetTaskwrapperdisplaysResponse = zTaskWrapperDisplayListResponse;
 
-export const zGetTaskwrapperdisplaysCountQuery = z.object({
-  filter: z.record(z.string(), z.string()).optional(),
-  include_total: z.boolean().optional()
+export const zGetTaskwrapperdisplaysCountData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      filter: z.record(z.string(), z.string()).optional(),
+      include_total: z.boolean().optional()
+    })
+    .optional()
 });
 
 /**
@@ -430,12 +443,16 @@ export const zGetTaskwrapperdisplaysCountQuery = z.object({
  */
 export const zGetTaskwrapperdisplaysCountResponse = zTaskWrapperDisplayCountResponse;
 
-export const zGetTaskwrapperdisplaysByIdByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetTaskwrapperdisplaysByIdByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -443,11 +460,13 @@ export const zGetTaskwrapperdisplaysByIdByRelationPath = z.object({
  */
 export const zGetTaskwrapperdisplaysByIdByRelationResponse = zTaskWrapperDisplayRelationTasksGetResponse;
 
-export const zDeleteTaskwrapperdisplaysByIdRelationshipsByRelationBody = zTaskWrapperDisplayRelationTasks;
-
-export const zDeleteTaskwrapperdisplaysByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zDeleteTaskwrapperdisplaysByIdRelationshipsByRelationData = z.object({
+  body: zTaskWrapperDisplayRelationTasks,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -455,12 +474,16 @@ export const zDeleteTaskwrapperdisplaysByIdRelationshipsByRelationPath = z.objec
  */
 export const zDeleteTaskwrapperdisplaysByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetTaskwrapperdisplaysByIdRelationshipsByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetTaskwrapperdisplaysByIdRelationshipsByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -468,11 +491,13 @@ export const zGetTaskwrapperdisplaysByIdRelationshipsByRelationPath = z.object({
  */
 export const zGetTaskwrapperdisplaysByIdRelationshipsByRelationResponse = zTaskWrapperDisplayResponse;
 
-export const zPatchTaskwrapperdisplaysByIdRelationshipsByRelationBody = zTaskWrapperDisplayRelationTasks;
-
-export const zPatchTaskwrapperdisplaysByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchTaskwrapperdisplaysByIdRelationshipsByRelationData = z.object({
+  body: zTaskWrapperDisplayRelationTasks,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -480,11 +505,13 @@ export const zPatchTaskwrapperdisplaysByIdRelationshipsByRelationPath = z.object
  */
 export const zPatchTaskwrapperdisplaysByIdRelationshipsByRelationResponse = z.void();
 
-export const zPostTaskwrapperdisplaysByIdRelationshipsByRelationBody = zTaskWrapperDisplayRelationTasks;
-
-export const zPostTaskwrapperdisplaysByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPostTaskwrapperdisplaysByIdRelationshipsByRelationData = z.object({
+  body: zTaskWrapperDisplayRelationTasks,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -492,15 +519,19 @@ export const zPostTaskwrapperdisplaysByIdRelationshipsByRelationPath = z.object(
  */
 export const zPostTaskwrapperdisplaysByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetTaskwrapperdisplaysByIdPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-});
-
-export const zGetTaskwrapperdisplaysByIdQuery = z.object({
-  include: z.array(z.enum(['tasks'])).optional()
+export const zGetTaskwrapperdisplaysByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  }),
+  query: z
+    .object({
+      include: z.array(z.enum(['tasks'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -508,120 +539,158 @@ export const zGetTaskwrapperdisplaysByIdQuery = z.object({
  */
 export const zGetTaskwrapperdisplaysByIdResponse = zTaskWrapperDisplayResponse;
 
-/**
- * ChunkID is the ID of the chunk that needs to be aborted.
- */
-export const zPostAbortChunkBody = zAbortChunkHelperApi;
+export const zPostAbortChunkData = z.object({
+  body: zAbortChunkHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostAbortChunkResponse = zAbortChunkHelperApiResponse;
 
-/**
- * The agentId is the Id of the agent that has to be assigned to the task.<br />The taskId is the Id of the task that will be assigned to the agent. If this is set to 0,<br />the agent will be unassigned from its current assigned task.
- */
-export const zPostAssignAgentBody = zAssignAgentHelperApi;
+export const zPostAssignAgentData = z.object({
+  body: zAssignAgentHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostAssignAgentResponse = zAssignAgentHelperApiResponse;
 
-export const zPostBulkSupertaskBuilderBody = zBulkSupertaskBuilderHelperApi;
+export const zPostBulkSupertaskBuilderData = z.object({
+  body: zBulkSupertaskBuilderHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostBulkSupertaskBuilderResponse = zSupertaskSingleResponse;
 
-/**
- * oldPassword is the current password of the user.<br />newPassword is the new password that you want to set.<br />confirmPassword is the new password again to confirm it.
- */
-export const zPostChangeOwnPasswordBody = zChangeOwnPasswordHelperApi;
+export const zPostChangeOwnPasswordData = z.object({
+  body: zChangeOwnPasswordHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostChangeOwnPasswordResponse = zChangeOwnPasswordHelperApiResponse;
 
-/**
- * HashlistIds is an array of hashlist ids of the hashlists that have to be combined into a superHashlist.<br />Name is the name of the newly created superHashlist.
- */
-export const zPostCreateSuperHashlistBody = zCreateSuperHashlistHelperApi;
+export const zPostCreateSuperHashlistData = z.object({
+  body: zCreateSuperHashlistHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostCreateSuperHashlistResponse = zHashlistSingleResponse;
 
-/**
- * supertaskTemplateId is the the Id of the supertasktemplate of which you want to create a supertask of.<br />hashlistId is the Id of the hashlist that has to be used for the supertask.<br />crackerVersionId is the Id of the crackerversion that is used for the created supertask.
- */
-export const zPostCreateSupertaskBody = zCreateSupertaskHelperApi;
+export const zPostCreateSupertaskData = z.object({
+  body: zCreateSupertaskHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostCreateSupertaskResponse = zTaskWrapperSingleResponse;
 
+export const zGetCurrentUserData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z.never().optional()
+});
+
 /**
  * successful operation
  */
 export const zGetCurrentUserResponse = zCurrentUserHelperApiResponse;
+
+export const zPatchCurrentUserData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * No content
  */
 export const zPatchCurrentUserResponse = z.void();
 
-/**
- * hashlistId is the Id of the hashlist where you want to export the hashes of.
- */
-export const zPostExportCrackedHashesBody = zExportCrackedHashesHelperApi;
+export const zPostExportCrackedHashesData = z.object({
+  body: zExportCrackedHashesHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostExportCrackedHashesResponse = zFileSingleResponse;
 
-/**
- * hashlistId is the id of the hashlist where you want to export the uncracked hashes of.
- */
-export const zPostExportLeftHashesBody = zExportLeftHashesHelperApi;
+export const zPostExportLeftHashesData = z.object({
+  body: zExportLeftHashesHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostExportLeftHashesResponse = zFileSingleResponse;
 
-/**
- * hashlistId is the Id of the hashlist where you want to export the wordlist of.
- */
-export const zPostExportWordlistBody = zExportWordlistHelperApi;
+export const zPostExportWordlistData = z.object({
+  body: zExportWordlistHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostExportWordlistResponse = zFileSingleResponse;
 
+export const zGetGetAccessGroupsData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z.never().optional()
+});
+
 /**
  * successful operation
  */
 export const zGetGetAccessGroupsResponse = zGetAccessGroupsHelperApiResponse;
 
-export const zGetGetAgentBinaryQuery = z.object({
-  agent: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+export const zGetGetAgentBinaryData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z.object({
+    agent: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  })
 });
 
-export const zGetGetBestTasksAgentQuery = z.object({
-  agent: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+export const zGetGetBestTasksAgentData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z.object({
+    agent: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  })
 });
 
 /**
@@ -629,16 +698,26 @@ export const zGetGetBestTasksAgentQuery = z.object({
  */
 export const zGetGetBestTasksAgentResponse = zGetBestTasksAgentResponse;
 
+export const zGetGetCompletedCountData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z.never().optional()
+});
+
 /**
  * successful operation
  */
 export const zGetGetCompletedCountResponse = zGetCompletedCountHelperApiResponse;
 
-export const zGetGetCracksOfTaskQuery = z.object({
-  task: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+export const zGetGetCracksOfTaskData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z.object({
+    task: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  })
 });
 
 /**
@@ -646,16 +725,32 @@ export const zGetGetCracksOfTaskQuery = z.object({
  */
 export const zGetGetCracksOfTaskResponse = zGetCracksOfTaskHelperResponse;
 
+export const zGetGetCracksPerDayData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z.never().optional()
+});
+
 /**
  * successful operation
  */
 export const zGetGetCracksPerDayResponse = zGetCracksPerDayHelperApiResponse;
 
-export const zGetGetFileQuery = z.object({
-  file: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+export const zGetGetFileData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z.object({
+    file: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  })
+});
+
+export const zGetGetGlobalConfigData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z.never().optional()
 });
 
 /**
@@ -663,17 +758,29 @@ export const zGetGetFileQuery = z.object({
  */
 export const zGetGetGlobalConfigResponse = zGetGlobalConfigHelperApiResponse;
 
-export const zGetGetTaskProgressImageQuery = z.object({
-  supertask: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-    .optional(),
-  task: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+export const zGetGetTaskProgressImageData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      supertask: z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional(),
+      task: z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional()
+    })
     .optional()
+});
+
+export const zGetGetUserPermissionData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z.never().optional()
 });
 
 /**
@@ -681,36 +788,47 @@ export const zGetGetTaskProgressImageQuery = z.object({
  */
 export const zGetGetUserPermissionResponse = zGetUserPermissionHelperApiResponse;
 
-/**
- * HashlistId is the Id of the hashlist where you want to import the cracked hashes into.<br />SourceData is the cracked hashes you want to import.<br />Seperator is the seperator that has been used for the salt in the hashes.
- */
-export const zPostImportCrackedHashesBody = zImportCrackedHashesHelperApi;
+export const zPostImportCrackedHashesData = z.object({
+  body: zImportCrackedHashesHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostImportCrackedHashesResponse = zImportCrackedHashesHelperApiResponse;
 
+export const zGetImportFileData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z.never().optional()
+});
+
 /**
  * successful operation
  */
 export const zGetImportFileResponse = zImportFileHelperApiResponse;
 
-/**
- * Import file has no POST parameters
- */
-export const zPostImportFileBody = zImportFileHelperApi;
-
-export const zPostImportFileHeaders = z.object({
-  'Upload-Metadata': z.string().regex(/^([a-zA-Z0-9]+ [A-Za-z0-9+\/=]+)(,[a-zA-Z0-9]+ [A-Za-z0-9+\/=]+)*$/),
-  'Upload-Length': z.int().gte(1).optional(),
-  'Upload-Defer-Length': z.int().optional()
+export const zPostImportFileData = z.object({
+  body: zImportFileHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional(),
+  headers: z.object({
+    'Upload-Metadata': z.string().regex(/^([a-zA-Z0-9]+ [A-Za-z0-9+\/=]+)(,[a-zA-Z0-9]+ [A-Za-z0-9+\/=]+)*$/),
+    'Upload-Length': z.int().gte(1).optional(),
+    'Upload-Defer-Length': z.int().optional()
+  })
 });
 
 export const zPostImportFileResponse = z.union([zImportFileHelperApiResponse, z.unknown()]);
 
-export const zDeleteImportFileByIdPath = z.object({
-  id: z.int()
+export const zDeleteImportFileByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -718,107 +836,156 @@ export const zDeleteImportFileByIdPath = z.object({
  */
 export const zDeleteImportFileByIdResponse = zImportFileHelperApiResponse;
 
-export const zHeadImportFileByIdPath = z.object({
-  id: z.int()
+export const zHeadImportFileByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
-/**
- * The binary data to push to the file
- */
-export const zPatchImportFileByIdBody = z.string();
-
-export const zPatchImportFileByIdHeaders = z.object({
-  'Upload-Offset': z.int(),
-  'Content-Type': z.enum(['application/offset+octet-stream'])
-});
-
-export const zPatchImportFileByIdPath = z.object({
-  id: z.int()
+export const zPatchImportFileByIdData = z.object({
+  body: z.string(),
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional(),
+  headers: z.object({
+    'Upload-Offset': z.int(),
+    'Content-Type': z.enum(['application/offset+octet-stream'])
+  })
 });
 
 export const zPatchImportFileByIdResponse = z.union([zImportFileHelperApiResponse, z.void()]);
 
-export const zPostMaskSupertaskBuilderBody = zMaskSupertaskBuilderHelperApi;
+export const zPostMaskSupertaskBuilderData = z.object({
+  body: zMaskSupertaskBuilderHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostMaskSupertaskBuilderResponse = zSupertaskSingleResponse;
 
-/**
- * taskId is the id of the task that should be purged.
- */
-export const zPostPurgeTaskBody = zPurgeTaskHelperApi;
+export const zPostPurgeTaskData = z.object({
+  body: zPurgeTaskHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostPurgeTaskResponse = zPurgeTaskHelperApiResponse;
 
-export const zPostRebuildChunkCacheBody = zRebuildChunkCacheHelperApi;
+export const zPostRebuildChunkCacheData = z.object({
+  body: zRebuildChunkCacheHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostRebuildChunkCacheResponse = zRebuildChunkCacheHelperApiResponse;
 
-/**
- * FileId is the id of the file that needs to be recounted.
- */
-export const zPostRecountFileLinesBody = zRecountFileLinesHelperApi;
+export const zPostRecountFileLinesData = z.object({
+  body: zRecountFileLinesHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostRecountFileLinesResponse = zFileSingleResponse;
 
-export const zPostRescanGlobalFilesBody = zRescanGlobalFilesHelperApi;
+export const zPostRescanGlobalFilesData = z.object({
+  body: zRescanGlobalFilesHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostRescanGlobalFilesResponse = zRescanGlobalFilesHelperApiResponse;
 
-/**
- * chunkId is the id of the chunk which you want to reset.
- */
-export const zPostResetChunkBody = zResetChunkHelperApi;
+export const zPostResetChunkData = z.object({
+  body: zResetChunkHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostResetChunkResponse = zResetChunkHelperApiResponse;
 
-export const zPostResetUserPasswordBody = zResetUserPasswordHelperApi;
+export const zPostResetUserPasswordData = z.object({
+  body: zResetUserPasswordHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostResetUserPasswordResponse = zResetUserPasswordHelperApiResponse;
 
-export const zPostSearchHashesBody = zSearchHashesHelperApi;
+export const zPostSearchHashesData = z.object({
+  body: zSearchHashesHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostSearchHashesResponse = zSearchHashesHelperApiResponse;
 
-/**
- * userId is the id of the user of which you want to change the password.<br />password is the new password that you want to set.
- */
-export const zPostSetUserPasswordBody = zSetUserPasswordHelperApi;
+export const zPostSetUserPasswordData = z.object({
+  body: zSetUserPasswordHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostSetUserPasswordResponse = zSetUserPasswordHelperApiResponse;
 
-/**
- * agentId is the id of the agent which you want to unassign.
- */
-export const zPostUnassignAgentBody = zUnassignAgentHelperApi;
+export const zPostUnassignAgentData = z.object({
+  body: zUnassignAgentHelperApi,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostUnassignAgentResponse = zUnassignAgentHelperApiResponse;
+
+export const zDeleteRefreshData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z.never().optional()
+});
+
+/**
+ * Success
+ */
+export const zDeleteRefreshResponse = z.void();
+
+export const zPostRefreshData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z.never().optional()
+});
+
+/**
+ * Success
+ */
+export const zPostRefreshResponse = zToken;

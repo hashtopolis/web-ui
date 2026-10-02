@@ -409,23 +409,33 @@ export const zAccessGroupRelationAgentMembersGetResponse = z.object({
   )
 });
 
-export const zDeleteAccessgroupsBody = zAccessGroupDeleteMultiple;
+export const zDeleteAccessgroupsData = z.object({
+  body: zAccessGroupDeleteMultiple,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successfully deleted
  */
 export const zDeleteAccessgroupsResponse = z.void();
 
-export const zGetAccessgroupsQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
-  'page[size]': z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-    .optional(),
-  filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.enum(['userMembers', 'agentMembers'])).optional()
+export const zGetAccessgroupsData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      'page[after]': z.string().optional(),
+      'page[before]': z.string().optional(),
+      'page[size]': z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional(),
+      filter: z.record(z.string(), z.string()).optional(),
+      include: z.array(z.enum(['userMembers', 'agentMembers'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -433,23 +443,37 @@ export const zGetAccessgroupsQuery = z.object({
  */
 export const zGetAccessgroupsResponse = zAccessGroupListResponse;
 
-export const zPatchAccessgroupsBody = zAccessGroupPatchMultiple;
+export const zPatchAccessgroupsData = z.object({
+  body: zAccessGroupPatchMultiple,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successfully updated
  */
 export const zPatchAccessgroupsResponse = z.void();
 
-export const zPostAccessgroupsBody = zAccessGroupCreate;
+export const zPostAccessgroupsData = z.object({
+  body: zAccessGroupCreate,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostAccessgroupsResponse = zAccessGroupPostPatchResponse;
 
-export const zGetAccessgroupsCountQuery = z.object({
-  filter: z.record(z.string(), z.string()).optional(),
-  include_total: z.boolean().optional()
+export const zGetAccessgroupsCountData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      filter: z.record(z.string(), z.string()).optional(),
+      include_total: z.boolean().optional()
+    })
+    .optional()
 });
 
 /**
@@ -457,12 +481,16 @@ export const zGetAccessgroupsCountQuery = z.object({
  */
 export const zGetAccessgroupsCountResponse = zAccessGroupCountResponse;
 
-export const zGetAccessgroupsByIdByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetAccessgroupsByIdByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -470,11 +498,13 @@ export const zGetAccessgroupsByIdByRelationPath = z.object({
  */
 export const zGetAccessgroupsByIdByRelationResponse = zAccessGroupRelationAgentMembersGetResponse;
 
-export const zDeleteAccessgroupsByIdRelationshipsByRelationBody = zAccessGroupRelationAgentMembers;
-
-export const zDeleteAccessgroupsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zDeleteAccessgroupsByIdRelationshipsByRelationData = z.object({
+  body: zAccessGroupRelationAgentMembers,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -482,12 +512,16 @@ export const zDeleteAccessgroupsByIdRelationshipsByRelationPath = z.object({
  */
 export const zDeleteAccessgroupsByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetAccessgroupsByIdRelationshipsByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetAccessgroupsByIdRelationshipsByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -495,11 +529,13 @@ export const zGetAccessgroupsByIdRelationshipsByRelationPath = z.object({
  */
 export const zGetAccessgroupsByIdRelationshipsByRelationResponse = zAccessGroupResponse;
 
-export const zPatchAccessgroupsByIdRelationshipsByRelationBody = zAccessGroupRelationAgentMembers;
-
-export const zPatchAccessgroupsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchAccessgroupsByIdRelationshipsByRelationData = z.object({
+  body: zAccessGroupRelationAgentMembers,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -507,11 +543,13 @@ export const zPatchAccessgroupsByIdRelationshipsByRelationPath = z.object({
  */
 export const zPatchAccessgroupsByIdRelationshipsByRelationResponse = z.void();
 
-export const zPostAccessgroupsByIdRelationshipsByRelationBody = zAccessGroupRelationAgentMembers;
-
-export const zPostAccessgroupsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPostAccessgroupsByIdRelationshipsByRelationData = z.object({
+  body: zAccessGroupRelationAgentMembers,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -519,8 +557,12 @@ export const zPostAccessgroupsByIdRelationshipsByRelationPath = z.object({
  */
 export const zPostAccessgroupsByIdRelationshipsByRelationResponse = z.void();
 
-export const zDeleteAccessgroupsByIdPath = z.object({
-  id: z.int()
+export const zDeleteAccessgroupsByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -528,15 +570,19 @@ export const zDeleteAccessgroupsByIdPath = z.object({
  */
 export const zDeleteAccessgroupsByIdResponse = z.void();
 
-export const zGetAccessgroupsByIdPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-});
-
-export const zGetAccessgroupsByIdQuery = z.object({
-  include: z.array(z.enum(['userMembers', 'agentMembers'])).optional()
+export const zGetAccessgroupsByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  }),
+  query: z
+    .object({
+      include: z.array(z.enum(['userMembers', 'agentMembers'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -544,10 +590,12 @@ export const zGetAccessgroupsByIdQuery = z.object({
  */
 export const zGetAccessgroupsByIdResponse = zAccessGroupResponse;
 
-export const zPatchAccessgroupsByIdBody = zAccessGroupPatch;
-
-export const zPatchAccessgroupsByIdPath = z.object({
-  id: z.int()
+export const zPatchAccessgroupsByIdData = z.object({
+  body: zAccessGroupPatch,
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
 /**

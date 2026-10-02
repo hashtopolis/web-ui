@@ -238,16 +238,22 @@ export const zHealthCheckAgentRelationHealthCheckGetResponse = z.object({
   })
 });
 
-export const zGetHealthcheckagentsQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
-  'page[size]': z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-    .optional(),
-  filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.enum(['agent', 'healthCheck'])).optional()
+export const zGetHealthcheckagentsData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      'page[after]': z.string().optional(),
+      'page[before]': z.string().optional(),
+      'page[size]': z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional(),
+      filter: z.record(z.string(), z.string()).optional(),
+      include: z.array(z.enum(['agent', 'healthCheck'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -255,9 +261,15 @@ export const zGetHealthcheckagentsQuery = z.object({
  */
 export const zGetHealthcheckagentsResponse = zHealthCheckAgentListResponse;
 
-export const zGetHealthcheckagentsCountQuery = z.object({
-  filter: z.record(z.string(), z.string()).optional(),
-  include_total: z.boolean().optional()
+export const zGetHealthcheckagentsCountData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      filter: z.record(z.string(), z.string()).optional(),
+      include_total: z.boolean().optional()
+    })
+    .optional()
 });
 
 /**
@@ -265,12 +277,16 @@ export const zGetHealthcheckagentsCountQuery = z.object({
  */
 export const zGetHealthcheckagentsCountResponse = zHealthCheckAgentCountResponse;
 
-export const zGetHealthcheckagentsByIdByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetHealthcheckagentsByIdByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -278,12 +294,16 @@ export const zGetHealthcheckagentsByIdByRelationPath = z.object({
  */
 export const zGetHealthcheckagentsByIdByRelationResponse = zHealthCheckAgentRelationHealthCheckGetResponse;
 
-export const zGetHealthcheckagentsByIdRelationshipsByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetHealthcheckagentsByIdRelationshipsByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -291,11 +311,13 @@ export const zGetHealthcheckagentsByIdRelationshipsByRelationPath = z.object({
  */
 export const zGetHealthcheckagentsByIdRelationshipsByRelationResponse = zHealthCheckAgentResponse;
 
-export const zPatchHealthcheckagentsByIdRelationshipsByRelationBody = zHealthCheckAgentRelationHealthCheck;
-
-export const zPatchHealthcheckagentsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchHealthcheckagentsByIdRelationshipsByRelationData = z.object({
+  body: zHealthCheckAgentRelationHealthCheck,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -303,15 +325,19 @@ export const zPatchHealthcheckagentsByIdRelationshipsByRelationPath = z.object({
  */
 export const zPatchHealthcheckagentsByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetHealthcheckagentsByIdPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-});
-
-export const zGetHealthcheckagentsByIdQuery = z.object({
-  include: z.array(z.enum(['agent', 'healthCheck'])).optional()
+export const zGetHealthcheckagentsByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  }),
+  query: z
+    .object({
+      include: z.array(z.enum(['agent', 'healthCheck'])).optional()
+    })
+    .optional()
 });
 
 /**

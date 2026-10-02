@@ -312,16 +312,22 @@ export const zHashRelationHashlistGetResponse = z.object({
   })
 });
 
-export const zGetHashesQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
-  'page[size]': z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-    .optional(),
-  filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.enum(['chunk', 'hashlist'])).optional()
+export const zGetHashesData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      'page[after]': z.string().optional(),
+      'page[before]': z.string().optional(),
+      'page[size]': z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional(),
+      filter: z.record(z.string(), z.string()).optional(),
+      include: z.array(z.enum(['chunk', 'hashlist'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -329,9 +335,15 @@ export const zGetHashesQuery = z.object({
  */
 export const zGetHashesResponse = zHashListResponse;
 
-export const zGetHashesCountQuery = z.object({
-  filter: z.record(z.string(), z.string()).optional(),
-  include_total: z.boolean().optional()
+export const zGetHashesCountData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      filter: z.record(z.string(), z.string()).optional(),
+      include_total: z.boolean().optional()
+    })
+    .optional()
 });
 
 /**
@@ -339,12 +351,16 @@ export const zGetHashesCountQuery = z.object({
  */
 export const zGetHashesCountResponse = zHashCountResponse;
 
-export const zGetHashesByIdByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetHashesByIdByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -352,12 +368,16 @@ export const zGetHashesByIdByRelationPath = z.object({
  */
 export const zGetHashesByIdByRelationResponse = zHashRelationHashlistGetResponse;
 
-export const zGetHashesByIdRelationshipsByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetHashesByIdRelationshipsByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -365,11 +385,13 @@ export const zGetHashesByIdRelationshipsByRelationPath = z.object({
  */
 export const zGetHashesByIdRelationshipsByRelationResponse = zHashResponse;
 
-export const zPatchHashesByIdRelationshipsByRelationBody = zHashRelationHashlist;
-
-export const zPatchHashesByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchHashesByIdRelationshipsByRelationData = z.object({
+  body: zHashRelationHashlist,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -377,15 +399,19 @@ export const zPatchHashesByIdRelationshipsByRelationPath = z.object({
  */
 export const zPatchHashesByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetHashesByIdPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-});
-
-export const zGetHashesByIdQuery = z.object({
-  include: z.array(z.enum(['chunk', 'hashlist'])).optional()
+export const zGetHashesByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  }),
+  query: z
+    .object({
+      include: z.array(z.enum(['chunk', 'hashlist'])).optional()
+    })
+    .optional()
 });
 
 /**

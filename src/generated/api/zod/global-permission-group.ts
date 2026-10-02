@@ -291,23 +291,33 @@ export const zGlobalPermissionGroupRelationUserMembersGetResponse = z.object({
   )
 });
 
-export const zDeleteGlobalpermissiongroupsBody = zGlobalPermissionGroupDeleteMultiple;
+export const zDeleteGlobalpermissiongroupsData = z.object({
+  body: zGlobalPermissionGroupDeleteMultiple,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successfully deleted
  */
 export const zDeleteGlobalpermissiongroupsResponse = z.void();
 
-export const zGetGlobalpermissiongroupsQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
-  'page[size]': z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-    .optional(),
-  filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.enum(['userMembers'])).optional()
+export const zGetGlobalpermissiongroupsData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      'page[after]': z.string().optional(),
+      'page[before]': z.string().optional(),
+      'page[size]': z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional(),
+      filter: z.record(z.string(), z.string()).optional(),
+      include: z.array(z.enum(['userMembers'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -315,23 +325,37 @@ export const zGetGlobalpermissiongroupsQuery = z.object({
  */
 export const zGetGlobalpermissiongroupsResponse = zGlobalPermissionGroupListResponse;
 
-export const zPatchGlobalpermissiongroupsBody = zGlobalPermissionGroupPatchMultiple;
+export const zPatchGlobalpermissiongroupsData = z.object({
+  body: zGlobalPermissionGroupPatchMultiple,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successfully updated
  */
 export const zPatchGlobalpermissiongroupsResponse = z.void();
 
-export const zPostGlobalpermissiongroupsBody = zGlobalPermissionGroupCreate;
+export const zPostGlobalpermissiongroupsData = z.object({
+  body: zGlobalPermissionGroupCreate,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostGlobalpermissiongroupsResponse = zGlobalPermissionGroupPostPatchResponse;
 
-export const zGetGlobalpermissiongroupsCountQuery = z.object({
-  filter: z.record(z.string(), z.string()).optional(),
-  include_total: z.boolean().optional()
+export const zGetGlobalpermissiongroupsCountData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      filter: z.record(z.string(), z.string()).optional(),
+      include_total: z.boolean().optional()
+    })
+    .optional()
 });
 
 /**
@@ -339,12 +363,16 @@ export const zGetGlobalpermissiongroupsCountQuery = z.object({
  */
 export const zGetGlobalpermissiongroupsCountResponse = zGlobalPermissionGroupCountResponse;
 
-export const zGetGlobalpermissiongroupsByIdByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetGlobalpermissiongroupsByIdByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -352,11 +380,13 @@ export const zGetGlobalpermissiongroupsByIdByRelationPath = z.object({
  */
 export const zGetGlobalpermissiongroupsByIdByRelationResponse = zGlobalPermissionGroupRelationUserMembersGetResponse;
 
-export const zDeleteGlobalpermissiongroupsByIdRelationshipsByRelationBody = zGlobalPermissionGroupRelationUserMembers;
-
-export const zDeleteGlobalpermissiongroupsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zDeleteGlobalpermissiongroupsByIdRelationshipsByRelationData = z.object({
+  body: zGlobalPermissionGroupRelationUserMembers,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -364,12 +394,16 @@ export const zDeleteGlobalpermissiongroupsByIdRelationshipsByRelationPath = z.ob
  */
 export const zDeleteGlobalpermissiongroupsByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetGlobalpermissiongroupsByIdRelationshipsByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetGlobalpermissiongroupsByIdRelationshipsByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -377,11 +411,13 @@ export const zGetGlobalpermissiongroupsByIdRelationshipsByRelationPath = z.objec
  */
 export const zGetGlobalpermissiongroupsByIdRelationshipsByRelationResponse = zGlobalPermissionGroupResponse;
 
-export const zPatchGlobalpermissiongroupsByIdRelationshipsByRelationBody = zGlobalPermissionGroupRelationUserMembers;
-
-export const zPatchGlobalpermissiongroupsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchGlobalpermissiongroupsByIdRelationshipsByRelationData = z.object({
+  body: zGlobalPermissionGroupRelationUserMembers,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -389,11 +425,13 @@ export const zPatchGlobalpermissiongroupsByIdRelationshipsByRelationPath = z.obj
  */
 export const zPatchGlobalpermissiongroupsByIdRelationshipsByRelationResponse = z.void();
 
-export const zPostGlobalpermissiongroupsByIdRelationshipsByRelationBody = zGlobalPermissionGroupRelationUserMembers;
-
-export const zPostGlobalpermissiongroupsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPostGlobalpermissiongroupsByIdRelationshipsByRelationData = z.object({
+  body: zGlobalPermissionGroupRelationUserMembers,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -401,8 +439,12 @@ export const zPostGlobalpermissiongroupsByIdRelationshipsByRelationPath = z.obje
  */
 export const zPostGlobalpermissiongroupsByIdRelationshipsByRelationResponse = z.void();
 
-export const zDeleteGlobalpermissiongroupsByIdPath = z.object({
-  id: z.int()
+export const zDeleteGlobalpermissiongroupsByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -410,15 +452,19 @@ export const zDeleteGlobalpermissiongroupsByIdPath = z.object({
  */
 export const zDeleteGlobalpermissiongroupsByIdResponse = z.void();
 
-export const zGetGlobalpermissiongroupsByIdPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-});
-
-export const zGetGlobalpermissiongroupsByIdQuery = z.object({
-  include: z.array(z.enum(['userMembers'])).optional()
+export const zGetGlobalpermissiongroupsByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  }),
+  query: z
+    .object({
+      include: z.array(z.enum(['userMembers'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -426,10 +472,12 @@ export const zGetGlobalpermissiongroupsByIdQuery = z.object({
  */
 export const zGetGlobalpermissiongroupsByIdResponse = zGlobalPermissionGroupResponse;
 
-export const zPatchGlobalpermissiongroupsByIdBody = zGlobalPermissionGroupPatch;
-
-export const zPatchGlobalpermissiongroupsByIdPath = z.object({
-  id: z.int()
+export const zPatchGlobalpermissiongroupsByIdData = z.object({
+  body: zGlobalPermissionGroupPatch,
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
 /**

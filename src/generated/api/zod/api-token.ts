@@ -269,23 +269,33 @@ export const zApiTokenRelationUserGetResponse = z.object({
   })
 });
 
-export const zDeleteApiTokensBody = zApiTokenDeleteMultiple;
+export const zDeleteApiTokensData = z.object({
+  body: zApiTokenDeleteMultiple,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successfully deleted
  */
 export const zDeleteApiTokensResponse = z.void();
 
-export const zGetApiTokensQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
-  'page[size]': z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-    .optional(),
-  filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.enum(['user'])).optional()
+export const zGetApiTokensData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      'page[after]': z.string().optional(),
+      'page[before]': z.string().optional(),
+      'page[size]': z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional(),
+      filter: z.record(z.string(), z.string()).optional(),
+      include: z.array(z.enum(['user'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -293,23 +303,37 @@ export const zGetApiTokensQuery = z.object({
  */
 export const zGetApiTokensResponse = zApiTokenListResponse;
 
-export const zPatchApiTokensBody = zApiTokenPatchMultiple;
+export const zPatchApiTokensData = z.object({
+  body: zApiTokenPatchMultiple,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successfully updated
  */
 export const zPatchApiTokensResponse = z.void();
 
-export const zPostApiTokensBody = zApiTokenCreate;
+export const zPostApiTokensData = z.object({
+  body: zApiTokenCreate,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostApiTokensResponse = zApiTokenPostPatchResponse;
 
-export const zGetApiTokensCountQuery = z.object({
-  filter: z.record(z.string(), z.string()).optional(),
-  include_total: z.boolean().optional()
+export const zGetApiTokensCountData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      filter: z.record(z.string(), z.string()).optional(),
+      include_total: z.boolean().optional()
+    })
+    .optional()
 });
 
 /**
@@ -317,12 +341,16 @@ export const zGetApiTokensCountQuery = z.object({
  */
 export const zGetApiTokensCountResponse = zApiTokenCountResponse;
 
-export const zGetApiTokensByIdByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetApiTokensByIdByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -330,12 +358,16 @@ export const zGetApiTokensByIdByRelationPath = z.object({
  */
 export const zGetApiTokensByIdByRelationResponse = zApiTokenRelationUserGetResponse;
 
-export const zGetApiTokensByIdRelationshipsByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetApiTokensByIdRelationshipsByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -343,11 +375,13 @@ export const zGetApiTokensByIdRelationshipsByRelationPath = z.object({
  */
 export const zGetApiTokensByIdRelationshipsByRelationResponse = zApiTokenResponse;
 
-export const zPatchApiTokensByIdRelationshipsByRelationBody = zApiTokenRelationUser;
-
-export const zPatchApiTokensByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchApiTokensByIdRelationshipsByRelationData = z.object({
+  body: zApiTokenRelationUser,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -355,8 +389,12 @@ export const zPatchApiTokensByIdRelationshipsByRelationPath = z.object({
  */
 export const zPatchApiTokensByIdRelationshipsByRelationResponse = z.void();
 
-export const zDeleteApiTokensByIdPath = z.object({
-  id: z.int()
+export const zDeleteApiTokensByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -364,15 +402,19 @@ export const zDeleteApiTokensByIdPath = z.object({
  */
 export const zDeleteApiTokensByIdResponse = z.void();
 
-export const zGetApiTokensByIdPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-});
-
-export const zGetApiTokensByIdQuery = z.object({
-  include: z.array(z.enum(['user'])).optional()
+export const zGetApiTokensByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  }),
+  query: z
+    .object({
+      include: z.array(z.enum(['user'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -380,10 +422,12 @@ export const zGetApiTokensByIdQuery = z.object({
  */
 export const zGetApiTokensByIdResponse = zApiTokenResponse;
 
-export const zPatchApiTokensByIdBody = zApiTokenPatch;
-
-export const zPatchApiTokensByIdPath = z.object({
-  id: z.int()
+export const zPatchApiTokensByIdData = z.object({
+  body: zApiTokenPatch,
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
 /**
