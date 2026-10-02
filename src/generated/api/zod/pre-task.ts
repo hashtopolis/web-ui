@@ -321,24 +321,34 @@ export const zPreTaskRelationPretaskFilesGetResponse = z.object({
   )
 });
 
-export const zDeletePretasksBody = zPreTaskDeleteMultiple;
+export const zDeletePretasksData = z.object({
+  body: zPreTaskDeleteMultiple,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successfully deleted
  */
 export const zDeletePretasksResponse = z.void();
 
-export const zGetPretasksQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
-  'page[size]': z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-    .optional(),
-  filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.enum(['pretaskFiles'])).optional(),
-  aggregate: z.record(z.string(), z.string()).optional()
+export const zGetPretasksData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      'page[after]': z.string().optional(),
+      'page[before]': z.string().optional(),
+      'page[size]': z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional(),
+      filter: z.record(z.string(), z.string()).optional(),
+      include: z.array(z.enum(['pretaskFiles'])).optional(),
+      aggregate: z.record(z.string(), z.string()).optional()
+    })
+    .optional()
 });
 
 /**
@@ -346,23 +356,37 @@ export const zGetPretasksQuery = z.object({
  */
 export const zGetPretasksResponse = zPreTaskListResponse;
 
-export const zPatchPretasksBody = zPreTaskPatchMultiple;
+export const zPatchPretasksData = z.object({
+  body: zPreTaskPatchMultiple,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successfully updated
  */
 export const zPatchPretasksResponse = z.void();
 
-export const zPostPretasksBody = zPreTaskCreate;
+export const zPostPretasksData = z.object({
+  body: zPreTaskCreate,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostPretasksResponse = zPreTaskPostPatchResponse;
 
-export const zGetPretasksCountQuery = z.object({
-  filter: z.record(z.string(), z.string()).optional(),
-  include_total: z.boolean().optional()
+export const zGetPretasksCountData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      filter: z.record(z.string(), z.string()).optional(),
+      include_total: z.boolean().optional()
+    })
+    .optional()
 });
 
 /**
@@ -370,12 +394,16 @@ export const zGetPretasksCountQuery = z.object({
  */
 export const zGetPretasksCountResponse = zPreTaskCountResponse;
 
-export const zGetPretasksByIdByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetPretasksByIdByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -383,11 +411,13 @@ export const zGetPretasksByIdByRelationPath = z.object({
  */
 export const zGetPretasksByIdByRelationResponse = zPreTaskRelationPretaskFilesGetResponse;
 
-export const zDeletePretasksByIdRelationshipsByRelationBody = zPreTaskRelationPretaskFiles;
-
-export const zDeletePretasksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zDeletePretasksByIdRelationshipsByRelationData = z.object({
+  body: zPreTaskRelationPretaskFiles,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -395,12 +425,16 @@ export const zDeletePretasksByIdRelationshipsByRelationPath = z.object({
  */
 export const zDeletePretasksByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetPretasksByIdRelationshipsByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetPretasksByIdRelationshipsByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -408,11 +442,13 @@ export const zGetPretasksByIdRelationshipsByRelationPath = z.object({
  */
 export const zGetPretasksByIdRelationshipsByRelationResponse = zPreTaskResponse;
 
-export const zPatchPretasksByIdRelationshipsByRelationBody = zPreTaskRelationPretaskFiles;
-
-export const zPatchPretasksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchPretasksByIdRelationshipsByRelationData = z.object({
+  body: zPreTaskRelationPretaskFiles,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -420,11 +456,13 @@ export const zPatchPretasksByIdRelationshipsByRelationPath = z.object({
  */
 export const zPatchPretasksByIdRelationshipsByRelationResponse = z.void();
 
-export const zPostPretasksByIdRelationshipsByRelationBody = zPreTaskRelationPretaskFiles;
-
-export const zPostPretasksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPostPretasksByIdRelationshipsByRelationData = z.object({
+  body: zPreTaskRelationPretaskFiles,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -432,8 +470,12 @@ export const zPostPretasksByIdRelationshipsByRelationPath = z.object({
  */
 export const zPostPretasksByIdRelationshipsByRelationResponse = z.void();
 
-export const zDeletePretasksByIdPath = z.object({
-  id: z.int()
+export const zDeletePretasksByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -441,15 +483,19 @@ export const zDeletePretasksByIdPath = z.object({
  */
 export const zDeletePretasksByIdResponse = z.void();
 
-export const zGetPretasksByIdPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-});
-
-export const zGetPretasksByIdQuery = z.object({
-  include: z.array(z.enum(['pretaskFiles'])).optional()
+export const zGetPretasksByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  }),
+  query: z
+    .object({
+      include: z.array(z.enum(['pretaskFiles'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -457,10 +503,12 @@ export const zGetPretasksByIdQuery = z.object({
  */
 export const zGetPretasksByIdResponse = zPreTaskResponse;
 
-export const zPatchPretasksByIdBody = zPreTaskPatch;
-
-export const zPatchPretasksByIdPath = z.object({
-  id: z.int()
+export const zPatchPretasksByIdData = z.object({
+  body: zPreTaskPatch,
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
 /**

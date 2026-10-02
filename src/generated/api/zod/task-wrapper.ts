@@ -1008,23 +1008,33 @@ export const zTaskWrapperDisplayRelationTasksGetResponse = z.object({
   )
 });
 
-export const zDeleteTaskwrappersBody = zTaskWrapperDeleteMultiple;
+export const zDeleteTaskwrappersData = z.object({
+  body: zTaskWrapperDeleteMultiple,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successfully deleted
  */
 export const zDeleteTaskwrappersResponse = z.void();
 
-export const zGetTaskwrappersQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
-  'page[size]': z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-    .optional(),
-  filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.enum(['accessGroup', 'hashlist', 'hashType', 'task', 'tasks'])).optional()
+export const zGetTaskwrappersData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      'page[after]': z.string().optional(),
+      'page[before]': z.string().optional(),
+      'page[size]': z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional(),
+      filter: z.record(z.string(), z.string()).optional(),
+      include: z.array(z.enum(['accessGroup', 'hashlist', 'hashType', 'task', 'tasks'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -1032,16 +1042,26 @@ export const zGetTaskwrappersQuery = z.object({
  */
 export const zGetTaskwrappersResponse = zTaskWrapperListResponse;
 
-export const zPatchTaskwrappersBody = zTaskWrapperPatchMultiple;
+export const zPatchTaskwrappersData = z.object({
+  body: zTaskWrapperPatchMultiple,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successfully updated
  */
 export const zPatchTaskwrappersResponse = z.void();
 
-export const zGetTaskwrappersCountQuery = z.object({
-  filter: z.record(z.string(), z.string()).optional(),
-  include_total: z.boolean().optional()
+export const zGetTaskwrappersCountData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      filter: z.record(z.string(), z.string()).optional(),
+      include_total: z.boolean().optional()
+    })
+    .optional()
 });
 
 /**
@@ -1049,12 +1069,16 @@ export const zGetTaskwrappersCountQuery = z.object({
  */
 export const zGetTaskwrappersCountResponse = zTaskWrapperCountResponse;
 
-export const zGetTaskwrappersByIdByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetTaskwrappersByIdByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -1062,11 +1086,13 @@ export const zGetTaskwrappersByIdByRelationPath = z.object({
  */
 export const zGetTaskwrappersByIdByRelationResponse = zTaskWrapperRelationTasksGetResponse;
 
-export const zDeleteTaskwrappersByIdRelationshipsByRelationBody = zTaskWrapperRelationTasks;
-
-export const zDeleteTaskwrappersByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zDeleteTaskwrappersByIdRelationshipsByRelationData = z.object({
+  body: zTaskWrapperRelationTasks,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -1074,12 +1100,16 @@ export const zDeleteTaskwrappersByIdRelationshipsByRelationPath = z.object({
  */
 export const zDeleteTaskwrappersByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetTaskwrappersByIdRelationshipsByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetTaskwrappersByIdRelationshipsByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -1087,11 +1117,13 @@ export const zGetTaskwrappersByIdRelationshipsByRelationPath = z.object({
  */
 export const zGetTaskwrappersByIdRelationshipsByRelationResponse = zTaskWrapperResponse;
 
-export const zPatchTaskwrappersByIdRelationshipsByRelationBody = zTaskWrapperRelationTasks;
-
-export const zPatchTaskwrappersByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchTaskwrappersByIdRelationshipsByRelationData = z.object({
+  body: zTaskWrapperRelationTasks,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -1099,11 +1131,13 @@ export const zPatchTaskwrappersByIdRelationshipsByRelationPath = z.object({
  */
 export const zPatchTaskwrappersByIdRelationshipsByRelationResponse = z.void();
 
-export const zPostTaskwrappersByIdRelationshipsByRelationBody = zTaskWrapperRelationTasks;
-
-export const zPostTaskwrappersByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPostTaskwrappersByIdRelationshipsByRelationData = z.object({
+  body: zTaskWrapperRelationTasks,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -1111,8 +1145,12 @@ export const zPostTaskwrappersByIdRelationshipsByRelationPath = z.object({
  */
 export const zPostTaskwrappersByIdRelationshipsByRelationResponse = z.void();
 
-export const zDeleteTaskwrappersByIdPath = z.object({
-  id: z.int()
+export const zDeleteTaskwrappersByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -1120,15 +1158,19 @@ export const zDeleteTaskwrappersByIdPath = z.object({
  */
 export const zDeleteTaskwrappersByIdResponse = z.void();
 
-export const zGetTaskwrappersByIdPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-});
-
-export const zGetTaskwrappersByIdQuery = z.object({
-  include: z.array(z.enum(['accessGroup', 'hashlist', 'hashType', 'task', 'tasks'])).optional()
+export const zGetTaskwrappersByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  }),
+  query: z
+    .object({
+      include: z.array(z.enum(['accessGroup', 'hashlist', 'hashType', 'task', 'tasks'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -1136,10 +1178,12 @@ export const zGetTaskwrappersByIdQuery = z.object({
  */
 export const zGetTaskwrappersByIdResponse = zTaskWrapperResponse;
 
-export const zPatchTaskwrappersByIdBody = zTaskWrapperPatch;
-
-export const zPatchTaskwrappersByIdPath = z.object({
-  id: z.int()
+export const zPatchTaskwrappersByIdData = z.object({
+  body: zTaskWrapperPatch,
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
 /**

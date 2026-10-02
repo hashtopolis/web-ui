@@ -11,12 +11,7 @@ export const zUserResourceObject = z.object({
     lastLoginDate: z.number().optional(),
     registeredSince: z.number().optional(),
     sessionLifetime: z.int().optional(),
-    globalPermissionGroupId: z.int().optional(),
-    yubikey: z.string().optional(),
-    otp1: z.string().optional(),
-    otp2: z.string().optional(),
-    otp3: z.string().optional(),
-    otp4: z.string().optional()
+    globalPermissionGroupId: z.int().optional()
   }),
   links: z.object({
     self: z.string().default('/api/v2/ui/users/1')
@@ -119,12 +114,7 @@ export const zUserResponse = z.object({
       lastLoginDate: z.number().optional(),
       registeredSince: z.number().optional(),
       sessionLifetime: z.int().optional(),
-      globalPermissionGroupId: z.int().optional(),
-      yubikey: z.string().optional(),
-      otp1: z.string().optional(),
-      otp2: z.string().optional(),
-      otp3: z.string().optional(),
-      otp4: z.string().optional()
+      globalPermissionGroupId: z.int().optional()
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/users/1')
@@ -200,12 +190,7 @@ export const zUserPostPatchResponse = z.object({
       lastLoginDate: z.number().optional(),
       registeredSince: z.number().optional(),
       sessionLifetime: z.int().optional(),
-      globalPermissionGroupId: z.int().optional(),
-      yubikey: z.string().optional(),
-      otp1: z.string().optional(),
-      otp2: z.string().optional(),
-      otp3: z.string().optional(),
-      otp4: z.string().optional()
+      globalPermissionGroupId: z.int().optional()
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/users/1')
@@ -306,12 +291,7 @@ export const zUserListResponse = z.object({
         lastLoginDate: z.number().optional(),
         registeredSince: z.number().optional(),
         sessionLifetime: z.int().optional(),
-        globalPermissionGroupId: z.int().optional(),
-        yubikey: z.string().optional(),
-        otp1: z.string().optional(),
-        otp2: z.string().optional(),
-        otp3: z.string().optional(),
-        otp4: z.string().optional()
+        globalPermissionGroupId: z.int().optional()
       }),
       links: z.object({
         self: z.string().default('/api/v2/ui/users/1')
@@ -399,23 +379,33 @@ export const zUserRelationAccessGroupsGetResponse = z.object({
   )
 });
 
-export const zDeleteUsersBody = zUserDeleteMultiple;
+export const zDeleteUsersData = z.object({
+  body: zUserDeleteMultiple,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successfully deleted
  */
 export const zDeleteUsersResponse = z.void();
 
-export const zGetUsersQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
-  'page[size]': z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-    .optional(),
-  filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.enum(['globalPermissionGroup', 'accessGroups'])).optional()
+export const zGetUsersData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      'page[after]': z.string().optional(),
+      'page[before]': z.string().optional(),
+      'page[size]': z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional(),
+      filter: z.record(z.string(), z.string()).optional(),
+      include: z.array(z.enum(['globalPermissionGroup', 'accessGroups'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -423,23 +413,37 @@ export const zGetUsersQuery = z.object({
  */
 export const zGetUsersResponse = zUserListResponse;
 
-export const zPatchUsersBody = zUserPatchMultiple;
+export const zPatchUsersData = z.object({
+  body: zUserPatchMultiple,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successfully updated
  */
 export const zPatchUsersResponse = z.void();
 
-export const zPostUsersBody = zUserCreate;
+export const zPostUsersData = z.object({
+  body: zUserCreate,
+  path: z.never().optional(),
+  query: z.never().optional()
+});
 
 /**
  * successful operation
  */
 export const zPostUsersResponse = zUserPostPatchResponse;
 
-export const zGetUsersCountQuery = z.object({
-  filter: z.record(z.string(), z.string()).optional(),
-  include_total: z.boolean().optional()
+export const zGetUsersCountData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      filter: z.record(z.string(), z.string()).optional(),
+      include_total: z.boolean().optional()
+    })
+    .optional()
 });
 
 /**
@@ -447,12 +451,16 @@ export const zGetUsersCountQuery = z.object({
  */
 export const zGetUsersCountResponse = zUserCountResponse;
 
-export const zGetUsersByIdByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetUsersByIdByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -460,11 +468,13 @@ export const zGetUsersByIdByRelationPath = z.object({
  */
 export const zGetUsersByIdByRelationResponse = zUserRelationAccessGroupsGetResponse;
 
-export const zDeleteUsersByIdRelationshipsByRelationBody = zUserRelationAccessGroups;
-
-export const zDeleteUsersByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zDeleteUsersByIdRelationshipsByRelationData = z.object({
+  body: zUserRelationAccessGroups,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -472,12 +482,16 @@ export const zDeleteUsersByIdRelationshipsByRelationPath = z.object({
  */
 export const zDeleteUsersByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetUsersByIdRelationshipsByRelationPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+export const zGetUsersByIdRelationshipsByRelationData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -485,11 +499,13 @@ export const zGetUsersByIdRelationshipsByRelationPath = z.object({
  */
 export const zGetUsersByIdRelationshipsByRelationResponse = zUserResponse;
 
-export const zPatchUsersByIdRelationshipsByRelationBody = zUserRelationAccessGroups;
-
-export const zPatchUsersByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchUsersByIdRelationshipsByRelationData = z.object({
+  body: zUserRelationAccessGroups,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -497,11 +513,13 @@ export const zPatchUsersByIdRelationshipsByRelationPath = z.object({
  */
 export const zPatchUsersByIdRelationshipsByRelationResponse = z.void();
 
-export const zPostUsersByIdRelationshipsByRelationBody = zUserRelationAccessGroups;
-
-export const zPostUsersByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPostUsersByIdRelationshipsByRelationData = z.object({
+  body: zUserRelationAccessGroups,
+  path: z.object({
+    id: z.int(),
+    relation: z.string()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -509,8 +527,12 @@ export const zPostUsersByIdRelationshipsByRelationPath = z.object({
  */
 export const zPostUsersByIdRelationshipsByRelationResponse = z.void();
 
-export const zDeleteUsersByIdPath = z.object({
-  id: z.int()
+export const zDeleteUsersByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
 /**
@@ -518,15 +540,19 @@ export const zDeleteUsersByIdPath = z.object({
  */
 export const zDeleteUsersByIdResponse = z.void();
 
-export const zGetUsersByIdPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-});
-
-export const zGetUsersByIdQuery = z.object({
-  include: z.array(z.enum(['globalPermissionGroup', 'accessGroups'])).optional()
+export const zGetUsersByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  }),
+  query: z
+    .object({
+      include: z.array(z.enum(['globalPermissionGroup', 'accessGroups'])).optional()
+    })
+    .optional()
 });
 
 /**
@@ -534,10 +560,12 @@ export const zGetUsersByIdQuery = z.object({
  */
 export const zGetUsersByIdResponse = zUserResponse;
 
-export const zPatchUsersByIdBody = zUserPatch;
-
-export const zPatchUsersByIdPath = z.object({
-  id: z.int()
+export const zPatchUsersByIdData = z.object({
+  body: zUserPatch,
+  path: z.object({
+    id: z.int()
+  }),
+  query: z.never().optional()
 });
 
 /**

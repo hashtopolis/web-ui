@@ -78,16 +78,22 @@ export const zConfigSectionCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
-export const zGetConfigsectionsQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
-  'page[size]': z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-    .optional(),
-  filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.string()).optional()
+export const zGetConfigsectionsData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      'page[after]': z.string().optional(),
+      'page[before]': z.string().optional(),
+      'page[size]': z
+        .int()
+        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+        .optional(),
+      filter: z.record(z.string(), z.string()).optional(),
+      include: z.array(z.string()).optional()
+    })
+    .optional()
 });
 
 /**
@@ -95,9 +101,15 @@ export const zGetConfigsectionsQuery = z.object({
  */
 export const zGetConfigsectionsResponse = zConfigSectionListResponse;
 
-export const zGetConfigsectionsCountQuery = z.object({
-  filter: z.record(z.string(), z.string()).optional(),
-  include_total: z.boolean().optional()
+export const zGetConfigsectionsCountData = z.object({
+  body: z.never().optional(),
+  path: z.never().optional(),
+  query: z
+    .object({
+      filter: z.record(z.string(), z.string()).optional(),
+      include_total: z.boolean().optional()
+    })
+    .optional()
 });
 
 /**
@@ -105,15 +117,19 @@ export const zGetConfigsectionsCountQuery = z.object({
  */
 export const zGetConfigsectionsCountResponse = zConfigSectionCountResponse;
 
-export const zGetConfigsectionsByIdPath = z.object({
-  id: z
-    .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-});
-
-export const zGetConfigsectionsByIdQuery = z.object({
-  include: z.array(z.string()).optional()
+export const zGetConfigsectionsByIdData = z.object({
+  body: z.never().optional(),
+  path: z.object({
+    id: z
+      .int()
+      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+  }),
+  query: z
+    .object({
+      include: z.array(z.string()).optional()
+    })
+    .optional()
 });
 
 /**

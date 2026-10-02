@@ -121,11 +121,6 @@ export type AccessGroupResponse = {
           registeredSince?: number;
           sessionLifetime?: number;
           globalPermissionGroupId?: number;
-          yubikey?: string;
-          otp1?: string;
-          otp2?: string;
-          otp3?: string;
-          otp4?: string;
         };
       }
     | {
@@ -205,11 +200,6 @@ export type AccessGroupPostPatchResponse = {
           registeredSince?: number;
           sessionLifetime?: number;
           globalPermissionGroupId?: number;
-          yubikey?: string;
-          otp1?: string;
-          otp2?: string;
-          otp3?: string;
-          otp4?: string;
         };
       }
     | {
@@ -298,11 +288,6 @@ export type AccessGroupListResponse = {
           registeredSince?: number;
           sessionLifetime?: number;
           globalPermissionGroupId?: number;
-          yubikey?: string;
-          otp1?: string;
-          otp2?: string;
-          otp3?: string;
-          otp4?: string;
         };
       }
     | {
