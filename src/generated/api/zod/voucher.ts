@@ -140,33 +140,23 @@ export const zVoucherCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
-export const zDeleteVouchersData = z.object({
-  body: zVoucherDeleteMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zDeleteVouchersBody = zVoucherDeleteMultiple;
 
 /**
  * successfully deleted
  */
 export const zDeleteVouchersResponse = z.void();
 
-export const zGetVouchersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z.string().optional(),
-      'page[before]': z.string().optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.string()).optional(),
-      include: z.array(z.string()).optional()
-    })
-    .optional()
+export const zGetVouchersQuery = z.object({
+  'page[after]': z.string().optional(),
+  'page[before]': z.string().optional(),
+  'page[size]': z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    .optional(),
+  filter: z.record(z.string(), z.string()).optional(),
+  include: z.array(z.string()).optional()
 });
 
 /**
@@ -174,37 +164,23 @@ export const zGetVouchersData = z.object({
  */
 export const zGetVouchersResponse = zVoucherListResponse;
 
-export const zPatchVouchersData = z.object({
-  body: zVoucherPatchMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPatchVouchersBody = zVoucherPatchMultiple;
 
 /**
  * successfully updated
  */
 export const zPatchVouchersResponse = z.void();
 
-export const zPostVouchersData = z.object({
-  body: zVoucherCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPostVouchersBody = zVoucherCreate;
 
 /**
  * successful operation
  */
 export const zPostVouchersResponse = zVoucherPostPatchResponse;
 
-export const zGetVouchersCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      filter: z.record(z.string(), z.string()).optional(),
-      include_total: z.boolean().optional()
-    })
-    .optional()
+export const zGetVouchersCountQuery = z.object({
+  filter: z.record(z.string(), z.string()).optional(),
+  include_total: z.boolean().optional()
 });
 
 /**
@@ -212,12 +188,8 @@ export const zGetVouchersCountData = z.object({
  */
 export const zGetVouchersCountResponse = zVoucherCountResponse;
 
-export const zDeleteVouchersByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zDeleteVouchersByIdPath = z.object({
+  id: z.int()
 });
 
 /**
@@ -225,19 +197,15 @@ export const zDeleteVouchersByIdData = z.object({
  */
 export const zDeleteVouchersByIdResponse = z.void();
 
-export const zGetVouchersByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.array(z.string()).optional()
-    })
-    .optional()
+export const zGetVouchersByIdPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetVouchersByIdQuery = z.object({
+  include: z.array(z.string()).optional()
 });
 
 /**
@@ -245,12 +213,10 @@ export const zGetVouchersByIdData = z.object({
  */
 export const zGetVouchersByIdResponse = zVoucherResponse;
 
-export const zPatchVouchersByIdData = z.object({
-  body: zVoucherPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zPatchVouchersByIdBody = zVoucherPatch;
+
+export const zPatchVouchersByIdPath = z.object({
+  id: z.int()
 });
 
 /**

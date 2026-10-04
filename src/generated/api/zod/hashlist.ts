@@ -862,33 +862,23 @@ export const zHashlistRelationTasksGetResponse = z.object({
   )
 });
 
-export const zDeleteHashlistsData = z.object({
-  body: zHashlistDeleteMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zDeleteHashlistsBody = zHashlistDeleteMultiple;
 
 /**
  * successfully deleted
  */
 export const zDeleteHashlistsResponse = z.void();
 
-export const zGetHashlistsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z.string().optional(),
-      'page[before]': z.string().optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.string()).optional(),
-      include: z.array(z.enum(['accessGroup', 'hashType', 'hashes', 'hashlists', 'tasks'])).optional()
-    })
-    .optional()
+export const zGetHashlistsQuery = z.object({
+  'page[after]': z.string().optional(),
+  'page[before]': z.string().optional(),
+  'page[size]': z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    .optional(),
+  filter: z.record(z.string(), z.string()).optional(),
+  include: z.array(z.enum(['accessGroup', 'hashType', 'hashes', 'hashlists', 'tasks'])).optional()
 });
 
 /**
@@ -896,37 +886,23 @@ export const zGetHashlistsData = z.object({
  */
 export const zGetHashlistsResponse = zHashlistListResponse;
 
-export const zPatchHashlistsData = z.object({
-  body: zHashlistPatchMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPatchHashlistsBody = zHashlistPatchMultiple;
 
 /**
  * successfully updated
  */
 export const zPatchHashlistsResponse = z.void();
 
-export const zPostHashlistsData = z.object({
-  body: zHashlistCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPostHashlistsBody = zHashlistCreate;
 
 /**
  * successful operation
  */
 export const zPostHashlistsResponse = zHashlistPostPatchResponse;
 
-export const zGetHashlistsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      filter: z.record(z.string(), z.string()).optional(),
-      include_total: z.boolean().optional()
-    })
-    .optional()
+export const zGetHashlistsCountQuery = z.object({
+  filter: z.record(z.string(), z.string()).optional(),
+  include_total: z.boolean().optional()
 });
 
 /**
@@ -934,16 +910,12 @@ export const zGetHashlistsCountData = z.object({
  */
 export const zGetHashlistsCountResponse = zHashlistCountResponse;
 
-export const zGetHashlistsByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetHashlistsByIdByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -951,13 +923,11 @@ export const zGetHashlistsByIdByRelationData = z.object({
  */
 export const zGetHashlistsByIdByRelationResponse = zHashlistRelationTasksGetResponse;
 
-export const zDeleteHashlistsByIdRelationshipsByRelationData = z.object({
-  body: zHashlistRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zDeleteHashlistsByIdRelationshipsByRelationBody = zHashlistRelationTasks;
+
+export const zDeleteHashlistsByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -965,16 +935,12 @@ export const zDeleteHashlistsByIdRelationshipsByRelationData = z.object({
  */
 export const zDeleteHashlistsByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetHashlistsByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetHashlistsByIdRelationshipsByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -982,13 +948,11 @@ export const zGetHashlistsByIdRelationshipsByRelationData = z.object({
  */
 export const zGetHashlistsByIdRelationshipsByRelationResponse = zHashlistResponse;
 
-export const zPatchHashlistsByIdRelationshipsByRelationData = z.object({
-  body: zHashlistRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPatchHashlistsByIdRelationshipsByRelationBody = zHashlistRelationTasks;
+
+export const zPatchHashlistsByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -996,13 +960,11 @@ export const zPatchHashlistsByIdRelationshipsByRelationData = z.object({
  */
 export const zPatchHashlistsByIdRelationshipsByRelationResponse = z.void();
 
-export const zPostHashlistsByIdRelationshipsByRelationData = z.object({
-  body: zHashlistRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPostHashlistsByIdRelationshipsByRelationBody = zHashlistRelationTasks;
+
+export const zPostHashlistsByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -1010,12 +972,8 @@ export const zPostHashlistsByIdRelationshipsByRelationData = z.object({
  */
 export const zPostHashlistsByIdRelationshipsByRelationResponse = z.void();
 
-export const zDeleteHashlistsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zDeleteHashlistsByIdPath = z.object({
+  id: z.int()
 });
 
 /**
@@ -1023,19 +981,15 @@ export const zDeleteHashlistsByIdData = z.object({
  */
 export const zDeleteHashlistsByIdResponse = z.void();
 
-export const zGetHashlistsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.array(z.enum(['accessGroup', 'hashType', 'hashes', 'hashlists', 'tasks'])).optional()
-    })
-    .optional()
+export const zGetHashlistsByIdPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetHashlistsByIdQuery = z.object({
+  include: z.array(z.enum(['accessGroup', 'hashType', 'hashes', 'hashlists', 'tasks'])).optional()
 });
 
 /**
@@ -1043,12 +997,10 @@ export const zGetHashlistsByIdData = z.object({
  */
 export const zGetHashlistsByIdResponse = zHashlistResponse;
 
-export const zPatchHashlistsByIdData = z.object({
-  body: zHashlistPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zPatchHashlistsByIdBody = zHashlistPatch;
+
+export const zPatchHashlistsByIdPath = z.object({
+  id: z.int()
 });
 
 /**
