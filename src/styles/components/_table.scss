@@ -604,7 +604,7 @@ table.hashtopolis-table .mat-mdc-cell.mat-mdc-table-sticky {
   background: linear-gradient(var(--card), var(--card)), var(--background);
 }
 table.hashtopolis-table .mat-mdc-row:hover .mat-mdc-cell.mat-mdc-table-sticky {
-  background: var(--card-hover);
+  background: linear-gradient(var(--card-hover), var(--card-hover)), var(--background);
 }
 table.hashtopolis-table .mat-mdc-row:nth-of-type(even) .mat-mdc-cell.mat-mdc-table-sticky {
   background: linear-gradient(var(--card), var(--card)), color-mix(in oklab, var(--muted), var(--background));
