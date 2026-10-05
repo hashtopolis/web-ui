@@ -302,33 +302,23 @@ export const zFileRelationAccessGroupGetResponse = z.object({
   })
 });
 
-export const zDeleteFilesData = z.object({
-  body: zFileDeleteMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zDeleteFilesBody = zFileDeleteMultiple;
 
 /**
  * successfully deleted
  */
 export const zDeleteFilesResponse = z.void();
 
-export const zGetFilesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z.string().optional(),
-      'page[before]': z.string().optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.string()).optional(),
-      include: z.array(z.enum(['accessGroup'])).optional()
-    })
-    .optional()
+export const zGetFilesQuery = z.object({
+  'page[after]': z.string().optional(),
+  'page[before]': z.string().optional(),
+  'page[size]': z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    .optional(),
+  filter: z.record(z.string(), z.string()).optional(),
+  include: z.array(z.enum(['accessGroup'])).optional()
 });
 
 /**
@@ -336,37 +326,23 @@ export const zGetFilesData = z.object({
  */
 export const zGetFilesResponse = zFileListResponse;
 
-export const zPatchFilesData = z.object({
-  body: zFilePatchMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPatchFilesBody = zFilePatchMultiple;
 
 /**
  * successfully updated
  */
 export const zPatchFilesResponse = z.void();
 
-export const zPostFilesData = z.object({
-  body: zFileCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPostFilesBody = zFileCreate;
 
 /**
  * successful operation
  */
 export const zPostFilesResponse = zFilePostPatchResponse;
 
-export const zGetFilesCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      filter: z.record(z.string(), z.string()).optional(),
-      include_total: z.boolean().optional()
-    })
-    .optional()
+export const zGetFilesCountQuery = z.object({
+  filter: z.record(z.string(), z.string()).optional(),
+  include_total: z.boolean().optional()
 });
 
 /**
@@ -374,16 +350,12 @@ export const zGetFilesCountData = z.object({
  */
 export const zGetFilesCountResponse = zFileCountResponse;
 
-export const zGetFilesByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetFilesByIdByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -391,16 +363,12 @@ export const zGetFilesByIdByRelationData = z.object({
  */
 export const zGetFilesByIdByRelationResponse = zFileRelationAccessGroupGetResponse;
 
-export const zGetFilesByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetFilesByIdRelationshipsByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -408,13 +376,11 @@ export const zGetFilesByIdRelationshipsByRelationData = z.object({
  */
 export const zGetFilesByIdRelationshipsByRelationResponse = zFileResponse;
 
-export const zPatchFilesByIdRelationshipsByRelationData = z.object({
-  body: zFileRelationAccessGroup,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPatchFilesByIdRelationshipsByRelationBody = zFileRelationAccessGroup;
+
+export const zPatchFilesByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -422,12 +388,8 @@ export const zPatchFilesByIdRelationshipsByRelationData = z.object({
  */
 export const zPatchFilesByIdRelationshipsByRelationResponse = z.void();
 
-export const zDeleteFilesByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zDeleteFilesByIdPath = z.object({
+  id: z.int()
 });
 
 /**
@@ -435,19 +397,15 @@ export const zDeleteFilesByIdData = z.object({
  */
 export const zDeleteFilesByIdResponse = z.void();
 
-export const zGetFilesByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.array(z.enum(['accessGroup'])).optional()
-    })
-    .optional()
+export const zGetFilesByIdPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetFilesByIdQuery = z.object({
+  include: z.array(z.enum(['accessGroup'])).optional()
 });
 
 /**
@@ -455,12 +413,10 @@ export const zGetFilesByIdData = z.object({
  */
 export const zGetFilesByIdResponse = zFileResponse;
 
-export const zPatchFilesByIdData = z.object({
-  body: zFilePatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zPatchFilesByIdBody = zFilePatch;
+
+export const zPatchFilesByIdPath = z.object({
+  id: z.int()
 });
 
 /**

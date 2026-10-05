@@ -384,33 +384,23 @@ export const zCrackerBinaryRelationTasksGetResponse = z.object({
   )
 });
 
-export const zDeleteCrackersData = z.object({
-  body: zCrackerBinaryDeleteMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zDeleteCrackersBody = zCrackerBinaryDeleteMultiple;
 
 /**
  * successfully deleted
  */
 export const zDeleteCrackersResponse = z.void();
 
-export const zGetCrackersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z.string().optional(),
-      'page[before]': z.string().optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.string()).optional(),
-      include: z.array(z.enum(['crackerBinaryType', 'tasks'])).optional()
-    })
-    .optional()
+export const zGetCrackersQuery = z.object({
+  'page[after]': z.string().optional(),
+  'page[before]': z.string().optional(),
+  'page[size]': z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    .optional(),
+  filter: z.record(z.string(), z.string()).optional(),
+  include: z.array(z.enum(['crackerBinaryType', 'tasks'])).optional()
 });
 
 /**
@@ -418,37 +408,23 @@ export const zGetCrackersData = z.object({
  */
 export const zGetCrackersResponse = zCrackerBinaryListResponse;
 
-export const zPatchCrackersData = z.object({
-  body: zCrackerBinaryPatchMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPatchCrackersBody = zCrackerBinaryPatchMultiple;
 
 /**
  * successfully updated
  */
 export const zPatchCrackersResponse = z.void();
 
-export const zPostCrackersData = z.object({
-  body: zCrackerBinaryCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPostCrackersBody = zCrackerBinaryCreate;
 
 /**
  * successful operation
  */
 export const zPostCrackersResponse = zCrackerBinaryPostPatchResponse;
 
-export const zGetCrackersCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      filter: z.record(z.string(), z.string()).optional(),
-      include_total: z.boolean().optional()
-    })
-    .optional()
+export const zGetCrackersCountQuery = z.object({
+  filter: z.record(z.string(), z.string()).optional(),
+  include_total: z.boolean().optional()
 });
 
 /**
@@ -456,16 +432,12 @@ export const zGetCrackersCountData = z.object({
  */
 export const zGetCrackersCountResponse = zCrackerBinaryCountResponse;
 
-export const zGetCrackersByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetCrackersByIdByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -473,13 +445,11 @@ export const zGetCrackersByIdByRelationData = z.object({
  */
 export const zGetCrackersByIdByRelationResponse = zCrackerBinaryRelationTasksGetResponse;
 
-export const zDeleteCrackersByIdRelationshipsByRelationData = z.object({
-  body: zCrackerBinaryRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zDeleteCrackersByIdRelationshipsByRelationBody = zCrackerBinaryRelationTasks;
+
+export const zDeleteCrackersByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -487,16 +457,12 @@ export const zDeleteCrackersByIdRelationshipsByRelationData = z.object({
  */
 export const zDeleteCrackersByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetCrackersByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetCrackersByIdRelationshipsByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -504,13 +470,11 @@ export const zGetCrackersByIdRelationshipsByRelationData = z.object({
  */
 export const zGetCrackersByIdRelationshipsByRelationResponse = zCrackerBinaryResponse;
 
-export const zPatchCrackersByIdRelationshipsByRelationData = z.object({
-  body: zCrackerBinaryRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPatchCrackersByIdRelationshipsByRelationBody = zCrackerBinaryRelationTasks;
+
+export const zPatchCrackersByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -518,13 +482,11 @@ export const zPatchCrackersByIdRelationshipsByRelationData = z.object({
  */
 export const zPatchCrackersByIdRelationshipsByRelationResponse = z.void();
 
-export const zPostCrackersByIdRelationshipsByRelationData = z.object({
-  body: zCrackerBinaryRelationTasks,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPostCrackersByIdRelationshipsByRelationBody = zCrackerBinaryRelationTasks;
+
+export const zPostCrackersByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -532,12 +494,8 @@ export const zPostCrackersByIdRelationshipsByRelationData = z.object({
  */
 export const zPostCrackersByIdRelationshipsByRelationResponse = z.void();
 
-export const zDeleteCrackersByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zDeleteCrackersByIdPath = z.object({
+  id: z.int()
 });
 
 /**
@@ -545,19 +503,15 @@ export const zDeleteCrackersByIdData = z.object({
  */
 export const zDeleteCrackersByIdResponse = z.void();
 
-export const zGetCrackersByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.array(z.enum(['crackerBinaryType', 'tasks'])).optional()
-    })
-    .optional()
+export const zGetCrackersByIdPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetCrackersByIdQuery = z.object({
+  include: z.array(z.enum(['crackerBinaryType', 'tasks'])).optional()
 });
 
 /**
@@ -565,12 +519,10 @@ export const zGetCrackersByIdData = z.object({
  */
 export const zGetCrackersByIdResponse = zCrackerBinaryResponse;
 
-export const zPatchCrackersByIdData = z.object({
-  body: zCrackerBinaryPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zPatchCrackersByIdBody = zCrackerBinaryPatch;
+
+export const zPatchCrackersByIdPath = z.object({
+  id: z.int()
 });
 
 /**

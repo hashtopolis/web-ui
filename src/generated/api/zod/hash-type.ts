@@ -150,33 +150,23 @@ export const zHashTypeCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
-export const zDeleteHashtypesData = z.object({
-  body: zHashTypeDeleteMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zDeleteHashtypesBody = zHashTypeDeleteMultiple;
 
 /**
  * successfully deleted
  */
 export const zDeleteHashtypesResponse = z.void();
 
-export const zGetHashtypesData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z.string().optional(),
-      'page[before]': z.string().optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.string()).optional(),
-      include: z.array(z.string()).optional()
-    })
-    .optional()
+export const zGetHashtypesQuery = z.object({
+  'page[after]': z.string().optional(),
+  'page[before]': z.string().optional(),
+  'page[size]': z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    .optional(),
+  filter: z.record(z.string(), z.string()).optional(),
+  include: z.array(z.string()).optional()
 });
 
 /**
@@ -184,37 +174,23 @@ export const zGetHashtypesData = z.object({
  */
 export const zGetHashtypesResponse = zHashTypeListResponse;
 
-export const zPatchHashtypesData = z.object({
-  body: zHashTypePatchMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPatchHashtypesBody = zHashTypePatchMultiple;
 
 /**
  * successfully updated
  */
 export const zPatchHashtypesResponse = z.void();
 
-export const zPostHashtypesData = z.object({
-  body: zHashTypeCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPostHashtypesBody = zHashTypeCreate;
 
 /**
  * successful operation
  */
 export const zPostHashtypesResponse = zHashTypePostPatchResponse;
 
-export const zGetHashtypesCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      filter: z.record(z.string(), z.string()).optional(),
-      include_total: z.boolean().optional()
-    })
-    .optional()
+export const zGetHashtypesCountQuery = z.object({
+  filter: z.record(z.string(), z.string()).optional(),
+  include_total: z.boolean().optional()
 });
 
 /**
@@ -222,12 +198,8 @@ export const zGetHashtypesCountData = z.object({
  */
 export const zGetHashtypesCountResponse = zHashTypeCountResponse;
 
-export const zDeleteHashtypesByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zDeleteHashtypesByIdPath = z.object({
+  id: z.int()
 });
 
 /**
@@ -235,19 +207,15 @@ export const zDeleteHashtypesByIdData = z.object({
  */
 export const zDeleteHashtypesByIdResponse = z.void();
 
-export const zGetHashtypesByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.array(z.string()).optional()
-    })
-    .optional()
+export const zGetHashtypesByIdPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetHashtypesByIdQuery = z.object({
+  include: z.array(z.string()).optional()
 });
 
 /**
@@ -255,12 +223,10 @@ export const zGetHashtypesByIdData = z.object({
  */
 export const zGetHashtypesByIdResponse = zHashTypeResponse;
 
-export const zPatchHashtypesByIdData = z.object({
-  body: zHashTypePatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zPatchHashtypesByIdBody = zHashTypePatch;
+
+export const zPatchHashtypesByIdPath = z.object({
+  id: z.int()
 });
 
 /**

@@ -412,33 +412,23 @@ export const zHealthCheckRelationHealthCheckAgentsGetResponse = z.object({
   )
 });
 
-export const zDeleteHealthchecksData = z.object({
-  body: zHealthCheckDeleteMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zDeleteHealthchecksBody = zHealthCheckDeleteMultiple;
 
 /**
  * successfully deleted
  */
 export const zDeleteHealthchecksResponse = z.void();
 
-export const zGetHealthchecksData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z.string().optional(),
-      'page[before]': z.string().optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.string()).optional(),
-      include: z.array(z.enum(['crackerBinary', 'hashType', 'healthCheckAgents'])).optional()
-    })
-    .optional()
+export const zGetHealthchecksQuery = z.object({
+  'page[after]': z.string().optional(),
+  'page[before]': z.string().optional(),
+  'page[size]': z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    .optional(),
+  filter: z.record(z.string(), z.string()).optional(),
+  include: z.array(z.enum(['crackerBinary', 'hashType', 'healthCheckAgents'])).optional()
 });
 
 /**
@@ -446,37 +436,23 @@ export const zGetHealthchecksData = z.object({
  */
 export const zGetHealthchecksResponse = zHealthCheckListResponse;
 
-export const zPatchHealthchecksData = z.object({
-  body: zHealthCheckPatchMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPatchHealthchecksBody = zHealthCheckPatchMultiple;
 
 /**
  * successfully updated
  */
 export const zPatchHealthchecksResponse = z.void();
 
-export const zPostHealthchecksData = z.object({
-  body: zHealthCheckCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPostHealthchecksBody = zHealthCheckCreate;
 
 /**
  * successful operation
  */
 export const zPostHealthchecksResponse = zHealthCheckPostPatchResponse;
 
-export const zGetHealthchecksCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      filter: z.record(z.string(), z.string()).optional(),
-      include_total: z.boolean().optional()
-    })
-    .optional()
+export const zGetHealthchecksCountQuery = z.object({
+  filter: z.record(z.string(), z.string()).optional(),
+  include_total: z.boolean().optional()
 });
 
 /**
@@ -484,16 +460,12 @@ export const zGetHealthchecksCountData = z.object({
  */
 export const zGetHealthchecksCountResponse = zHealthCheckCountResponse;
 
-export const zGetHealthchecksByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetHealthchecksByIdByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -501,13 +473,11 @@ export const zGetHealthchecksByIdByRelationData = z.object({
  */
 export const zGetHealthchecksByIdByRelationResponse = zHealthCheckRelationHealthCheckAgentsGetResponse;
 
-export const zDeleteHealthchecksByIdRelationshipsByRelationData = z.object({
-  body: zHealthCheckRelationHealthCheckAgents,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zDeleteHealthchecksByIdRelationshipsByRelationBody = zHealthCheckRelationHealthCheckAgents;
+
+export const zDeleteHealthchecksByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -515,16 +485,12 @@ export const zDeleteHealthchecksByIdRelationshipsByRelationData = z.object({
  */
 export const zDeleteHealthchecksByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetHealthchecksByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetHealthchecksByIdRelationshipsByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -532,13 +498,11 @@ export const zGetHealthchecksByIdRelationshipsByRelationData = z.object({
  */
 export const zGetHealthchecksByIdRelationshipsByRelationResponse = zHealthCheckResponse;
 
-export const zPatchHealthchecksByIdRelationshipsByRelationData = z.object({
-  body: zHealthCheckRelationHealthCheckAgents,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPatchHealthchecksByIdRelationshipsByRelationBody = zHealthCheckRelationHealthCheckAgents;
+
+export const zPatchHealthchecksByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -546,13 +510,11 @@ export const zPatchHealthchecksByIdRelationshipsByRelationData = z.object({
  */
 export const zPatchHealthchecksByIdRelationshipsByRelationResponse = z.void();
 
-export const zPostHealthchecksByIdRelationshipsByRelationData = z.object({
-  body: zHealthCheckRelationHealthCheckAgents,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPostHealthchecksByIdRelationshipsByRelationBody = zHealthCheckRelationHealthCheckAgents;
+
+export const zPostHealthchecksByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -560,12 +522,8 @@ export const zPostHealthchecksByIdRelationshipsByRelationData = z.object({
  */
 export const zPostHealthchecksByIdRelationshipsByRelationResponse = z.void();
 
-export const zDeleteHealthchecksByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zDeleteHealthchecksByIdPath = z.object({
+  id: z.int()
 });
 
 /**
@@ -573,19 +531,15 @@ export const zDeleteHealthchecksByIdData = z.object({
  */
 export const zDeleteHealthchecksByIdResponse = z.void();
 
-export const zGetHealthchecksByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.array(z.enum(['crackerBinary', 'hashType', 'healthCheckAgents'])).optional()
-    })
-    .optional()
+export const zGetHealthchecksByIdPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetHealthchecksByIdQuery = z.object({
+  include: z.array(z.enum(['crackerBinary', 'hashType', 'healthCheckAgents'])).optional()
 });
 
 /**
@@ -593,12 +547,10 @@ export const zGetHealthchecksByIdData = z.object({
  */
 export const zGetHealthchecksByIdResponse = zHealthCheckResponse;
 
-export const zPatchHealthchecksByIdData = z.object({
-  body: zHealthCheckPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zPatchHealthchecksByIdBody = zHealthCheckPatch;
+
+export const zPatchHealthchecksByIdPath = z.object({
+  id: z.int()
 });
 
 /**

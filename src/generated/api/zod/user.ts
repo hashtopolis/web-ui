@@ -379,33 +379,23 @@ export const zUserRelationAccessGroupsGetResponse = z.object({
   )
 });
 
-export const zDeleteUsersData = z.object({
-  body: zUserDeleteMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zDeleteUsersBody = zUserDeleteMultiple;
 
 /**
  * successfully deleted
  */
 export const zDeleteUsersResponse = z.void();
 
-export const zGetUsersData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z.string().optional(),
-      'page[before]': z.string().optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.string()).optional(),
-      include: z.array(z.enum(['globalPermissionGroup', 'accessGroups'])).optional()
-    })
-    .optional()
+export const zGetUsersQuery = z.object({
+  'page[after]': z.string().optional(),
+  'page[before]': z.string().optional(),
+  'page[size]': z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    .optional(),
+  filter: z.record(z.string(), z.string()).optional(),
+  include: z.array(z.enum(['globalPermissionGroup', 'accessGroups'])).optional()
 });
 
 /**
@@ -413,37 +403,23 @@ export const zGetUsersData = z.object({
  */
 export const zGetUsersResponse = zUserListResponse;
 
-export const zPatchUsersData = z.object({
-  body: zUserPatchMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPatchUsersBody = zUserPatchMultiple;
 
 /**
  * successfully updated
  */
 export const zPatchUsersResponse = z.void();
 
-export const zPostUsersData = z.object({
-  body: zUserCreate,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPostUsersBody = zUserCreate;
 
 /**
  * successful operation
  */
 export const zPostUsersResponse = zUserPostPatchResponse;
 
-export const zGetUsersCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      filter: z.record(z.string(), z.string()).optional(),
-      include_total: z.boolean().optional()
-    })
-    .optional()
+export const zGetUsersCountQuery = z.object({
+  filter: z.record(z.string(), z.string()).optional(),
+  include_total: z.boolean().optional()
 });
 
 /**
@@ -451,16 +427,12 @@ export const zGetUsersCountData = z.object({
  */
 export const zGetUsersCountResponse = zUserCountResponse;
 
-export const zGetUsersByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetUsersByIdByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -468,13 +440,11 @@ export const zGetUsersByIdByRelationData = z.object({
  */
 export const zGetUsersByIdByRelationResponse = zUserRelationAccessGroupsGetResponse;
 
-export const zDeleteUsersByIdRelationshipsByRelationData = z.object({
-  body: zUserRelationAccessGroups,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zDeleteUsersByIdRelationshipsByRelationBody = zUserRelationAccessGroups;
+
+export const zDeleteUsersByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -482,16 +452,12 @@ export const zDeleteUsersByIdRelationshipsByRelationData = z.object({
  */
 export const zDeleteUsersByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetUsersByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetUsersByIdRelationshipsByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -499,13 +465,11 @@ export const zGetUsersByIdRelationshipsByRelationData = z.object({
  */
 export const zGetUsersByIdRelationshipsByRelationResponse = zUserResponse;
 
-export const zPatchUsersByIdRelationshipsByRelationData = z.object({
-  body: zUserRelationAccessGroups,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPatchUsersByIdRelationshipsByRelationBody = zUserRelationAccessGroups;
+
+export const zPatchUsersByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -513,13 +477,11 @@ export const zPatchUsersByIdRelationshipsByRelationData = z.object({
  */
 export const zPatchUsersByIdRelationshipsByRelationResponse = z.void();
 
-export const zPostUsersByIdRelationshipsByRelationData = z.object({
-  body: zUserRelationAccessGroups,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPostUsersByIdRelationshipsByRelationBody = zUserRelationAccessGroups;
+
+export const zPostUsersByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -527,12 +489,8 @@ export const zPostUsersByIdRelationshipsByRelationData = z.object({
  */
 export const zPostUsersByIdRelationshipsByRelationResponse = z.void();
 
-export const zDeleteUsersByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zDeleteUsersByIdPath = z.object({
+  id: z.int()
 });
 
 /**
@@ -540,19 +498,15 @@ export const zDeleteUsersByIdData = z.object({
  */
 export const zDeleteUsersByIdResponse = z.void();
 
-export const zGetUsersByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.array(z.enum(['globalPermissionGroup', 'accessGroups'])).optional()
-    })
-    .optional()
+export const zGetUsersByIdPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetUsersByIdQuery = z.object({
+  include: z.array(z.enum(['globalPermissionGroup', 'accessGroups'])).optional()
 });
 
 /**
@@ -560,12 +514,10 @@ export const zGetUsersByIdData = z.object({
  */
 export const zGetUsersByIdResponse = zUserResponse;
 
-export const zPatchUsersByIdData = z.object({
-  body: zUserPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zPatchUsersByIdBody = zUserPatch;
+
+export const zPatchUsersByIdPath = z.object({
+  id: z.int()
 });
 
 /**

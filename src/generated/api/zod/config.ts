@@ -415,23 +415,17 @@ export const zConfigRelationConfigSectionGetResponse = z.object({
   })
 });
 
-export const zGetConfigsData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      'page[after]': z.string().optional(),
-      'page[before]': z.string().optional(),
-      'page[size]': z
-        .int()
-        .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-        .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-        .optional(),
-      filter: z.record(z.string(), z.string()).optional(),
-      include: z.array(z.enum(['configSection'])).optional(),
-      aggregate: z.record(z.string(), z.string()).optional()
-    })
-    .optional()
+export const zGetConfigsQuery = z.object({
+  'page[after]': z.string().optional(),
+  'page[before]': z.string().optional(),
+  'page[size]': z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+    .optional(),
+  filter: z.record(z.string(), z.string()).optional(),
+  include: z.array(z.enum(['configSection'])).optional(),
+  aggregate: z.record(z.string(), z.string()).optional()
 });
 
 /**
@@ -439,26 +433,16 @@ export const zGetConfigsData = z.object({
  */
 export const zGetConfigsResponse = zConfigListResponse;
 
-export const zPatchConfigsData = z.object({
-  body: zConfigPatchMultiple,
-  path: z.never().optional(),
-  query: z.never().optional()
-});
+export const zPatchConfigsBody = zConfigPatchMultiple;
 
 /**
  * successfully updated
  */
 export const zPatchConfigsResponse = z.void();
 
-export const zGetConfigsCountData = z.object({
-  body: z.never().optional(),
-  path: z.never().optional(),
-  query: z
-    .object({
-      filter: z.record(z.string(), z.string()).optional(),
-      include_total: z.boolean().optional()
-    })
-    .optional()
+export const zGetConfigsCountQuery = z.object({
+  filter: z.record(z.string(), z.string()).optional(),
+  include_total: z.boolean().optional()
 });
 
 /**
@@ -466,16 +450,12 @@ export const zGetConfigsCountData = z.object({
  */
 export const zGetConfigsCountResponse = zConfigCountResponse;
 
-export const zGetConfigsByIdByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetConfigsByIdByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -483,16 +463,12 @@ export const zGetConfigsByIdByRelationData = z.object({
  */
 export const zGetConfigsByIdByRelationResponse = zConfigRelationConfigSectionGetResponse;
 
-export const zGetConfigsByIdRelationshipsByRelationData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zGetConfigsByIdRelationshipsByRelationPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+  relation: z.string()
 });
 
 /**
@@ -500,13 +476,11 @@ export const zGetConfigsByIdRelationshipsByRelationData = z.object({
  */
 export const zGetConfigsByIdRelationshipsByRelationResponse = zConfigResponse;
 
-export const zPatchConfigsByIdRelationshipsByRelationData = z.object({
-  body: zConfigRelationConfigSection,
-  path: z.object({
-    id: z.int(),
-    relation: z.string()
-  }),
-  query: z.never().optional()
+export const zPatchConfigsByIdRelationshipsByRelationBody = zConfigRelationConfigSection;
+
+export const zPatchConfigsByIdRelationshipsByRelationPath = z.object({
+  id: z.int(),
+  relation: z.string()
 });
 
 /**
@@ -514,19 +488,15 @@ export const zPatchConfigsByIdRelationshipsByRelationData = z.object({
  */
 export const zPatchConfigsByIdRelationshipsByRelationResponse = z.void();
 
-export const zGetConfigsByIdData = z.object({
-  body: z.never().optional(),
-  path: z.object({
-    id: z
-      .int()
-      .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-      .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
-  }),
-  query: z
-    .object({
-      include: z.array(z.enum(['configSection'])).optional()
-    })
-    .optional()
+export const zGetConfigsByIdPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetConfigsByIdQuery = z.object({
+  include: z.array(z.enum(['configSection'])).optional()
 });
 
 /**
@@ -534,12 +504,10 @@ export const zGetConfigsByIdData = z.object({
  */
 export const zGetConfigsByIdResponse = zConfigResponse;
 
-export const zPatchConfigsByIdData = z.object({
-  body: zConfigPatch,
-  path: z.object({
-    id: z.int()
-  }),
-  query: z.never().optional()
+export const zPatchConfigsByIdBody = zConfigPatch;
+
+export const zPatchConfigsByIdPath = z.object({
+  id: z.int()
 });
 
 /**
