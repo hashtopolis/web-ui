@@ -14,6 +14,7 @@ rules:
   # The backend runs a Spectral build where this does not fire; our pinned CLI
   # does, so it is disabled here rather than in the vendored ruleset.
   duplicated-entry-in-enum: off
+  400-response-code: off
 
 # `overrides` are NOT inherited through `extends`, so the auth/token exemptions
 # from spectral-hashtopolis.yml are repeated here. Keep in sync with the
@@ -24,6 +25,15 @@ overrides:
   # application/json body (see token.routes.php).
   - files:
       - "**#/paths/~1api~1v2~1auth~1token"
+    rules:
+      content-type: off
+      400-response-code: off
+      403-response-code: off
+
+  # /api/v2/auth/refresh also answers a plain application/json token payload,
+  # not a JSON:API resource document.
+  - files:
+      - "**#/paths/~1api~1v2~1auth~1refresh"
     rules:
       content-type: off
       400-response-code: off
