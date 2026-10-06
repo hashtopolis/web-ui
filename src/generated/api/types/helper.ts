@@ -1,5 +1,5 @@
 import type { AccessGroupResourceObject } from './access-group';
-import type { ErrorResponse } from './common';
+import type { ErrorResponse, Token } from './common';
 import type { ConfigResourceObject } from './config';
 import type { FileSingleResponse } from './file';
 import type { GlobalPermissionGroupResourceObject } from './global-permission-group';
@@ -2809,3 +2809,57 @@ export type PostUnassignAgentResponses = {
 };
 
 export type PostUnassignAgentResponse = PostUnassignAgentResponses[keyof PostUnassignAgentResponses];
+
+export type DeleteRefreshData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/api/v2/auth/refresh';
+};
+
+export type DeleteRefreshErrors = {
+  /**
+   * The request origin is not allowed to send credentials
+   */
+  403: ErrorResponse;
+};
+
+export type DeleteRefreshError = DeleteRefreshErrors[keyof DeleteRefreshErrors];
+
+export type DeleteRefreshResponses = {
+  /**
+   * Success
+   */
+  204: void;
+};
+
+export type DeleteRefreshResponse = DeleteRefreshResponses[keyof DeleteRefreshResponses];
+
+export type PostRefreshData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/api/v2/auth/refresh';
+};
+
+export type PostRefreshErrors = {
+  /**
+   * The refresh token is missing, expired, revoked or already used
+   */
+  401: ErrorResponse;
+  /**
+   * The user has been deactivated
+   */
+  403: ErrorResponse;
+};
+
+export type PostRefreshError = PostRefreshErrors[keyof PostRefreshErrors];
+
+export type PostRefreshResponses = {
+  /**
+   * Success
+   */
+  201: Token;
+};
+
+export type PostRefreshResponse = PostRefreshResponses[keyof PostRefreshResponses];
