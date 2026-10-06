@@ -1,3 +1,4 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -22,9 +23,9 @@ import { MatSort, SortDirection } from '@angular/material/sort';
 
 import { BaseModel } from '@models/base.model';
 import { Sorting, TableSettingsKey, UIConfig } from '@models/config-ui.model';
-import { JHash } from '@models/hash.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
+import { AlertService } from '@services/shared/alert.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -39,6 +40,7 @@ import {
   ColumnDefId,
   DataType,
   HTTableColumn,
+  HTTableCopy,
   HTTableEditable,
   SortingColumn
 } from '@components/tables/ht-table/ht-table.models';
@@ -99,6 +101,8 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewInit, OnDestroy {
   dialog = inject(MatDialog);
   private cd = inject(ChangeDetectorRef);
+  private clipboard = inject(Clipboard);
+  private alertService = inject(AlertService);
   private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
@@ -225,8 +229,6 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   /** Event emitter for checkbox attack */
   @Output() temperatureInformationClicked: EventEmitter<void> = new EventEmitter();
   @Output() selectedFilterColumnChanged: EventEmitter<HTTableColumn> = new EventEmitter();
-  @Output() emitCopyRowData: EventEmitter<BaseModel> = new EventEmitter();
-  @Output() emitFullHashModal: EventEmitter<JHash> = new EventEmitter();
   @Output() linkClicked = new EventEmitter();
 
   /** Fetches user customizations */
@@ -482,12 +484,17 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
     this.linkClicked.emit();
   }
 
-  copyRowDataEmit(event: JHash) {
-    this.emitCopyRowData.emit(event);
-  }
-
-  showFullHashModalEmit(event: JHash): void {
-    this.emitFullHashModal.emit(event);
+  /**
+   * Copies the value of a cell to the clipboard and informs the user about the result.
+   * @param copy - copy configuration of the column
+   * @param element - row the cell belongs to
+   */
+  copyCellValue(copy: HTTableCopy, element: T): void {
+    if (this.clipboard.copy(copy.value(element))) {
+      this.alertService.showSuccessMessage(`${copy.label} successfully copied to clipboard.`);
+    } else {
+      this.alertService.showErrorMessage(`Could not copy ${copy.label.toLowerCase()} to clipboard.`);
+    }
   }
 
   /**

@@ -271,4 +271,38 @@ describe('HTTableComponent', () => {
       expect(event.menuItem).toBe(originalMenuItem);
     });
   });
+
+  describe('copyCellValue', () => {
+    const row: TestModel = { id: 1, type: 'task', name: 'Task A' };
+    const copy = { label: 'Task name', value: (data: BaseModel) => (data as TestModel).name };
+
+    function makeCopyComponent(copied: boolean) {
+      const { component } = makeComponent();
+      const clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
+      clipboard.copy.and.returnValue(copied);
+      const alertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+      component['clipboard'] = clipboard;
+      component['alertService'] = alertService;
+      return { component, clipboard, alertService };
+    }
+
+    it('should copy the configured value and show a success message', () => {
+      const { component, clipboard, alertService } = makeCopyComponent(true);
+
+      component.copyCellValue(copy, row);
+
+      expect(clipboard.copy).toHaveBeenCalledOnceWith('Task A');
+      expect(alertService.showSuccessMessage).toHaveBeenCalledOnceWith('Task name successfully copied to clipboard.');
+      expect(alertService.showErrorMessage).not.toHaveBeenCalled();
+    });
+
+    it('should show an error message when copying fails', () => {
+      const { component, alertService } = makeCopyComponent(false);
+
+      component.copyCellValue(copy, row);
+
+      expect(alertService.showErrorMessage).toHaveBeenCalledOnceWith('Could not copy task name to clipboard.');
+      expect(alertService.showSuccessMessage).not.toHaveBeenCalled();
+    });
+  });
 });

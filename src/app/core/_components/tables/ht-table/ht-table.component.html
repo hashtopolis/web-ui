@@ -275,27 +275,23 @@
             [class.icons]="tableColumn.icon"
             [class.text]="tableColumn.render || tableColumn.async"
           >
-            @if (tableColumn.isCopy) {
-              <button (click)="copyRowDataEmit(element)" matIconButton color="primary" aria-label="Copy button">
+            @if (tableColumn.copy; as copy) {
+              <button
+                (click)="copyCellValue(copy, element)"
+                matIconButton
+                color="primary"
+                [attr.aria-label]="'Copy ' + copy.label"
+              >
                 <mat-icon>content_copy</mat-icon>
               </button>
             }
-            @if (tableColumn.truncate) {
-              <table-truncate [path]="tableColumn.dataKey!" [text]="element"></table-truncate>
-            }
-            <span class="icon-actions">
-              @if (tableColumn.truncate && tableColumn.truncate(element)) {
-                <button
-                  matIconButton
-                  color="primary"
-                  aria-label="Show full hash"
-                  (click)="showFullHashModalEmit(element)"
-                >
-                  <mat-icon>visibility</mat-icon>
-                </button>
-              }
-            </span>
-            @if (!tableColumn.truncate) {
+            @if (tableColumn.truncate; as truncate) {
+              <table-truncate
+                [path]="tableColumn.dataKey!"
+                [text]="element"
+                [dialogTitle]="truncate.dialogTitle?.(element)"
+              ></table-truncate>
+            } @else {
               <app-ht-table-link
                 (linkClicked)="onLinkClicked()"
                 [element]="element"
