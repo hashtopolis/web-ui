@@ -99,7 +99,6 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   searched: string;
 
   chunkview: number;
-  isactive = 0;
   currenspeed = 0;
 
   isReadOnly = false;

@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { ApplicationRef } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 
@@ -10,7 +9,6 @@ import { MatTableDataSource } from '@angular/material/table';
 })
 export class CheatsheetComponent {
   dialogRef = inject<MatDialogRef<CheatsheetComponent>>(MatDialogRef);
-  private appRef = inject(ApplicationRef);
 
   // Display Table Information
   attackmode = [

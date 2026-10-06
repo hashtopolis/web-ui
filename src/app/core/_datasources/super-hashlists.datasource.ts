@@ -16,11 +16,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
 
 export class SuperHashlistsDataSource extends BaseDataSource<JHashlist> {
-  private isArchived = false;
   private _currentFilter: Filter | null = null;
-  setIsArchived(isArchived: boolean): void {
-    this.isArchived = isArchived;
-  }
   loadAll(query?: Filter): void {
     this.loading = true;
     // Store the current filter if provided

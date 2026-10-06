@@ -75,10 +75,6 @@ export class ReportBuilderComponent implements OnInit {
     this.isLoaded = true;
   }
 
-  get formControls() {
-    return this.reportForm.controls;
-  }
-
   async loadTemplate(templateName: string): Promise<void> {
     try {
       this.templates[templateName] = await firstValueFrom(

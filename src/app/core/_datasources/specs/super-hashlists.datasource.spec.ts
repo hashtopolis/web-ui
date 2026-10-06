@@ -1,7 +1,7 @@
 /// <reference types="jasmine" />
 import { HashListFormat } from '@constants/hashlist.config';
 import { zHashlistListResponse } from '@generated/api/zod';
-import { EMPTY, of, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -262,18 +262,6 @@ describe('SuperHashlistsDataSource', () => {
       gsSpy.getAll.and.returnValue(throwError(() => new Error('backend error')));
       dataSource.loadAll();
       expect(dataSource['loadingSubject'].getValue()).toBeFalse();
-    });
-  });
-
-  // setIsArchived()
-
-  describe('setIsArchived()', () => {
-    it('should store the isArchived value', () => {
-      dataSource.setIsArchived(true);
-      expect(dataSource['isArchived']).toBeTrue();
-
-      dataSource.setIsArchived(false);
-      expect(dataSource['isArchived']).toBeFalse();
     });
   });
 

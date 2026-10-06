@@ -1,5 +1,3 @@
-import { DateFormat } from '@constants/settings.config';
-
 import {
   Sorting,
   TableConfig,
@@ -174,10 +172,6 @@ export class UISettingsUtilityClass {
     } catch {
       return undefined;
     }
-  }
-
-  getDateFormat(): DateFormat {
-    return this.uiConfig.dateFmt;
   }
 
   getTimeFormat(precision: TimePrecision): string {

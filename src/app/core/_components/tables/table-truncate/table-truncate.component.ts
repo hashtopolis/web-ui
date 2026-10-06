@@ -8,7 +8,7 @@ import { truncateMiddle } from '@src/app/shared/utils/util';
 export const TABLE_TRUNCATE_MAX_LENGTH = 64;
 
 /**
- * Component for truncating and expanding text with a "More/Less" button.
+ * Component for displaying text truncated with a middle ellipsis.
  */
 @Component({
   selector: 'table-truncate',
@@ -22,18 +22,12 @@ export class TableTruncateComponent implements OnInit {
   @Input() maxLength = TABLE_TRUNCATE_MAX_LENGTH;
   @Input() endLength = 10;
 
-  expanded = false;
   abbr: string;
-  displayText: string;
 
   ngOnInit(): void {
-    this.displayText = typeof this.text === 'string' ? this.text : String((this.text as DynamicModel)[this.path] ?? '');
+    const displayText =
+      typeof this.text === 'string' ? this.text : String((this.text as DynamicModel)[this.path] ?? '');
 
-    this.abbr = truncateMiddle(this.displayText, this.maxLength, this.endLength);
-  }
-
-  toggleExpansion(event: MouseEvent): void {
-    event.stopPropagation();
-    this.expanded = !this.expanded;
+    this.abbr = truncateMiddle(displayText, this.maxLength, this.endLength);
   }
 }
