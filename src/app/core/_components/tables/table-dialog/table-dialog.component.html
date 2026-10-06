@@ -19,11 +19,9 @@
   }
 </mat-dialog-content>
 <mat-dialog-actions align="end" [class.dialog-actions--danger]="data.warn">
-  <button-submit
-    type="cancel-dialog"
-    [name]="data.cancelLabel ? data.cancelLabel : 'Cancel'"
-    (click)="onNoClick()"
-  ></button-submit>
+  <button matButton="outlined" class="btn-submit" mat-dialog-close>
+    {{ data.cancelLabel ? data.cancelLabel : 'Cancel' }}
+  </button>
   <button
     mat-flat-button
     cdkFocusInitial
