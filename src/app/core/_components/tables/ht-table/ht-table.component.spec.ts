@@ -281,15 +281,24 @@ describe('HTTableComponent', () => {
       const clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
       clipboard.copy.and.returnValue(copied);
       const alertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+      const focusMonitor = jasmine.createSpyObj('FocusMonitor', ['focusVia']);
       component['clipboard'] = clipboard;
       component['alertService'] = alertService;
-      return { component, clipboard, alertService };
+      component['focusMonitor'] = focusMonitor;
+      return { component, clipboard, alertService, focusMonitor };
+    }
+
+    /** Click event on a copy button; screen coordinates of 0 mean the click was triggered via keyboard */
+    function clickOn(button: HTMLElement, screenX = 100, screenY = 100): MouseEvent {
+      const event = new MouseEvent('click', { screenX, screenY });
+      Object.defineProperty(event, 'currentTarget', { value: button });
+      return event;
     }
 
     it('should copy the configured value and show a success message', () => {
       const { component, clipboard, alertService } = makeCopyComponent(true);
 
-      component.copyCellValue(copy, row);
+      component.copyCellValue(copy, row, clickOn(document.createElement('button')));
 
       expect(clipboard.copy).toHaveBeenCalledOnceWith('Task A');
       expect(alertService.showSuccessMessage).toHaveBeenCalledOnceWith('Task name successfully copied to clipboard.');
@@ -299,10 +308,28 @@ describe('HTTableComponent', () => {
     it('should show an error message when copying fails', () => {
       const { component, alertService } = makeCopyComponent(false);
 
-      component.copyCellValue(copy, row);
+      component.copyCellValue(copy, row, clickOn(document.createElement('button')));
 
       expect(alertService.showErrorMessage).toHaveBeenCalledOnceWith('Could not copy task name to clipboard.');
       expect(alertService.showSuccessMessage).not.toHaveBeenCalled();
+    });
+
+    it('should attribute the refocused button to the mouse after a mouse click', () => {
+      const { component, focusMonitor } = makeCopyComponent(true);
+      const button = document.createElement('button');
+
+      component.copyCellValue(copy, row, clickOn(button));
+
+      expect(focusMonitor.focusVia).toHaveBeenCalledOnceWith(button, 'mouse');
+    });
+
+    it('should attribute the refocused button to the keyboard after a keyboard activation', () => {
+      const { component, focusMonitor } = makeCopyComponent(true);
+      const button = document.createElement('button');
+
+      component.copyCellValue(copy, row, clickOn(button, 0, 0));
+
+      expect(focusMonitor.focusVia).toHaveBeenCalledOnceWith(button, 'keyboard');
     });
   });
 });

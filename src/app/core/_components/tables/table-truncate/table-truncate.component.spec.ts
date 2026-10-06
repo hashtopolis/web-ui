@@ -1,8 +1,9 @@
 /// <reference types="jasmine" />
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { BaseModel } from '@models/base.model';
 
@@ -82,5 +83,52 @@ describe('TableTruncateComponent', () => {
     expect(dialog.open).toHaveBeenCalledOnceWith(ShowFullValueDialogComponent, {
       data: { title: 'Full value', value: longText }
     });
+  });
+});
+
+describe('TableTruncateComponent with a real dialog', () => {
+  let fixture: ComponentFixture<TableTruncateComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [TableTruncateComponent],
+      imports: [MatButtonModule, MatIconModule, MatDialogModule, NoopAnimationsModule, ShowFullValueDialogComponent]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(TableTruncateComponent);
+    fixture.componentRef.setInput('text', 'a'.repeat(80));
+    fixture.detectChanges();
+    document.body.appendChild(fixture.nativeElement);
+  });
+
+  afterEach(() => {
+    TestBed.inject(MatDialog).closeAll();
+    fixture.nativeElement.remove();
+  });
+
+  /** Clicks an element like a mouse does, so the CDK focus monitor attributes the focus to the mouse */
+  function mouseClick(element: HTMLElement): void {
+    element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, buttons: 1 }));
+    element.focus();
+    element.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+    element.dispatchEvent(new MouseEvent('click', { bubbles: true, screenX: 100, screenY: 100 }));
+  }
+
+  it('should not leave a programmatic focus highlight on the view button after closing the dialog by mouse', async () => {
+    const viewButton: HTMLButtonElement = fixture.nativeElement.querySelector('button[aria-label="Show full value"]');
+    mouseClick(viewButton);
+    await fixture.whenStable();
+
+    const closeButton = document.querySelector<HTMLElement>('app-show-full-value-dialog button[mat-dialog-close]');
+    expect(closeButton).withContext('dialog close button').not.toBeNull();
+    // let the focus monitor forget the mousedown on the view button
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    mouseClick(closeButton!);
+    await fixture.whenStable();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(document.activeElement).toBe(viewButton);
+    expect(viewButton.classList).not.toContain('cdk-program-focused');
+    expect(viewButton.classList).toContain('cdk-mouse-focused');
   });
 });

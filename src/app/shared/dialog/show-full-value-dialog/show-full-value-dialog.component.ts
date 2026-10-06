@@ -1,8 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
-import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ShowFullValueDialogData } from '@src/app/shared/dialog/show-full-value-dialog/show-full-value-dialog.model';
 
 /**
@@ -10,14 +9,9 @@ import { ShowFullValueDialogData } from '@src/app/shared/dialog/show-full-value-
  */
 @Component({
   selector: 'app-show-full-value-dialog',
-  imports: [MatDialogModule, MatButtonModule, ButtonsModule],
+  imports: [MatDialogModule, MatButtonModule],
   templateUrl: './show-full-value-dialog.component.html'
 })
 export class ShowFullValueDialogComponent {
   data = inject<ShowFullValueDialogData>(MAT_DIALOG_DATA);
-  private dialogRef = inject(MatDialogRef<ShowFullValueDialogComponent>);
-
-  closeDialog(): void {
-    this.dialogRef.close();
-  }
 }

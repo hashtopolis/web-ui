@@ -277,7 +277,7 @@
           >
             @if (tableColumn.copy; as copy) {
               <button
-                (click)="copyCellValue(copy, element)"
+                (click)="copyCellValue(copy, element, $event)"
                 matIconButton
                 color="primary"
                 [attr.aria-label]="'Copy ' + copy.label"

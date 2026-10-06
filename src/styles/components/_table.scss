@@ -19,7 +19,8 @@ div.table-actions {
   margin-bottom: 10px;
   font-size: var(--text-md);
 
-  .mat-mdc-button-base {
+  // Icon buttons are sized by Material, a min-height would stretch them into an oval
+  .mat-mdc-button-base:not(.mat-mdc-icon-button) {
     --mat-button-text-container-height: 36px;
     --mat-button-outlined-container-height: 36px;
     --mat-button-filled-container-height: 36px;
@@ -158,17 +159,10 @@ table.hashtopolis-table {
       flex-direction: row;
       position: relative;
 
-      // Keep Material's own icon button sizing and shape: a round state layer centred on the icon,
-      // without the app-wide rounded-square hover background.
       .mat-mdc-icon-button {
         // Material derives the button padding from this, which keeps the smaller icon centred
         --mat-icon-button-icon-size: 20px;
         margin: 0 2px;
-        border-radius: var(--mat-icon-button-container-shape, var(--mat-sys-corner-full, 50%));
-
-        &:hover {
-          background-color: transparent;
-        }
 
         .mat-icon {
           margin: 0;
@@ -333,12 +327,6 @@ table.hashtopolis-table {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-          }
-
-          .mat-mdc-button-persistent-ripple,
-          .mat-mdc-button-ripple,
-          .mat-mdc-focus-indicator {
-            border-radius: 50%;
           }
         }
       }
