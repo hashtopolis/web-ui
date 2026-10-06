@@ -158,24 +158,24 @@ table.hashtopolis-table {
       flex-direction: row;
       position: relative;
 
-      button[mat-icon-button],
+      // Keep Material's own icon button sizing and shape: a round state layer centred on the icon,
+      // without the app-wide rounded-square hover background.
       .mat-mdc-icon-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        padding: 0;
+        // Material derives the button padding from this, which keeps the smaller icon centred
+        --mat-icon-button-icon-size: 20px;
         margin: 0 2px;
-        box-sizing: border-box;
-      }
+        border-radius: var(--mat-icon-button-container-shape, var(--mat-sys-corner-full, 50%));
 
-      button[mat-icon-button] .mat-icon,
-      .mat-mdc-icon-button .mat-icon {
-        margin: 0;
-        font-size: 20px;
-        line-height: 1;
-        display: block;
+        &:hover {
+          background-color: transparent;
+        }
+
+        .mat-icon {
+          margin: 0;
+          width: var(--mat-icon-button-icon-size);
+          height: var(--mat-icon-button-icon-size);
+          font-size: var(--mat-icon-button-icon-size);
+        }
       }
 
       .mat-icon {
