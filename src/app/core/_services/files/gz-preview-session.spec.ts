@@ -70,6 +70,24 @@ describe('GzPreviewSession', () => {
     return range;
   };
 
+  /**
+   * Waits for the session's next range request and answers it, however long the decompression in
+   * between keeps it busy.
+   */
+  const serveNextRange = async (compressed: Uint8Array): Promise<string> => {
+    for (let attempt = 0; attempt < 250; attempt++) {
+      const [request] = httpMock.match((candidate) => candidate.url.endsWith('/helper/getFile'));
+      if (request) {
+        const range = request.request.headers.get('Range') ?? '';
+        const [start, end] = range.replace('bytes=', '').split('-').map(Number);
+        request.flush(compressed.slice(start, end + 1).buffer as ArrayBuffer);
+        return range;
+      }
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+    }
+    throw new Error('The session did not ask for the next range in time.');
+  };
+
   /** Lets the session's asynchronous decompression run on to its next request or result. */
   const settle = async (): Promise<void> => {
     for (let i = 0; i < 5; i++) {
@@ -134,10 +152,9 @@ describe('GzPreviewSession', () => {
     const pagePromise = loadPage(session, { maxLines: 100 });
 
     // The first window covers only part of the compressed file...
-    expect(serveRange(compressed)).toBe('bytes=0-65535');
-    await settle();
+    expect(await serveNextRange(compressed)).toBe('bytes=0-65535');
     // ...so the next request fetches the continuation of the cached prefix, not the prefix again.
-    expect(serveRange(compressed)).toBe(`bytes=65536-${compressed.length - 1}`);
+    expect(await serveNextRange(compressed)).toBe(`bytes=65536-${compressed.length - 1}`);
     const page = await pagePromise;
 
     expect(page.lines).toEqual(lines.slice(0, 100));

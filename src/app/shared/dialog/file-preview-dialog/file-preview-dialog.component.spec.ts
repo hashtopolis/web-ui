@@ -50,6 +50,17 @@ const settle = async (): Promise<void> => {
   }
 };
 
+/**
+ * Waits until the dialog has finished loading the page it is on, however long the file's
+ * decompression takes, and renders the result.
+ */
+const awaitPageLoaded = async (fixture: ComponentFixture<FilePreviewDialogComponent>): Promise<void> => {
+  for (let attempt = 0; attempt < 250 && fixture.componentInstance['isLoading']; attempt++) {
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  }
+  fixture.detectChanges();
+};
+
 /** The lines currently on screen, each prefixed by its gutter label. */
 const visibleRows = (fixture: ComponentFixture<FilePreviewDialogComponent>): string[] =>
   Array.from(fixture.nativeElement.querySelectorAll('.font-mono > div') as NodeListOf<HTMLElement>).map((row) =>
@@ -186,8 +197,7 @@ describe('FilePreviewDialogComponent on a gzip-compressed file', () => {
     const request = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
     const [start, end] = (request.request.headers.get('Range') ?? '').replace('bytes=', '').split('-').map(Number);
     request.flush(gzBytes.slice(start, end + 1).buffer as ArrayBuffer);
-    await settle();
-    fixture.detectChanges();
+    await awaitPageLoaded(fixture);
   };
 
   /** Clicks a navigation button; compressed paging needs no further request, so none is served. */
@@ -196,9 +206,7 @@ describe('FilePreviewDialogComponent on a gzip-compressed file', () => {
     expect(button).withContext(`button "${label}"`).not.toBeNull();
     expect(button!.disabled).withContext(`button "${label}" is enabled`).toBeFalse();
     button!.click();
-    fixture.detectChanges();
-    await settle();
-    fixture.detectChanges();
+    await awaitPageLoaded(fixture);
   };
 
   beforeAll(async () => {
@@ -279,9 +287,7 @@ describe('FilePreviewDialogComponent on a damaged gzip file', () => {
     expect(button).withContext(`button "${label}"`).not.toBeNull();
     expect(button!.disabled).withContext(`button "${label}" is enabled`).toBeFalse();
     button!.click();
-    fixture.detectChanges();
-    await settle();
-    fixture.detectChanges();
+    await awaitPageLoaded(fixture);
   };
 
   /**
@@ -310,8 +316,7 @@ describe('FilePreviewDialogComponent on a damaged gzip file', () => {
     const request = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
     const [start, end] = (request.request.headers.get('Range') ?? '').replace('bytes=', '').split('-').map(Number);
     request.flush(gzBytes.slice(start, end + 1).buffer as ArrayBuffer);
-    await settle();
-    fixture.detectChanges();
+    await awaitPageLoaded(fixture);
   };
 
   beforeAll(async () => {
