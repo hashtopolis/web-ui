@@ -20,6 +20,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FILE_PREVIEW_DEFAULT_PAGE_SIZE, FILE_PREVIEW_PAGE_SIZES, FilePreviewPage } from '@models/file-preview.model';
 
 import { FilePreviewService } from '@services/files/file-preview.service';
+import { GzPreviewSession } from '@services/files/gz-preview-session';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -48,7 +49,10 @@ interface PageTarget extends VisitedPage {
  *
  * Files here can be hundreds of gigabytes, so there is deliberately no page count and no jump to an
  * arbitrary page: the dialog walks forwards and backwards a window at a time, and can jump to the
- * two offsets that are knowable without reading the file — its start and its end.
+ * two offsets that are knowable without reading the file — its start and its end. A gzip-compressed
+ * file is the exception: its contents are only reachable by decompressing from the first byte
+ * onwards, so its pages are read through a session that does exactly that, and its end is out of
+ * reach.
  */
 @Component({
   selector: 'app-file-preview-dialog',
@@ -85,6 +89,12 @@ export class FilePreviewDialogComponent implements OnInit {
   private readonly alertService = inject(AlertService);
   private readonly destroyRef = inject(DestroyRef);
 
+  /**
+   * Reading session for a gzip-compressed file, which caches the compressed bytes fetched so far.
+   * Null for a plain file, which is read through stateless byte windows instead.
+   */
+  private gzSession: GzPreviewSession | null = null;
+
   protected linesPerPage = FILE_PREVIEW_DEFAULT_PAGE_SIZE;
   protected page: FilePreviewPage | null = null;
   protected isLoading = false;
@@ -97,7 +107,15 @@ export class FilePreviewDialogComponent implements OnInit {
   private trail: VisitedPage[] = [];
 
   ngOnInit(): void {
+    if (this.isCompressed) {
+      this.gzSession = this.previewService.openGzSession(this.data.file.id, this.data.file.size);
+    }
     this.showFirstPage();
+  }
+
+  /** Whether the file is gzip-compressed, in which case its pages decompress it from its first byte. */
+  protected get isCompressed(): boolean {
+    return this.data.file.filename.toLowerCase().endsWith('.gz');
   }
 
   // --- Navigation ---
@@ -112,6 +130,12 @@ export class FilePreviewDialogComponent implements OnInit {
     const previous = this.trail.pop();
     if (previous) {
       this.loadPage({ offset: previous.offset, isLineAligned: true, firstLineNumber: previous.firstLineNumber });
+      return;
+    }
+
+    // Reconstructing a page that was never visited needs a window ending at an arbitrary offset,
+    // which a gzip stream cannot offer: its decompression only ever runs from the first byte.
+    if (this.isCompressed) {
       return;
     }
 
@@ -142,6 +166,11 @@ export class FilePreviewDialogComponent implements OnInit {
 
     // A window holding no line terminator consumes nothing, so skip past it rather than re-reading it.
     const hasAdvanced = current.endByte > current.startByte;
+    // A compressed page that consumed nothing sits at the end of everything decodable, so there is
+    // no byte window to skip ahead with either.
+    if (this.isCompressed && !hasAdvanced) {
+      return;
+    }
     const offset = hasAdvanced ? current.endByte : current.startByte + this.windowBytes;
 
     this.loadPage({
@@ -154,6 +183,10 @@ export class FilePreviewDialogComponent implements OnInit {
   }
 
   protected showLastPage(): void {
+    // The end of a compressed file is only reachable by decompressing everything before it.
+    if (this.isCompressed) {
+      return;
+    }
     this.trail = [];
     const offset = Math.max(0, this.data.file.size - this.windowBytes);
     this.loadPage({
@@ -173,8 +206,9 @@ export class FilePreviewDialogComponent implements OnInit {
       this.showFirstPage();
       return;
     }
-    // A page sitting at the end of the file should stay there rather than drift forward off it.
-    if (this.page.endByte >= this.page.totalBytes) {
+    // A page sitting at the end of the file should stay there rather than drift forward off it. A
+    // compressed file cannot jump to its end, so it reloads the page in place instead.
+    if (!this.isCompressed && this.page.endByte >= this.page.totalBytes) {
       this.showLastPage();
       return;
     }
@@ -188,11 +222,18 @@ export class FilePreviewDialogComponent implements OnInit {
   // --- Template helpers ---
 
   protected get hasPreviousPage(): boolean {
+    // A compressed file can only step back through pages it has already walked.
+    if (this.isCompressed) {
+      return this.trail.length > 0;
+    }
     return this.trail.length > 0 || (this.page !== null && this.page.startByte > 0);
   }
 
   protected get hasNextPage(): boolean {
-    return this.page !== null && this.page.endByte < this.page.totalBytes;
+    if (!this.page) {
+      return false;
+    }
+    return this.isCompressed ? (this.page.hasMore ?? false) : this.page.endByte < this.page.totalBytes;
   }
 
   /** Whether there is anything on screen worth copying. */
@@ -209,7 +250,18 @@ export class FilePreviewDialogComponent implements OnInit {
     if (!this.page || this.page.totalBytes === 0) {
       return 'empty file';
     }
-    const { startByte, endByte, totalBytes } = this.page;
+    const { startByte, endByte } = this.page;
+
+    // A compressed file has no knowable decompressed total until it has been fetched in full, so its
+    // label reports where the reader stands and how much of the archive that took.
+    if (this.isCompressed) {
+      const fetched = this.page.compressedBytesFetched ?? 0;
+      const from = startByte.toLocaleString();
+      const to = Math.max(endByte - 1, startByte).toLocaleString();
+      return `decompressed bytes ${from}–${to} · ${formatFileSize(fetched, 'short')} of ${this.fileSizeLabel} fetched`;
+    }
+
+    const { totalBytes } = this.page;
     const percentage = ((endByte / totalBytes) * 100).toFixed(1);
     return `bytes ${startByte.toLocaleString()}–${Math.max(endByte - 1, startByte).toLocaleString()} of ${totalBytes.toLocaleString()} (${percentage}%)`;
   }
@@ -282,28 +334,31 @@ export class FilePreviewDialogComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.previewService
-      .loadPage({
-        fileId: this.data.file.id,
-        offset: position.offset,
-        maxLines: this.linesPerPage,
-        windowBytes: position.windowBytes ?? this.windowBytes,
-        totalBytes: this.data.file.size,
-        isLineAligned: position.isLineAligned,
-        takeLastLines: position.takeLastLines ?? false
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (page) => {
-          this.page = page;
-          // Wherever the reader came from, a page starting at the first byte starts at the first line.
-          this.firstLineNumber = page.startByte === 0 ? 1 : position.firstLineNumber;
-          this.isLoading = false;
-        },
-        error: (error: unknown) => {
-          this.errorMessage = this.describeError(error);
-          this.isLoading = false;
-        }
-      });
+    // A compressed file is read through its session, which keeps the compressed prefix fetched so
+    // far and decompresses from the first byte; everything else reads a stateless byte window.
+    const request$ = this.gzSession
+      ? this.gzSession.loadPage({ offset: position.offset, maxLines: this.linesPerPage })
+      : this.previewService.loadPage({
+          fileId: this.data.file.id,
+          offset: position.offset,
+          maxLines: this.linesPerPage,
+          windowBytes: position.windowBytes ?? this.windowBytes,
+          totalBytes: this.data.file.size,
+          isLineAligned: position.isLineAligned,
+          takeLastLines: position.takeLastLines ?? false
+        });
+
+    request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (page) => {
+        this.page = page;
+        // Wherever the reader came from, a page starting at the first byte starts at the first line.
+        this.firstLineNumber = page.startByte === 0 ? 1 : position.firstLineNumber;
+        this.isLoading = false;
+      },
+      error: (error: unknown) => {
+        this.errorMessage = this.describeError(error);
+        this.isLoading = false;
+      }
+    });
   }
 }

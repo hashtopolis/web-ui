@@ -7,6 +7,7 @@ import { TestBed } from '@angular/core/testing';
 import { FilePreviewPage } from '@models/file-preview.model';
 
 import { FilePreviewRequest, FilePreviewService } from '@services/files/file-preview.service';
+import { GzPreviewSession } from '@services/files/gz-preview-session';
 
 describe('FilePreviewService', () => {
   let service: FilePreviewService;
@@ -186,6 +187,12 @@ describe('FilePreviewService', () => {
     httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile')).flush(encode('far too many bytes'));
 
     await expectAsync(failure).toBeResolvedTo(jasmine.any(Error));
+  });
+
+  it('opens a reading session for a gzip-compressed file', () => {
+    const session = service.openGzSession(3, 10_000);
+
+    expect(session).toBeInstanceOf(GzPreviewSession);
   });
 
   it('does not request a range for an empty file', () => {

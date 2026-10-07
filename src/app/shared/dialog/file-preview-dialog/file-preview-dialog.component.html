@@ -39,6 +39,12 @@
             The line at this position is longer than one page, so what follows is a fragment of it.
           </p>
         }
+        @if (page.hasDecompressionError) {
+          <p class="border-b border-border-faint p-xs text-2xs text-warning">
+            Decompression ended early — the file may be corrupt or truncated. What is shown is everything that could be
+            read from it.
+          </p>
+        }
         <div class="max-h-96 overflow-auto p-xs font-mono text-xs">
           @for (line of page.lines; track $index) {
             <div class="flex min-h-5 gap-sm leading-5">
@@ -97,7 +103,7 @@
       type="button"
       matTooltip="End of file"
       aria-label="End of file"
-      [disabled]="isLoading"
+      [disabled]="isLoading || isCompressed"
       (click)="showLastPage()"
     >
       <mat-icon>last_page</mat-icon>

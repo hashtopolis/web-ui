@@ -23,6 +23,45 @@ const FILE: JFile = {
   lineCount: LINES.length
 };
 
+/** Compresses text the way the backend stores a `.gz` file, using the browser's own encoder. */
+const gz = async (text: string): Promise<Uint8Array> => {
+  const reader = new Blob([text]).stream().pipeThrough(new CompressionStream('gzip')).getReader();
+  const chunks: Uint8Array[] = [];
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+    chunks.push(value);
+  }
+  const compressed = new Uint8Array(chunks.reduce((length, chunk) => length + chunk.length, 0));
+  let position = 0;
+  for (const chunk of chunks) {
+    compressed.set(chunk, position);
+    position += chunk.length;
+  }
+  return compressed;
+};
+
+/** Lets the dialog's asynchronous decompression settle before the DOM is inspected. */
+const settle = async (): Promise<void> => {
+  for (let i = 0; i < 5; i++) {
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  }
+};
+
+/** The lines currently on screen, each prefixed by its gutter label. */
+const visibleRows = (fixture: ComponentFixture<FilePreviewDialogComponent>): string[] =>
+  Array.from(fixture.nativeElement.querySelectorAll('.font-mono > div') as NodeListOf<HTMLElement>).map((row) =>
+    Array.from(row.querySelectorAll('span'))
+      .map((cell) => (cell.textContent ?? '').trim())
+      .join(' ')
+  );
+
+/** Whether the navigation button with this label can be clicked. */
+const isEnabled = (fixture: ComponentFixture<FilePreviewDialogComponent>, label: string): boolean =>
+  !(fixture.nativeElement.querySelector(`button[aria-label="${label}"]`) as HTMLButtonElement).disabled;
+
 describe('FilePreviewDialogComponent', () => {
   let fixture: ComponentFixture<FilePreviewDialogComponent>;
   let component: FilePreviewDialogComponent;
@@ -48,17 +87,6 @@ describe('FilePreviewDialogComponent', () => {
     fixture.detectChanges();
     serveRange();
   };
-
-  /** The lines currently on screen, each prefixed by its gutter label. */
-  const visibleRows = (): string[] =>
-    Array.from(fixture.nativeElement.querySelectorAll('.font-mono > div') as NodeListOf<HTMLElement>).map((row) =>
-      Array.from(row.querySelectorAll('span'))
-        .map((cell) => (cell.textContent ?? '').trim())
-        .join(' ')
-    );
-
-  const isEnabled = (label: string): boolean =>
-    !(fixture.nativeElement.querySelector(`button[aria-label="${label}"]`) as HTMLButtonElement).disabled;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -87,58 +115,233 @@ describe('FilePreviewDialogComponent', () => {
   });
 
   it('opens on the first lines of the file', () => {
-    expect(visibleRows()[0]).toBe('1 line1');
-    expect(visibleRows()[9]).toBe('10 line10');
-    expect(isEnabled('Start of file')).toBeFalse();
-    expect(isEnabled('Previous page')).toBeFalse();
-    expect(isEnabled('Next page')).toBeTrue();
+    expect(visibleRows(fixture)[0]).toBe('1 line1');
+    expect(visibleRows(fixture)[9]).toBe('10 line10');
+    expect(isEnabled(fixture, 'Start of file')).toBeFalse();
+    expect(isEnabled(fixture, 'Previous page')).toBeFalse();
+    expect(isEnabled(fixture, 'Next page')).toBeTrue();
   });
 
   it('pages forwards and back again through the lines it already walked', () => {
     navigate('Next page');
-    expect(visibleRows()[0]).toBe('11 line11');
+    expect(visibleRows(fixture)[0]).toBe('11 line11');
 
     navigate('Previous page');
-    expect(visibleRows()[0]).toBe('1 line1');
-    expect(visibleRows()[9]).toBe('10 line10');
+    expect(visibleRows(fixture)[0]).toBe('1 line1');
+    expect(visibleRows(fixture)[9]).toBe('10 line10');
   });
 
   it('jumps to the last lines of the file', () => {
     navigate('End of file');
 
-    expect(visibleRows().length).toBe(10);
-    expect(visibleRows()[9]).toContain('line30');
-    expect(isEnabled('Next page')).toBeFalse();
+    expect(visibleRows(fixture).length).toBe(10);
+    expect(visibleRows(fixture)[9]).toContain('line30');
+    expect(isEnabled(fixture, 'Next page')).toBeFalse();
   });
 
   it('steps back from the end of the file, which it was never paged to', () => {
     navigate('End of file');
-    expect(isEnabled('Previous page')).withContext('previous is reachable from the end').toBeTrue();
+    expect(isEnabled(fixture, 'Previous page')).withContext('previous is reachable from the end').toBeTrue();
 
     navigate('Previous page');
-    expect(visibleRows()[0]).toContain('line11');
-    expect(visibleRows()[9]).toContain('line20');
+    expect(visibleRows(fixture)[0]).toContain('line11');
+    expect(visibleRows(fixture)[9]).toContain('line20');
   });
 
   it('restores real line numbers once stepping back reaches the start of the file', () => {
     navigate('End of file');
     navigate('Previous page');
     // Line numbering is unknowable after a jump, so the gutter holds placeholders.
-    expect(visibleRows()[0]).toBe('· line11');
+    expect(visibleRows(fixture)[0]).toBe('· line11');
 
     navigate('Previous page');
-    expect(visibleRows()[0]).toBe('1 line1');
-    expect(isEnabled('Previous page')).toBeFalse();
-    expect(isEnabled('Start of file')).toBeFalse();
+    expect(visibleRows(fixture)[0]).toBe('1 line1');
+    expect(isEnabled(fixture, 'Previous page')).toBeFalse();
+    expect(isEnabled(fixture, 'Start of file')).toBeFalse();
   });
 
   it('reads pages that butt up against each other with no lines lost between them', () => {
     navigate('End of file');
-    const lastPage = visibleRows();
+    const lastPage = visibleRows(fixture);
     navigate('Previous page');
-    const previousPage = visibleRows();
+    const previousPage = visibleRows(fixture);
 
     const strip = (rows: string[]): string[] => rows.map((row) => row.replace(/^\S+ /, ''));
     expect(strip(previousPage).concat(strip(lastPage))).toEqual(LINES.slice(10));
+  });
+});
+
+describe('FilePreviewDialogComponent on a gzip-compressed file', () => {
+  let gzBytes: Uint8Array;
+  let file: JFile;
+  let fixture: ComponentFixture<FilePreviewDialogComponent>;
+  let component: FilePreviewDialogComponent;
+  let httpMock: HttpTestingController;
+
+  /**
+   * Answers the pending range request with the slice of the compressed file it asked for, then
+   * waits for the dialog to decompress it.
+   */
+  const serveFirstWindow = async (): Promise<void> => {
+    const request = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
+    const [start, end] = (request.request.headers.get('Range') ?? '').replace('bytes=', '').split('-').map(Number);
+    request.flush(gzBytes.slice(start, end + 1).buffer as ArrayBuffer);
+    await settle();
+    fixture.detectChanges();
+  };
+
+  /** Clicks a navigation button; compressed paging needs no further request, so none is served. */
+  const navigate = async (label: string): Promise<void> => {
+    const button: HTMLButtonElement | null = fixture.nativeElement.querySelector(`button[aria-label="${label}"]`);
+    expect(button).withContext(`button "${label}"`).not.toBeNull();
+    expect(button!.disabled).withContext(`button "${label}" is enabled`).toBeFalse();
+    button!.click();
+    fixture.detectChanges();
+    await settle();
+    fixture.detectChanges();
+  };
+
+  beforeAll(async () => {
+    gzBytes = await gz(`${LINES.join('\n')}\n`);
+    file = { ...FILE, filename: 'wordlist.txt.gz', size: gzBytes.byteLength };
+  });
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [FilePreviewDialogComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideNoopAnimations(),
+        { provide: MAT_DIALOG_DATA, useValue: { file } },
+        { provide: MatDialogRef, useValue: { close: jasmine.createSpy('close') } }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(FilePreviewDialogComponent);
+    component = fixture.componentInstance;
+    httpMock = TestBed.inject(HttpTestingController);
+
+    // Ten lines a page splits the decompressed file into three, as in the plain-file suite above.
+    component['linesPerPage'] = 10;
+    fixture.detectChanges();
+    await serveFirstWindow();
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('opens on the first decompressed lines and cannot jump to the end', () => {
+    expect(visibleRows(fixture)[0]).toBe('1 line1');
+    expect(visibleRows(fixture)[9]).toBe('10 line10');
+    expect(isEnabled(fixture, 'Start of file')).toBeFalse();
+    expect(isEnabled(fixture, 'Previous page')).toBeFalse();
+    expect(isEnabled(fixture, 'Next page')).toBeTrue();
+    // The end of a compressed file is only reachable by decompressing everything before it.
+    expect(isEnabled(fixture, 'End of file')).toBeFalse();
+  });
+
+  it('pages forwards and back through decompressed lines without further requests', async () => {
+    await navigate('Next page');
+    // Decompression always runs from the first byte, so line numbers stay exact on every page.
+    expect(visibleRows(fixture)[0]).toBe('11 line11');
+
+    await navigate('Previous page');
+    expect(visibleRows(fixture)[0]).toBe('1 line1');
+
+    // The whole compressed file is cached after the first window, so paging needs no new request.
+    await settle();
+    httpMock.expectNone((candidate) => candidate.url.endsWith('/helper/getFile'));
+  });
+
+  it('stops at the last decompressed lines of the file', async () => {
+    await navigate('Next page');
+    await navigate('Next page');
+
+    expect(visibleRows(fixture)[9]).toBe('30 line30');
+    expect(isEnabled(fixture, 'Next page')).toBeFalse();
+  });
+
+  it('reports where the reader stands in decompressed bytes', () => {
+    expect(fixture.nativeElement.textContent).toContain('decompressed bytes');
+  });
+});
+
+describe('FilePreviewDialogComponent on a damaged gzip file', () => {
+  let gzBytes: Uint8Array;
+  let fixture: ComponentFixture<FilePreviewDialogComponent>;
+  let httpMock: HttpTestingController;
+
+  /** Clicks a navigation button; the damaged file is cached whole, so no request is served. */
+  const navigate = async (label: string): Promise<void> => {
+    const button: HTMLButtonElement | null = fixture.nativeElement.querySelector(`button[aria-label="${label}"]`);
+    expect(button).withContext(`button "${label}"`).not.toBeNull();
+    expect(button!.disabled).withContext(`button "${label}" is enabled`).toBeFalse();
+    button!.click();
+    fixture.detectChanges();
+    await settle();
+    fixture.detectChanges();
+  };
+
+  /**
+   * Opens the dialog on the damaged file, showing pages of `linesPerPage` lines.
+   *
+   * @param linesPerPage - How many lines a page should hold.
+   */
+  const openDialog = async (linesPerPage: number): Promise<void> => {
+    const file: JFile = { ...FILE, filename: 'wordlist.txt.gz', size: gzBytes.byteLength };
+    await TestBed.configureTestingModule({
+      imports: [FilePreviewDialogComponent],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideNoopAnimations(),
+        { provide: MAT_DIALOG_DATA, useValue: { file } },
+        { provide: MatDialogRef, useValue: { close: jasmine.createSpy('close') } }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(FilePreviewDialogComponent);
+    httpMock = TestBed.inject(HttpTestingController);
+    fixture.componentInstance['linesPerPage'] = linesPerPage;
+    fixture.detectChanges();
+
+    const request = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
+    const [start, end] = (request.request.headers.get('Range') ?? '').replace('bytes=', '').split('-').map(Number);
+    request.flush(gzBytes.slice(start, end + 1).buffer as ArrayBuffer);
+    await settle();
+    fixture.detectChanges();
+  };
+
+  beforeAll(async () => {
+    // Six bytes off the end leave the compressed data itself intact but cut the stream's trailer,
+    // so everything decodes up to the thirty lines and then the stream ends in an error.
+    gzBytes = (await gz(`${LINES.join('\n')}\n`)).slice(0, -6);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+  });
+
+  it('shows everything that could be decompressed, with a warning', async () => {
+    await openDialog(100);
+
+    expect(visibleRows(fixture).length).toBe(30);
+    expect(visibleRows(fixture)[29]).toBe('30 line30');
+    expect(fixture.nativeElement.textContent).toContain('Decompression ended early');
+    expect(isEnabled(fixture, 'Next page')).toBeFalse();
+  });
+
+  it('reveals the damage once a page asks for more than could be decompressed', async () => {
+    await openDialog(10);
+
+    // The first page fills from lines decoded before the damage, so it shows no warning yet.
+    expect(fixture.nativeElement.textContent).not.toContain('Decompression ended early');
+    expect(isEnabled(fixture, 'Next page')).toBeTrue();
+
+    await navigate('Next page');
+
+    expect(fixture.nativeElement.textContent).toContain('Decompression ended early');
   });
 });

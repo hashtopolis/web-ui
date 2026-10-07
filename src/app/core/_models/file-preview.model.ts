@@ -23,6 +23,40 @@ export interface FilePreviewPage {
    * wordlists, and decoding those as text yields nothing a user can read.
    */
   isBinary: boolean;
+  /**
+   * Gzip previews only: whether more decompressed content is still reachable. False once the whole
+   * compressed file has been fetched and every line it decompresses to has been shown.
+   */
+  hasMore?: boolean;
+  /** Gzip previews only: how many compressed bytes have been fetched from the backend so far. */
+  compressedBytesFetched?: number;
+  /**
+   * Gzip previews only: true when the whole compressed file was fetched yet decompression still
+   * ended in an error, meaning the file itself is corrupt or truncated on disk.
+   */
+  hasDecompressionError?: boolean;
+}
+
+/** Byte value of the line terminator preview pages are cut on. */
+export const PREVIEW_LINE_FEED = 0x0a;
+
+/** Lenient UTF-8 decoder for preview content: a window can cut a code point mid-line. */
+const DECODER = new TextDecoder('utf-8', { fatal: false });
+
+/**
+ * Decodes a slice of preview content and splits it into display lines, tolerating both LF and
+ * CRLF terminators.
+ *
+ * @param content - Bytes spanning whole lines.
+ * @returns The lines, without their terminators.
+ */
+export function splitPreviewLines(content: Uint8Array): string[] {
+  const lines = DECODER.decode(content).split('\n');
+  // A trailing terminator produces an empty final element that is not a line of its own.
+  if (lines.length > 0 && lines[lines.length - 1] === '') {
+    lines.pop();
+  }
+  return lines.map((line) => (line.endsWith('\r') ? line.slice(0, -1) : line));
 }
 
 /** Line counts offered in the preview's page-size selector, smallest first. */

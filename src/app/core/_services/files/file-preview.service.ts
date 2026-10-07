@@ -4,14 +4,12 @@ import { Observable, mergeMap, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
-import { FilePreviewPage } from '@models/file-preview.model';
+import { FilePreviewPage, PREVIEW_LINE_FEED, splitPreviewLines } from '@models/file-preview.model';
 import { FileId } from '@models/id.types';
 
+import { GzPreviewSession } from '@services/files/gz-preview-session';
 import { SERV } from '@services/main.config';
 import { ConfigService } from '@services/shared/config.service';
-
-/** Byte value of the line terminator pages are cut on. */
-const LINE_FEED = 0x0a;
 
 /** Options for a single preview page request. */
 export interface FilePreviewRequest {
@@ -53,8 +51,17 @@ export class FilePreviewService {
   private readonly http = inject(HttpClient);
   private readonly cs = inject(ConfigService);
 
-  /** Lenient decoder: a window can still cut a code point when a line is longer than the window. */
-  private readonly decoder = new TextDecoder('utf-8', { fatal: false });
+  /**
+   * Opens a reading session for a gzip-compressed file, which pages through the decompressed
+   * content and holds the compressed prefix fetched so far.
+   *
+   * @param fileId - File to read.
+   * @param totalBytes - Compressed size of the file, taken from its record.
+   * @returns The session, owned by its caller — normally one preview dialog.
+   */
+  openGzSession(fileId: FileId, totalBytes: number): GzPreviewSession {
+    return new GzPreviewSession(this.http, this.cs, fileId, totalBytes);
+  }
 
   /**
    * Loads one page of a file.
@@ -122,7 +129,7 @@ export class FilePreviewService {
     // to the preceding page and is dropped so the first line shown is a whole one.
     let from = 0;
     if (!request.isLineAligned && start > 0) {
-      const firstBreak = bytes.indexOf(LINE_FEED);
+      const firstBreak = bytes.indexOf(PREVIEW_LINE_FEED);
       from = firstBreak === -1 ? bytes.length : firstBreak + 1;
     }
 
@@ -136,7 +143,7 @@ export class FilePreviewService {
       to = from;
       lineCount = 0;
       while (lineCount < maxLines) {
-        const breakAt = bytes.indexOf(LINE_FEED, to);
+        const breakAt = bytes.indexOf(PREVIEW_LINE_FEED, to);
         if (breakAt === -1) {
           break;
         }
@@ -153,7 +160,7 @@ export class FilePreviewService {
 
     const content = bytes.subarray(from, to);
     return {
-      lines: this.splitLines(content),
+      lines: splitPreviewLines(content),
       startByte: start + from,
       endByte: start + to,
       totalBytes,
@@ -178,11 +185,11 @@ export class FilePreviewService {
     mayStartMidLine: boolean
   ): { from: number; lineCount: number } {
     // A trailing terminator closes the final line rather than starting another one.
-    let cursor = bytes[bytes.length - 1] === LINE_FEED ? bytes.length - 2 : bytes.length - 1;
+    let cursor = bytes[bytes.length - 1] === PREVIEW_LINE_FEED ? bytes.length - 2 : bytes.length - 1;
     let lineCount = 0;
 
     while (lineCount < maxLines && cursor >= 0) {
-      const breakAt = bytes.lastIndexOf(LINE_FEED, cursor);
+      const breakAt = bytes.lastIndexOf(PREVIEW_LINE_FEED, cursor);
       if (breakAt === -1) {
         break;
       }
@@ -198,23 +205,8 @@ export class FilePreviewService {
     if (!mayStartMidLine) {
       return { from: 0, lineCount: lineCount + 1 };
     }
-    const firstBreak = bytes.indexOf(LINE_FEED);
+    const firstBreak = bytes.indexOf(PREVIEW_LINE_FEED);
     return { from: firstBreak === -1 ? bytes.length : firstBreak + 1, lineCount };
-  }
-
-  /**
-   * Decodes a slice and splits it into display lines, tolerating both LF and CRLF terminators.
-   *
-   * @param content - Bytes spanning whole lines.
-   * @returns The lines, without their terminators.
-   */
-  private splitLines(content: Uint8Array): string[] {
-    const lines = this.decoder.decode(content).split('\n');
-    // A trailing terminator produces an empty final element that is not a line of its own.
-    if (lines.length > 0 && lines[lines.length - 1] === '') {
-      lines.pop();
-    }
-    return lines.map((line) => (line.endsWith('\r') ? line.slice(0, -1) : line));
   }
 
   private emptyPage(totalBytes: number): FilePreviewPage {
