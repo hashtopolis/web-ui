@@ -39,7 +39,7 @@
             The line at this position is longer than one page, so what follows is a fragment of it.
           </p>
         }
-        @if (page.hasDecompressionError) {
+        @if (page.kind === 'gzip' && page.hasDecompressionError) {
           <p class="border-b border-border-faint p-xs text-2xs text-warning">
             Decompression ended early — the file may be corrupt or truncated. What is shown is everything that could be
             read from it.
@@ -103,7 +103,7 @@
       type="button"
       matTooltip="End of file"
       aria-label="End of file"
-      [disabled]="isLoading || isCompressed"
+      [disabled]="isLoading || !canSeek"
       (click)="showLastPage()"
     >
       <mat-icon>last_page</mat-icon>

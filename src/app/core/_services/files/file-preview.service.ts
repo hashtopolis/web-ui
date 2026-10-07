@@ -4,10 +4,13 @@ import { Observable, mergeMap, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
-import { FilePreviewPage, PREVIEW_LINE_FEED, splitPreviewLines } from '@models/file-preview.model';
+import { PREVIEW_LINE_FEED, PlainPreviewPage, splitPreviewLines } from '@models/file-preview.model';
+import { JFile } from '@models/file.model';
 import { FileId } from '@models/id.types';
 
-import { GzPreviewSession } from '@services/files/gz-preview-session';
+import { GzPreviewReader } from '@services/files/gz-preview-reader';
+import { PreviewReader } from '@services/files/preview-reader';
+import { RangePreviewReader } from '@services/files/range-preview-reader';
 import { SERV } from '@services/main.config';
 import { ConfigService } from '@services/shared/config.service';
 
@@ -52,24 +55,27 @@ export class FilePreviewService {
   private readonly cs = inject(ConfigService);
 
   /**
-   * Opens a reading session for a gzip-compressed file, which pages through the decompressed
-   * content and holds the compressed prefix fetched so far.
+   * Opens a reader on a stored file, picking the kind its format allows: a gzip-compressed file can
+   * only be decompressed from its first byte, so it gets a sequential reader that caches the
+   * compressed prefix fetched so far; any other file gets a seekable reader over byte windows.
    *
-   * @param fileId - File to read.
-   * @param totalBytes - Compressed size of the file, taken from its record.
-   * @returns The session, owned by its caller — normally one preview dialog.
+   * @param file - The file to read, whose `size` and `lineCount` drive the ranges that get requested.
+   * @returns The reader, owned by its caller — normally one preview dialog.
    */
-  openGzSession(fileId: FileId, totalBytes: number): GzPreviewSession {
-    return new GzPreviewSession(this.http, this.cs, fileId, totalBytes);
+  openReader(file: JFile): PreviewReader {
+    if (file.filename.toLowerCase().endsWith('.gz')) {
+      return new GzPreviewReader(this.http, this.cs, file.id, file.size);
+    }
+    return new RangePreviewReader(this, file);
   }
 
   /**
-   * Loads one page of a file.
+   * Loads one page of a plain file.
    *
    * @param request - Which file, where to read, and how much to read.
    * @returns The whole lines the requested window yielded.
    */
-  loadPage(request: FilePreviewRequest): Observable<FilePreviewPage> {
+  loadPage(request: FilePreviewRequest): Observable<PlainPreviewPage> {
     const { fileId, totalBytes, windowBytes } = request;
 
     // An empty file has no range to request; the backend answers 416 for `bytes=0-0` on it.
@@ -116,11 +122,11 @@ export class FilePreviewService {
    * @param request - The request the window answers, for its total size and alignment flag.
    * @returns The resulting page.
    */
-  private toPage(bytes: Uint8Array, start: number, request: FilePreviewRequest): FilePreviewPage {
+  private toPage(bytes: Uint8Array, start: number, request: FilePreviewRequest): PlainPreviewPage {
     const { totalBytes, maxLines } = request;
 
     if (bytes.length === 0) {
-      return { ...this.emptyPage(totalBytes), startByte: start, endByte: start };
+      return { ...this.emptyPage(totalBytes), startByte: start, endByte: start, hasMore: start < totalBytes };
     }
 
     const isFinalWindow = start + bytes.length >= totalBytes;
@@ -160,12 +166,14 @@ export class FilePreviewService {
 
     const content = bytes.subarray(from, to);
     return {
+      kind: 'plain',
       lines: splitPreviewLines(content),
       startByte: start + from,
       endByte: start + to,
       totalBytes,
       hasPartialLine: lineCount === 0 && !isFinalWindow,
-      isBinary: content.includes(0)
+      isBinary: content.includes(0),
+      hasMore: start + to < totalBytes
     };
   }
 
@@ -209,14 +217,16 @@ export class FilePreviewService {
     return { from: firstBreak === -1 ? bytes.length : firstBreak + 1, lineCount };
   }
 
-  private emptyPage(totalBytes: number): FilePreviewPage {
+  private emptyPage(totalBytes: number): PlainPreviewPage {
     return {
+      kind: 'plain',
       lines: [],
       startByte: 0,
       endByte: 0,
       totalBytes,
       hasPartialLine: false,
-      isBinary: false
+      isBinary: false,
+      hasMore: false
     };
   }
 }

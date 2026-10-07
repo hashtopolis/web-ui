@@ -3,9 +3,10 @@ import { Observable, defer, firstValueFrom, from } from 'rxjs';
 
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 
-import { FilePreviewPage, PREVIEW_LINE_FEED, splitPreviewLines } from '@models/file-preview.model';
+import { FilePreviewPage, GzPreviewPage, PREVIEW_LINE_FEED, splitPreviewLines } from '@models/file-preview.model';
 import { FileId } from '@models/id.types';
 
+import { SequentialPreviewReader } from '@services/files/preview-reader';
 import { SERV } from '@services/main.config';
 import { ConfigService } from '@services/shared/config.service';
 
@@ -20,17 +21,6 @@ const WINDOW_GROWTH = 4;
 
 /** Ceiling for the compressed window, so one preview never fetches without bound. */
 const MAX_WINDOW_BYTES = 4_194_304;
-
-/** Options for a single page read from a gzip-compressed file. */
-export interface GzPreviewPageRequest {
-  /**
-   * Byte offset in the *decompressed* data the page starts at. It is always a previous page's
-   * `endByte`, so it sits at the start of a line by construction.
-   */
-  offset: number;
-  /** How many lines the page should hold at most. */
-  maxLines: number;
-}
 
 /** What decompressing the cached prefix yielded. */
 interface Inflated {
@@ -47,11 +37,13 @@ interface Inflated {
  *
  * A gzip stream cannot be entered in the middle — its blocks are bit-aligned and its back-references
  * reach into decompressed output from before them — so every page decompresses the file from its
- * first byte onwards. To keep that from re-downloading the same bytes over and over, the session
- * caches the compressed prefix fetched so far and only ever requests its continuation when a page
- * needs more decompressed output than the cache holds.
+ * first byte onwards, which is why this reader is sequential. To keep that from re-downloading the
+ * same bytes over and over, the reader caches the compressed prefix fetched so far and only ever
+ * requests its continuation when a page needs more decompressed output than the cache holds.
  */
-export class GzPreviewSession {
+export class GzPreviewReader implements SequentialPreviewReader {
+  readonly kind = 'sequential' as const;
+
   /** Compressed bytes fetched so far: always a prefix of the stored file, starting at its first byte. */
   private prefix = new Uint8Array(0);
 
@@ -66,21 +58,27 @@ export class GzPreviewSession {
   ) {}
 
   /**
-   * Loads one page of decompressed lines.
+   * Reads one page of decompressed lines.
    *
-   * @param request - Where in the decompressed data the page starts, and how many lines it may hold.
+   * @param offset - Byte offset in the *decompressed* data the page starts at. It is always a
+   *   previous page's `endByte`, so it sits at the start of a line by construction.
+   * @param maxLines - How many lines the page should hold at most.
    * @returns The whole lines the decompressed prefix yielded.
    */
-  loadPage(request: GzPreviewPageRequest): Observable<FilePreviewPage> {
-    return defer(() => from(this.loadPageAsync(request)));
+  readForward(offset: number, maxLines: number): Observable<GzPreviewPage> {
+    return defer(() => from(this.loadPageAsync(offset, maxLines)));
+  }
+
+  readNext(page: FilePreviewPage, maxLines: number): Observable<GzPreviewPage> {
+    // A page that consumed nothing sits at the end of everything decodable, so there is no window to
+    // skip ahead with; reading on from its end simply yields the same empty page again.
+    return this.readForward(page.endByte, maxLines);
   }
 
   /**
    * Grows the cached window until it fills the page or nothing is left to fetch, then cuts the page.
    */
-  private async loadPageAsync(request: GzPreviewPageRequest): Promise<FilePreviewPage> {
-    const { offset, maxLines } = request;
-
+  private async loadPageAsync(offset: number, maxLines: number): Promise<GzPreviewPage> {
     // An empty file has no range to request; the backend answers 416 for `bytes=0-0` on it.
     if (this.totalBytes <= 0) {
       return this.emptyPage();
@@ -216,7 +214,7 @@ export class GzPreviewSession {
    * @param maxLines - How many lines the page should hold at most.
    * @returns The resulting page.
    */
-  private cut(decompressed: Uint8Array, errored: boolean, offset: number, maxLines: number): FilePreviewPage {
+  private cut(decompressed: Uint8Array, errored: boolean, offset: number, maxLines: number): GzPreviewPage {
     const wholeFileFetched = this.prefix.length >= this.totalBytes;
 
     // An offset past everything decodable leaves nothing to show and nothing to page on to.
@@ -244,28 +242,31 @@ export class GzPreviewSession {
 
     const content = decompressed.subarray(offset, to);
     return {
+      kind: 'gzip',
       lines: splitPreviewLines(content),
       startByte: offset,
       endByte: to,
-      totalBytes: this.totalBytes,
       hasPartialLine: lineCount === 0 && !wholeFileFetched,
       isBinary: content.includes(0),
       hasMore: !(wholeFileFetched && to >= decompressed.length),
       compressedBytesFetched: this.prefix.length,
+      compressedTotalBytes: this.totalBytes,
       hasDecompressionError: errored && wholeFileFetched
     };
   }
 
-  private emptyPage(): FilePreviewPage {
+  private emptyPage(): GzPreviewPage {
     return {
+      kind: 'gzip',
       lines: [],
       startByte: 0,
       endByte: 0,
-      totalBytes: this.totalBytes,
       hasPartialLine: false,
       isBinary: false,
       hasMore: false,
-      compressedBytesFetched: this.prefix.length
+      compressedBytesFetched: this.prefix.length,
+      compressedTotalBytes: this.totalBytes,
+      hasDecompressionError: false
     };
   }
 }

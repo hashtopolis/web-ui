@@ -1,18 +1,11 @@
-/**
- * One page of a file's contents, decoded from a single HTTP range request.
- *
- * A page is always cut on line boundaries, so `endByte` can be fed straight back in as the next
- * page's offset without a line ever being split across two pages.
- */
-export interface FilePreviewPage {
+/** What every preview page carries, whichever kind of file it was read from. */
+interface PreviewPageBase {
   /** Complete lines held by the page, line terminators stripped. */
   lines: string[];
   /** Byte offset of the first character of `lines[0]`. */
   startByte: number;
   /** Byte offset one past the last byte the page consumed, i.e. where the next page starts. */
   endByte: number;
-  /** Total size of the file in bytes, as reported by the file record. */
-  totalBytes: number;
   /**
    * True when the fetched window held no line terminator at all, so the file's lines are longer than
    * the window and what is shown is a fragment rather than a whole line.
@@ -23,19 +16,40 @@ export interface FilePreviewPage {
    * wordlists, and decoding those as text yields nothing a user can read.
    */
   isBinary: boolean;
-  /**
-   * Gzip previews only: whether more decompressed content is still reachable. False once the whole
-   * compressed file has been fetched and every line it decompresses to has been shown.
-   */
-  hasMore?: boolean;
-  /** Gzip previews only: how many compressed bytes have been fetched from the backend so far. */
-  compressedBytesFetched?: number;
-  /**
-   * Gzip previews only: true when the whole compressed file was fetched yet decompression still
-   * ended in an error, meaning the file itself is corrupt or truncated on disk.
-   */
-  hasDecompressionError?: boolean;
+  /** Whether another page can follow this one. */
+  hasMore: boolean;
 }
+
+/**
+ * One page of a plain file's contents, decoded from a single HTTP range request.
+ *
+ * A page is always cut on line boundaries, so `endByte` can be fed straight back in as the next
+ * page's offset without a line ever being split across two pages.
+ */
+export interface PlainPreviewPage extends PreviewPageBase {
+  kind: 'plain';
+  /** Total size of the file in bytes, as reported by the file record. */
+  totalBytes: number;
+}
+
+/**
+ * One page of a gzip-compressed file's contents. Its offsets count *decompressed* bytes, and the
+ * decompressed total is unknowable until the whole file has been fetched.
+ */
+export interface GzPreviewPage extends PreviewPageBase {
+  kind: 'gzip';
+  /** How many compressed bytes have been fetched from the backend so far. */
+  compressedBytesFetched: number;
+  /** Compressed size of the file in bytes, as reported by the file record. */
+  compressedTotalBytes: number;
+  /**
+   * True when the whole compressed file was fetched yet decompression still ended in an error,
+   * meaning the file itself is corrupt or truncated on disk.
+   */
+  hasDecompressionError: boolean;
+}
+
+export type FilePreviewPage = PlainPreviewPage | GzPreviewPage;
 
 /** Byte value of the line terminator preview pages are cut on. */
 export const PREVIEW_LINE_FEED = 0x0a;

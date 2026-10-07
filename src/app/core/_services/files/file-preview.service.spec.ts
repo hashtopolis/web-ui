@@ -4,10 +4,21 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { FilePreviewPage } from '@models/file-preview.model';
+import { PlainPreviewPage } from '@models/file-preview.model';
+import { JFile } from '@models/file.model';
 
 import { FilePreviewRequest, FilePreviewService } from '@services/files/file-preview.service';
-import { GzPreviewSession } from '@services/files/gz-preview-session';
+
+const FILE: JFile = {
+  id: 3,
+  type: 'file',
+  filename: 'wordlist.txt',
+  size: 10_000,
+  isSecret: false,
+  fileType: 0,
+  accessGroupId: 1,
+  lineCount: 1_000
+};
 
 describe('FilePreviewService', () => {
   let service: FilePreviewService;
@@ -22,7 +33,7 @@ describe('FilePreviewService', () => {
    * @param overrides - Request fields that differ from the defaults.
    * @param body - Content the mocked window returns.
    */
-  const loadPage = (overrides: Partial<FilePreviewRequest>, body: string): FilePreviewPage => {
+  const loadPage = (overrides: Partial<FilePreviewRequest>, body: string): PlainPreviewPage => {
     const request: FilePreviewRequest = {
       fileId: 1,
       offset: 0,
@@ -33,7 +44,7 @@ describe('FilePreviewService', () => {
       ...overrides
     };
 
-    let page!: FilePreviewPage;
+    let page!: PlainPreviewPage;
     service.loadPage(request).subscribe((result) => (page = result));
 
     const testRequest = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
@@ -88,11 +99,13 @@ describe('FilePreviewService', () => {
   it('returns the whole lines of a window and reports where the next page starts', () => {
     const page = loadPage({ totalBytes: 1000 }, 'alpha\nbravo\ncharl');
 
+    expect(page.kind).toBe('plain');
     expect(page.lines).toEqual(['alpha', 'bravo']);
     expect(page.startByte).toBe(0);
     // The trailing fragment belongs to the next page, so it stops right after "bravo\n".
     expect(page.endByte).toBe(12);
     expect(page.hasPartialLine).toBeFalse();
+    expect(page.hasMore).toBeTrue();
   });
 
   it('keeps a final line that carries no terminator', () => {
@@ -100,6 +113,7 @@ describe('FilePreviewService', () => {
 
     expect(page.lines).toEqual(['alpha', 'bravo']);
     expect(page.endByte).toBe(page.totalBytes);
+    expect(page.hasMore).toBeFalse();
   });
 
   it('stops at maxLines even when the window holds more', () => {
@@ -189,14 +203,18 @@ describe('FilePreviewService', () => {
     await expectAsync(failure).toBeResolvedTo(jasmine.any(Error));
   });
 
-  it('opens a reading session for a gzip-compressed file', () => {
-    const session = service.openGzSession(3, 10_000);
+  describe('openReader', () => {
+    it('opens a seekable reader for a plain file', () => {
+      expect(service.openReader(FILE).kind).toBe('seekable');
+    });
 
-    expect(session).toBeInstanceOf(GzPreviewSession);
+    it('opens a sequential reader for a gzip-compressed file, whatever the case of its extension', () => {
+      expect(service.openReader({ ...FILE, filename: 'wordlist.txt.GZ' }).kind).toBe('sequential');
+    });
   });
 
   it('does not request a range for an empty file', () => {
-    let page!: FilePreviewPage;
+    let page!: PlainPreviewPage;
     service
       .loadPage({ fileId: 1, offset: 0, maxLines: 10, windowBytes: 1024, totalBytes: 0, isLineAligned: true })
       .subscribe((result) => (page = result));

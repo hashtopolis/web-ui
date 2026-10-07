@@ -4,10 +4,23 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { FilePreviewPage } from '@models/file-preview.model';
+import { GzPreviewPage } from '@models/file-preview.model';
+import { JFile } from '@models/file.model';
 
 import { FilePreviewService } from '@services/files/file-preview.service';
-import { GzPreviewSession } from '@services/files/gz-preview-session';
+import { GzPreviewReader } from '@services/files/gz-preview-reader';
+
+/** A gzip-compressed file; its `size` is set per test to the length of the compressed fixture. */
+const GZ_FILE: JFile = {
+  id: 1,
+  type: 'file',
+  filename: 'wordlist.txt.gz',
+  size: 0,
+  isSecret: false,
+  fileType: 0,
+  accessGroupId: 1,
+  lineCount: 0
+};
 
 /** Concatenates byte chunks into a single array. */
 const concat = (chunks: Uint8Array[]): Uint8Array => {
@@ -51,12 +64,13 @@ const randomLines = (count: number, lineBytes: number): string[] =>
     return new TextDecoder().decode(bytes);
   });
 
-describe('GzPreviewSession', () => {
+describe('GzPreviewReader', () => {
   let service: FilePreviewService;
   let httpMock: HttpTestingController;
 
-  /** A reading session on a file of `totalBytes` compressed bytes. */
-  const openSession = (totalBytes: number): GzPreviewSession => service.openGzSession(1, totalBytes);
+  /** A reader on a file of `totalBytes` compressed bytes. */
+  const openReader = (totalBytes: number): GzPreviewReader =>
+    service.openReader({ ...GZ_FILE, size: totalBytes }) as GzPreviewReader;
 
   /**
    * Answers the pending range request with the slice of `compressed` it asked for, the way the
@@ -95,11 +109,11 @@ describe('GzPreviewSession', () => {
     }
   };
 
-  /** Loads one page and waits for it, assuming the session needs no more than the served ranges. */
-  const loadPage = async (
-    session: GzPreviewSession,
-    overrides: { offset?: number; maxLines?: number } = {}
-  ): Promise<FilePreviewPage> => firstValueFrom(session.loadPage({ offset: 0, maxLines: 10, ...overrides }));
+  /** Reads one page and waits for it, assuming the reader needs no more than the served ranges. */
+  const readForward = async (
+    reader: GzPreviewReader,
+    { offset = 0, maxLines = 10 }: { offset?: number; maxLines?: number } = {}
+  ): Promise<GzPreviewPage> => firstValueFrom(reader.readForward(offset, maxLines));
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -115,8 +129,8 @@ describe('GzPreviewSession', () => {
 
   it('fetches the compressed file from its first byte and decompresses whole lines', async () => {
     const compressed = await gz('alpha\nbravo\ncharlie\ndelta\n');
-    const session = openSession(compressed.length);
-    const pagePromise = loadPage(session, { maxLines: 2 });
+    const reader = openReader(compressed.length);
+    const pagePromise = readForward(reader, { maxLines: 2 });
 
     // A file smaller than one fetch window is requested in a single range covering it whole.
     expect(serveRange(compressed)).toBe(`bytes=0-${compressed.length - 1}`);
@@ -131,10 +145,35 @@ describe('GzPreviewSession', () => {
     expect(page.hasDecompressionError).toBeFalse();
   });
 
+  it('tags its pages as gzip pages that carry the compressed size of the file', async () => {
+    const compressed = await gz('alpha\n');
+    const reader = openReader(compressed.length);
+    const pagePromise = readForward(reader);
+
+    serveRange(compressed);
+    const page = await pagePromise;
+
+    expect(page.kind).toBe('gzip');
+    expect(page.compressedTotalBytes).toBe(compressed.length);
+  });
+
+  it('continues after a page at the decompressed offset where that page ended', async () => {
+    const compressed = await gz('alpha\nbravo\ncharlie\ndelta\n');
+    const reader = openReader(compressed.length);
+    const firstPromise = readForward(reader, { maxLines: 2 });
+    serveRange(compressed);
+    const first = await firstPromise;
+
+    const next = await firstValueFrom(reader.readNext(first, 2));
+
+    expect(next.startByte).toBe(first.endByte);
+    expect(next.lines).toEqual(['charlie', 'delta']);
+  });
+
   it('bypasses the response cache with its range requests', async () => {
     const compressed = await gz('alpha\n');
-    const session = openSession(compressed.length);
-    const pagePromise = loadPage(session, { maxLines: 1 });
+    const reader = openReader(compressed.length);
+    const pagePromise = readForward(reader, { maxLines: 1 });
 
     const request = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
     expect(request.request.params.get('file')).toBe('1');
@@ -148,8 +187,8 @@ describe('GzPreviewSession', () => {
   it('grows the window with a continuation range when the first one comes up short', async () => {
     const lines = randomLines(120, 1500);
     const compressed = await gz(`${lines.join('\n')}\n`);
-    const session = openSession(compressed.length);
-    const pagePromise = loadPage(session, { maxLines: 100 });
+    const reader = openReader(compressed.length);
+    const pagePromise = readForward(reader, { maxLines: 100 });
 
     // The first window covers only part of the compressed file...
     expect(await serveNextRange(compressed)).toBe('bytes=0-65535');
@@ -164,13 +203,13 @@ describe('GzPreviewSession', () => {
 
   it('cuts later pages from the cached prefix without fetching again', async () => {
     const compressed = await gz('alpha\nbravo\ncharlie\ndelta\n');
-    const session = openSession(compressed.length);
+    const reader = openReader(compressed.length);
 
-    const firstPromise = loadPage(session, { maxLines: 2 });
+    const firstPromise = readForward(reader, { maxLines: 2 });
     serveRange(compressed);
     const first = await firstPromise;
 
-    const secondPromise = loadPage(session, { offset: first.endByte, maxLines: 2 });
+    const secondPromise = readForward(reader, { offset: first.endByte, maxLines: 2 });
     await settle();
     // The whole compressed file is cached after the first window, so paging needs no new request.
     httpMock.expectNone((candidate) => candidate.url.endsWith('/helper/getFile'));
@@ -184,8 +223,8 @@ describe('GzPreviewSession', () => {
   it('treats a window cut mid-stream as the end of its decompressed output', async () => {
     const lines = randomLines(100, 1000);
     const compressed = await gz(`${lines.join('\n')}\n`);
-    const session = openSession(compressed.length);
-    const pagePromise = loadPage(session, { maxLines: 50 });
+    const reader = openReader(compressed.length);
+    const pagePromise = readForward(reader, { maxLines: 50 });
 
     // The window has to cut the gzip stream mid-block, which ends decompression abruptly.
     expect(serveRange(compressed)).toBe('bytes=0-65535');
@@ -202,8 +241,8 @@ describe('GzPreviewSession', () => {
     // Cutting bytes off the stored file damages its stream: what decodes is a valid prefix, but the
     // decoder can never reach a clean end of stream.
     const compressed = (await gz('alpha\n'.repeat(50))).slice(0, -6);
-    const session = openSession(compressed.length);
-    const pagePromise = loadPage(session, { maxLines: 100 });
+    const reader = openReader(compressed.length);
+    const pagePromise = readForward(reader, { maxLines: 100 });
 
     serveRange(compressed);
     const page = await pagePromise;
@@ -216,8 +255,8 @@ describe('GzPreviewSession', () => {
 
   it('refuses a file whose bytes are not a gzip stream', async () => {
     const plain = new TextEncoder().encode('not actually compressed\n');
-    const session = openSession(plain.length);
-    const pagePromise = loadPage(session);
+    const reader = openReader(plain.length);
+    const pagePromise = readForward(reader);
 
     serveRange(plain);
 
@@ -228,8 +267,8 @@ describe('GzPreviewSession', () => {
 
   it('previews only the first member of a multi-member gzip file', async () => {
     const compressed = concat([await gz('alpha\nbravo\n'), await gz('charlie\ndelta\n')]);
-    const session = openSession(compressed.length);
-    const pagePromise = loadPage(session);
+    const reader = openReader(compressed.length);
+    const pagePromise = readForward(reader);
 
     serveRange(compressed);
     const page = await pagePromise;
@@ -243,8 +282,8 @@ describe('GzPreviewSession', () => {
 
   it('flags decompressed content that holds NUL bytes', async () => {
     const compressed = await gz('text\u0000with a nul\n');
-    const session = openSession(compressed.length);
-    const pagePromise = loadPage(session);
+    const reader = openReader(compressed.length);
+    const pagePromise = readForward(reader);
 
     serveRange(compressed);
     const page = await pagePromise;
@@ -255,8 +294,8 @@ describe('GzPreviewSession', () => {
 
   it('keeps a trailing line that carries no terminator once the whole file is fetched', async () => {
     const compressed = await gz('alpha\nbravo');
-    const session = openSession(compressed.length);
-    const pagePromise = loadPage(session);
+    const reader = openReader(compressed.length);
+    const pagePromise = readForward(reader);
 
     serveRange(compressed);
     const page = await pagePromise;
@@ -268,8 +307,8 @@ describe('GzPreviewSession', () => {
   });
 
   it('reads no range for an empty file', async () => {
-    const session = openSession(0);
-    const page = await loadPage(session);
+    const reader = openReader(0);
+    const page = await readForward(reader);
 
     httpMock.expectNone((candidate) => candidate.url.endsWith('/helper/getFile'));
     expect(page.lines).toEqual([]);
