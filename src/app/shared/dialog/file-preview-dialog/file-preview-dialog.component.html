@@ -39,6 +39,12 @@
             The line at this position is longer than one page, so what follows is a fragment of it.
           </p>
         }
+        @if (page.kind === 'gzip' && page.hasDecompressionError) {
+          <p class="border-b border-border-faint p-xs text-2xs text-warning">
+            Decompression ended early — the file may be corrupt or truncated. What is shown is everything that could be
+            read from it.
+          </p>
+        }
         <div class="max-h-96 overflow-auto p-xs font-mono text-xs">
           @for (line of page.lines; track $index) {
             <div class="flex min-h-5 gap-sm leading-5">
@@ -47,6 +53,12 @@
             </div>
           }
         </div>
+      }
+      @if (page.kind === 'gzip' && page.reachedFetchLimit) {
+        <p class="border-t border-border-faint p-xs text-2xs text-warning">
+          The preview ends here: only the first {{ compressedBytesFetchedLabel }} of the compressed file are read, and
+          what follows is out of its reach. Download the file to see the rest.
+        </p>
       }
     }
 
@@ -97,7 +109,7 @@
       type="button"
       matTooltip="End of file"
       aria-label="End of file"
-      [disabled]="isLoading"
+      [disabled]="isLoading || !canSeek"
       (click)="showLastPage()"
     >
       <mat-icon>last_page</mat-icon>

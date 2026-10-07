@@ -1,12 +1,27 @@
 import { firstValueFrom } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, TestRequest, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
-import { FilePreviewPage } from '@models/file-preview.model';
+import { PlainPreviewPage } from '@models/file-preview.model';
+import { JFile } from '@models/file.model';
 
 import { FilePreviewRequest, FilePreviewService } from '@services/files/file-preview.service';
+
+const FILE: JFile = {
+  id: 3,
+  type: 'file',
+  filename: 'wordlist.txt',
+  size: 10_000,
+  isSecret: false,
+  fileType: 0,
+  accessGroupId: 1,
+  lineCount: 1_000
+};
+
+/** Status the backend answers every honoured range request with. */
+const PARTIAL_CONTENT = { status: 206, statusText: 'Partial Content' };
 
 describe('FilePreviewService', () => {
   let service: FilePreviewService;
@@ -15,13 +30,17 @@ describe('FilePreviewService', () => {
   /** Encodes the bytes a mocked range response should return. */
   const encode = (text: string): ArrayBuffer => new TextEncoder().encode(text).buffer as ArrayBuffer;
 
+  /** The one pending range request. */
+  const expectRangeRequest = (): TestRequest =>
+    httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
+
   /**
    * Issues a page request and answers it with `body`, as the backend's range response would.
    *
    * @param overrides - Request fields that differ from the defaults.
    * @param body - Content the mocked window returns.
    */
-  const loadPage = (overrides: Partial<FilePreviewRequest>, body: string): FilePreviewPage => {
+  const loadPage = (overrides: Partial<FilePreviewRequest>, body: string): PlainPreviewPage => {
     const request: FilePreviewRequest = {
       fileId: 1,
       offset: 0,
@@ -32,11 +51,10 @@ describe('FilePreviewService', () => {
       ...overrides
     };
 
-    let page!: FilePreviewPage;
+    let page!: PlainPreviewPage;
     service.loadPage(request).subscribe((result) => (page = result));
 
-    const testRequest = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
-    testRequest.flush(encode(body));
+    expectRangeRequest().flush(encode(body), PARTIAL_CONTENT);
 
     return page;
   };
@@ -65,12 +83,12 @@ describe('FilePreviewService', () => {
       })
       .subscribe();
 
-    const request = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
+    const request = expectRangeRequest();
     expect(request.request.params.get('file')).toBe('7');
     expect(request.request.headers.get('Range')).toBe('bytes=100-163');
     expect(request.request.headers.get('X-Cache-Skip')).toBe('true');
 
-    request.flush(encode(''));
+    request.flush(encode(''), PARTIAL_CONTENT);
   });
 
   it('clamps the requested window to the end of the file', () => {
@@ -78,20 +96,22 @@ describe('FilePreviewService', () => {
       .loadPage({ fileId: 1, offset: 90, maxLines: 10, windowBytes: 1024, totalBytes: 100, isLineAligned: true })
       .subscribe();
 
-    const request = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
+    const request = expectRangeRequest();
     expect(request.request.headers.get('Range')).toBe('bytes=90-99');
 
-    request.flush(encode(''));
+    request.flush(encode(''), PARTIAL_CONTENT);
   });
 
   it('returns the whole lines of a window and reports where the next page starts', () => {
     const page = loadPage({ totalBytes: 1000 }, 'alpha\nbravo\ncharl');
 
+    expect(page.kind).toBe('plain');
     expect(page.lines).toEqual(['alpha', 'bravo']);
     expect(page.startByte).toBe(0);
     // The trailing fragment belongs to the next page, so it stops right after "bravo\n".
     expect(page.endByte).toBe(12);
     expect(page.hasPartialLine).toBeFalse();
+    expect(page.hasMore).toBeTrue();
   });
 
   it('keeps a final line that carries no terminator', () => {
@@ -99,6 +119,7 @@ describe('FilePreviewService', () => {
 
     expect(page.lines).toEqual(['alpha', 'bravo']);
     expect(page.endByte).toBe(page.totalBytes);
+    expect(page.hasMore).toBeFalse();
   });
 
   it('stops at maxLines even when the window holds more', () => {
@@ -183,13 +204,56 @@ describe('FilePreviewService', () => {
       })
     ).catch((error: unknown) => error);
 
-    httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile')).flush(encode('far too many bytes'));
+    expectRangeRequest().flush(encode('far too many bytes'), PARTIAL_CONTENT);
 
     await expectAsync(failure).toBeResolvedTo(jasmine.any(Error));
   });
 
+  describe('fetchRange', () => {
+    it('asks for exactly the given byte range and hands back the bytes', async () => {
+      const bytes = firstValueFrom(service.fetchRange(7, 100, 163));
+
+      const request = expectRangeRequest();
+      expect(request.request.params.get('file')).toBe('7');
+      expect(request.request.headers.get('Range')).toBe('bytes=100-163');
+      expect(request.request.headers.get('X-Cache-Skip')).toBe('true');
+      request.flush(encode('alpha'), PARTIAL_CONTENT);
+
+      expect(Array.from(await bytes)).toEqual(Array.from(new TextEncoder().encode('alpha')));
+    });
+
+    it('refuses an answer that is not partial content, since the server then ignored the range', async () => {
+      const failure = firstValueFrom(service.fetchRange(1, 0, 7)).catch((error: unknown) => error);
+
+      // A 200 means the whole representation is on its way, however many bytes it turns out to be.
+      expectRangeRequest().flush(encode('whole fi'));
+
+      const error = await failure;
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toBe('The server ignored the requested byte range.');
+    });
+
+    it('refuses more bytes than the range covers', async () => {
+      const failure = firstValueFrom(service.fetchRange(1, 0, 7)).catch((error: unknown) => error);
+
+      expectRangeRequest().flush(encode('far too many bytes'), PARTIAL_CONTENT);
+
+      await expectAsync(failure).toBeResolvedTo(jasmine.any(Error));
+    });
+  });
+
+  describe('openReader', () => {
+    it('opens a seekable reader for a plain file', () => {
+      expect(service.openReader(FILE).kind).toBe('seekable');
+    });
+
+    it('opens a sequential reader for a gzip-compressed file, whatever the case of its extension', () => {
+      expect(service.openReader({ ...FILE, filename: 'wordlist.txt.GZ' }).kind).toBe('sequential');
+    });
+  });
+
   it('does not request a range for an empty file', () => {
-    let page!: FilePreviewPage;
+    let page!: PlainPreviewPage;
     service
       .loadPage({ fileId: 1, offset: 0, maxLines: 10, windowBytes: 1024, totalBytes: 0, isLineAligned: true })
       .subscribe((result) => (page = result));
