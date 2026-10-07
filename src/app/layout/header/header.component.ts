@@ -469,6 +469,12 @@ export class HeaderComponent implements OnInit {
         routerLink: ['config', 'hashtypes']
       });
     }
+    if (this.configRoleWrapper.hasBenchmarkRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.BENCHMARK_CACHE,
+        routerLink: ['config', 'benchmark']
+      });
+    }
     if (this.configRoleWrapper.hasHealthCheckRole('read')) {
       actions.push({
         label: HeaderMenuLabel.HEALTH_CHECKS,

@@ -42,6 +42,7 @@ import {
   HTTableEditable,
   SortingColumn
 } from '@components/tables/ht-table/ht-table.models';
+import { TABLE_TRUNCATE_MAX_LENGTH } from '@components/tables/table-truncate/table-truncate.component';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
@@ -97,6 +98,7 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
   standalone: false
 })
 export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewInit, OnDestroy {
+  protected readonly defaultTruncateMaxLength = TABLE_TRUNCATE_MAX_LENGTH;
   dialog = inject(MatDialog);
   private cd = inject(ChangeDetectorRef);
   private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);

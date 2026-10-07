@@ -28,6 +28,7 @@ export const HeaderMenuLabel = {
   CONFIG: 'Config',
   SETTINGS: 'Settings',
   HASHTYPES: 'Hashtypes',
+  BENCHMARK_CACHE: 'Benchmark Cache',
   HEALTH_CHECKS: 'Health Checks',
   LOG: 'Log',
   BINARIES: 'Binaries',

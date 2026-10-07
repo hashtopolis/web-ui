@@ -1,0 +1,18 @@
+<ht-table
+  #table
+  name="benchmarkTable"
+  dataType="benchmarks"
+  [columnLabels]="columnLabels"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [isSelectable]="true"
+  [contextMenuService]="contextMenuService"
+  [isFilterable]="isFilterable"
+  [isPageable]="true"
+  (bulkActionClicked)="bulkActionClicked($event)"
+  (rowActionClicked)="rowActionClicked($event)"
+  (exportActionClicked)="exportActionClicked($event)"
+  (emitFullHashModal)="showFullSignature($any($event))"
+  (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="handleBackendSqlFilter($event)"
+/>
