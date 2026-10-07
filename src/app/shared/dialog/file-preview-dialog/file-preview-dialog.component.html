@@ -1,0 +1,129 @@
+<h2 mat-dialog-title>
+  <span class="flex items-center gap-xs">
+    <mat-icon>visibility</mat-icon>
+    <span class="truncate">{{ data.file.filename }}</span>
+  </span>
+</h2>
+
+<mat-dialog-content>
+  <div class="flex flex-wrap items-center justify-between gap-sm">
+    <span class="text-xs text-muted-foreground">{{ fileSizeLabel }}{{ lineCountLabel }}</span>
+
+    <mat-form-field subscriptSizing="dynamic" class="w-36 no-label-form-field">
+      <mat-select [(ngModel)]="linesPerPage" (selectionChange)="onPageSizeChange()" aria-label="Lines per page">
+        @for (size of pageSizes; track size) {
+          <mat-option [value]="size">{{ size }} lines</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="relative mt-xs min-h-32 rounded-md border border-border bg-well">
+    @if (errorMessage) {
+      <p class="flex items-center gap-xs p-md text-sm text-destructive">
+        <mat-icon>error_outline</mat-icon>
+        {{ errorMessage }}
+      </p>
+    } @else if (page) {
+      @if (page.isBinary) {
+        <p class="flex items-center gap-xs p-md text-sm text-warning">
+          <mat-icon>warning</mat-icon>
+          This file holds binary data (it is most likely a compressed archive) and cannot be previewed as text. Download
+          it to inspect its contents.
+        </p>
+      } @else if (!page.lines.length) {
+        <p class="p-md text-sm text-muted-foreground">Nothing to show at this position in the file.</p>
+      } @else {
+        @if (page.hasPartialLine) {
+          <p class="border-b border-border-faint p-xs text-2xs text-warning">
+            The line at this position is longer than one page, so what follows is a fragment of it.
+          </p>
+        }
+        <div class="max-h-96 overflow-auto p-xs font-mono text-xs">
+          @for (line of page.lines; track $index) {
+            <div class="flex min-h-5 gap-sm leading-5">
+              <span class="w-16 shrink-0 select-none text-right text-subtle-foreground">{{ lineLabel($index) }}</span>
+              <span class="whitespace-pre-wrap break-all">{{ line }}</span>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    @if (isLoading) {
+      <div class="absolute inset-0 flex items-center justify-center bg-well/80">
+        <mat-spinner diameter="32"></mat-spinner>
+      </div>
+    }
+  </div>
+
+  <p class="mt-xs text-2xs text-subtle-foreground">{{ positionLabel }}</p>
+</mat-dialog-content>
+
+<mat-dialog-actions class="flex-wrap justify-between gap-sm">
+  <div class="flex items-center gap-2xs">
+    <button
+      matIconButton
+      type="button"
+      matTooltip="Start of file"
+      aria-label="Start of file"
+      [disabled]="isLoading || isAtFileStart"
+      (click)="showFirstPage()"
+    >
+      <mat-icon>first_page</mat-icon>
+    </button>
+    <button
+      matIconButton
+      type="button"
+      matTooltip="Previous page"
+      aria-label="Previous page"
+      [disabled]="isLoading || !hasPreviousPage"
+      (click)="showPreviousPage()"
+    >
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <button
+      matIconButton
+      type="button"
+      matTooltip="Next page"
+      aria-label="Next page"
+      [disabled]="isLoading || !hasNextPage"
+      (click)="showNextPage()"
+    >
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+    <button
+      matIconButton
+      type="button"
+      matTooltip="End of file"
+      aria-label="End of file"
+      [disabled]="isLoading"
+      (click)="showLastPage()"
+    >
+      <mat-icon>last_page</mat-icon>
+    </button>
+  </div>
+
+  <div class="flex items-center gap-2xs">
+    <button
+      matIconButton
+      type="button"
+      matTooltip="Copy the lines on this page"
+      aria-label="Copy the lines on this page"
+      [disabled]="!hasLines"
+      (click)="copyPage()"
+    >
+      <mat-icon>content_copy</mat-icon>
+    </button>
+    <button
+      matIconButton
+      type="button"
+      matTooltip="Download the whole file"
+      aria-label="Download the whole file"
+      (click)="downloadFile()"
+    >
+      <mat-icon>file_download</mat-icon>
+    </button>
+    <button-submit type="cancel-dialog" name="Close" (click)="closeDialog()"></button-submit>
+  </div>
+</mat-dialog-actions>

@@ -25,6 +25,8 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 import { FilesDataSource } from '@datasources/files.datasource';
 
 import { FilterType } from '@src/app/core/_models/request-params.model';
+import { FilePreviewDialogComponent } from '@src/app/shared/dialog/file-preview-dialog/file-preview-dialog.component';
+import { FilePreviewDialogData } from '@src/app/shared/dialog/file-preview-dialog/file-preview-dialog.model';
 import { formatFileSize } from '@src/app/shared/utils/util';
 
 /**
@@ -239,6 +241,9 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, A
       case RowActionMenuAction.DOWNLOAD:
         this.rowActionDownload(event.data);
         break;
+      case FilesRowAction.PREVIEW:
+        this.rowActionPreview(event.data);
+        break;
       case FilesRowAction.TOGGLE_SECRET:
         this.rowActionToggleSecret(event.data);
         break;
@@ -327,6 +332,20 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, A
 
   private rowActionDownload(file: JFile): void {
     this.gs.getFile(SERV.GET_FILES, file.id, file.filename);
+  }
+
+  /**
+   * Opens a preview that reads the file in byte ranges, so a multi-gigabyte wordlist can be inspected
+   * without downloading it.
+   *
+   * @param file - File to preview.
+   */
+  private rowActionPreview(file: JFile): void {
+    this.dialog.open<FilePreviewDialogComponent, FilePreviewDialogData>(FilePreviewDialogComponent, {
+      data: { file },
+      width: '900px',
+      maxWidth: '95vw'
+    });
   }
 
   private rowActionToggleSecret(file: JFile): void {
