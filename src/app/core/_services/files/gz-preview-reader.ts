@@ -1,14 +1,16 @@
-import { HTTP_SKIP_CACHE_HEADER_CONFIG, HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
 import { Observable, defer, firstValueFrom, from } from 'rxjs';
 
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-
-import { FilePreviewPage, GzPreviewPage, PREVIEW_LINE_FEED, splitPreviewLines } from '@models/file-preview.model';
+import {
+  FilePreviewPage,
+  GzPreviewPage,
+  PREVIEW_LINE_FEED,
+  splitPreviewLines,
+  walkLines
+} from '@models/file-preview.model';
 import { FileId } from '@models/id.types';
 
+import type { FilePreviewService } from '@services/files/file-preview.service';
 import { SequentialPreviewReader } from '@services/files/preview-reader';
-import { SERV } from '@services/main.config';
-import { ConfigService } from '@services/shared/config.service';
 
 /** First two bytes of every gzip stream, used to refuse a file that is not actually compressed. */
 const GZIP_MAGIC = [0x1f, 0x8b] as const;
@@ -30,6 +32,11 @@ interface Inflated {
    * covering the whole file means the file itself is corrupt or truncated.
    */
   errored: boolean;
+  /**
+   * True when the decoder ran to the clean end of the stream, so `output` is everything the prefix
+   * decompresses to. False when reading stopped early or in an error.
+   */
+  complete: boolean;
 }
 
 /**
@@ -51,8 +58,7 @@ export class GzPreviewReader implements SequentialPreviewReader {
   private exhausted = false;
 
   constructor(
-    private readonly http: HttpClient,
-    private readonly cs: ConfigService,
+    private readonly service: FilePreviewService,
     private readonly fileId: FileId,
     private readonly totalBytes: number
   ) {}
@@ -88,8 +94,8 @@ export class GzPreviewReader implements SequentialPreviewReader {
 
     for (;;) {
       await this.fetchUpTo(windowBytes);
-      const { output, errored } = await this.inflate(offset + maxLines);
-      const page = this.cut(output, errored, offset, maxLines);
+      const inflated = await this.inflate(offset, maxLines);
+      const page = this.cut(inflated, offset, maxLines);
 
       // The window only grows when the page came up short and there is anything left to fetch.
       if (
@@ -117,26 +123,7 @@ export class GzPreviewReader implements SequentialPreviewReader {
       return;
     }
 
-    const headers = new HttpHeaders({
-      ...HTTP_SKIP_CACHE_HEADER_CONFIG,
-      ...HTTP_SKIP_ERROR_HEADER_CONFIG,
-      Range: `bytes=${start}-${end}`
-    });
-
-    const buffer = await firstValueFrom(
-      this.http.get(this.cs.getEndpoint() + SERV.GET_FILES.URL, {
-        params: new HttpParams().set('file', this.fileId),
-        headers,
-        responseType: 'arraybuffer'
-      })
-    );
-
-    const bytes = new Uint8Array(buffer);
-    // A cache that answers a conditional range request with the whole representation instead of the
-    // requested slice would corrupt the prefix silently; refuse it rather than use it.
-    if (bytes.length > end - start + 1) {
-      throw new Error('The server returned more bytes than the requested range.');
-    }
+    const bytes = await firstValueFrom(this.service.fetchRange(this.fileId, start, end));
     if (start === 0 && (bytes[0] !== GZIP_MAGIC[0] || bytes[1] !== GZIP_MAGIC[1])) {
       throw new Error('The file does not hold gzip-compressed data.');
     }
@@ -154,40 +141,64 @@ export class GzPreviewReader implements SequentialPreviewReader {
   /**
    * Decompresses the cached prefix from its first byte, the only place a gzip stream can be entered.
    *
-   * Reading stops once `maxTerminators` line feeds have been seen: a window can cover far more
-   * decompressed output than any page shows, and a highly compressible file would otherwise have
-   * its whole tail decompressed just to fill a handful of lines.
+   * Reading stops once the output holds `maxLines` line feeds past `offset`: a window can cover far
+   * more decompressed output than any page shows, and a highly compressible file would otherwise
+   * have its whole tail decompressed just to fill a handful of lines.
    *
-   * @param maxTerminators - Line feeds after which reading stops early.
-   * @returns The decompressed bytes, and whether the decoder ended in an error.
+   * @param offset - Decompressed byte the page starts at; line feeds before it are not counted.
+   * @param maxLines - Line feeds past `offset` after which reading stops early.
+   * @returns The decompressed bytes, and how the decoder ended.
    */
-  private async inflate(maxTerminators: number): Promise<Inflated> {
+  private async inflate(offset: number, maxLines: number): Promise<Inflated> {
     if (this.prefix.length === 0) {
-      return { output: new Uint8Array(0), errored: false };
+      return { output: new Uint8Array(0), errored: false, complete: false };
     }
 
     const reader = new Blob([this.prefix]).stream().pipeThrough(new DecompressionStream('gzip')).getReader();
 
     const chunks: Uint8Array[] = [];
+    let produced = 0;
     let terminators = 0;
     let errored = false;
+    let complete = false;
 
     try {
       for (;;) {
         const { done, value } = await reader.read();
         if (done) {
+          complete = true;
           break;
         }
         chunks.push(value);
-        for (const byte of value) {
-          if (byte === PREVIEW_LINE_FEED) {
-            terminators++;
+        // Count line feeds only from `offset` onwards, scanning from wherever that falls in this chunk.
+        let stopAt = -1;
+        for (
+          let at = value.indexOf(PREVIEW_LINE_FEED, Math.max(0, offset - produced));
+          at !== -1 && stopAt === -1;
+          at = value.indexOf(PREVIEW_LINE_FEED, at + 1)
+        ) {
+          if (++terminators >= maxLines) {
+            stopAt = at;
           }
         }
-        if (terminators >= maxTerminators) {
-          await reader.cancel().catch(() => undefined);
-          break;
+        produced += value.length;
+        if (stopAt === -1) {
+          continue;
         }
+
+        // When the page's last line ends exactly at the end of this chunk, nothing read so far tells
+        // whether anything follows it, so one more read settles that before stopping.
+        if (stopAt === value.length - 1) {
+          const peek = await reader.read();
+          if (peek.done) {
+            complete = true;
+            break;
+          }
+          chunks.push(peek.value);
+          produced += peek.value.length;
+        }
+        await reader.cancel().catch(() => undefined);
+        break;
       }
     } catch {
       // A window cut mid-stream always ends the decoder abruptly; the bytes decoded so far are all
@@ -196,49 +207,48 @@ export class GzPreviewReader implements SequentialPreviewReader {
       errored = true;
     }
 
-    const output = new Uint8Array(chunks.reduce((length, chunk) => length + chunk.length, 0));
+    const output = new Uint8Array(produced);
     let position = 0;
     for (const chunk of chunks) {
       output.set(chunk, position);
       position += chunk.length;
     }
-    return { output, errored };
+    return { output, errored, complete };
   }
 
   /**
    * Cuts a page of whole lines out of the decompressed output, starting at `offset`.
    *
-   * @param decompressed - Everything the cached prefix decompresses to.
-   * @param errored - Whether decompression ended abruptly rather than at a clean end of stream.
+   * @param inflated - What the cached prefix decompressed to, and how the decoder ended.
    * @param offset - Decompressed byte the page starts at, always the start of a line.
    * @param maxLines - How many lines the page should hold at most.
    * @returns The resulting page.
    */
-  private cut(decompressed: Uint8Array, errored: boolean, offset: number, maxLines: number): GzPreviewPage {
+  private cut({ output: decompressed, errored, complete }: Inflated, offset: number, maxLines: number): GzPreviewPage {
     const wholeFileFetched = this.prefix.length >= this.totalBytes;
+    // Once the cached prefix has hit its ceiling, whatever it decompresses to is all this reader will
+    // ever show; a page it cannot fill ends the preview rather than asking for more.
+    const limitReached = !wholeFileFetched && this.prefix.length >= MAX_WINDOW_BYTES;
 
     // An offset past everything decodable leaves nothing to show and nothing to page on to.
     if (offset >= decompressed.length) {
-      return { ...this.emptyPage(), startByte: offset, endByte: offset };
+      return { ...this.emptyPage(), startByte: offset, endByte: offset, reachedFetchLimit: limitReached };
     }
 
-    // Walk line terminators until the page is full or the decompressed output runs out.
-    let to = offset;
-    let lineCount = 0;
-    while (lineCount < maxLines) {
-      const breakAt = decompressed.indexOf(PREVIEW_LINE_FEED, to);
-      if (breakAt === -1) {
-        break;
-      }
-      to = breakAt + 1;
-      lineCount++;
-    }
+    const { to: endOfWholeLines, lineCount } = walkLines(decompressed, offset, maxLines);
+    const stoppedAtLimit = limitReached && lineCount < maxLines;
 
     // A page that came up short keeps the trailing unterminated line only when the whole file was
-    // fetched, since only then can the fragment be known to be the file's last line.
-    if (lineCount < maxLines && (wholeFileFetched || lineCount === 0)) {
-      to = decompressed.length;
-    }
+    // fetched, since only then can the fragment be known to be the file's last line — or when no
+    // whole line turned up at all, since the fragment is then all there is to show. At the fetch
+    // limit the fragment is merely where reading stopped, so it is dropped.
+    const keepsFragment = lineCount < maxLines && (wholeFileFetched || (lineCount === 0 && !limitReached));
+    const to = keepsFragment ? decompressed.length : endOfWholeLines;
+
+    // The output is only known to be everything the file holds once the decoder ran to its end,
+    // cleanly or into the damage; stopped early, it may have halted right after the last line of
+    // this page with more still to decode.
+    const atEndOfFile = wholeFileFetched && (complete || errored) && to >= decompressed.length;
 
     const content = decompressed.subarray(offset, to);
     return {
@@ -246,12 +256,13 @@ export class GzPreviewReader implements SequentialPreviewReader {
       lines: splitPreviewLines(content),
       startByte: offset,
       endByte: to,
-      hasPartialLine: lineCount === 0 && !wholeFileFetched,
+      hasPartialLine: lineCount === 0 && !wholeFileFetched && !limitReached,
       isBinary: content.includes(0),
-      hasMore: !(wholeFileFetched && to >= decompressed.length),
+      hasMore: !atEndOfFile && !stoppedAtLimit,
       compressedBytesFetched: this.prefix.length,
       compressedTotalBytes: this.totalBytes,
-      hasDecompressionError: errored && wholeFileFetched
+      hasDecompressionError: errored && wholeFileFetched,
+      reachedFetchLimit: stoppedAtLimit
     };
   }
 
@@ -266,7 +277,8 @@ export class GzPreviewReader implements SequentialPreviewReader {
       hasMore: false,
       compressedBytesFetched: this.prefix.length,
       compressedTotalBytes: this.totalBytes,
-      hasDecompressionError: false
+      hasDecompressionError: false,
+      reachedFetchLimit: false
     };
   }
 }

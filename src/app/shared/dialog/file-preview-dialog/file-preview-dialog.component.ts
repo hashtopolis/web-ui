@@ -200,8 +200,7 @@ export class FilePreviewDialogComponent implements OnInit {
       case 'gzip': {
         // The decompressed total is unknowable until the whole archive has been fetched, so the label
         // reports where the reader stands and how much of the archive that took.
-        const fetched = formatFileSize(this.page.compressedBytesFetched, 'short');
-        return `decompressed bytes ${from}–${to} · ${fetched} of ${this.fileSizeLabel} fetched`;
+        return `decompressed bytes ${from}–${to} · ${this.compressedBytesFetchedLabel} of ${this.fileSizeLabel} fetched`;
       }
     }
   }
@@ -210,8 +209,18 @@ export class FilePreviewDialogComponent implements OnInit {
     return formatFileSize(this.data.file.size, 'short');
   }
 
+  /** How much of a compressed file has been fetched so far; empty for any other kind of page. */
+  protected get compressedBytesFetchedLabel(): string {
+    return this.page?.kind === 'gzip' ? formatFileSize(this.page.compressedBytesFetched, 'short') : '';
+  }
+
   /** Line total of the file, or an empty string when the backend has not counted its lines. */
   protected get lineCountLabel(): string {
+    // The backend counts line feeds in the stored bytes. For a compressed file those are compressed
+    // bytes, so the figure says nothing about the lines the reader decompresses.
+    if (this.reader.kind === 'sequential') {
+      return '';
+    }
     const { lineCount } = this.data.file;
     return lineCount > 0 ? ` · ${lineCount.toLocaleString()} lines` : '';
   }

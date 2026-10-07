@@ -56,7 +56,7 @@ describe('RangePreviewReader', () => {
 
     const request = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
     const range = request.request.headers.get('Range') ?? '';
-    request.flush(encode(body));
+    request.flush(encode(body), { status: 206, statusText: 'Partial Content' });
 
     return { page, range };
   };

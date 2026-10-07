@@ -4,6 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
+import { GzPreviewPage } from '@models/file-preview.model';
 import { JFile } from '@models/file.model';
 
 import { FilePreviewDialogComponent } from '@src/app/shared/dialog/file-preview-dialog/file-preview-dialog.component';
@@ -22,6 +23,9 @@ const FILE: JFile = {
   accessGroupId: 1,
   lineCount: LINES.length
 };
+
+/** Status the backend answers every honoured range request with. */
+const PARTIAL_CONTENT = { status: 206, statusText: 'Partial Content' };
 
 /** Compresses text the way the backend stores a `.gz` file, using the browser's own encoder. */
 const gz = async (text: string): Promise<Uint8Array> => {
@@ -85,7 +89,7 @@ describe('FilePreviewDialogComponent', () => {
   const serveRange = (): void => {
     const request = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
     const [start, end] = (request.request.headers.get('Range') ?? '').replace('bytes=', '').split('-').map(Number);
-    request.flush(FILE_BYTES.slice(start, end + 1).buffer as ArrayBuffer);
+    request.flush(FILE_BYTES.slice(start, end + 1).buffer as ArrayBuffer, PARTIAL_CONTENT);
     fixture.detectChanges();
   };
 
@@ -131,6 +135,10 @@ describe('FilePreviewDialogComponent', () => {
     expect(isEnabled(fixture, 'Start of file')).toBeFalse();
     expect(isEnabled(fixture, 'Previous page')).toBeFalse();
     expect(isEnabled(fixture, 'Next page')).toBeTrue();
+  });
+
+  it('shows the line total the backend counted for the file', () => {
+    expect(fixture.nativeElement.textContent).toContain('30 lines');
   });
 
   it('pages forwards and back again through the lines it already walked', () => {
@@ -196,7 +204,7 @@ describe('FilePreviewDialogComponent on a gzip-compressed file', () => {
   const serveFirstWindow = async (): Promise<void> => {
     const request = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
     const [start, end] = (request.request.headers.get('Range') ?? '').replace('bytes=', '').split('-').map(Number);
-    request.flush(gzBytes.slice(start, end + 1).buffer as ArrayBuffer);
+    request.flush(gzBytes.slice(start, end + 1).buffer as ArrayBuffer, PARTIAL_CONTENT);
     await awaitPageLoaded(fixture);
   };
 
@@ -274,6 +282,19 @@ describe('FilePreviewDialogComponent on a gzip-compressed file', () => {
   it('reports where the reader stands in decompressed bytes', () => {
     expect(fixture.nativeElement.textContent).toContain('decompressed bytes');
   });
+
+  it('does not show a line total, since the backend counted the compressed bytes rather than lines', () => {
+    expect(fixture.nativeElement.textContent).not.toContain('30 lines');
+  });
+
+  it('explains when the preview stops at the compressed fetch limit', () => {
+    const page = component['page'] as GzPreviewPage;
+    component['page'] = { ...page, reachedFetchLimit: true, hasMore: false };
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('The preview ends here');
+    expect(isEnabled(fixture, 'Next page')).toBeFalse();
+  });
 });
 
 describe('FilePreviewDialogComponent on a damaged gzip file', () => {
@@ -315,7 +336,7 @@ describe('FilePreviewDialogComponent on a damaged gzip file', () => {
 
     const request = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
     const [start, end] = (request.request.headers.get('Range') ?? '').replace('bytes=', '').split('-').map(Number);
-    request.flush(gzBytes.slice(start, end + 1).buffer as ArrayBuffer);
+    request.flush(gzBytes.slice(start, end + 1).buffer as ArrayBuffer, PARTIAL_CONTENT);
     await awaitPageLoaded(fixture);
   };
 
@@ -338,15 +359,20 @@ describe('FilePreviewDialogComponent on a damaged gzip file', () => {
     expect(isEnabled(fixture, 'Next page')).toBeFalse();
   });
 
-  it('reveals the damage once a page asks for more than could be decompressed', async () => {
+  it('reveals the damage once a page reads up to where decompression fails', async () => {
     await openDialog(10);
 
-    // The first page fills from lines decoded before the damage, so it shows no warning yet.
+    // The first two pages fill from lines decoded before the damage, so they show no warning yet.
     expect(fixture.nativeElement.textContent).not.toContain('Decompression ended early');
     expect(isEnabled(fixture, 'Next page')).toBeTrue();
 
     await navigate('Next page');
+    expect(fixture.nativeElement.textContent).not.toContain('Decompression ended early');
 
+    // The last page runs into the cut-off trailer, which is where the damage shows.
+    await navigate('Next page');
+    expect(visibleRows(fixture)[9]).toBe('30 line30');
     expect(fixture.nativeElement.textContent).toContain('Decompression ended early');
+    expect(isEnabled(fixture, 'Next page')).toBeFalse();
   });
 });

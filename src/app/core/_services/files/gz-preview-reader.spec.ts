@@ -22,6 +22,9 @@ const GZ_FILE: JFile = {
   lineCount: 0
 };
 
+/** Status the backend answers every honoured range request with. */
+const PARTIAL_CONTENT = { status: 206, statusText: 'Partial Content' };
+
 /** Concatenates byte chunks into a single array. */
 const concat = (chunks: Uint8Array[]): Uint8Array => {
   const output = new Uint8Array(chunks.reduce((length, chunk) => length + chunk.length, 0));
@@ -45,6 +48,20 @@ const gz = async (text: string): Promise<Uint8Array> => {
     chunks.push(value);
   }
   return concat(chunks);
+};
+
+/**
+ * Measures how many decompressed bytes the browser's gzip decoder hands out per chunk, which is
+ * what a fixture has to know to place a line terminator exactly on a chunk boundary.
+ */
+const decompressionChunkBytes = async (): Promise<number> => {
+  const reader = new Blob([(await gz('x'.repeat(500_000))).buffer as ArrayBuffer])
+    .stream()
+    .pipeThrough(new DecompressionStream('gzip'))
+    .getReader();
+  const { value } = await reader.read();
+  await reader.cancel();
+  return value?.length ?? 0;
 };
 
 /**
@@ -80,7 +97,7 @@ describe('GzPreviewReader', () => {
     const request = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
     const range = request.request.headers.get('Range') ?? '';
     const [start, end] = range.replace('bytes=', '').split('-').map(Number);
-    request.flush(compressed.slice(start, end + 1).buffer as ArrayBuffer);
+    request.flush(compressed.slice(start, end + 1).buffer as ArrayBuffer, PARTIAL_CONTENT);
     return range;
   };
 
@@ -94,7 +111,7 @@ describe('GzPreviewReader', () => {
       if (request) {
         const range = request.request.headers.get('Range') ?? '';
         const [start, end] = range.replace('bytes=', '').split('-').map(Number);
-        request.flush(compressed.slice(start, end + 1).buffer as ArrayBuffer);
+        request.flush(compressed.slice(start, end + 1).buffer as ArrayBuffer, PARTIAL_CONTENT);
         return range;
       }
       await new Promise<void>((resolve) => setTimeout(resolve, 0));
@@ -179,7 +196,7 @@ describe('GzPreviewReader', () => {
     expect(request.request.params.get('file')).toBe('1');
     expect(request.request.headers.get('Range')).toBe(`bytes=0-${compressed.length - 1}`);
     expect(request.request.headers.get('X-Cache-Skip')).toBe('true');
-    request.flush(compressed.buffer as ArrayBuffer);
+    request.flush(compressed.buffer as ArrayBuffer, PARTIAL_CONTENT);
 
     await pagePromise;
   });
@@ -201,6 +218,33 @@ describe('GzPreviewReader', () => {
     expect(page.hasMore).toBeTrue();
   });
 
+  it('stops at the compressed fetch limit and says so, instead of running out silently', async () => {
+    // Lines of random bytes barely compress, so these leave well over 4 MiB of compressed data.
+    const lines = randomLines(3_800, 1_500);
+    const compressed = await gz(`${lines.join('\n')}\n`);
+    expect(compressed.length).toBeGreaterThan(4_194_304);
+    const reader = openReader(compressed.length);
+
+    // A page deep in the file that 4 MiB of compressed data cannot fill: it starts inside what that
+    // much decompresses to, and asks for far more lines than remain there.
+    const firstLine = 3_000;
+    const pagePromise = readForward(reader, { offset: firstLine * 1_501, maxLines: 1_000 });
+
+    expect(await serveNextRange(compressed)).toBe('bytes=0-65535');
+    expect(await serveNextRange(compressed)).toBe('bytes=65536-262143');
+    expect(await serveNextRange(compressed)).toBe('bytes=262144-1048575');
+    expect(await serveNextRange(compressed)).toBe('bytes=1048576-4194303');
+    const page = await pagePromise;
+
+    expect(page.lines.length).toBeGreaterThan(0);
+    expect(page.lines).toEqual(lines.slice(firstLine, firstLine + page.lines.length));
+    expect(page.reachedFetchLimit).toBeTrue();
+    expect(page.hasMore).toBeFalse();
+    // The cut-off tail is not a long line, so it is not reported as one.
+    expect(page.hasPartialLine).toBeFalse();
+    expect(page.compressedBytesFetched).toBe(4_194_304);
+  });
+
   it('cuts later pages from the cached prefix without fetching again', async () => {
     const compressed = await gz('alpha\nbravo\ncharlie\ndelta\n');
     const reader = openReader(compressed.length);
@@ -218,6 +262,28 @@ describe('GzPreviewReader', () => {
     expect(second.lines).toEqual(['charlie', 'delta']);
     expect(second.startByte).toBe(first.endByte);
     expect(second.hasMore).toBeFalse();
+  });
+
+  it('keeps paging when a page ends exactly where a decompression chunk ends', async () => {
+    // The decoder is stopped early once a page has enough lines. If that happens to be at the end of
+    // an output chunk, the output so far must not be mistaken for the end of the file.
+    const chunkBytes = await decompressionChunkBytes();
+    const lineBytes = Math.floor(chunkBytes / 100);
+    const lines = Array.from({ length: 99 }, (unused, i) => String(i).padEnd(lineBytes - 1, 'a'));
+    lines.push('z'.repeat(chunkBytes - 99 * lineBytes - 1));
+    for (let i = 100; i < 500; i++) {
+      lines.push(`line${i}`);
+    }
+    const compressed = await gz(`${lines.join('\n')}\n`);
+    const reader = openReader(compressed.length);
+    const pagePromise = readForward(reader, { maxLines: 100 });
+
+    serveRange(compressed);
+    const page = await pagePromise;
+
+    expect(page.lines.length).toBe(100);
+    expect(page.endByte).toBe(chunkBytes);
+    expect(page.hasMore).toBeTrue();
   });
 
   it('treats a window cut mid-stream as the end of its decompressed output', async () => {

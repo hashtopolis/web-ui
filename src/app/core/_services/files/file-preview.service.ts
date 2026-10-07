@@ -1,10 +1,17 @@
 import { HTTP_SKIP_CACHE_HEADER_CONFIG, HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
-import { Observable, mergeMap, of, throwError } from 'rxjs';
+import { Observable, filter, map, of } from 'rxjs';
 
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpEventType,
+  HttpHeaderResponse,
+  HttpHeaders,
+  HttpParams,
+  HttpResponse
+} from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
-import { PREVIEW_LINE_FEED, PlainPreviewPage, splitPreviewLines } from '@models/file-preview.model';
+import { PREVIEW_LINE_FEED, PlainPreviewPage, splitPreviewLines, walkLines } from '@models/file-preview.model';
 import { JFile } from '@models/file.model';
 import { FileId } from '@models/id.types';
 
@@ -64,9 +71,60 @@ export class FilePreviewService {
    */
   openReader(file: JFile): PreviewReader {
     if (file.filename.toLowerCase().endsWith('.gz')) {
-      return new GzPreviewReader(this.http, this.cs, file.id, file.size);
+      return new GzPreviewReader(this, file.id, file.size);
     }
     return new RangePreviewReader(this, file);
+  }
+
+  /**
+   * Fetches one byte range of a stored file.
+   *
+   * @param fileId - File to read.
+   * @param start - First byte of the range.
+   * @param end - Last byte of the range, inclusive.
+   * @returns The bytes of the range, or an error when the server did not honour it.
+   */
+  fetchRange(fileId: FileId, start: number, end: number): Observable<Uint8Array> {
+    const headers = new HttpHeaders({
+      ...HTTP_SKIP_CACHE_HEADER_CONFIG,
+      ...HTTP_SKIP_ERROR_HEADER_CONFIG,
+      Range: `bytes=${start}-${end}`
+    });
+
+    return this.http
+      .get(this.cs.getEndpoint() + SERV.GET_FILES.URL, {
+        params: new HttpParams().set('file', fileId),
+        headers,
+        responseType: 'arraybuffer',
+        observe: 'events',
+        // Progress reporting is what makes the response headers arrive as an event of their own.
+        reportProgress: true
+      })
+      .pipe(
+        filter(
+          (event): event is HttpHeaderResponse | HttpResponse<ArrayBuffer> =>
+            event.type === HttpEventType.ResponseHeader || event.type === HttpEventType.Response
+        ),
+        map((event) => {
+          // The status arrives with the headers, long before a large body does. Refusing anything but
+          // partial content here aborts the download, rather than buffering a whole file that the
+          // server was asked for a slice of.
+          if (event.status !== 206) {
+            throw new Error('The server ignored the requested byte range.');
+          }
+          return event;
+        }),
+        filter((event): event is HttpResponse<ArrayBuffer> => event.type === HttpEventType.Response),
+        map((response) => {
+          const bytes = new Uint8Array(response.body ?? new ArrayBuffer(0));
+          // A cache that answers a conditional range request with the whole representation instead of
+          // the requested slice would shift every line number silently; refuse it rather than show it.
+          if (bytes.length > end - start + 1) {
+            throw new Error('The server returned more bytes than the requested range.');
+          }
+          return bytes;
+        })
+      );
   }
 
   /**
@@ -86,36 +144,11 @@ export class FilePreviewService {
     const start = Math.min(Math.max(request.offset, 0), totalBytes - 1);
     const end = Math.min(start + windowBytes - 1, totalBytes - 1);
 
-    const headers = new HttpHeaders({
-      ...HTTP_SKIP_CACHE_HEADER_CONFIG,
-      ...HTTP_SKIP_ERROR_HEADER_CONFIG,
-      Range: `bytes=${start}-${end}`
-    });
-
-    return this.http
-      .get(this.cs.getEndpoint() + SERV.GET_FILES.URL, {
-        params: new HttpParams().set('file', fileId),
-        headers,
-        responseType: 'arraybuffer'
-      })
-      .pipe(
-        mergeMap((buffer) => {
-          const bytes = new Uint8Array(buffer);
-          // A cache that answers a conditional range request with the whole representation instead of
-          // the requested slice would shift every line number silently; refuse it rather than show it.
-          if (bytes.length > end - start + 1) {
-            return throwError(() => new Error('The server returned more bytes than the requested range.'));
-          }
-          return of(this.toPage(bytes, start, request));
-        })
-      );
+    return this.fetchRange(fileId, start, end).pipe(map((bytes) => this.toPage(bytes, start, request)));
   }
 
   /**
    * Cuts a fetched window back to the whole lines it contains, at most `maxLines` of them.
-   *
-   * Lines are split on raw bytes before decoding: a `0x0A` byte is unambiguous in UTF-8, so cutting
-   * there cannot corrupt a multi-byte character the way cutting on an arbitrary byte would.
    *
    * @param bytes - The bytes the backend returned.
    * @param start - Offset the window was read from.
@@ -145,17 +178,7 @@ export class FilePreviewService {
       ({ from, lineCount } = this.lastLinesStart(bytes, maxLines, start > 0));
       to = bytes.length;
     } else {
-      // Walk line terminators until the page is full or the window runs out.
-      to = from;
-      lineCount = 0;
-      while (lineCount < maxLines) {
-        const breakAt = bytes.indexOf(PREVIEW_LINE_FEED, to);
-        if (breakAt === -1) {
-          break;
-        }
-        to = breakAt + 1;
-        lineCount++;
-      }
+      ({ to, lineCount } = walkLines(bytes, from, maxLines));
 
       if (lineCount < maxLines && (isFinalWindow || lineCount === 0)) {
         // Either the file's last line carries no terminator, or no terminator turned up at all and the

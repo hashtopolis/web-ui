@@ -54,6 +54,12 @@
           }
         </div>
       }
+      @if (page.kind === 'gzip' && page.reachedFetchLimit) {
+        <p class="border-t border-border-faint p-xs text-2xs text-warning">
+          The preview ends here: only the first {{ compressedBytesFetchedLabel }} of the compressed file are read, and
+          what follows is out of its reach. Download the file to see the rest.
+        </p>
+      }
     }
 
     @if (isLoading) {
