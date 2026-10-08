@@ -60,12 +60,23 @@ export interface TableSettings {
 }
 
 /**
+ * How a table renders its rows: as table rows, or as cards in a grid. Only tables that supply a
+ * card template to `ht-table` can be switched; the rest stay on `TABLE`.
+ */
+export const TableViewMode = {
+  TABLE: 'table',
+  CARDS: 'cards'
+} as const;
+export type TableViewMode = (typeof TableViewMode)[keyof typeof TableViewMode];
+
+/**
  * Interface definition for TableConfig
  * @prop columns List of column number
  * @prop start   Start value for pagination
  * @prop order   Column sorting
  * @prop page    Number of pages
  * @prop search  Saved search
+ * @prop view    Row rendering mode (table rows or cards); absent means table rows
  */
 export interface TableConfig {
   columns: number[];
@@ -75,6 +86,7 @@ export interface TableConfig {
   search?: string | unknown[] | undefined;
   before?: number | string | undefined;
   index?: number | undefined;
+  view?: TableViewMode | undefined;
 }
 
 /**

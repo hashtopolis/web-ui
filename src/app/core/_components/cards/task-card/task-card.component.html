@@ -1,0 +1,141 @@
+<mat-card appearance="outlined" class="task-card" [class.task-card--cracked]="view.hasCracks">
+  <mat-card-content class="task-card__content">
+    <!-- Status first: the badge carries what the table spreads over the status column and its icon. -->
+    <div class="task-card__head">
+      @if (selectable) {
+        <mat-checkbox
+          class="task-card__select"
+          [checked]="selected"
+          (change)="selectedToggled.emit()"
+          (click)="$event.stopPropagation()"
+          [attr.aria-label]="'Select ' + view.name"
+        />
+      }
+      <!-- Wraps on its own so the id and the action menu stay pinned right on narrow cards. -->
+      <div class="task-card__badges">
+        <span class="task-card__status" [attr.data-tone]="view.status.tone">
+          <mat-icon class="task-card__status-icon">{{ view.status.icon }}</mat-icon>
+          {{ view.status.label }}
+        </span>
+        @if (view.isSupertask) {
+          <span class="task-card__badge">
+            <mat-icon class="task-card__badge-icon">account_tree</mat-icon>
+            Supertask
+          </span>
+        }
+      </div>
+      @if (view.taskId !== null) {
+        <span class="task-card__id" matTooltip="Task ID">#{{ view.taskId }}</span>
+      }
+      @if (contextMenuService) {
+        <row-action-menu
+          [contextMenuService]="contextMenuService"
+          [data]="task"
+          (menuItemClicked)="rowActionClicked.emit($event)"
+        ></row-action-menu>
+      }
+    </div>
+
+    <h3 class="task-card__title">
+      @if (view.detailLink) {
+        <a [routerLink]="view.detailLink" [matTooltip]="view.attackCmd">{{ view.name }}</a>
+      } @else {
+        <button
+          type="button"
+          class="task-card__title-action"
+          matTooltip="Show subtasks"
+          (click)="supertaskClicked.emit(task)"
+        >
+          {{ view.name }}
+        </button>
+      }
+    </h3>
+
+    <!-- The compact status: one bar for how far the keyspace got. Unlabelled by design — it sits
+         directly under the task name, and the tooltip carries the dispatched/searched split. -->
+    @if (view.keyspace) {
+      <div class="task-card__meter-row">
+        <div
+          class="task-card__meter"
+          role="img"
+          [attr.aria-label]="
+            'Dispatched ' + view.keyspace.dispatched + ' percent, searched ' + view.keyspace.searched + ' percent'
+          "
+          [matTooltip]="view.keyspace.dispatched + '% dispatched / ' + view.keyspace.searched + '% searched'"
+        >
+          <span
+            class="task-card__meter-fill task-card__meter-fill--dispatched"
+            [style.width.%]="view.keyspace.dispatched"
+          ></span>
+          <span
+            class="task-card__meter-fill task-card__meter-fill--searched"
+            [style.width.%]="view.keyspace.searched"
+          ></span>
+        </div>
+        <span class="task-card__meter-value">{{ view.keyspace.searched }}%</span>
+      </div>
+    }
+
+    <div class="task-card__stats">
+      @if (view.speed !== null) {
+        <span class="task-card__stat" matTooltip="Current speed">
+          <mat-icon class="task-card__stat-icon">bolt</mat-icon>
+          {{ view.speed }}
+        </span>
+      }
+      <span class="task-card__stat" matTooltip="Assigned agents / max agents">
+        <mat-icon class="task-card__stat-icon">dns</mat-icon>
+        {{ view.agents }} / {{ view.maxAgents }}
+      </span>
+      <span class="task-card__stat" matTooltip="Priority">
+        <mat-icon class="task-card__stat-icon">flag</mat-icon>
+        {{ view.priority }}
+      </span>
+      <!-- A count, not a share of the hashlist: other tasks crack into the same hashlist. -->
+      @if (view.cracked.routerLink) {
+        <a
+          class="task-card__stat task-card__stat--cracked"
+          [routerLink]="view.cracked.routerLink"
+          matTooltip="Hashes cracked by this task"
+        >
+          <mat-icon class="task-card__stat-icon">lock_open</mat-icon>
+          {{ view.cracked.count }}
+        </a>
+      } @else {
+        <span class="task-card__stat" [class.task-card__stat--cracked]="view.hasCracks" matTooltip="Hashes cracked">
+          <mat-icon class="task-card__stat-icon">lock_open</mat-icon>
+          {{ view.cracked.count }}
+        </span>
+      }
+      @for (flag of view.flags; track flag.icon) {
+        <span class="task-card__stat" [matTooltip]="flag.label">
+          <mat-icon class="task-card__stat-icon">{{ flag.icon }}</mat-icon>
+        </span>
+      }
+    </div>
+
+    <div class="task-card__meta">
+      @if (view.hashlist) {
+        <a class="task-card__meta-item" [routerLink]="view.hashlist.routerLink" [matTooltip]="view.hashlist.label">
+          <mat-icon class="task-card__stat-icon">list</mat-icon>
+          {{ view.hashlist.label }}
+          @if (view.hashlistFullyCracked) {
+            <mat-icon class="task-card__stat-icon text-ok" matTooltip="All hashes cracked">check</mat-icon>
+          }
+        </a>
+      }
+      @if (view.hashtype) {
+        <span class="task-card__meta-item" [matTooltip]="view.hashtype">
+          <mat-icon class="task-card__stat-icon">tag</mat-icon>
+          {{ view.hashtype }}
+        </span>
+      }
+      @if (view.accessGroup) {
+        <a class="task-card__meta-item" [routerLink]="view.accessGroup.routerLink" matTooltip="Access group">
+          <mat-icon class="task-card__stat-icon">group</mat-icon>
+          {{ view.accessGroup.label }}
+        </a>
+      }
+    </div>
+  </mat-card-content>
+</mat-card>

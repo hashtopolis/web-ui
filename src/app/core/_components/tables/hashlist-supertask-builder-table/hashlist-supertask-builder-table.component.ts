@@ -86,7 +86,7 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
   }
 
   ngOnDestroy(): void {
-    this.dataSource.disconnect(null as never);
+    this.dataSource.destroy();
   }
 
   onPageChange(event: PageEvent): void {

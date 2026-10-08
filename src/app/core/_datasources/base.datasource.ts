@@ -137,6 +137,15 @@ export abstract class BaseDataSource<
   }
 
   /**
+   * Gets the observable for the currently displayed rows. `connect()` hands the same stream to
+   * `mat-table`; this getter exists for views that render the rows themselves (e.g. a card grid).
+   * @return An observable that emits the rows of the current page.
+   */
+  get data$(): Observable<T[]> {
+    return this.dataSubject.asObservable();
+  }
+
+  /**
    * Sets the loading state and triggers change detection.
    * @param value - The boolean value representing the loading state to be set.
    */
@@ -186,11 +195,25 @@ export abstract class BaseDataSource<
   }
 
   /**
-   * Disconnect the data source from a collection viewer and unsubscribe.
+   * Detach the data source from a collection viewer.
+   *
+   * Deliberately empty: `mat-table` calls this whenever *its own view* goes away, which is not the
+   * same as the data source being finished with — `ht-table` tears the table down when switching to
+   * the card view, and both views read this same data source. Completing the subjects here left the
+   * card grid (and the table, on switching back) subscribed to a completed `BehaviorSubject`, which
+   * replays nothing. Real teardown lives in {@link destroy}, driven by the owning component.
    *
    * @param _collectionViewer - The collection viewer to disconnect.
    */
   disconnect(_collectionViewer: CollectionViewer): void {
+    // Intentionally a no-op — see destroy().
+  }
+
+  /**
+   * Final teardown: completes the data and loading streams and drops every subscription. Called by
+   * the owning `ht-table` when it is destroyed. Safe to call more than once.
+   */
+  destroy(): void {
     this.dataSubject.complete();
     this.loadingSubject.complete();
 
@@ -200,6 +223,7 @@ export abstract class BaseDataSource<
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
+    this.subscriptions = [];
   }
 
   /**
