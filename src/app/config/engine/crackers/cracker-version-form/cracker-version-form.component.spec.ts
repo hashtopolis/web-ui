@@ -2,7 +2,9 @@ import { zCrackerBinaryResponse, zGetAccessGroupsHelperApiResponse } from '@gene
 import { Subject, of, throwError } from 'rxjs';
 
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
+import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { CrackerSource } from '@models/cracker-binary.model';
@@ -12,11 +14,20 @@ import { UploadTUSService } from '@services/files/files_tus.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
+import { HashTypesRoleService } from '@services/roles/config/hashtypes-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 
+import { CrackerHashtypesComponent } from '@src/app/config/engine/crackers/cracker-hashtypes/cracker-hashtypes.component';
 import { CrackerVersionFormComponent } from '@src/app/config/engine/crackers/cracker-version-form/cracker-version-form.component';
 import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
+
+@Component({ selector: 'app-cracker-hashtypes', template: '' })
+class StubCrackerHashtypesComponent {
+  @Input() crackerBinaryId: number;
+  @Input() isHashcat = false;
+  @Input() canEdit = false;
+}
 
 const ACCESS_GROUPS_RESPONSE = mockValidResponse(zGetAccessGroupsHelperApiResponse, {
   data: [
@@ -47,6 +58,7 @@ describe('CrackerVersionFormComponent', () => {
   let alert: jasmine.SpyObj<AlertService>;
   let roles: jasmine.SpyObj<CrackerBinaryRoleService>;
   let confirm: jasmine.SpyObj<ConfirmDialogService>;
+  let hashtypeRoles: jasmine.SpyObj<HashTypesRoleService>;
   let routeData: { type: string };
   let routeParams: { id: string };
 
@@ -60,11 +72,17 @@ describe('CrackerVersionFormComponent', () => {
         { provide: AlertService, useValue: alert },
         { provide: CrackerBinaryRoleService, useValue: roles },
         { provide: ConfirmDialogService, useValue: confirm },
+        { provide: HashTypesRoleService, useValue: hashtypeRoles },
         { provide: ConfigService, useValue: { getEndpoint: () => 'http://localhost:8080/api/v2' } },
         { provide: ActivatedRoute, useValue: { snapshot: { data: routeData, params: routeParams } } },
         provideHttpClient()
       ]
-    }).compileComponents();
+    })
+      .overrideComponent(CrackerVersionFormComponent, {
+        remove: { imports: [CrackerHashtypesComponent] },
+        add: { imports: [StubCrackerHashtypesComponent] }
+      })
+      .compileComponents();
     fixture = TestBed.createComponent(CrackerVersionFormComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -92,6 +110,8 @@ describe('CrackerVersionFormComponent', () => {
     roles = jasmine.createSpyObj('CrackerBinaryRoleService', ['hasRole']);
     confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirmDeletion']);
     roles.hasRole.and.returnValue(true);
+    hashtypeRoles = jasmine.createSpyObj('HashTypesRoleService', ['hasRole']);
+    hashtypeRoles.hasRole.and.returnValue(true);
     gs.ghelper.and.returnValue(of(ACCESS_GROUPS_RESPONSE));
     gs.chelper.and.returnValue(of(IMPORT_FILES_RESPONSE));
     gs.create.and.returnValue(of(mockResponse()));
@@ -103,6 +123,10 @@ describe('CrackerVersionFormComponent', () => {
       routeData = { type: 'create' };
       routeParams = { id: '3' };
       await setup();
+    });
+
+    it('shows no hashtypes section', () => {
+      expect(hashtypesSection()).toBeNull();
     });
 
     it('loads access groups via the getAccessGroups helper and preselects the first', () => {
@@ -314,7 +338,7 @@ describe('CrackerVersionFormComponent', () => {
     });
   });
 
-  function binaryResponse(filename: string | null) {
+  function binaryResponse(filename: string | null, typeName = 'hashcat') {
     return mockValidResponse(zCrackerBinaryResponse, {
       data: {
         id: 12,
@@ -329,8 +353,12 @@ describe('CrackerVersionFormComponent', () => {
         },
         relationships: { crackerBinaryType: { data: { id: 1, type: 'crackerBinaryType' } } }
       },
-      included: [{ id: 1, type: 'crackerBinaryType', attributes: { typeName: 'hashcat', isChunkingAvailable: true } }]
+      included: [{ id: 1, type: 'crackerBinaryType', attributes: { typeName, isChunkingAvailable: true } }]
     });
+  }
+
+  function hashtypesSection(): StubCrackerHashtypesComponent | null {
+    return fixture.debugElement.query(By.directive(StubCrackerHashtypesComponent))?.componentInstance ?? null;
   }
 
   describe('edit mode, stored on server', () => {
@@ -340,6 +368,13 @@ describe('CrackerVersionFormComponent', () => {
       gs.get.and.returnValue(of(binaryResponse('hashcat-7.1.2.7z')));
       gs.update.and.returnValue(of({}));
       await setup();
+    });
+
+    it('shows the read-only hashtypes section of a hashcat version', () => {
+      const section = hashtypesSection();
+      expect(section?.crackerBinaryId).toBe(12);
+      expect(section?.isHashcat).toBeTrue();
+      expect(section?.canEdit).toBeTrue();
     });
 
     it('loads the binary with its type and shows the title', () => {
@@ -435,6 +470,34 @@ describe('CrackerVersionFormComponent', () => {
       expect(el.querySelector('[data-testid="submit-button-crackerVersion"]')).toBeNull();
       expect(el.querySelector('[data-testid="delete-button"]')).toBeNull();
       expect(el.querySelector('[data-testid="download-button"]')).toBeTruthy();
+    });
+  });
+
+  describe('edit mode, generic cracker', () => {
+    beforeEach(async () => {
+      routeData = { type: 'edit' };
+      routeParams = { id: '12' };
+      gs.get.and.returnValue(of(binaryResponse(null, 'generic')));
+      await setup();
+    });
+
+    it('shows the editable hashtypes section', () => {
+      expect(component.isHashcat).toBeFalse();
+      expect(hashtypesSection()?.isHashcat).toBeFalse();
+    });
+  });
+
+  describe('edit mode without hashtype read role', () => {
+    beforeEach(async () => {
+      routeData = { type: 'edit' };
+      routeParams = { id: '12' };
+      hashtypeRoles.hasRole.and.returnValue(false);
+      gs.get.and.returnValue(of(binaryResponse(null)));
+      await setup();
+    });
+
+    it('shows no hashtypes section', () => {
+      expect(hashtypesSection()).toBeNull();
     });
   });
 

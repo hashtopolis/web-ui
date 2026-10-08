@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAccessGroup } from '@models/access-group.model';
-import { CrackerSource, JCrackerBinary } from '@models/cracker-binary.model';
+import { CrackerSource, JCrackerBinary, isHashcatCrackerBinary } from '@models/cracker-binary.model';
 import { ServerImportFile } from '@models/file.model';
 import { AccessGroupId, CrackerBinaryId, CrackerBinaryTypeId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
@@ -27,9 +27,11 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
+import { HashTypesRoleService } from '@services/roles/config/hashtypes-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 
+import { CrackerHashtypesComponent } from '@src/app/config/engine/crackers/cracker-hashtypes/cracker-hashtypes.component';
 import {
   CRACKER_SOURCE_OPTIONS,
   CrackerBinaryCreatePayload,
@@ -66,6 +68,7 @@ const CRACKERS_PAGE = ['/config/engine/crackers'];
   imports: [
     ButtonsModule,
     ComponentsModule,
+    CrackerHashtypesComponent,
     GridModule,
     InputModule,
     MatButtonModule,
@@ -110,12 +113,23 @@ export class CrackerVersionFormComponent implements OnInit {
   private changeDetectorRef = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
   protected roleService = inject(CrackerBinaryRoleService);
+  private hashtypesRoleService = inject(HashTypesRoleService);
 
   private readonly skipErrorDialog = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
 
   /** True if the loaded binary's archive is stored on the server */
   get isStoredOnServer(): boolean {
     return this.binary?.filename != null;
+  }
+
+  /** True if the loaded binary is a hashcat version, its hashtypes are determined by the background scan */
+  get isHashcat(): boolean {
+    return this.binary !== null && isHashcatCrackerBinary(this.binary);
+  }
+
+  /** The hashtypes section needs the hashtype read permission for the include */
+  get canReadHashtypes(): boolean {
+    return this.hashtypesRoleService.hasRole('read');
   }
 
   get source(): CrackerSource {
