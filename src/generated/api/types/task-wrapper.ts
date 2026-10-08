@@ -702,10 +702,10 @@ export type TaskWrapperDisplayResponse = {
       hashlistName: string;
       hashCount: number;
       hashlistCracked: number;
+      hashlistIsSecret: boolean;
       hashTypeId: number;
       hashTypeDescription: string;
       groupName: string;
-      hashlistIsSecret: boolean;
       totalAssignedAgents?: number;
       dispatched?: string;
       searched?: string;
@@ -809,10 +809,10 @@ export type TaskWrapperDisplayListResponse = {
       hashlistName: string;
       hashCount: number;
       hashlistCracked: number;
+      hashlistIsSecret: boolean;
       hashTypeId: number;
       hashTypeDescription: string;
       groupName: string;
-      hashlistIsSecret: boolean;
       totalAssignedAgents?: number;
       dispatched?: string;
       searched?: string;
