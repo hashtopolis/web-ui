@@ -647,7 +647,12 @@ const _uiConfigDefault = {
     },
     supertasksTable: {
       page: DEFAULT_PAGE_SIZE,
-      columns: [SupertasksTableCol.ID, SupertasksTableCol.NAME, SupertasksTableCol.PRETASKS],
+      columns: [
+        SupertasksTableCol.ID,
+        SupertasksTableCol.NAME,
+        SupertasksTableCol.PRETASKS,
+        SupertasksTableCol.CRACKER_TYPE
+      ],
       order: {
         id: SupertasksTableCol.ID,
         dataKey: 'id',
