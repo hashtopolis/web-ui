@@ -1,4 +1,7 @@
 <div class="builder-table-wrapper">
+  @if (unsupportedHashtypeMessage) {
+    <fixed-alert data-testid="unsupported-hashtype" [message]="unsupportedHashtypeMessage"></fixed-alert>
+  }
   <div class="builder-table-scroll">
     <table class="builder-table">
       <thead>
