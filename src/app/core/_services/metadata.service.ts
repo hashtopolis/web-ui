@@ -314,16 +314,6 @@ export class MetadataService {
   // Preprocessor
   // //
 
-  newhashtypeInfo = [
-    {
-      title: 'Create Hashtype',
-      customform: false,
-      subtitle: false,
-      submitok: 'New Hashtype created!',
-      submitokredirect: '/config/hashtypes'
-    }
-  ];
-
   // This variable stores information about the Editing Hashtypes page.
   edithashtypeInfo = [
     {
@@ -341,45 +331,7 @@ export class MetadataService {
     }
   ];
 
-  //This variable defines the fields and properties required when creating a new Hashtype.
-  newhashtype: MetadataFormField[] = [
-    {
-      name: 'hashTypeId',
-      label: 'Hashtype',
-      type: 'number',
-      requiredasterisk: true,
-      tooltip: 'ie. Hashcat -m',
-      validators: [Validators.required, Validators.pattern('^[0-9]*$'), Validators.minLength(1), this.numberValidator]
-    },
-    {
-      name: 'description',
-      label: 'Description',
-      type: 'text',
-      requiredasterisk: true,
-      tooltip: false,
-      validators: [Validators.required, Validators.minLength(1)]
-    },
-    {
-      name: 'isSalted',
-      label: 'Salted',
-      type: 'checkbox',
-      requiredasterisk: false,
-      tooltip: 'Only if there is a separate salt value',
-      validators: false,
-      defaultValue: false
-    },
-    {
-      name: 'isSlowHash',
-      label: 'Slow Hash',
-      type: 'checkbox',
-      requiredasterisk: false,
-      tooltip: false,
-      validators: false,
-      defaultValue: false
-    }
-  ];
-
-  //This variable is similar to newhashtype but is used for editing an existing Hashtype. As difference include disable form variable.
+  //This variable defines the fields of the form for editing an existing Hashtype.
   edithashtype: MetadataFormField[] = [
     {
       name: 'id',
@@ -876,8 +828,6 @@ export class MetadataService {
       return this.editfile;
     } else if (formName === 'newagentbinary' || formName === 'editagentbinary') {
       return this.agentbinary;
-    } else if (formName === 'newhashtype') {
-      return this.newhashtype;
     } else if (formName === 'edithashtype') {
       return this.edithashtype;
     } else if (formName === 'newglobalpermissionsgp') {
@@ -915,8 +865,6 @@ export class MetadataService {
       return this.newagentbinaryInfo;
     } else if (formName === 'editagentbinaryInfo') {
       return this.editagentbinaryInfo;
-    } else if (formName === 'newhashtypeInfo') {
-      return this.newhashtypeInfo;
     } else if (formName === 'edithashtypeInfo') {
       return this.edithashtypeInfo;
     } else if (formName === 'newglobalpermissionsgpInfo') {

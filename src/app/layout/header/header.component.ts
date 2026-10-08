@@ -463,7 +463,7 @@ export class HeaderComponent implements OnInit {
         ]
       });
     }
-    if (this.configRoleWrapper.hasHashTypesRole('read')) {
+    if (this.configRoleWrapper.hasHashTypesRole('update')) {
       actions.push({
         label: HeaderMenuLabel.HASHTYPES,
         routerLink: ['config', 'hashtypes']

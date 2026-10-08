@@ -275,11 +275,13 @@ export class GlobalService {
     serviceConfig: ServiceConfig,
     id: number,
     relType: string,
-    data: JsonApiRelationshipData
+    data: JsonApiRelationshipData,
+    httpOptions?: { headers?: HttpHeaders }
   ): Observable<object> {
     return this.http.post<object>(
       this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType,
-      data
+      data,
+      httpOptions
     );
   }
 

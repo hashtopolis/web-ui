@@ -15,7 +15,8 @@ export class HashTypesRoleService extends RoleService {
   constructor(permissionService: PermissionService) {
     super(permissionService, {
       read: [Perm.Hashtype.READ],
-      create: [Perm.Hashtype.CREATE]
+      create: [Perm.Hashtype.CREATE],
+      update: [Perm.Hashtype.UPDATE]
     });
   }
 }

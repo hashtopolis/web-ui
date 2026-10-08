@@ -12,12 +12,19 @@
       </p>
     }
   } @else if (editable) {
-    <div class="mt-2 mb-3">
+    <div class="mt-2 mb-3 flex gap-2">
       <button-submit
         data-testid="toggle-add-hashtypes"
         [name]="showAddForm ? 'Close' : 'Add Hashtypes'"
         (click)="toggleAddForm()"
       ></button-submit>
+      @if (canCreate) {
+        <button-submit
+          data-testid="toggle-create-hashtype"
+          [name]="showCreateForm ? 'Close' : 'New Hashtype'"
+          (click)="toggleCreateForm()"
+        ></button-submit>
+      }
     </div>
 
     @if (showAddForm) {
@@ -47,6 +54,24 @@
             <span>Loading Hashtypes...</span>
           </div>
         }
+      </form>
+    }
+
+    @if (showCreateForm) {
+      <form [formGroup]="createForm" class="mb-3" data-testid="create-hashtype-form">
+        <div class="flex flex-col items-start gap-2">
+          <input-number title="Mode" formControlName="hashTypeId" [min]="0" [isRequired]="true"></input-number>
+          <input-text title="Description" formControlName="description" [isRequired]="true"></input-text>
+          <input-check title="Salted" formControlName="isSalted"></input-check>
+          <input-check title="Slow Hash" formControlName="isSlowHash"></input-check>
+          <button-submit
+            data-testid="create-hashtype"
+            [name]="'Create'"
+            [loading]="isCreating"
+            [disabled]="isCreating"
+            (click)="onCreate()"
+          ></button-submit>
+        </div>
       </form>
     }
   }

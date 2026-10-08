@@ -60,7 +60,7 @@ describe('HeaderComponent logout', () => {
 });
 
 describe('HeaderComponent config menu', () => {
-  function configMenu(backgroundJobRead: boolean) {
+  function configMenu(backgroundJobRead: boolean, hashtypeRoles: string[] = []) {
     const wrapper = jasmine.createSpyObj<ConfigRoleWrapperService>('ConfigRoleWrapperService', [
       'hasSettingsRole',
       'hasHashTypesRole',
@@ -70,6 +70,7 @@ describe('HeaderComponent config menu', () => {
       'hasBackgroundJobRole'
     ]);
     wrapper.hasLogRole.and.returnValue(true);
+    wrapper.hasHashTypesRole.and.callFake((role: string) => hashtypeRoles.includes(role));
     wrapper.hasBackgroundJobRole.and.callFake((role: string) => role === 'read' && backgroundJobRead);
 
     const component = Object.create(HeaderComponent.prototype) as HeaderComponent;
@@ -85,5 +86,15 @@ describe('HeaderComponent config menu', () => {
 
   it('hides Background Jobs without the read role', () => {
     expect(configMenu(false).map((action) => action.label)).toEqual([HeaderMenuLabel.LOG]);
+  });
+
+  it('shows Hashtypes with the update role', () => {
+    const labels = configMenu(false, ['read', 'update']).map((action) => action.label);
+    expect(labels).toContain(HeaderMenuLabel.HASHTYPES);
+  });
+
+  it('hides Hashtypes with the read role only', () => {
+    const labels = configMenu(false, ['read']).map((action) => action.label);
+    expect(labels).not.toContain(HeaderMenuLabel.HASHTYPES);
   });
 });

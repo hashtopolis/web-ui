@@ -27,6 +27,7 @@ class StubCrackerHashtypesComponent {
   @Input() crackerBinaryId: number;
   @Input() isHashcat = false;
   @Input() canEdit = false;
+  @Input() canCreateHashtypes = false;
 }
 
 const ACCESS_GROUPS_RESPONSE = mockValidResponse(zGetAccessGroupsHelperApiResponse, {
@@ -484,6 +485,26 @@ describe('CrackerVersionFormComponent', () => {
     it('shows the editable hashtypes section', () => {
       expect(component.isHashcat).toBeFalse();
       expect(hashtypesSection()?.isHashcat).toBeFalse();
+    });
+
+    it('passes the hashtype create permission to the section', () => {
+      expect(hashtypesSection()?.canCreateHashtypes).toBeTrue();
+      expect(hashtypeRoles.hasRole).toHaveBeenCalledWith('create');
+    });
+  });
+
+  describe('edit mode without hashtype create role', () => {
+    beforeEach(async () => {
+      routeData = { type: 'edit' };
+      routeParams = { id: '12' };
+      hashtypeRoles.hasRole.and.callFake((role: string) => role !== 'create');
+      gs.get.and.returnValue(of(binaryResponse(null, 'generic')));
+      await setup();
+    });
+
+    it('shows the section without the create permission', () => {
+      expect(hashtypesSection()).not.toBeNull();
+      expect(hashtypesSection()?.canCreateHashtypes).toBeFalse();
     });
   });
 

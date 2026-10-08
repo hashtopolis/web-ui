@@ -117,4 +117,28 @@ describe('GlobalService relationships', () => {
     expect(req.request.headers.get('X-Test')).toBe('1');
     req.flush({ data: [] });
   });
+
+  it('postRelationships forwards headers', () => {
+    service
+      .postRelationships(
+        SERV.CRACKERS,
+        12,
+        'hashtypes',
+        { data: [{ type: 'hashType', id: 0 }] },
+        { headers: new HttpHeaders({ 'X-Test': '1' }) }
+      )
+      .subscribe();
+    const req = httpMock.expectOne('http://localhost:8080/api/v2/ui/crackers/12/relationships/hashtypes');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.headers.get('X-Test')).toBe('1');
+    expect(req.request.body).toEqual({ data: [{ type: 'hashType', id: 0 }] });
+    req.flush({});
+  });
+
+  it('postRelationships sends no extra headers without options', () => {
+    service.postRelationships(SERV.CRACKERS, 12, 'hashtypes', { data: [] }).subscribe();
+    const req = httpMock.expectOne('http://localhost:8080/api/v2/ui/crackers/12/relationships/hashtypes');
+    expect(req.request.headers.keys()).toEqual([]);
+    req.flush({});
+  });
 });
