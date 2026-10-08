@@ -34,6 +34,7 @@ export type DataType =
   | 'health-check-agents'
   | 'logs'
   | 'background-jobs'
+  | 'cracker-hashtypes'
   | 'permissions'
   | 'cracks'
   | 'vouchers'
