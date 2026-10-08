@@ -11,6 +11,9 @@
           [isRequired]="roleService.hasRole('edit')"
         ></input-text>
       </app-form-row>
+      <app-form-row>
+        <input-text title="Cracker type" formControlName="crackerBinaryType"></input-text>
+      </app-form-row>
       <grid-buttons>
         @if (roleService.hasRole('delete')) {
           <button-submit name="Delete" (click)="onDelete()" type="delete"></button-submit>
@@ -40,16 +43,19 @@
       ></app-pretasks-table>
     </app-table>
 
-    <app-table>
-      <app-page-subtitle subtitle="Preconfigured tasks not part of this supertask"></app-page-subtitle>
-      <app-pretasks-table
-        #superTasksPretaskNotContainedTable
-        name="superTasksPretasksEditTable"
-        [supertTaskId]="editedSTIndex"
-        [reverseQuery]="true"
-        (pretasksChanged)="onPretaskChanged()"
-        (pretaskAdd)="onPretaskAdd($event)"
-      ></app-pretasks-table>
-    </app-table>
+    @if (crackerBinaryTypeId !== null) {
+      <app-table>
+        <app-page-subtitle subtitle="Preconfigured tasks not part of this supertask"></app-page-subtitle>
+        <app-pretasks-table
+          #superTasksPretaskNotContainedTable
+          name="superTasksPretasksEditTable"
+          [supertTaskId]="editedSTIndex"
+          [reverseQuery]="true"
+          [crackerBinaryTypeId]="crackerBinaryTypeId"
+          (pretasksChanged)="onPretaskChanged()"
+          (pretaskAdd)="onPretaskAdd($event)"
+        ></app-pretasks-table>
+      </app-table>
+    }
   }
 </app-page>

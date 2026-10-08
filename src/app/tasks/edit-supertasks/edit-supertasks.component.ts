@@ -8,7 +8,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { PretaskId } from '@models/id.types';
+import { CrackerBinaryTypeId, PretaskId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
 import { zIdRouteParams } from '@models/routes.schema';
@@ -16,6 +16,7 @@ import { JSuperTask } from '@models/supertask.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
+import { CrackerBinaryTypesService, fallbackCrackerTypeName } from '@services/crackers/cracker-binary-types.service';
 import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
@@ -66,6 +67,9 @@ export class EditSupertasksComponent implements OnInit {
 
   editName = '';
 
+  /** Cracker binary type of the supertask, null until it is loaded; only pretasks of this type can be added */
+  crackerBinaryTypeId: CrackerBinaryTypeId | null = null;
+
   @ViewChild('superTasksPretasksTable') superTasksPretasksTable: PretasksTableComponent;
   @ViewChild('superTasksPretaskNotContainedTable') superTasksPretasksNotContainedTable: PretasksTableComponent;
 
@@ -79,6 +83,7 @@ export class EditSupertasksComponent implements OnInit {
   private serializer = inject(JsonAPISerializer);
   private confirmDialog = inject(ConfirmDialogService);
   protected roleService = inject(SupertasksRoleService);
+  private crackerBinaryTypes = inject(CrackerBinaryTypesService);
 
   constructor() {
     this.buildForm();
@@ -101,7 +106,8 @@ export class EditSupertasksComponent implements OnInit {
     const canEdit = this.roleService.hasRole('edit');
     this.viewForm = new FormGroup({
       supertaskId: new FormControl({ value: '', disabled: true }),
-      supertaskName: new FormControl({ value: '', disabled: !canEdit }, canEdit ? [Validators.required] : [])
+      supertaskName: new FormControl({ value: '', disabled: !canEdit }, canEdit ? [Validators.required] : []),
+      crackerBinaryType: new FormControl({ value: '', disabled: true })
     });
 
     // Form add pretasks
@@ -127,21 +133,7 @@ export class EditSupertasksComponent implements OnInit {
       .subscribe({
         next: (response: ResponseWrapper) => {
           const supertask: JSuperTask = this.serializer.deserialize(response, zSupertaskResponse);
-          this.editName = supertask.supertaskName;
-          const canEdit = this.roleService.hasRole('edit');
-          this.viewForm = new FormGroup({
-            supertaskId: new FormControl({
-              value: supertask.id,
-              disabled: true
-            }),
-            supertaskName: new FormControl(
-              {
-                value: supertask.supertaskName,
-                disabled: !canEdit
-              },
-              canEdit ? [Validators.required] : []
-            )
-          });
+          this.applySupertask(supertask);
 
           if (this.roleService.hasRole('editSupertaskPreTasks')) {
             this.gs
@@ -177,15 +169,7 @@ export class EditSupertasksComponent implements OnInit {
               .subscribe({
                 next: (response2: ResponseWrapper) => {
                   const supertask2: JSuperTask = this.serializer.deserialize(response2, zSupertaskResponse);
-                  this.editName = supertask2.supertaskName;
-                  const canEdit2 = this.roleService.hasRole('edit');
-                  this.viewForm = new FormGroup({
-                    supertaskId: new FormControl({ value: supertask2.id, disabled: true }),
-                    supertaskName: new FormControl(
-                      { value: supertask2.supertaskName, disabled: !canEdit2 },
-                      canEdit2 ? [Validators.required] : []
-                    )
-                  });
+                  this.applySupertask(supertask2);
                   // still try to load pretasks list for selection
                   this.gs
                     .getAll(SERV.PRETASKS)
@@ -233,6 +217,34 @@ export class EditSupertasksComponent implements OnInit {
   }
 
   /**
+   * Shows the loaded supertask: name form, read-only cracker type (name resolved asynchronously) and the type the
+   * pretask tables are limited to.
+   */
+  private applySupertask(supertask: JSuperTask): void {
+    this.editName = supertask.supertaskName;
+    this.crackerBinaryTypeId = supertask.crackerBinaryTypeId;
+    const canEdit = this.roleService.hasRole('edit');
+    this.viewForm = new FormGroup({
+      supertaskId: new FormControl({ value: supertask.id, disabled: true }),
+      supertaskName: new FormControl(
+        { value: supertask.supertaskName, disabled: !canEdit },
+        canEdit ? [Validators.required] : []
+      ),
+      crackerBinaryType: new FormControl({
+        value: fallbackCrackerTypeName(supertask.crackerBinaryTypeId),
+        disabled: true
+      })
+    });
+    this.crackerBinaryTypes
+      .getTypeName(supertask.crackerBinaryTypeId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((name) => {
+        this.viewForm.get('crackerBinaryType')?.setValue(name);
+        this.changeDetectorRef.detectChanges();
+      });
+  }
+
+  /**
    * Retrieves the available pre-tasks that are not assigned.
    *
    * @param assigning An array of assigned tasks with pre-task information.
@@ -240,8 +252,12 @@ export class EditSupertasksComponent implements OnInit {
    * @returns An array containing pre-tasks that are not assigned.
    */
   getAvailablePretasks(assigning: JPretask[], pretasks: JPretask[]) {
-    // Use filter to find pre-tasks not present in the assigning array
-    return pretasks.filter((pretask) => assigning.findIndex((assignedTask) => assignedTask.id === pretask.id) === -1);
+    // not assigned yet, and of the cracker binary type of the supertask
+    return pretasks.filter(
+      (pretask) =>
+        assigning.findIndex((assignedTask) => assignedTask.id === pretask.id) === -1 &&
+        (this.crackerBinaryTypeId === null || pretask.crackerBinaryTypeId === this.crackerBinaryTypeId)
+    );
   }
 
   /**
