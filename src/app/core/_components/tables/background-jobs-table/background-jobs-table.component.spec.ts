@@ -103,7 +103,7 @@ describe('BackgroundJobsTableComponent', () => {
     it('renders type and status labels', () => {
       expect(rendered(BackgroundJobsTableCol.TYPE, job())).toBe('Recount file lines');
       expect(rendered(BackgroundJobsTableCol.STATUS, job({ status: BackgroundJobStatus.FAILED }))).toBe('Failed');
-      expect(rendered(BackgroundJobsTableCol.TYPE, job({ jobType: 'scan_cracker' }))).toBe('scan_cracker');
+      expect(rendered(BackgroundJobsTableCol.TYPE, job({ jobType: 'future_job' }))).toBe('future_job');
     });
 
     it('renders the user name, or System without a user', () => {

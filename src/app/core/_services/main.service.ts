@@ -297,8 +297,28 @@ export class GlobalService {
     );
   }
 
-  getRelationships(serviceConfig: ServiceConfig, id: number, relType: string): Observable<ResponseWrapper> {
-    return this.http.get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType);
+  /**
+   * Get the ids of a to-many relationship (the relationship link, without the related resources)
+   * @param serviceConfig the serviceconfig of the API endpoint
+   * @param id id of the base resource
+   * @param relType name of the relationship
+   */
+  getRelationshipLink(serviceConfig: ServiceConfig, id: number, relType: string): Observable<ResponseWrapper> {
+    return this.http.get<ResponseWrapper>(
+      this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType
+    );
+  }
+
+  getRelationships(
+    serviceConfig: ServiceConfig,
+    id: number,
+    relType: string,
+    httpOptions?: { headers?: HttpHeaders }
+  ): Observable<ResponseWrapper> {
+    return this.http.get<ResponseWrapper>(
+      this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType,
+      httpOptions?.headers ? { headers: httpOptions.headers } : {}
+    );
   }
 
   /**

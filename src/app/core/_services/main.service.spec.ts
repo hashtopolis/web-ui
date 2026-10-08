@@ -81,3 +81,40 @@ describe('GlobalService downloads', () => {
     expect(anchor.download).toBe('rockyou.txt');
   });
 });
+
+describe('GlobalService relationships', () => {
+  let service: GlobalService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [
+        GlobalService,
+        { provide: AuthService, useValue: { userId: 1 } },
+        { provide: ConfigService, useValue: { getEndpoint: () => 'http://localhost:8080/api/v2' } },
+        provideHttpClient(),
+        provideHttpClientTesting()
+      ]
+    });
+    service = TestBed.inject(GlobalService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => httpMock.verify());
+
+  it('getRelationshipLink requests the ids of a to-many relationship', () => {
+    service.getRelationshipLink(SERV.CRACKERS, 12, 'hashtypes').subscribe();
+    const req = httpMock.expectOne('http://localhost:8080/api/v2/ui/crackers/12/relationships/hashtypes');
+    expect(req.request.method).toBe('GET');
+    req.flush({ data: [] });
+  });
+
+  it('getRelationships requests the related resources and forwards headers', () => {
+    service
+      .getRelationships(SERV.HASHTYPES, 0, 'crackerBinaries', { headers: new HttpHeaders({ 'X-Test': '1' }) })
+      .subscribe();
+    const req = httpMock.expectOne('http://localhost:8080/api/v2/ui/hashtypes/0/crackerBinaries');
+    expect(req.request.headers.get('X-Test')).toBe('1');
+    req.flush({ data: [] });
+  });
+});
