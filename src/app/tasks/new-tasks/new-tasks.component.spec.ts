@@ -21,6 +21,7 @@ import { JTask } from '@models/task.model';
 
 import {
   CrackerHashtypeSupportService,
+  SUPPORT_LOOKUP_FAILED,
   buildUnsupportedHashtypeMessage
 } from '@services/crackers/cracker-hashtype-support.service';
 import { SERV } from '@services/main.config';
@@ -1228,6 +1229,28 @@ describe('NewTasksComponent', () => {
       const el: HTMLElement = fixture.nativeElement;
       expect(el.querySelector('[data-testid="unsupported-hashtype"]')).toBeTruthy();
       expect(component.form.valid).toBeFalse();
+    });
+
+    it('shows no required hint on the selects the user opened before the block', async () => {
+      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      await initComponent(fixture);
+      component.form.controls.crackerBinaryTypeId.markAsTouched();
+      component.form.controls.crackerBinaryId.markAsTouched();
+
+      await selectHashlist(2);
+
+      expect(component.form.controls.crackerBinaryTypeId.touched).toBeFalse();
+      expect(component.form.controls.crackerBinaryId.touched).toBeFalse();
+    });
+
+    it('says the check failed when the support lookup failed', async () => {
+      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(SUPPORT_LOOKUP_FAILED));
+      await initComponent(fixture);
+
+      await selectHashlist(2);
+
+      expect(component.form.controls.crackerBinaryId.value).toBeNull();
+      expect(component.unsupportedHashtypeMessage).toBe('Could not check which cracker versions support hashtype 1.');
     });
 
     it('restores all versions when the hashlist is cleared', async () => {

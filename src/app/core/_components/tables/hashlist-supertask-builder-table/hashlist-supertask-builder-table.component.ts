@@ -15,6 +15,7 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { CrackerBinaryTypesService, fallbackCrackerTypeName } from '@services/crackers/cracker-binary-types.service';
 import {
   CrackerHashtypeSupportService,
+  SUPPORT_LOOKUP_FAILED,
   SupportedCrackerBinaryIds,
   buildUnsupportedHashtypeMessage,
   filterSupportedCrackerVersions
@@ -139,6 +140,9 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
   /** Why the row cannot create a supertask */
   rowBlockedMessage(supertask: JSuperTask): string {
     const type = this.typeName(supertask);
+    if (this.supportedCrackerBinaryIds === SUPPORT_LOOKUP_FAILED) {
+      return `Could not check which ${type} versions support this hashtype.`;
+    }
     return this.hashTypeId !== null
       ? `No accessible ${type} version supports this hashtype.`
       : `No accessible ${type} version.`;
@@ -200,7 +204,7 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
     // the support lookup is already restricted to accessible versions, an empty set means nothing supports it
     this.unsupportedHashtypeMessage =
       this.hashTypeId !== null && this.supportedCrackerBinaryIds?.size === 0
-        ? buildUnsupportedHashtypeMessage(this.hashTypeId, this.hashtypeDescription)
+        ? buildUnsupportedHashtypeMessage(this.hashTypeId, this.hashtypeDescription, this.supportedCrackerBinaryIds)
         : null;
   }
 

@@ -447,11 +447,13 @@ export class NewTasksComponent implements OnInit {
       this.noCrackerVersionsAvailable = this.crackerTypes.length === 0;
       this.unsupportedHashtypeMessage =
         hashTypeId !== undefined && this.crackerTypes.length > 0
-          ? buildUnsupportedHashtypeMessage(hashTypeId, description)
+          ? buildUnsupportedHashtypeMessage(hashTypeId, description, supported)
           : null;
       this.selectCrackerversions = [];
       typeCtrl.patchValue(null, { emitEvent: false });
-      // the alert explains the block, the version select keeps its layout without the required hint
+      // the alert explains the block, both selects keep their layout without the required hint, even when the user
+      // opened them before
+      typeCtrl.markAsUntouched();
       this.blockCrackerVersion(false);
       return;
     }
