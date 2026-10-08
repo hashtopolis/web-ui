@@ -26,8 +26,7 @@ export const FormRouteKind = {
   EditWordlist: 'editwordlist',
   NewAccessGroups: 'newaccessgroups',
   NewAgentBinary: 'newagentbinary',
-  NewGlobalPermissionsGroup: 'newglobalpermissionsgp',
-  NewHashtype: 'newhashtype'
+  NewGlobalPermissionsGroup: 'newglobalpermissionsgp'
 } as const;
 
 export type FormRouteKind = (typeof FormRouteKind)[keyof typeof FormRouteKind];

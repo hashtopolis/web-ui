@@ -132,6 +132,11 @@ export class CrackerVersionFormComponent implements OnInit {
     return this.hashtypesRoleService.hasRole('read');
   }
 
+  /** Generic versions offer creating hashtypes to users with the hashtype create permission */
+  get canCreateHashtypes(): boolean {
+    return this.hashtypesRoleService.hasRole('create');
+  }
+
   get source(): CrackerSource {
     return this.form.controls.source.value;
   }

@@ -35,7 +35,7 @@ import { LogComponent } from '@src/app/config/log/log.component';
 import { IsAuth } from '@src/app/core/_guards/auth.guard';
 import { CheckRole } from '@src/app/core/_guards/permission.guard';
 
-const routes: MyRoute[] = [
+export const routes: MyRoute[] = [
   {
     path: '',
     canActivate: [IsAuth],
@@ -117,19 +117,7 @@ const routes: MyRoute[] = [
         component: HashtypesComponent,
         data: {
           roleServiceClass: HashTypesRoleService,
-          roleName: 'read'
-        },
-        canActivate: [CheckRole]
-      },
-      {
-        path: 'hashtypes/new',
-        component: FormComponent,
-        data: {
-          kind: FormRouteKind.NewHashtype,
-          type: FormRouteType.Create,
-          serviceConfig: SERV.HASHTYPES,
-          roleServiceClass: HashTypesRoleService,
-          roleName: 'create'
+          roleName: 'update'
         },
         canActivate: [CheckRole]
       },
@@ -142,7 +130,7 @@ const routes: MyRoute[] = [
           serviceConfig: SERV.HASHTYPES,
           responseSchema: zHashTypeResponse,
           roleServiceClass: HashTypesRoleService,
-          roleName: 'read'
+          roleName: 'update'
         },
         canActivate: [CheckRole]
       },
