@@ -930,6 +930,11 @@ export class MetadataService {
       requiredasterisk: true,
       tooltip: false,
       validators: [Validators.required]
+    },
+    {
+      name: 'permissions',
+      type: FieldType.Hidden,
+      defaultValue: {}
     }
   ];
 

@@ -1,7 +1,18 @@
 import { Buffer } from 'buffer';
 
-import { BehaviorSubject, Observable, ReplaySubject, Subject, of, switchMap, take, throwError } from 'rxjs';
-import { catchError, distinctUntilChanged, map, tap } from 'rxjs/operators';
+import {
+  BehaviorSubject,
+  Observable,
+  ReplaySubject,
+  Subject,
+  firstValueFrom,
+  from,
+  of,
+  switchMap,
+  take,
+  throwError
+} from 'rxjs';
+import { catchError, distinctUntilChanged, finalize, map, shareReplay, tap } from 'rxjs/operators';
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { EventEmitter, Injectable, Injector, Output } from '@angular/core';
@@ -9,6 +20,7 @@ import { Router } from '@angular/router';
 
 import { AuthData, AuthUser } from '@models/auth-user.model';
 import { Permission } from '@models/global-permission-group.model';
+import { UserId } from '@models/id.types';
 import { JwtPayload } from '@models/jwt-payload.model';
 
 import { LoginRedirectService } from '@services/access/login-redirect.service';
@@ -36,8 +48,24 @@ export class AuthService {
   isLogged = this.logged.asObservable();
   redirectUrl = '';
   private userLoggedIn = new Subject<boolean>();
-  private tokenExpiration: ReturnType<typeof setTimeout> | null = null;
+  private refreshTimer: ReturnType<typeof setTimeout> | null = null;
   private endpoint = '/auth';
+
+  /**
+   * How long before the access token expires the session is renewed. Wide enough to absorb a slow
+   * request and modest clock skew, short enough that a renewal is rare.
+   */
+  private static readonly REFRESH_LEAD_TIME_MS = 60_000;
+
+  /** Name of the Web Lock that keeps two tabs from renewing the same single-use cookie at once. */
+  private static readonly REFRESH_LOCK = 'hashtopolis-refresh-token';
+
+  /**
+   * The renewal currently in flight, shared by every caller so that a burst of requests hitting an
+   * expiring token produces one call rather than one per request. Rotation makes that matter: each
+   * call consumes the refresh cookie and issues a new one.
+   */
+  private refreshInFlight$: Observable<AuthData> | null = null;
 
   constructor(
     private http: HttpClient,
@@ -70,9 +98,21 @@ export class AuthService {
 
     const loadedUser = new AuthUser(token, expires, userId, canonicalUsername);
 
-    if (!loadedUser._token || expires <= new Date()) {
+    if (!loadedUser._token) {
       this.logOut();
       return of(null);
+    }
+
+    /* The access token lives hours while the refresh cookie lives days, so finding an expired token
+       on startup is the normal case rather than a reason to send the user back to the login form. */
+    if (expires <= new Date()) {
+      return this.refreshToken().pipe(
+        switchMap(() => this.loadPermissions()),
+        catchError(() => {
+          this.logOut();
+          return of(null);
+        })
+      );
     }
 
     this.user.next(loadedUser);
@@ -107,16 +147,23 @@ export class AuthService {
       });
     }
 
-    const tokenExpiration = expires.getTime() - Date.now();
-    this.autologOut(tokenExpiration);
+    this.scheduleTokenRefresh(expires);
 
+    return this.loadPermissions();
+  }
+
+  /**
+   * Loads the permissions of the current session, degrading to `null` instead of failing the caller:
+   * a session that is valid but whose permissions could not be fetched is still a session.
+   */
+  private loadPermissions(): Observable<Permission | null> {
     return this.injector
       .get(PermissionService)
       .loadPermissions()
       .pipe(
         take(1),
         catchError((err) => {
-          console.error('Failed to load permissions on autoLogin:', err);
+          console.error('Failed to load permissions:', err);
           return of(null);
         })
       );
@@ -134,7 +181,10 @@ export class AuthService {
         {
           headers: new HttpHeaders({
             Authorization: 'Basic ' + basic
-          })
+          }),
+          // The response sets the HttpOnly refresh cookie, which the browser drops on a
+          // cross-origin response unless the request asked for credentials
+          withCredentials: true
         }
       )
       .pipe(
@@ -280,25 +330,152 @@ export class AuthService {
     return this.userLoggedIn.asObservable();
   }
 
-  // With autologOut we use only the expiration date of the bearer token, approx. 2 hours
-  autologOut(expirationDuration: number) {
-    this.tokenExpiration = setTimeout(() => {
-      this.logOut();
-    }, expirationDuration);
+  /**
+   * Exchanges the refresh cookie for a new access token.
+   *
+   * The cookie is HttpOnly and scoped to this one path, so it is never read here: the browser
+   * attaches it and the backend answers with a rotated one. Calls share a single request, because
+   * rotation makes each one consume the cookie it was sent with.
+   *
+   * @returns The refreshed session data.
+   */
+  refreshToken(): Observable<AuthData> {
+    if (this.refreshInFlight$) {
+      return this.refreshInFlight$;
+    }
+
+    this.refreshInFlight$ = from(this.refreshExclusively()).pipe(
+      finalize(() => {
+        this.refreshInFlight$ = null;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+
+    return this.refreshInFlight$;
+  }
+
+  /**
+   * Renews the session with the other tabs of this origin held off.
+   *
+   * The cookie is single use: the backend consumes it and answers with a replacement, and a second
+   * exchange of the same one is treated as the leak it would be, ending every session of that login.
+   * The field above only coalesces callers inside one tab, and each tab runs its own copy of this
+   * service over one shared cookie, so without a lock two tabs renewing at the same moment would log
+   * the user out of both.
+   *
+   * @returns The refreshed session data.
+   */
+  private async refreshExclusively(): Promise<AuthData> {
+    // Web Locks needs a secure context; where it is missing, fall back to renewing unsynchronised
+    if (!navigator.locks) {
+      return firstValueFrom(this.requestRefresh());
+    }
+
+    return navigator.locks.request(AuthService.REFRESH_LOCK, async () => {
+      const stored: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
+
+      /* A tab that held the lock first has already renewed and written the result to local storage,
+         which every tab shares. Adopt that rather than spending the replacement cookie again. */
+      if (stored?._token && !this.isAccessTokenExpiring()) {
+        const expires = stored._expires instanceof Date ? stored._expires : new Date(stored._expires);
+        return this.storeSession(stored._token, expires, stored.userId, stored.canonicalUsername);
+      }
+
+      return firstValueFrom(this.requestRefresh());
+    });
+  }
+
+  /**
+   * The exchange itself. The cookie is HttpOnly and scoped to this one path, so it is never read
+   * here: the browser attaches it and the backend answers with a rotated one.
+   */
+  private requestRefresh(): Observable<AuthData> {
+    return this.http
+      .post<AuthResponseData>(this.cs.getEndpoint() + this.endpoint + '/refresh', null, {
+        withCredentials: true
+      })
+      .pipe(map((resData) => this.storeRefreshedSession(resData.token, +resData.expires)));
+  }
+
+  /**
+   * Whether the stored access token is already past its expiry. A session with no token at all
+   * counts as expired.
+   */
+  isAccessTokenExpired(): boolean {
+    return this.millisecondsUntilExpiry() <= 0;
+  }
+
+  /**
+   * Whether the stored access token expires soon enough that it should be renewed before being used
+   * for another request.
+   */
+  isAccessTokenExpiring(): boolean {
+    return this.millisecondsUntilExpiry() <= AuthService.REFRESH_LEAD_TIME_MS;
+  }
+
+  private millisecondsUntilExpiry(): number {
+    const userData: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
+    if (!userData?._token) {
+      return 0;
+    }
+    return new Date(userData._expires).getTime() - Date.now();
+  }
+
+  /**
+   * Renews the session shortly before the access token expires, so an active user never carries a
+   * token the backend would reject. A failed renewal means the refresh cookie is gone too, which
+   * only ends in logging out.
+   *
+   * @param expires - When the current access token stops being accepted.
+   */
+  private scheduleTokenRefresh(expires: Date): void {
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
+    }
+
+    const delay = Math.max(0, expires.getTime() - Date.now() - AuthService.REFRESH_LEAD_TIME_MS);
+    this.refreshTimer = setTimeout(() => {
+      this.refreshToken().subscribe({
+        error: () => this.logOut()
+      });
+    }, delay);
   }
 
   logOut() {
+    // The refresh cookie is HttpOnly, so only the backend can retire the session behind it
+    this.revokeRefreshToken();
+
     this.user.next(null);
+    this._authUser$.next(null);
+    this.userId = null;
+    this.isAuthenticated = false;
+    this.logged.next(false);
     this.router.navigate(['/auth']);
     this.storage.removeItem(AuthService.STORAGE_KEY);
-    if (this.tokenExpiration) {
-      clearTimeout(this.tokenExpiration);
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
     }
-    this.tokenExpiration = null;
+    this.refreshTimer = null;
+    this.refreshInFlight$ = null;
 
     // Delete cached permissions from storage
     const permissionService = this.injector.get(PermissionService);
     permissionService.clearPermissionCache();
+  }
+
+  /**
+   * Asks the backend to end the session the refresh cookie belongs to. Sessions on other devices are
+   * untouched. Failure is not surfaced: the local session is being torn down either way.
+   */
+  private revokeRefreshToken(): void {
+    // logOut() also runs on paths where no session was ever established
+    if (!this.storage.getItem(AuthService.STORAGE_KEY)) {
+      return;
+    }
+
+    this.http.delete<void>(this.cs.getEndpoint() + this.endpoint + '/refresh', { withCredentials: true }).subscribe({
+      error: (err) => console.warn('Failed to revoke the refresh token on the server', err)
+    });
   }
 
   checkStatus() {
@@ -315,10 +492,41 @@ export class AuthService {
   }
 
   private handleAuthentication(token: string, expiresEpochSec: number, usernameFromForm: string): void {
-    const expires = new Date(expiresEpochSec * 1000);
-
     const userId = this.getUserId(token) ?? 0;
     const canonicalUsername = this.getCanonicalUsernameFromJwt(token) ?? usernameFromForm;
+
+    this.storeSession(token, new Date(expiresEpochSec * 1000), userId, canonicalUsername);
+  }
+
+  /**
+   * Stores a renewed access token against the session it belongs to.
+   *
+   * A refreshed token carries no username claim, so the identity established at login is carried
+   * over rather than rediscovered; only the token and its expiry actually change.
+   *
+   * @param token - The renewed access token.
+   * @param expiresEpochSec - When the renewed token stops being accepted, in epoch seconds.
+   * @returns The updated session data.
+   */
+  private storeRefreshedSession(token: string, expiresEpochSec: number): AuthData {
+    const previous: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
+    if (!previous) {
+      throw new Error('Session ended while the access token was being refreshed');
+    }
+
+    const userId = this.getUserId(token) ?? previous?.userId ?? 0;
+    const canonicalUsername = this.getCanonicalUsernameFromJwt(token) ?? previous?.canonicalUsername ?? '';
+
+    return this.storeSession(token, new Date(expiresEpochSec * 1000), userId, canonicalUsername);
+  }
+
+  /**
+   * Publishes a session to every consumer: the observables components subscribe to, local storage,
+   * and the timer that renews it before it lapses.
+   *
+   * @returns The stored session data.
+   */
+  private storeSession(token: string, expires: Date, userId: UserId, canonicalUsername: string): AuthData {
     this.userId = userId;
 
     const loadedUser = new AuthUser(token, expires, userId, canonicalUsername);
@@ -335,9 +543,9 @@ export class AuthService {
     };
 
     this.storage.setItem(AuthService.STORAGE_KEY, userData, 0);
+    this.scheduleTokenRefresh(expires);
 
-    const tokenExpiration = expires.getTime() - Date.now();
-    this.autologOut(tokenExpiration);
+    return userData;
   }
 
   private handleError(errorRes: HttpErrorResponse): Observable<never> {

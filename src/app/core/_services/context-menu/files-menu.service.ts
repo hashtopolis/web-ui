@@ -22,6 +22,12 @@ export class FilesContextMenuService extends ContextMenuService {
     const permDelete: Array<PermissionValues> = [Perm.File.DELETE];
 
     this.addCtxEditItem(RowActionMenuLabel.EDIT_FILE, RowActionMenuAction.EDIT, permUpdate);
+    this.addCtxCustomItem({
+      label: FilesRowActionLabel.PREVIEW,
+      action: FilesRowAction.PREVIEW,
+      icon: FilesRowActionIcon.PREVIEW,
+      permissions: permRead
+    });
     this.addCtxDownloadItem(RowActionMenuLabel.DOWNLOAD_FILE, permRead);
 
     // Secret toggle: only the entry matching the current state is shown per row.

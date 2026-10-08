@@ -1,6 +1,7 @@
 import * as z from 'zod';
 
 import { zAccessGroupResourceObject } from './access-group';
+import { zToken } from './common';
 import { zConfigResourceObject } from './config';
 import { zFileSingleResponse } from './file';
 import { zGlobalPermissionGroupResourceObject } from './global-permission-group';
@@ -822,3 +823,13 @@ export const zPostUnassignAgentBody = zUnassignAgentHelperApi;
  * successful operation
  */
 export const zPostUnassignAgentResponse = zUnassignAgentHelperApiResponse;
+
+/**
+ * Success
+ */
+export const zDeleteRefreshResponse = z.void();
+
+/**
+ * Success
+ */
+export const zPostRefreshResponse = zToken;
