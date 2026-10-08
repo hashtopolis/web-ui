@@ -6,7 +6,7 @@ import {
   zPreprocessorListResponse,
   zTaskResponse
 } from '@generated/api/zod';
-import { combineLatest, lastValueFrom, switchMap } from 'rxjs';
+import { EMPTY, Observable, Subject, catchError, combineLatest, lastValueFrom, map, of, switchMap, tap } from 'rxjs';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -17,7 +17,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { JCrackerBinary, JCrackerBinaryType, zCrackerBinaryTypeList } from '@models/cracker-binary.model';
 import { FileType, TaskSelectFile } from '@models/file.model';
 import { JHashlist } from '@models/hashlist.model';
-import { CrackerBinaryId, CrackerBinaryTypeId, FileId, HashlistId, PreprocessorId } from '@models/id.types';
+import { CrackerBinaryId, CrackerBinaryTypeId, FileId, HashTypeId, HashlistId, PreprocessorId } from '@models/id.types';
 import { JPreprocessor } from '@models/preprocessor.model';
 import { JPretask } from '@models/pretask.model';
 import { Filter, FilterType } from '@models/request-params.model';
@@ -26,6 +26,14 @@ import { zNewTaskRouteData, zOptionalIdRouteParams } from '@models/routes.schema
 import { JTask } from '@models/task.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import {
+  CrackerHashtypeSupportService,
+  SupportedCrackerBinaryIds,
+  buildUnsupportedHashtypeMessage,
+  filterSupportedCrackerTypes,
+  filterSupportedCrackerVersions,
+  pickDefaultCrackerTypeId
+} from '@services/crackers/cracker-hashtype-support.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
@@ -51,6 +59,25 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
 import { AttackCommandData, NewTaskForm, getNewTaskForm } from '@src/app/tasks/new-tasks/new-tasks.form';
 import { NewTaskRouteKind } from '@src/app/tasks/tasks-routing.constants';
 import { environment } from '@src/environments/environment';
+
+/** Restrict the cracker selects to the hashtype of a hashlist, keeping the given type and version if possible */
+interface CrackerSelectionRequest {
+  /** Selected hashlist, the multiselect emits [] when it is cleared */
+  hashlistId: HashlistId | number[] | null;
+  /** Hashtype if known, e.g. of a copied task whose hashlist is not listed */
+  hashTypeId?: HashTypeId | undefined;
+  typeId: CrackerBinaryTypeId | null;
+  versionId: CrackerBinaryId | null;
+  /** The version is the one of a copied task, the user is told when it had to be replaced */
+  copied: boolean;
+}
+
+/** Load the versions of a cracker type, keeping the preferred version if it is available */
+interface CrackerVersionRequest {
+  typeId: CrackerBinaryTypeId;
+  preferredId: CrackerBinaryId | null;
+  copied: boolean;
+}
 
 type CopyData = Pick<
   JTask,
@@ -98,8 +125,23 @@ export class NewTasksComponent implements OnInit {
   /** True if no cracker binary is accessible for the current user */
   noCrackerVersionsAvailable = false;
 
-  /** Cracker version of a copied task, resolved once the versions of its type are loaded */
-  private copiedCrackerBinaryId: CrackerBinaryId | null = null;
+  /** Block message when no accessible cracker version supports the hashtype of the selected hashlist */
+  unsupportedHashtypeMessage: string | null = null;
+
+  /** Accessible cracker types with their versions, null until they are loaded */
+  private crackerTypes: JCrackerBinaryType[] | null = null;
+
+  /** Loaded hashlists, to look up the hashtype of the selected one */
+  private hashlists: JHashlist[] = [];
+
+  /** Versions supporting the hashtype of the selected hashlist, null while no hashlist is selected */
+  private supportedCrackerBinaryIds: SupportedCrackerBinaryIds = null;
+
+  /** Cracker selection requests, the latest one wins and superseded support lookups are cancelled */
+  private readonly crackerSelection$ = new Subject<CrackerSelectionRequest>();
+
+  /** Version loads of a cracker type, the latest one wins and superseded requests are cancelled */
+  private readonly versionRequest$ = new Subject<CrackerVersionRequest>();
 
   private preprocessorFiles: FileId[] = [];
 
@@ -122,6 +164,7 @@ export class NewTasksComponent implements OnInit {
   private gs = inject(GlobalService);
   private dialog = inject(MatDialog);
   private router = inject(Router);
+  private crackerSupport = inject(CrackerHashtypeSupportService);
 
   constructor() {
     this.titleService.set(['New Task']);
@@ -133,6 +176,7 @@ export class NewTasksComponent implements OnInit {
    */
   ngOnInit(): void {
     this.tasktip = this.tooltipService.getTaskTooltips();
+    this.setupCrackerSelection();
 
     combineLatest([this.route.params, this.route.data])
       .pipe(
@@ -178,9 +222,18 @@ export class NewTasksComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((newTypeId) => {
         if (newTypeId !== null) {
-          this.handleChangeBinary(newTypeId);
+          this.versionRequest$.next({ typeId: newTypeId, preferredId: null, copied: false });
         }
       });
+
+    this.form.controls.hashlistId.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((hashlistId) => {
+      this.crackerSelection$.next({
+        hashlistId,
+        typeId: this.form.controls.crackerBinaryTypeId.value,
+        versionId: this.form.controls.crackerBinaryId.value,
+        copied: false
+      });
+    });
 
     this.form.controls.preprocessorId.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((newValue) => {
       if (newValue === 0) {
@@ -208,8 +261,11 @@ export class NewTasksComponent implements OnInit {
   private async loadHashlistSelectOptions(): Promise<void> {
     const filter: Filter[] = [{ field: 'isArchived', operator: FilterType.EQUAL, value: false }];
     try {
-      const response: ResponseWrapper = await lastValueFrom(this.gs.getAll(SERV.HASHLISTS, { filter }));
+      const response: ResponseWrapper = await lastValueFrom(
+        this.gs.getAll(SERV.HASHLISTS, { filter, include: ['hashType'] })
+      );
       const hashlists: JHashlist[] = new JsonAPISerializer().deserialize(response, zHashlistListResponse);
+      this.hashlists = hashlists;
       this.selectHashlists = transformSelectOptions(hashlists, DEFAULT_FIELD_MAPPING);
       this.isLoading = false;
       if (!this.selectHashlists.length) {
@@ -234,34 +290,18 @@ export class NewTasksComponent implements OnInit {
         new JsonAPISerializer().deserialize(typeResponse, zCrackerBinaryTypeListResponse)
       );
       const accessibleTypes = crackerTypes.filter((type) => type.crackerVersions.length > 0);
+      this.crackerTypes = accessibleTypes;
       this.selectCrackertype = transformSelectOptions(accessibleTypes, CRACKER_TYPE_FIELD_MAPPING);
       this.noCrackerVersionsAvailable = accessibleTypes.length === 0;
 
-      let typeId = this.selectCrackertype.find((obj) => obj.name === 'hashcat')?.id;
-      if (!typeId && this.selectCrackertype.length > 0) {
-        typeId = this.selectCrackertype.slice(-1)[0].id;
-      }
-      if (!typeId) {
-        this.selectCrackerversions = [];
-        return;
-      }
-
-      const requestParams = new RequestParamBuilder()
-        .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: typeId })
-        .create();
-
-      const versionResponse: ResponseWrapper = await lastValueFrom(this.gs.getAll(SERV.CRACKERS, requestParams));
-
-      const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(
-        versionResponse,
-        zCrackerBinaryListResponse
-      );
-
-      this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
-
-      const lastItemId = this.selectCrackerversions.slice(-1)[0]?.id;
-      if (typeId) this.form.controls.crackerBinaryTypeId.patchValue(Number(typeId), { emitEvent: false });
-      if (lastItemId) this.form.controls.crackerBinaryId.patchValue(Number(lastItemId), { emitEvent: false });
+      // the default type and version go through the cracker selection as well, so a hashlist chosen while the
+      // types were loading is applied instead of being overwritten
+      this.crackerSelection$.next({
+        hashlistId: this.form.controls.hashlistId.value,
+        typeId: null,
+        versionId: null,
+        copied: false
+      });
 
       this.changeDetectorRef.detectChanges();
     } catch (error) {
@@ -327,51 +367,143 @@ export class NewTasksComponent implements OnInit {
   }
 
   /**
-   * Handle the change of cracker binary type and update the available cracker versions.
-   * @param {number} id - The identifier of the selected cracker binary type.
+   * Wire the cracker selection: a hashlist restricts the cracker selects to the versions supporting its hashtype,
+   * a type loads its versions. switchMap cancels superseded requests, so the latest selection always wins.
    */
-  private async handleChangeBinary(id: number): Promise<void> {
-    const requestParams = new RequestParamBuilder()
-      .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id })
-      .create();
+  private setupCrackerSelection(): void {
+    // while a lookup or version load runs, the version selected before must not be submittable
+    const markVersionPending = () => this.form.controls.crackerBinaryId.markAsPending();
 
-    try {
-      const response: ResponseWrapper = await lastValueFrom(this.gs.getAll(SERV.CRACKERS, requestParams));
-      const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(response, zCrackerBinaryListResponse);
-      this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
-
-      // Select the version of a copied task if it is accessible, otherwise the last version
-      const versionIds = this.selectCrackerversions.map((option) => Number(option.id));
-      const copiedId = this.copiedCrackerBinaryId;
-      this.copiedCrackerBinaryId = null;
-
-      let selectedId: CrackerBinaryId | undefined = versionIds.at(-1);
-      if (copiedId !== null) {
-        if (versionIds.includes(copiedId)) {
-          selectedId = copiedId;
-        } else if (selectedId !== undefined) {
-          this.alert.showInfoMessage(
-            'The cracker version of the copied task is not accessible, the latest available version was selected instead.'
+    this.crackerSelection$
+      .pipe(
+        tap(markVersionPending),
+        switchMap((request) => {
+          const isSelected = typeof request.hashlistId === 'number';
+          const hashlist = isSelected ? this.hashlists.find((item) => item.id === request.hashlistId) : undefined;
+          const hashTypeId = isSelected ? (request.hashTypeId ?? hashlist?.hashTypeId) : undefined;
+          const supported$: Observable<SupportedCrackerBinaryIds> =
+            hashTypeId === undefined ? of(null) : this.crackerSupport.getSupportedCrackerBinaryIds(hashTypeId);
+          return supported$.pipe(
+            map((supported) => ({ request, hashTypeId, description: hashlist?.hashType?.description, supported }))
           );
-        }
-      }
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(({ request, hashTypeId, description, supported }) =>
+        this.applyCrackerSupport(request, supported, hashTypeId, description)
+      );
 
-      const crackerCtrl = this.form.controls.crackerBinaryId;
-      this.noCrackerVersionsAvailable = selectedId === undefined;
-      if (selectedId !== undefined) {
-        crackerCtrl.patchValue(selectedId, { emitEvent: false });
-        crackerCtrl.setErrors(null);
-      } else {
-        crackerCtrl.patchValue(null, { emitEvent: false });
-        crackerCtrl.setErrors({ required: true });
-        crackerCtrl.markAsTouched();
-        crackerCtrl.markAsDirty();
-        this.changeDetectorRef.detectChanges();
-      }
-    } catch (error) {
-      console.error('Error loading cracker versions:', error);
-      this.alert.showErrorMessage('Failed to load cracker versions');
+    this.versionRequest$
+      .pipe(
+        tap(markVersionPending),
+        switchMap((request) => {
+          const requestParams = new RequestParamBuilder()
+            .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: request.typeId })
+            .create();
+          return this.gs.getAll(SERV.CRACKERS, requestParams).pipe(
+            map((response: ResponseWrapper) => {
+              const crackers: JCrackerBinary[] = new JsonAPISerializer().deserialize(
+                response,
+                zCrackerBinaryListResponse
+              );
+              return { request, crackers: filterSupportedCrackerVersions(crackers, this.supportedCrackerBinaryIds) };
+            }),
+            catchError((error: unknown) => {
+              console.error('Error loading cracker versions:', error);
+              this.alert.showErrorMessage('Failed to load cracker versions');
+              // fail closed, the version selected before belongs to another type or hashlist
+              this.selectCrackerversions = [];
+              this.blockCrackerVersion();
+              return EMPTY;
+            })
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(({ request, crackers }) => this.applyCrackerVersions(request, crackers));
+  }
+
+  /**
+   * Restrict the cracker types to the ones with a supported version and load the versions of the selected type.
+   * Without any supported version the selection is blocked with an explanation.
+   */
+  private applyCrackerSupport(
+    request: CrackerSelectionRequest,
+    supported: SupportedCrackerBinaryIds,
+    hashTypeId: HashTypeId | undefined,
+    description: string | undefined
+  ): void {
+    this.supportedCrackerBinaryIds = supported;
+    if (this.crackerTypes === null) {
+      // the initial cracker selection applies the hashlist once the types are loaded
+      return;
     }
+
+    const types = filterSupportedCrackerTypes(this.crackerTypes, supported);
+    this.selectCrackertype = transformSelectOptions(types, CRACKER_TYPE_FIELD_MAPPING);
+    const typeCtrl = this.form.controls.crackerBinaryTypeId;
+
+    if (types.length === 0) {
+      this.noCrackerVersionsAvailable = this.crackerTypes.length === 0;
+      this.unsupportedHashtypeMessage =
+        hashTypeId !== undefined && this.crackerTypes.length > 0
+          ? buildUnsupportedHashtypeMessage(hashTypeId, description)
+          : null;
+      this.selectCrackerversions = [];
+      typeCtrl.patchValue(null, { emitEvent: false });
+      // the alert explains the block, the version select keeps its layout without the required hint
+      this.blockCrackerVersion(false);
+      return;
+    }
+
+    this.unsupportedHashtypeMessage = null;
+    // a type without supported versions is not selectable, use the default type instead
+    const keepType = request.typeId !== null && types.some((type) => type.id === request.typeId);
+    const typeId = (keepType ? request.typeId : pickDefaultCrackerTypeId(types)) as CrackerBinaryTypeId;
+    typeCtrl.patchValue(typeId, { emitEvent: false });
+    this.versionRequest$.next({ typeId, preferredId: request.versionId, copied: request.copied });
+  }
+
+  /**
+   * Offer the loaded versions and select the preferred one if it is available, else the last version.
+   */
+  private applyCrackerVersions(request: CrackerVersionRequest, crackers: JCrackerBinary[]): void {
+    this.selectCrackerversions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
+
+    const versionIds = this.selectCrackerversions.map((option) => Number(option.id));
+    const keepPreferred = request.preferredId !== null && versionIds.includes(request.preferredId);
+    const selectedId = keepPreferred ? (request.preferredId as CrackerBinaryId) : versionIds.at(-1);
+    if (request.copied && request.preferredId !== null && !keepPreferred && selectedId !== undefined) {
+      this.alert.showInfoMessage(
+        'The cracker version of the copied task is not accessible or does not support the hashtype of the hashlist, the latest supported version was selected instead.'
+      );
+    }
+
+    const crackerCtrl = this.form.controls.crackerBinaryId;
+    this.noCrackerVersionsAvailable = selectedId === undefined;
+    if (selectedId !== undefined) {
+      crackerCtrl.patchValue(selectedId, { emitEvent: false });
+      crackerCtrl.setErrors(null);
+    } else {
+      this.blockCrackerVersion();
+    }
+  }
+
+  /**
+   * Empty the version selection and mark it invalid, so the task cannot be created
+   * @param showRequiredHint  Mark the control touched, so the select shows its required hint
+   */
+  private blockCrackerVersion(showRequiredHint = true): void {
+    const crackerCtrl = this.form.controls.crackerBinaryId;
+    crackerCtrl.patchValue(null, { emitEvent: false });
+    crackerCtrl.setErrors({ required: true });
+    if (showRequiredHint) {
+      crackerCtrl.markAsTouched();
+      crackerCtrl.markAsDirty();
+    } else {
+      crackerCtrl.markAsUntouched();
+    }
+    this.changeDetectorRef.detectChanges();
   }
 
   /**
@@ -406,17 +538,8 @@ export class NewTasksComponent implements OnInit {
       const schema = isTask ? zTaskResponse : zPreTaskResponse;
       const task: JTask | JPretask = new JsonAPISerializer().deserialize(response, schema);
 
-      const { crackerBinaryId, ...copyData } = this.extractCopyData(task, isTask);
+      const { crackerBinaryId, hashlistId, ...copyData } = this.extractCopyData(task, isTask);
       this.copyFiles = copyData.files;
-      // resolved in handleChangeBinary, which runs when crackerBinaryTypeId is patched below
-      this.copiedCrackerBinaryId = crackerBinaryId;
-
-      // a type without accessible versions is not selectable, use the default type instead
-      const accessibleTypeIds = (this.selectCrackertype ?? []).map((option) => Number(option.id));
-      const crackerBinaryTypeId =
-        task.crackerBinaryTypeId !== null && accessibleTypeIds.includes(task.crackerBinaryTypeId)
-          ? task.crackerBinaryTypeId
-          : this.form.controls.crackerBinaryTypeId.value;
 
       this.form.patchValue({
         taskName: task.taskName + `_(Copied_${isTask ? 'task_id' : 'pretask_id'}_${this.editedIndex})`,
@@ -427,12 +550,22 @@ export class NewTasksComponent implements OnInit {
         priority: task.priority,
         color: task.color ?? '',
         isCpuTask: task.isCpuTask,
-        crackerBinaryTypeId,
         isSmall: task.isSmall,
         useNewBench: task.useNewBench,
         isArchived: false,
         statusTimer: task.statusTimer,
         ...copyData
+      });
+
+      // Select the copied cracker type and version where they are accessible and support the hashtype of the
+      // copied hashlist. The hashlist may be archived and missing from the select, so its hashtype comes from the task.
+      this.form.controls.hashlistId.setValue(hashlistId, { emitEvent: false });
+      this.crackerSelection$.next({
+        hashlistId,
+        hashTypeId: isTask ? (task as JTask).hashlist?.hashTypeId : undefined,
+        typeId: task.crackerBinaryTypeId,
+        versionId: crackerBinaryId,
+        copied: true
       });
     } catch (error) {
       console.error('Error initializing form with task data:', error);

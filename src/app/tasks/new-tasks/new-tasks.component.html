@@ -44,7 +44,9 @@
                     [isRequired]="true"
                   ></input-select>
                 </app-form-row>
-                @if (noCrackerVersionsAvailable) {
+                @if (unsupportedHashtypeMessage) {
+                  <fixed-alert data-testid="unsupported-hashtype" [message]="unsupportedHashtypeMessage"></fixed-alert>
+                } @else if (noCrackerVersionsAvailable) {
                   <fixed-alert message="No cracker binaries are available in your access groups."></fixed-alert>
                 }
 
