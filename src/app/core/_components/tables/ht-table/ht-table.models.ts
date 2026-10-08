@@ -44,6 +44,17 @@ export type DataType =
   | 'supertasks-pretasks'
   | 'superhashlists';
 
+/**
+ * Context handed to an `ht-table` card template, one instantiation per row.
+ *
+ * @prop $implicit The row, so templates can declare it as `let-row`
+ * @prop index     Zero-based position of the row on the current page
+ */
+export interface HTTableCardContext<T> {
+  $implicit: T;
+  index: number;
+}
+
 export interface HTTableIcon {
   name: string;
   tooltip?: string;

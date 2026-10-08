@@ -1,7 +1,7 @@
 import { DateFormat, TimeFormat } from '@constants/settings.config';
 import { z } from 'zod';
 
-import { TableSortDirection, uiConfigDefault } from '@models/config-ui.model';
+import { TableSortDirection, TableViewMode, uiConfigDefault } from '@models/config-ui.model';
 
 /**
  * Server config values that get cached into the `uis` localStorage key.
@@ -113,7 +113,8 @@ export const tableConfigSchema = z.object({
   page: z.coerce.number(),
   search: z.union([z.string(), z.array(z.unknown())]),
   before: z.union([z.coerce.number(), z.string()]).optional(),
-  index: z.coerce.number().optional()
+  index: z.coerce.number().optional(),
+  view: z.enum([TableViewMode.TABLE, TableViewMode.CARDS]).optional()
 });
 
 /**

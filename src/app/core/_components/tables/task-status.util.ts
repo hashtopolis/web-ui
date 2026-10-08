@@ -29,3 +29,38 @@ export function taskStatusLabel(status: number | undefined): string {
       return '';
   }
 }
+
+/** Visual tone a task status maps to; drives the colour of the card view's status badge. */
+export type TaskStatusTone = 'running' | 'waiting' | 'completed' | 'skipped' | 'unknown';
+
+/**
+ * Status rendered as a single badge: label, icon and tone in one object.
+ * Used by the task card view, where the badge replaces the table's status column.
+ */
+export interface TaskStatusBadge {
+  label: string;
+  icon: string;
+  tone: TaskStatusTone;
+}
+
+/**
+ * Describes a task status for the card view. Unlike {@link taskStatusLabel}, every status —
+ * including `IDLE` and unknown values — gets a human-readable label, since the badge is the
+ * only place the status is shown on a card.
+ *
+ * @param status - the task status as returned by the `status` aggregate
+ */
+export function taskStatusBadge(status: number | undefined): TaskStatusBadge {
+  switch (status) {
+    case TaskStatus.RUNNING:
+      return { label: 'Running', icon: 'radio_button_checked', tone: 'running' };
+    case TaskStatus.IDLE:
+      return { label: 'Waiting', icon: 'schedule', tone: 'waiting' };
+    case TaskStatus.SKIPPED:
+      return { label: 'Skipped', icon: 'fast_forward', tone: 'skipped' };
+    case TaskStatus.COMPLETED:
+      return { label: 'Completed', icon: 'check_circle', tone: 'completed' };
+    default:
+      return { label: 'Unknown', icon: 'help_outline', tone: 'unknown' };
+  }
+}

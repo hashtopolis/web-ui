@@ -4,6 +4,7 @@ import {
   Sorting,
   TableConfig,
   TableSettingsKey,
+  TableViewMode,
   UIConfig,
   UIConfigKeys,
   uiConfigDefault
@@ -42,6 +43,19 @@ export class UISettingsUtilityClass {
   }
 
   /**
+   * Re-reads the stored config into {@link uiConfig} before a write.
+   *
+   * Every holder of this class (each `ht-table`, each data source, `AutoRefreshService`, ...) keeps
+   * its own snapshot taken at construction, and a write persists that whole snapshot. Without this
+   * refresh, the last writer silently reverts every setting another holder changed since — toggling
+   * auto-reload, for instance, would restore the columns, sort order and view mode that were in
+   * place when `AutoRefreshService` was constructed.
+   */
+  private refreshFromStorage(): void {
+    this.uiConfig = this.storage.getItem(UISettingsUtilityClass.KEY, uiConfigSchema, uiConfigDefault);
+  }
+
+  /**
    * Updates the table settings for a specific key in the UI configuration.
    *
    * @param {string} key - The key for the table settings.
@@ -66,6 +80,7 @@ export class UISettingsUtilityClass {
     }
   ): void {
     try {
+      this.refreshFromStorage();
       const existingTableSettings = this.uiConfig.tableSettings[key];
 
       if (existingTableSettings && !Array.isArray(existingTableSettings)) {
@@ -103,6 +118,30 @@ export class UISettingsUtilityClass {
         this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0, uiConfigSchema);
       } else {
         // If the key doesn't exist, log an error or handle it accordingly
+        console.error(`Table settings not found for key: ${key}`);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  /**
+   * Persists the row rendering mode (table rows or cards) for a specific table.
+   *
+   * Kept apart from {@link updateTableSettings} on purpose: that method rewrites the pagination
+   * cursors on every call, and switching the view must not move the user off their current page.
+   *
+   * @param key - The key for the table settings.
+   * @param view - The view mode to store.
+   */
+  updateTableView(key: TableSettingsKey, view: TableViewMode): void {
+    try {
+      this.refreshFromStorage();
+      const existingTableSettings = this.uiConfig.tableSettings[key];
+      if (existingTableSettings && !Array.isArray(existingTableSettings)) {
+        existingTableSettings.view = view;
+        this.storage.setItem(UISettingsUtilityClass.KEY, this.uiConfig, 0, uiConfigSchema);
+      } else {
         console.error(`Table settings not found for key: ${key}`);
       }
     } catch (error) {
@@ -181,6 +220,7 @@ export class UISettingsUtilityClass {
    * @returns The number of settings that were successfully changed.
    */
   updateSettings(settings: Partial<UIConfig>): number {
+    this.refreshFromStorage();
     const keys = Object.keys(settings) as UIConfigKeys[];
     let changedValues = 0;
     let themeChanged = false;

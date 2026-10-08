@@ -1,0 +1,273 @@
+/* ==================================
+          SECTION TASK CARD
+   ==================================
+   The card form of a task row, used by `ht-table`'s card view on the tasks page. The status
+   badge and the two meters replace the table's status, dispatched/searched and cracked
+   columns, so a card can be read without scanning across columns. */
+
+.task-card {
+  height: 100%;
+  transition:
+    border-color var(--duration-fast) var(--easing-standard),
+    background-color var(--duration-fast) var(--easing-standard);
+
+  &:hover {
+    --mat-card-outlined-outline-color: var(--border-strong);
+  }
+
+  /* Mirrors the table's `.row-cracked` highlight: a task that yielded every hash stands out. */
+  &.task-card--cracked {
+    --mat-card-outlined-container-color: var(--success-bg);
+  }
+}
+
+.task-card__content.mat-mdc-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.task-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  min-height: 30px;
+}
+
+/* Takes the free space so the id and action menu stay pinned right; wraps internally rather than
+   pushing them off the card when a narrow track cannot hold every badge on one line. */
+.task-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2xs);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.task-card__select.mat-mdc-checkbox {
+  margin-left: -8px;
+}
+
+/* --- status badge ------------------------------------------------------------------- */
+
+.task-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: 1px 7px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: var(--surface-soft);
+  color: var(--muted-foreground);
+
+  .task-card__status-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  &[data-tone='running'] {
+    background: color-mix(in srgb, var(--info) 18%, transparent);
+    color: var(--info);
+
+    .task-card__status-icon {
+      animation: pulse 1s infinite;
+    }
+  }
+
+  &[data-tone='waiting'] {
+    background: color-mix(in srgb, var(--warning) 18%, transparent);
+    color: var(--warning);
+  }
+
+  &[data-tone='completed'] {
+    background: color-mix(in srgb, var(--success) 18%, transparent);
+    color: var(--success);
+  }
+
+  &[data-tone='skipped'] {
+    background: var(--surface-soft);
+    color: var(--subtle-foreground);
+  }
+}
+
+.task-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 7px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+
+  &.task-card__badge--ok {
+    border-color: color-mix(in srgb, var(--success) 45%, transparent);
+    color: var(--success);
+  }
+}
+
+.task-card__badge-icon.mat-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.task-card__id {
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--subtle-foreground);
+}
+
+/* --- title ------------------------------------------------------------------------- */
+
+.task-card__title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  font-weight: 600;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  a,
+  .task-card__title-action {
+    color: var(--primary);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .task-card__title-action {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    cursor: pointer;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* --- meters ------------------------------------------------------------------------ */
+
+/* Bar plus its percentage; the label column is gone so the bar keeps its length on narrow cards. */
+.task-card__meter-row {
+  display: grid;
+  grid-template-columns: 1fr 2.75rem;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.task-card__meter {
+  position: relative;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--well);
+  overflow: hidden;
+}
+
+/* Stacked, not side by side: searched can never exceed dispatched, so the darker searched
+   fill reads as the completed part of the lighter dispatched one. */
+.task-card__meter-fill {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  border-radius: var(--radius-full);
+  transition: width var(--duration-normal) var(--easing-standard);
+}
+
+.task-card__meter-fill--dispatched {
+  background: color-mix(in srgb, var(--info) 35%, transparent);
+}
+
+.task-card__meter-fill--searched {
+  background: var(--info);
+}
+
+.task-card__meter-value {
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--muted-foreground);
+}
+
+/* --- stats and meta ---------------------------------------------------------------- */
+
+.task-card__stats,
+.task-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2xs) var(--space-sm);
+  font-size: var(--text-2xs);
+  min-width: 0;
+}
+
+.task-card__stat,
+.task-card__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted-foreground);
+}
+
+/* `margin-top: auto` pins the footer to the bottom edge so it lines up across a row of cards
+   that carry a different number of meters (a supertask has no keyspace meter). */
+.task-card__meta {
+  margin-top: auto;
+  color: var(--subtle-foreground);
+  border-top: 1px solid var(--border-faint);
+  padding-top: var(--space-2xs);
+}
+
+a.task-card__meta-item {
+  color: var(--subtle-foreground);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+}
+
+/* The one stat worth spotting from across the grid. */
+.task-card__stat--cracked {
+  color: var(--success);
+  text-decoration: none;
+
+  .task-card__stat-icon {
+    color: var(--success);
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.task-card__stat-icon.mat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: var(--subtle-foreground);
+}
