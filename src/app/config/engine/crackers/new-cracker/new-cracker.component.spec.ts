@@ -5,6 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 
+import { CrackerBinaryTypesService } from '@services/crackers/cracker-binary-types.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
@@ -21,12 +22,14 @@ describe('NewCrackerComponent', () => {
   let mockRouter: jasmine.SpyObj<Router>;
   let mockAlertService: jasmine.SpyObj<AlertService>;
   let mockRoleService: jasmine.SpyObj<CrackerBinaryRoleService>;
+  let mockCrackerBinaryTypes: jasmine.SpyObj<CrackerBinaryTypesService>;
 
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['getAll', 'create']);
     mockRouter = jasmine.createSpyObj('Router', ['navigate']);
     mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
     mockRoleService = jasmine.createSpyObj('CrackerBinaryRoleService', ['hasRole']);
+    mockCrackerBinaryTypes = jasmine.createSpyObj('CrackerBinaryTypesService', ['invalidate']);
 
     await TestBed.configureTestingModule({
       imports: [NewCrackerComponent],
@@ -35,6 +38,7 @@ describe('NewCrackerComponent', () => {
         { provide: Router, useValue: mockRouter },
         { provide: AlertService, useValue: mockAlertService },
         { provide: CrackerBinaryRoleService, useValue: mockRoleService },
+        { provide: CrackerBinaryTypesService, useValue: mockCrackerBinaryTypes },
         provideHttpClient()
       ]
     }).compileComponents();
@@ -103,6 +107,7 @@ describe('NewCrackerComponent', () => {
 
     expect(mockGlobalService.create).toHaveBeenCalledWith(SERV.CRACKERS_TYPES, payload);
     expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('Cracker type created!');
+    expect(mockCrackerBinaryTypes.invalidate).toHaveBeenCalled();
     expect(mockRouter.navigate).toHaveBeenCalledWith(['config/engine/crackers']);
   });
 
@@ -121,6 +126,7 @@ describe('NewCrackerComponent', () => {
     expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith(
       'An error occurred while creating the Cracker type.'
     );
+    expect(mockCrackerBinaryTypes.invalidate).not.toHaveBeenCalled();
   });
 
   it('should show required field error message if fields are empty', () => {
