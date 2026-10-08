@@ -53,6 +53,7 @@ function taskWrapperDisplayAttributes(
     hashTypeId: 0,
     hashTypeDescription: 'MD5',
     groupName: 'Default',
+    hashlistIsSecret: false,
     ...overrides
   };
 }
