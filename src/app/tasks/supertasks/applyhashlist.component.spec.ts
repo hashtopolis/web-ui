@@ -147,6 +147,20 @@ describe('ApplyHashlistComponent', () => {
     expect(component.unsupportedHashtypeMessage).toBeNull();
   });
 
+  it('fails closed when loading the supertask fails', () => {
+    spyOn(console, 'error');
+    gs.get.and.returnValue(throwError(() => new Error('down')));
+    create();
+
+    component.handleChangeHashlist(1);
+    component.onSubmit();
+
+    expect(component.form.controls.crackerBinaryId.pending).toBeFalse();
+    expect(component.form.controls.crackerBinaryId.value).toBeNull();
+    expect(component.noCrackerVersionsAvailable).toBeTrue();
+    expect(gs.chelper).not.toHaveBeenCalled();
+  });
+
   it('does not submit without a cracker version', () => {
     responses[SERV.CRACKERS.URL] = EMPTY_VERSIONS;
     create();

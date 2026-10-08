@@ -191,8 +191,11 @@ export class ApplyHashlistComponent implements OnInit {
           this.loadVersions(supertask.crackerBinaryTypeId);
         },
         error: (error: unknown) => {
-          // the global HTTP error dialog shows the reason; without the supertask no version can be offered
+          // the global HTTP error dialog shows the reason; without the supertask no version can be offered,
+          // fail closed so the version control does not stay pending
           console.error('Error loading the supertask:', error);
+          this.versions = [];
+          this.applyCrackerSupport();
         }
       });
   }

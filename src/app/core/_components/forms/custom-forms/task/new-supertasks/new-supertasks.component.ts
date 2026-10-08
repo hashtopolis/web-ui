@@ -1,4 +1,5 @@
 import { zPreTaskListResponse } from '@generated/api/zod';
+import { distinctUntilChanged } from 'rxjs';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -67,11 +68,14 @@ export class NewSupertasksComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // pretasks of another type must never be sent, a type change starts the selection over
-    this.form.controls.crackerBinaryTypeId.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.form.controls.pretasks.setValue([]);
-      this.filterPretasks();
-    });
+    // pretasks of another type must never be sent, a type change starts the selection over; the HTTP cache may
+    // emit the type list twice (stale, then fresh), which preselects the same type again and must not clear
+    this.form.controls.crackerBinaryTypeId.valueChanges
+      .pipe(distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.form.controls.pretasks.setValue([]);
+        this.filterPretasks();
+      });
     this.loadData();
   }
 

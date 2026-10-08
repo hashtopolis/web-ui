@@ -1,5 +1,5 @@
 import { zPreTaskListResponse } from '@generated/api/zod';
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -47,13 +47,14 @@ describe('NewSupertasksComponent', () => {
   let component: NewSupertasksComponent;
   let gs: jasmine.SpyObj<GlobalService>;
   let router: jasmine.SpyObj<Router>;
+  let crackerBinaryTypes: jasmine.SpyObj<CrackerBinaryTypesService>;
 
   beforeEach(async () => {
     gs = jasmine.createSpyObj('GlobalService', ['getAll', 'create']);
     gs.getAll.and.returnValue(of(PRETASKS));
     gs.create.and.returnValue(of({} as ResponseWrapper));
     router = jasmine.createSpyObj('Router', ['navigate']);
-    const crackerBinaryTypes = jasmine.createSpyObj('CrackerBinaryTypesService', ['getTypes']);
+    crackerBinaryTypes = jasmine.createSpyObj('CrackerBinaryTypesService', ['getTypes']);
     crackerBinaryTypes.getTypes.and.returnValue(
       of([
         { id: 2, typeName: 'generic' },
@@ -93,6 +94,22 @@ describe('NewSupertasksComponent', () => {
     expect(component.form.controls.pretasks.value).toEqual([]);
     expect(component.selectPretasks.map((option) => option.id)).toEqual([3]);
     expect(component.form.valid).toBeFalse();
+  });
+
+  it('keeps the pretasks when the type list is emitted again unchanged', () => {
+    // the HTTP cache serves a stale list first and the fresh one afterwards, both preselect the same type
+    const types$ = new Subject<{ id: number; typeName: string }[]>();
+    crackerBinaryTypes.getTypes.and.returnValue(types$);
+    fixture = TestBed.createComponent(NewSupertasksComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    types$.next([{ id: 1, typeName: 'hashcat' }]);
+    component.form.controls.pretasks.setValue([2]);
+
+    types$.next([{ id: 1, typeName: 'hashcat' }]);
+
+    expect(component.form.controls.crackerBinaryTypeId.value).toBe(1);
+    expect(component.form.controls.pretasks.value).toEqual([2]);
   });
 
   it('sends the type with the supertask', () => {
