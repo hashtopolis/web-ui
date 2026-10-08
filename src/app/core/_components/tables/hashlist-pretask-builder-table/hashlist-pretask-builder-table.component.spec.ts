@@ -1,3 +1,4 @@
+import { zCrackerBinaryListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -6,21 +7,46 @@ import { RouterTestingModule } from '@angular/router/testing';
 
 import { JPretask } from '@models/pretask.model';
 
+import {
+  CrackerHashtypeSupportService,
+  buildUnsupportedHashtypeMessage
+} from '@services/crackers/cracker-hashtype-support.service';
+import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import { HashlistPretaskBuilderTableComponent } from '@components/tables/hashlist-pretask-builder-table/hashlist-pretask-builder-table.component';
+
+import { mockValidResponse } from '@src/app/testing/mock-response';
 
 class TestHashlistPretaskBuilderTableComponent extends HashlistPretaskBuilderTableComponent {
   override ngOnInit(): void {}
   override ngOnDestroy(): void {}
 }
 
+function crackerVersion(id: number) {
+  return {
+    id,
+    type: 'crackerBinary' as const,
+    attributes: {
+      crackerBinaryTypeId: 1,
+      binaryName: 'hashcat',
+      version: `${id}`,
+      downloadUrl: '',
+      filename: null,
+      accessGroupId: 1
+    }
+  };
+}
+
+const VERSIONS = mockValidResponse(zCrackerBinaryListResponse, { data: [crackerVersion(10), crackerVersion(11)] });
+
 describe('HashlistPretaskBuilderTableComponent', () => {
   let component: TestHashlistPretaskBuilderTableComponent;
   let fixture: ComponentFixture<TestHashlistPretaskBuilderTableComponent>;
   let mockGlobalService: jasmine.SpyObj<GlobalService>;
   let mockAlertService: jasmine.SpyObj<AlertService>;
+  let support: jasmine.SpyObj<CrackerHashtypeSupportService>;
 
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['create', 'getAll']);
@@ -29,11 +55,15 @@ describe('HashlistPretaskBuilderTableComponent', () => {
 
     mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
 
+    support = jasmine.createSpyObj('CrackerHashtypeSupportService', ['getSupportedCrackerBinaryIds']);
+    support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10])));
+
     await TestBed.configureTestingModule({
       declarations: [TestHashlistPretaskBuilderTableComponent],
       providers: [
         { provide: GlobalService, useValue: mockGlobalService },
-        { provide: AlertService, useValue: mockAlertService }
+        { provide: AlertService, useValue: mockAlertService },
+        { provide: CrackerHashtypeSupportService, useValue: support }
       ],
       imports: [RouterTestingModule],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -188,5 +218,68 @@ describe('HashlistPretaskBuilderTableComponent', () => {
 
     expect(setPaginationConfig).toHaveBeenCalledWith(10, 30, null, null, 0);
     expect(reload).toHaveBeenCalled();
+  });
+
+  describe('hashtype support', () => {
+    function pretask(id: number): JPretask {
+      return {
+        id,
+        taskName: `P${id}`,
+        type: 'pretask',
+        attackCmd: '#HL# -a 3 ?a',
+        crackerBinaryTypeId: 1,
+        pretaskFiles: []
+      } as unknown as JPretask;
+    }
+
+    beforeEach(() => {
+      mockGlobalService.getAll.and.returnValue(of(VERSIONS) as unknown as ReturnType<typeof mockGlobalService.getAll>);
+      component.hashTypeId = 1000;
+      component.hashtypeDescription = 'NTLM';
+    });
+
+    it('creates the task with the newest supported version', async () => {
+      component.pretasks = [pretask(1)];
+      component.selectedPretaskIds = new Set([1]);
+
+      await component.createTasksFromSelection();
+
+      expect(support.getSupportedCrackerBinaryIds).toHaveBeenCalledWith(1000);
+      expect(mockGlobalService.create).toHaveBeenCalledWith(
+        SERV.TASKS,
+        jasmine.objectContaining({ crackerBinaryId: 10, hashlistId: 4 }),
+        jasmine.anything()
+      );
+    });
+
+    it('shows the block message once for several pretasks of one type', async () => {
+      support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      component.pretasks = [pretask(1), pretask(2)];
+      component.selectedPretaskIds = new Set([1, 2]);
+
+      await component.createTasksFromSelection();
+
+      const message = buildUnsupportedHashtypeMessage(1000, 'NTLM');
+      // one snackbar at a time: the explanation must be part of the last message, not replaced by it
+      expect(mockAlertService.showErrorMessage).toHaveBeenCalledTimes(1);
+      expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith(`Failed to create 2 task(s). ${message}`);
+      expect(mockGlobalService.getAll).toHaveBeenCalledTimes(1);
+      expect(support.getSupportedCrackerBinaryIds).toHaveBeenCalledTimes(1);
+      expect(mockGlobalService.create).not.toHaveBeenCalled();
+    });
+
+    it('explains the block again on a later create', async () => {
+      support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      component.pretasks = [pretask(1)];
+      component.selectedPretaskIds = new Set([1]);
+      await component.createTasksFromSelection();
+
+      component.selectedPretaskIds = new Set([1]);
+      await component.createTasksFromSelection();
+
+      expect(mockAlertService.showErrorMessage.calls.mostRecent().args[0]).toBe(
+        `Failed to create 1 task(s). ${buildUnsupportedHashtypeMessage(1000, 'NTLM')}`
+      );
+    });
   });
 });

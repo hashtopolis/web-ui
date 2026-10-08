@@ -8,11 +8,18 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PageEvent } from '@angular/material/paginator';
 
 import { JCrackerBinary } from '@models/cracker-binary.model';
+import { HashTypeId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import {
+  CrackerHashtypeSupportService,
+  SupportedCrackerBinaryIds,
+  buildUnsupportedHashtypeMessage,
+  filterSupportedCrackerVersions
+} from '@services/crackers/cracker-hashtype-support.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
@@ -32,6 +39,10 @@ import { environment } from '@src/environments/environment';
 export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
   @Input({ required: true }) hashlistId: number;
 
+  /** Hashtype of the hashlist, tasks are only created with versions supporting it */
+  @Input() hashTypeId: HashTypeId | null = null;
+  @Input() hashtypeDescription: string | null = null;
+
   /** Emitted after at least one task is created, so the host can refresh its tasks table. */
   @Output() created = new EventEmitter<void>();
 
@@ -50,12 +61,20 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
   };
 
   private readonly serializer = new JsonAPISerializer();
-  private readonly crackerVersionByType = new Map<number, number>();
+  /** Picked version per cracker type, null if no version of the type supports the hashtype */
+  private readonly crackerVersionByType = new Map<number, number | null>();
+
+  /** Why tasks of the current create run could not be created, shown with the final failure message */
+  private readonly failureReasons = new Set<string>();
+
+  /** Lookup of the versions supporting the hashtype, started on the first create */
+  private supportLookup: Promise<SupportedCrackerBinaryIds> | null = null;
 
   private readonly injector = inject(Injector);
   private readonly gs = inject(GlobalService);
   private readonly alert = inject(AlertService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly crackerSupport = inject(CrackerHashtypeSupportService);
 
   ngOnInit(): void {
     this.dataSource = new HashlistPretaskBuilderDataSource(this.injector);
@@ -145,6 +164,7 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
     }
 
     this.isCreating = true;
+    this.failureReasons.clear();
 
     try {
       let created = 0;
@@ -163,7 +183,10 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
       }
 
       if (created < selectedPretasks.length) {
-        this.alert.showErrorMessage(`Failed to create ${selectedPretasks.length - created} task(s).`);
+        // one snackbar at a time: the reasons go into the final message instead of separate toasts
+        this.alert.showErrorMessage(
+          [`Failed to create ${selectedPretasks.length - created} task(s).`, ...this.failureReasons].join(' ')
+        );
       }
     } finally {
       this.isCreating = false;
@@ -210,12 +233,16 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
   }
 
   private async getCrackerVersionIdForType(crackerBinaryTypeId: number): Promise<number | null> {
-    const cached = this.crackerVersionByType.get(crackerBinaryTypeId);
-    if (cached) {
+    if (this.crackerVersionByType.has(crackerBinaryTypeId)) {
+      const cached = this.crackerVersionByType.get(crackerBinaryTypeId) ?? null;
+      if (cached === null) {
+        this.failureReasons.add(this.unsupportedHashtypeMessage());
+      }
       return cached;
     }
 
     try {
+      const supported = await this.getSupportedCrackerBinaryIds();
       const requestParams = new RequestParamBuilder()
         .addFilter({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: crackerBinaryTypeId })
         .create();
@@ -225,9 +252,16 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
       );
       const crackers: JCrackerBinary[] = this.serializer.deserialize(response, zCrackerBinaryListResponse);
 
-      const selectedCracker = crackers.slice(-1)[0];
-      if (!selectedCracker?.id) {
-        this.alert.showErrorMessage(`No binary version found for pretask type #${crackerBinaryTypeId}.`);
+      if (crackers.length === 0) {
+        this.failureReasons.add(`No binary version found for pretask type #${crackerBinaryTypeId}.`);
+        return null;
+      }
+
+      const selectedCracker = filterSupportedCrackerVersions(crackers, supported).at(-1);
+      if (!selectedCracker) {
+        // remember the miss, so several selected pretasks of this type show the message once
+        this.crackerVersionByType.set(crackerBinaryTypeId, null);
+        this.failureReasons.add(this.unsupportedHashtypeMessage());
         return null;
       }
 
@@ -235,8 +269,21 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
       return selectedCracker.id;
     } catch (error) {
       console.error('Failed to load cracker versions:', error);
-      this.alert.showErrorMessage(`Failed loading binary versions for type #${crackerBinaryTypeId}.`);
+      this.failureReasons.add(`Failed loading binary versions for type #${crackerBinaryTypeId}.`);
       return null;
     }
+  }
+
+  private unsupportedHashtypeMessage(): string {
+    return buildUnsupportedHashtypeMessage(this.hashTypeId as HashTypeId, this.hashtypeDescription);
+  }
+
+  /** Versions supporting the hashtype of the hashlist, null (no filter) without a hashtype */
+  private getSupportedCrackerBinaryIds(): Promise<SupportedCrackerBinaryIds> {
+    if (this.hashTypeId === null) {
+      return Promise.resolve(null);
+    }
+    this.supportLookup ??= firstValueFrom(this.crackerSupport.getSupportedCrackerBinaryIds(this.hashTypeId));
+    return this.supportLookup;
   }
 }

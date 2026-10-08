@@ -11,12 +11,19 @@ import {
   JCrackerBinaryType,
   zCrackerBinaryTypeList
 } from '@models/cracker-binary.model';
-import { CrackerBinaryId, CrackerBinaryTypeId } from '@models/id.types';
+import { CrackerBinaryId, CrackerBinaryTypeId, HashTypeId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JSuperTask } from '@models/supertask.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import {
+  CrackerHashtypeSupportService,
+  SupportedCrackerBinaryIds,
+  buildUnsupportedHashtypeMessage,
+  filterSupportedCrackerTypes,
+  filterSupportedCrackerVersions
+} from '@services/crackers/cracker-hashtype-support.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { RequestParamBuilder } from '@services/params/builder-implementation.service';
@@ -36,6 +43,10 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
 export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy {
   @Input({ required: true }) hashlistId: number;
 
+  /** Hashtype of the hashlist, only versions supporting it are offered */
+  @Input() hashTypeId: HashTypeId | null = null;
+  @Input() hashtypeDescription: string | null = null;
+
   /** Emitted after a supertask is created, so the host can refresh its tasks table. */
   @Output() created = new EventEmitter<void>();
 
@@ -51,6 +62,11 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
   selectedVersionByRow: Partial<Record<number, CrackerBinaryId>> = {};
   rowLoading: Partial<Record<number, boolean>> = {};
 
+  /** Block message when no accessible cracker version supports the hashtype of the hashlist */
+  unsupportedHashtypeMessage: string | null = null;
+
+  private supportedCrackerBinaryIds: SupportedCrackerBinaryIds = null;
+
   private readonly serializer = new JsonAPISerializer();
   private readonly versionsByType = new Map<number, SelectOption<CrackerBinaryId>[]>();
 
@@ -58,6 +74,7 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
   private readonly gs = inject(GlobalService);
   private readonly alert = inject(AlertService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly crackerSupport = inject(CrackerHashtypeSupportService);
 
   ngOnInit(): void {
     this.dataSource = new HashlistSupertaskBuilderDataSource(this.injector);
@@ -183,12 +200,22 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
   }
 
   private async loadCrackerTypes(): Promise<void> {
+    if (this.hashTypeId !== null) {
+      this.supportedCrackerBinaryIds = await firstValueFrom(
+        this.crackerSupport.getSupportedCrackerBinaryIds(this.hashTypeId)
+      );
+    }
     const response = await lastValueFrom(this.gs.getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] }));
     const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
       this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
     );
+    const supportedTypes = filterSupportedCrackerTypes(crackerTypes, this.supportedCrackerBinaryIds);
 
-    this.crackerTypes = transformSelectOptions(crackerTypes, CRACKER_TYPE_FIELD_MAPPING);
+    this.crackerTypes = transformSelectOptions(supportedTypes, CRACKER_TYPE_FIELD_MAPPING);
+    this.unsupportedHashtypeMessage =
+      this.hashTypeId !== null && supportedTypes.length === 0
+        ? buildUnsupportedHashtypeMessage(this.hashTypeId, this.hashtypeDescription)
+        : null;
   }
 
   private async getVersionsForType(typeId: number): Promise<SelectOption<CrackerBinaryId>[]> {
@@ -202,7 +229,10 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
       .create();
 
     const response: ResponseWrapper = await lastValueFrom(this.gs.getAll(SERV.CRACKERS, requestParams));
-    const crackers: JCrackerBinary[] = this.serializer.deserialize(response, zCrackerBinaryListResponse);
+    const crackers: JCrackerBinary[] = filterSupportedCrackerVersions(
+      this.serializer.deserialize(response, zCrackerBinaryListResponse),
+      this.supportedCrackerBinaryIds
+    );
     const versions = transformSelectOptions(crackers, CRACKER_VERSION_FIELD_MAPPING);
 
     this.versionsByType.set(typeId, versions);
