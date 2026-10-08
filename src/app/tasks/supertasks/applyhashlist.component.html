@@ -1,6 +1,8 @@
 <app-page title="Use Supertask">
   <grid-main [narrow]="true">
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <input-text title="Supertask" formControlName="supertaskName" data-testid="supertask-name"></input-text>
+      <input-text title="Binary type" formControlName="crackerBinaryType" data-testid="cracker-type"></input-text>
       @if (!isLoading) {
         <input-multiselect
           [isLoading]="isLoading"
@@ -20,14 +22,8 @@
         </div>
       }
       <input-select
-        title="Binary type"
-        formControlName="crackerBinaryId"
-        [items]="selectCrackertype"
-        [isRequired]="true"
-      ></input-select>
-      <input-select
         title="Binary version"
-        formControlName="crackerBinaryTypeId"
+        formControlName="crackerBinaryId"
         [items]="selectCrackerversions"
         [isRequired]="true"
       ></input-select>
