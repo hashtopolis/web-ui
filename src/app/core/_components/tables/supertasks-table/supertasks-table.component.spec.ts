@@ -1,3 +1,5 @@
+import { of } from 'rxjs';
+
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -5,6 +7,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BaseModel } from '@models/base.model';
 import { JSuperTask } from '@models/supertask.model';
+
+import { CrackerBinaryTypesService } from '@services/crackers/cracker-binary-types.service';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
@@ -49,7 +53,11 @@ describe('SuperTasksTableComponent', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: ExportService, useValue: mockExportService }
+        { provide: ExportService, useValue: mockExportService },
+        {
+          provide: CrackerBinaryTypesService,
+          useValue: { getTypeNames: () => of(new Map([[1, 'hashcat']])) }
+        }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
@@ -65,8 +73,35 @@ describe('SuperTasksTableComponent', () => {
   });
 
   describe('table columns', () => {
+    function column(id: SupertasksTableCol): HTTableColumn {
+      const found = component.tableColumns.find((col) => col.id === id);
+      expect(found).withContext(`column ${id}`).toBeDefined();
+      return found as HTTableColumn;
+    }
+
     it('should expose columns for super tasks', () => {
-      expect(component.tableColumns.length).toBeGreaterThanOrEqual(1);
+      expect(component.tableColumns.map((col) => col.id)).toEqual([
+        SupertasksTableCol.ID,
+        SupertasksTableCol.NAME,
+        SupertasksTableCol.PRETASKS,
+        SupertasksTableCol.CRACKER_TYPE
+      ]);
+    });
+
+    it('renders the cracker type name', async () => {
+      const col = column(SupertasksTableCol.CRACKER_TYPE);
+      const supertask: JSuperTask = { id: 1, type: 'supertask', supertaskName: 'a', crackerBinaryTypeId: 1 };
+      expect(SupertasksTableColumnLabel[SupertasksTableCol.CRACKER_TYPE]).toBe('Cracker type');
+      expect(col.dataKey).toBe('crackerBinaryTypeId');
+      expect(col.render?.(supertask)).toBe('hashcat');
+      expect(await col.export?.(supertask)).toBe('hashcat');
+    });
+
+    it('falls back for an unknown type id', async () => {
+      const col = column(SupertasksTableCol.CRACKER_TYPE);
+      const supertask: JSuperTask = { id: 1, type: 'supertask', supertaskName: 'a', crackerBinaryTypeId: 9 };
+      expect(col.render?.(supertask)).toBe('Type #9');
+      expect(await col.export?.(supertask)).toBe('Type #9');
     });
   });
 
