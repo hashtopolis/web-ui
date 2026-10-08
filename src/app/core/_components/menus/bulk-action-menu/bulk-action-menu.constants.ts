@@ -31,6 +31,7 @@ export const BulkActionMenuLabel = {
   UNASSIGN_AGENTS: 'Unassign agents',
   REMOVE_ACCESSGROUP_AGENTS: 'Remove agents',
   REMOVE_ACCESSGROUP_USERS: 'Remove users',
+  REMOVE_CRACKER_HASHTYPES: 'Remove hashtypes',
   ARCHIVE_PRETASKS: 'Archive Pretasks',
   UNASSIGN_PRETASKS: 'Unassign Pretasks'
 };

@@ -23,6 +23,7 @@ import { AgentsTableCol } from '@components/tables/agents-table/agents-table.con
 import { ApiTokensTableCol } from '@components/tables/api-tokens-table/api-tokens-table.constants';
 import { BackgroundJobsTableCol } from '@components/tables/background-jobs-table/background-jobs-table.constants';
 import { ChunksTableCol } from '@components/tables/chunks-table/chunks-table.constants';
+import { CrackerHashtypesTableCol } from '@components/tables/cracker-hashtypes-table/cracker-hashtypes-table.constants';
 import { CrackersTableCol } from '@components/tables/crackers-table/crackers-table.constants';
 import { CracksTableCol } from '@components/tables/cracks-table/cracks-table.constants';
 import { FilesAttackTableCol } from '@components/tables/files-attack-table/files-attack-table.constants';
@@ -475,6 +476,22 @@ const _uiConfigDefault = {
       columns: [CrackersTableCol.ID, CrackersTableCol.TYPE, CrackersTableCol.VERSIONS],
       order: {
         id: CrackersTableCol.ID,
+        dataKey: 'id',
+        isSortable: true,
+        direction: TableSortDirection.ASC
+      },
+      search: ''
+    },
+    crackerHashtypesTable: {
+      page: DEFAULT_PAGE_SIZE,
+      columns: [
+        CrackerHashtypesTableCol.HASHTYPE,
+        CrackerHashtypesTableCol.DESCRIPTION,
+        CrackerHashtypesTableCol.SALTED,
+        CrackerHashtypesTableCol.SLOW_HASH
+      ],
+      order: {
+        id: CrackerHashtypesTableCol.HASHTYPE,
         dataKey: 'id',
         isSortable: true,
         direction: TableSortDirection.ASC

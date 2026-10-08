@@ -1,0 +1,18 @@
+<ht-table
+  #table
+  name="crackerHashtypesTable"
+  dataType="cracker-hashtypes"
+  [columnLabels]="columnLabels"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [isSelectable]="editable"
+  [contextMenuService]="contextMenuService"
+  [isFilterable]="isFilterable"
+  [isPageable]="true"
+  [isDetailPage]="true"
+  (exportActionClicked)="exportActionClicked($event)"
+  (bulkActionClicked)="bulkActionClicked($event)"
+  (rowActionClicked)="rowActionClicked($event)"
+  (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="handleBackendSqlFilter($event)"
+/>

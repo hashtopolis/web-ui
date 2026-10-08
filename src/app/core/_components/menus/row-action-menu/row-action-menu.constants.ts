@@ -59,6 +59,7 @@ export const RowActionMenuLabel = {
   RESET_CHUNK: 'Reset Task Chunk',
   REMOVE_ACCESSGROUP_AGENT: 'Remove Agent',
   REMOVE_ACCESSGROUP_USER: 'Remove User',
+  REMOVE_CRACKER_HASHTYPE: 'Remove Hashtype',
   ARCHIVE_PRETASK: 'Archive PreTask',
   UNARCHIVE_PRETASK: 'Unarchive PreTask',
   SHOW_SUBTASK: 'Show Subtasks',
