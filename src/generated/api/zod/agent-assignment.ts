@@ -406,6 +406,20 @@ export const zAgentAssignmentCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
+export const zAgentAssignmentRelationAgent = z.object({
+  data: z.object({
+    type: z.literal('agent'),
+    id: z.int()
+  })
+});
+
+export const zAgentAssignmentRelationAgentGetResponse = z.object({
+  data: z.object({
+    type: z.literal('agent'),
+    id: z.int()
+  })
+});
+
 export const zAgentAssignmentRelationTask = z.object({
   data: z.object({
     type: z.literal('task'),
@@ -469,43 +483,75 @@ export const zGetAgentassignmentsCountQuery = z.object({
  */
 export const zGetAgentassignmentsCountResponse = zAgentAssignmentCountResponse;
 
-export const zGetAgentassignmentsByIdByRelationPath = z.object({
+export const zGetAgentassignmentsByIdAgentPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetAgentassignmentsByIdByRelationResponse = zAgentAssignmentRelationTaskGetResponse;
+export const zGetAgentassignmentsByIdAgentResponse = zAgentAssignmentRelationAgentGetResponse;
 
-export const zGetAgentassignmentsByIdRelationshipsByRelationPath = z.object({
+export const zGetAgentassignmentsByIdRelationshipsAgentPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetAgentassignmentsByIdRelationshipsByRelationResponse = zAgentAssignmentResponse;
+export const zGetAgentassignmentsByIdRelationshipsAgentResponse = zAgentAssignmentResponse;
 
-export const zPatchAgentassignmentsByIdRelationshipsByRelationBody = zAgentAssignmentRelationTask;
+export const zPatchAgentassignmentsByIdRelationshipsAgentBody = zAgentAssignmentRelationAgent;
 
-export const zPatchAgentassignmentsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchAgentassignmentsByIdRelationshipsAgentPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchAgentassignmentsByIdRelationshipsByRelationResponse = z.void();
+export const zPatchAgentassignmentsByIdRelationshipsAgentResponse = z.void();
+
+export const zGetAgentassignmentsByIdTaskPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetAgentassignmentsByIdTaskResponse = zAgentAssignmentRelationTaskGetResponse;
+
+export const zGetAgentassignmentsByIdRelationshipsTaskPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetAgentassignmentsByIdRelationshipsTaskResponse = zAgentAssignmentResponse;
+
+export const zPatchAgentassignmentsByIdRelationshipsTaskBody = zAgentAssignmentRelationTask;
+
+export const zPatchAgentassignmentsByIdRelationshipsTaskPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchAgentassignmentsByIdRelationshipsTaskResponse = z.void();
 
 export const zDeleteAgentassignmentsByIdPath = z.object({
   id: z.int()

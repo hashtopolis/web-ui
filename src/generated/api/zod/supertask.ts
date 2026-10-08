@@ -317,7 +317,7 @@ export const zSupertaskCountResponse = z.object({
 export const zSupertaskRelationPretasks = z.object({
   data: z.array(
     z.object({
-      type: z.literal('pretasks'),
+      type: z.literal('preTask'),
       id: z.int()
     })
   )
@@ -326,7 +326,7 @@ export const zSupertaskRelationPretasks = z.object({
 export const zSupertaskRelationPretasksGetResponse = z.object({
   data: z.array(
     z.object({
-      type: z.literal('pretasks'),
+      type: z.literal('preTask'),
       id: z.int()
     })
   )
@@ -381,67 +381,62 @@ export const zGetSupertasksCountQuery = z.object({
  */
 export const zGetSupertasksCountResponse = zSupertaskCountResponse;
 
-export const zGetSupertasksByIdByRelationPath = z.object({
+export const zGetSupertasksByIdPretasksPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetSupertasksByIdByRelationResponse = zSupertaskRelationPretasksGetResponse;
+export const zGetSupertasksByIdPretasksResponse = zSupertaskRelationPretasksGetResponse;
 
-export const zDeleteSupertasksByIdRelationshipsByRelationBody = zSupertaskRelationPretasks;
+export const zDeleteSupertasksByIdRelationshipsPretasksBody = zSupertaskRelationPretasks;
 
-export const zDeleteSupertasksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zDeleteSupertasksByIdRelationshipsPretasksPath = z.object({
+  id: z.int()
 });
 
 /**
  * successfully deleted
  */
-export const zDeleteSupertasksByIdRelationshipsByRelationResponse = z.void();
+export const zDeleteSupertasksByIdRelationshipsPretasksResponse = z.void();
 
-export const zGetSupertasksByIdRelationshipsByRelationPath = z.object({
+export const zGetSupertasksByIdRelationshipsPretasksPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetSupertasksByIdRelationshipsByRelationResponse = zSupertaskResponse;
+export const zGetSupertasksByIdRelationshipsPretasksResponse = zSupertaskResponse;
 
-export const zPatchSupertasksByIdRelationshipsByRelationBody = zSupertaskRelationPretasks;
+export const zPatchSupertasksByIdRelationshipsPretasksBody = zSupertaskRelationPretasks;
 
-export const zPatchSupertasksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchSupertasksByIdRelationshipsPretasksPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchSupertasksByIdRelationshipsByRelationResponse = z.void();
+export const zPatchSupertasksByIdRelationshipsPretasksResponse = z.void();
 
-export const zPostSupertasksByIdRelationshipsByRelationBody = zSupertaskRelationPretasks;
+export const zPostSupertasksByIdRelationshipsPretasksBody = zSupertaskRelationPretasks;
 
-export const zPostSupertasksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPostSupertasksByIdRelationshipsPretasksPath = z.object({
+  id: z.int()
 });
 
 /**
  * successfully created
  */
-export const zPostSupertasksByIdRelationshipsByRelationResponse = z.void();
+export const zPostSupertasksByIdRelationshipsPretasksResponse = z.void();
 
 export const zDeleteSupertasksByIdPath = z.object({
   id: z.int()

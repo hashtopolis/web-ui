@@ -321,16 +321,30 @@ export type UserCountResponse = {
   }>;
 };
 
+export type UserRelationGlobalPermissionGroup = {
+  data: {
+    type: 'globalPermissionGroup';
+    id: number;
+  };
+};
+
+export type UserRelationGlobalPermissionGroupGetResponse = {
+  data: {
+    type: 'globalPermissionGroup';
+    id: number;
+  };
+};
+
 export type UserRelationAccessGroups = {
   data: Array<{
-    type: 'accessGroups';
+    type: 'accessGroup';
     id: number;
   }>;
 };
 
 export type UserRelationAccessGroupsGetResponse = {
   data: Array<{
-    type: 'accessGroups';
+    type: 'accessGroup';
     id: number;
   }>;
 };
@@ -562,17 +576,16 @@ export type GetUsersCountResponses = {
 
 export type GetUsersCountResponse = GetUsersCountResponses[keyof GetUsersCountResponses];
 
-export type GetUsersByIdByRelationData = {
+export type GetUsersByIdGlobalPermissionGroupData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/users/{id}/{relation}';
+  url: '/api/v2/ui/users/{id}/globalPermissionGroup';
 };
 
-export type GetUsersByIdByRelationErrors = {
+export type GetUsersByIdGlobalPermissionGroupErrors = {
   /**
    * Invalid request
    */
@@ -591,70 +604,29 @@ export type GetUsersByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetUsersByIdByRelationError = GetUsersByIdByRelationErrors[keyof GetUsersByIdByRelationErrors];
+export type GetUsersByIdGlobalPermissionGroupError =
+  GetUsersByIdGlobalPermissionGroupErrors[keyof GetUsersByIdGlobalPermissionGroupErrors];
 
-export type GetUsersByIdByRelationResponses = {
+export type GetUsersByIdGlobalPermissionGroupResponses = {
   /**
    * successful operation
    */
-  200: UserRelationAccessGroupsGetResponse;
+  200: UserRelationGlobalPermissionGroupGetResponse;
 };
 
-export type GetUsersByIdByRelationResponse = GetUsersByIdByRelationResponses[keyof GetUsersByIdByRelationResponses];
+export type GetUsersByIdGlobalPermissionGroupResponse =
+  GetUsersByIdGlobalPermissionGroupResponses[keyof GetUsersByIdGlobalPermissionGroupResponses];
 
-export type DeleteUsersByIdRelationshipsByRelationData = {
-  body: UserRelationAccessGroups;
-  path: {
-    id: number;
-    relation: string;
-  };
-  query?: never;
-  url: '/api/v2/ui/users/{id}/relationships/{relation}';
-};
-
-export type DeleteUsersByIdRelationshipsByRelationErrors = {
-  /**
-   * Invalid request
-   */
-  400: ErrorResponse;
-  /**
-   * Authentication failed
-   */
-  401: ErrorResponse;
-  /**
-   * Permission denied
-   */
-  403: ErrorResponse;
-  /**
-   * Not Found
-   */
-  404: ErrorResponse;
-};
-
-export type DeleteUsersByIdRelationshipsByRelationError =
-  DeleteUsersByIdRelationshipsByRelationErrors[keyof DeleteUsersByIdRelationshipsByRelationErrors];
-
-export type DeleteUsersByIdRelationshipsByRelationResponses = {
-  /**
-   * successfully deleted
-   */
-  204: void;
-};
-
-export type DeleteUsersByIdRelationshipsByRelationResponse =
-  DeleteUsersByIdRelationshipsByRelationResponses[keyof DeleteUsersByIdRelationshipsByRelationResponses];
-
-export type GetUsersByIdRelationshipsByRelationData = {
+export type GetUsersByIdRelationshipsGlobalPermissionGroupData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/users/{id}/relationships/{relation}';
+  url: '/api/v2/ui/users/{id}/relationships/globalPermissionGroup';
 };
 
-export type GetUsersByIdRelationshipsByRelationErrors = {
+export type GetUsersByIdRelationshipsGlobalPermissionGroupErrors = {
   /**
    * Invalid request
    */
@@ -673,30 +645,29 @@ export type GetUsersByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetUsersByIdRelationshipsByRelationError =
-  GetUsersByIdRelationshipsByRelationErrors[keyof GetUsersByIdRelationshipsByRelationErrors];
+export type GetUsersByIdRelationshipsGlobalPermissionGroupError =
+  GetUsersByIdRelationshipsGlobalPermissionGroupErrors[keyof GetUsersByIdRelationshipsGlobalPermissionGroupErrors];
 
-export type GetUsersByIdRelationshipsByRelationResponses = {
+export type GetUsersByIdRelationshipsGlobalPermissionGroupResponses = {
   /**
    * successful operation
    */
   200: UserResponse;
 };
 
-export type GetUsersByIdRelationshipsByRelationResponse =
-  GetUsersByIdRelationshipsByRelationResponses[keyof GetUsersByIdRelationshipsByRelationResponses];
+export type GetUsersByIdRelationshipsGlobalPermissionGroupResponse =
+  GetUsersByIdRelationshipsGlobalPermissionGroupResponses[keyof GetUsersByIdRelationshipsGlobalPermissionGroupResponses];
 
-export type PatchUsersByIdRelationshipsByRelationData = {
-  body: UserRelationAccessGroups;
+export type PatchUsersByIdRelationshipsGlobalPermissionGroupData = {
+  body: UserRelationGlobalPermissionGroup;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/users/{id}/relationships/{relation}';
+  url: '/api/v2/ui/users/{id}/relationships/globalPermissionGroup';
 };
 
-export type PatchUsersByIdRelationshipsByRelationErrors = {
+export type PatchUsersByIdRelationshipsGlobalPermissionGroupErrors = {
   /**
    * Invalid request
    */
@@ -719,30 +690,151 @@ export type PatchUsersByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchUsersByIdRelationshipsByRelationError =
-  PatchUsersByIdRelationshipsByRelationErrors[keyof PatchUsersByIdRelationshipsByRelationErrors];
+export type PatchUsersByIdRelationshipsGlobalPermissionGroupError =
+  PatchUsersByIdRelationshipsGlobalPermissionGroupErrors[keyof PatchUsersByIdRelationshipsGlobalPermissionGroupErrors];
 
-export type PatchUsersByIdRelationshipsByRelationResponses = {
+export type PatchUsersByIdRelationshipsGlobalPermissionGroupResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchUsersByIdRelationshipsByRelationResponse =
-  PatchUsersByIdRelationshipsByRelationResponses[keyof PatchUsersByIdRelationshipsByRelationResponses];
+export type PatchUsersByIdRelationshipsGlobalPermissionGroupResponse =
+  PatchUsersByIdRelationshipsGlobalPermissionGroupResponses[keyof PatchUsersByIdRelationshipsGlobalPermissionGroupResponses];
 
-export type PostUsersByIdRelationshipsByRelationData = {
+export type GetUsersByIdAccessGroupsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/users/{id}/accessGroups';
+};
+
+export type GetUsersByIdAccessGroupsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetUsersByIdAccessGroupsError = GetUsersByIdAccessGroupsErrors[keyof GetUsersByIdAccessGroupsErrors];
+
+export type GetUsersByIdAccessGroupsResponses = {
+  /**
+   * successful operation
+   */
+  200: UserRelationAccessGroupsGetResponse;
+};
+
+export type GetUsersByIdAccessGroupsResponse =
+  GetUsersByIdAccessGroupsResponses[keyof GetUsersByIdAccessGroupsResponses];
+
+export type DeleteUsersByIdRelationshipsAccessGroupsData = {
   body: UserRelationAccessGroups;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/users/{id}/relationships/{relation}';
+  url: '/api/v2/ui/users/{id}/relationships/accessGroups';
 };
 
-export type PostUsersByIdRelationshipsByRelationErrors = {
+export type DeleteUsersByIdRelationshipsAccessGroupsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteUsersByIdRelationshipsAccessGroupsError =
+  DeleteUsersByIdRelationshipsAccessGroupsErrors[keyof DeleteUsersByIdRelationshipsAccessGroupsErrors];
+
+export type DeleteUsersByIdRelationshipsAccessGroupsResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteUsersByIdRelationshipsAccessGroupsResponse =
+  DeleteUsersByIdRelationshipsAccessGroupsResponses[keyof DeleteUsersByIdRelationshipsAccessGroupsResponses];
+
+export type GetUsersByIdRelationshipsAccessGroupsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/users/{id}/relationships/accessGroups';
+};
+
+export type GetUsersByIdRelationshipsAccessGroupsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetUsersByIdRelationshipsAccessGroupsError =
+  GetUsersByIdRelationshipsAccessGroupsErrors[keyof GetUsersByIdRelationshipsAccessGroupsErrors];
+
+export type GetUsersByIdRelationshipsAccessGroupsResponses = {
+  /**
+   * successful operation
+   */
+  200: UserResponse;
+};
+
+export type GetUsersByIdRelationshipsAccessGroupsResponse =
+  GetUsersByIdRelationshipsAccessGroupsResponses[keyof GetUsersByIdRelationshipsAccessGroupsResponses];
+
+export type PatchUsersByIdRelationshipsAccessGroupsData = {
+  body: UserRelationAccessGroups;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/users/{id}/relationships/accessGroups';
+};
+
+export type PatchUsersByIdRelationshipsAccessGroupsErrors = {
   /**
    * Invalid request
    */
@@ -765,18 +857,63 @@ export type PostUsersByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PostUsersByIdRelationshipsByRelationError =
-  PostUsersByIdRelationshipsByRelationErrors[keyof PostUsersByIdRelationshipsByRelationErrors];
+export type PatchUsersByIdRelationshipsAccessGroupsError =
+  PatchUsersByIdRelationshipsAccessGroupsErrors[keyof PatchUsersByIdRelationshipsAccessGroupsErrors];
 
-export type PostUsersByIdRelationshipsByRelationResponses = {
+export type PatchUsersByIdRelationshipsAccessGroupsResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchUsersByIdRelationshipsAccessGroupsResponse =
+  PatchUsersByIdRelationshipsAccessGroupsResponses[keyof PatchUsersByIdRelationshipsAccessGroupsResponses];
+
+export type PostUsersByIdRelationshipsAccessGroupsData = {
+  body: UserRelationAccessGroups;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/users/{id}/relationships/accessGroups';
+};
+
+export type PostUsersByIdRelationshipsAccessGroupsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostUsersByIdRelationshipsAccessGroupsError =
+  PostUsersByIdRelationshipsAccessGroupsErrors[keyof PostUsersByIdRelationshipsAccessGroupsErrors];
+
+export type PostUsersByIdRelationshipsAccessGroupsResponses = {
   /**
    * successfully created
    */
   204: void;
 };
 
-export type PostUsersByIdRelationshipsByRelationResponse =
-  PostUsersByIdRelationshipsByRelationResponses[keyof PostUsersByIdRelationshipsByRelationResponses];
+export type PostUsersByIdRelationshipsAccessGroupsResponse =
+  PostUsersByIdRelationshipsAccessGroupsResponses[keyof PostUsersByIdRelationshipsAccessGroupsResponses];
 
 export type DeleteUsersByIdData = {
   body?: never;

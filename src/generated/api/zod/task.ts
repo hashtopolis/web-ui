@@ -906,10 +906,88 @@ export const zTaskCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
+export const zTaskRelationCrackerBinary = z.object({
+  data: z.object({
+    type: z.literal('crackerBinary'),
+    id: z.int()
+  })
+});
+
+export const zTaskRelationCrackerBinaryGetResponse = z.object({
+  data: z.object({
+    type: z.literal('crackerBinary'),
+    id: z.int()
+  })
+});
+
+export const zTaskRelationCrackerBinaryType = z.object({
+  data: z.object({
+    type: z.literal('crackerBinaryType'),
+    id: z.int()
+  })
+});
+
+export const zTaskRelationCrackerBinaryTypeGetResponse = z.object({
+  data: z.object({
+    type: z.literal('crackerBinaryType'),
+    id: z.int()
+  })
+});
+
+export const zTaskRelationHashlist = z.object({
+  data: z.object({
+    type: z.literal('hashlist'),
+    id: z.int()
+  })
+});
+
+export const zTaskRelationHashlistGetResponse = z.object({
+  data: z.object({
+    type: z.literal('hashlist'),
+    id: z.int()
+  })
+});
+
+export const zTaskRelationAssignedAgents = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('agent'),
+      id: z.int()
+    })
+  )
+});
+
+export const zTaskRelationAssignedAgentsGetResponse = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('agent'),
+      id: z.int()
+    })
+  )
+});
+
+export const zTaskRelationFiles = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('file'),
+      id: z.int()
+    })
+  )
+});
+
+export const zTaskRelationFilesGetResponse = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('file'),
+      id: z.int()
+    })
+  )
+});
+
 export const zTaskRelationSpeeds = z.object({
   data: z.array(
     z.object({
-      type: z.literal('speeds'),
+      type: z.literal('speed'),
       id: z.int()
     })
   )
@@ -918,7 +996,7 @@ export const zTaskRelationSpeeds = z.object({
 export const zTaskRelationSpeedsGetResponse = z.object({
   data: z.array(
     z.object({
-      type: z.literal('speeds'),
+      type: z.literal('speed'),
       id: z.int()
     })
   )
@@ -975,67 +1053,281 @@ export const zGetTasksCountQuery = z.object({
  */
 export const zGetTasksCountResponse = zTaskCountResponse;
 
-export const zGetTasksByIdByRelationPath = z.object({
+export const zGetTasksByIdCrackerBinaryPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetTasksByIdByRelationResponse = zTaskRelationSpeedsGetResponse;
+export const zGetTasksByIdCrackerBinaryResponse = zTaskRelationCrackerBinaryGetResponse;
 
-export const zDeleteTasksByIdRelationshipsByRelationBody = zTaskRelationSpeeds;
-
-export const zDeleteTasksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
-});
-
-/**
- * successfully deleted
- */
-export const zDeleteTasksByIdRelationshipsByRelationResponse = z.void();
-
-export const zGetTasksByIdRelationshipsByRelationPath = z.object({
+export const zGetTasksByIdRelationshipsCrackerBinaryPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetTasksByIdRelationshipsByRelationResponse = zTaskResponse;
+export const zGetTasksByIdRelationshipsCrackerBinaryResponse = zTaskResponse;
 
-export const zPatchTasksByIdRelationshipsByRelationBody = zTaskRelationSpeeds;
+export const zPatchTasksByIdRelationshipsCrackerBinaryBody = zTaskRelationCrackerBinary;
 
-export const zPatchTasksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchTasksByIdRelationshipsCrackerBinaryPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchTasksByIdRelationshipsByRelationResponse = z.void();
+export const zPatchTasksByIdRelationshipsCrackerBinaryResponse = z.void();
 
-export const zPostTasksByIdRelationshipsByRelationBody = zTaskRelationSpeeds;
+export const zGetTasksByIdCrackerBinaryTypePath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
 
-export const zPostTasksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+/**
+ * successful operation
+ */
+export const zGetTasksByIdCrackerBinaryTypeResponse = zTaskRelationCrackerBinaryTypeGetResponse;
+
+export const zGetTasksByIdRelationshipsCrackerBinaryTypePath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetTasksByIdRelationshipsCrackerBinaryTypeResponse = zTaskResponse;
+
+export const zPatchTasksByIdRelationshipsCrackerBinaryTypeBody = zTaskRelationCrackerBinaryType;
+
+export const zPatchTasksByIdRelationshipsCrackerBinaryTypePath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchTasksByIdRelationshipsCrackerBinaryTypeResponse = z.void();
+
+export const zGetTasksByIdHashlistPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetTasksByIdHashlistResponse = zTaskRelationHashlistGetResponse;
+
+export const zGetTasksByIdRelationshipsHashlistPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetTasksByIdRelationshipsHashlistResponse = zTaskResponse;
+
+export const zPatchTasksByIdRelationshipsHashlistBody = zTaskRelationHashlist;
+
+export const zPatchTasksByIdRelationshipsHashlistPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchTasksByIdRelationshipsHashlistResponse = z.void();
+
+export const zGetTasksByIdAssignedAgentsPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetTasksByIdAssignedAgentsResponse = zTaskRelationAssignedAgentsGetResponse;
+
+export const zDeleteTasksByIdRelationshipsAssignedAgentsBody = zTaskRelationAssignedAgents;
+
+export const zDeleteTasksByIdRelationshipsAssignedAgentsPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully deleted
+ */
+export const zDeleteTasksByIdRelationshipsAssignedAgentsResponse = z.void();
+
+export const zGetTasksByIdRelationshipsAssignedAgentsPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetTasksByIdRelationshipsAssignedAgentsResponse = zTaskResponse;
+
+export const zPatchTasksByIdRelationshipsAssignedAgentsBody = zTaskRelationAssignedAgents;
+
+export const zPatchTasksByIdRelationshipsAssignedAgentsPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchTasksByIdRelationshipsAssignedAgentsResponse = z.void();
+
+export const zPostTasksByIdRelationshipsAssignedAgentsBody = zTaskRelationAssignedAgents;
+
+export const zPostTasksByIdRelationshipsAssignedAgentsPath = z.object({
+  id: z.int()
 });
 
 /**
  * successfully created
  */
-export const zPostTasksByIdRelationshipsByRelationResponse = z.void();
+export const zPostTasksByIdRelationshipsAssignedAgentsResponse = z.void();
+
+export const zGetTasksByIdFilesPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetTasksByIdFilesResponse = zTaskRelationFilesGetResponse;
+
+export const zDeleteTasksByIdRelationshipsFilesBody = zTaskRelationFiles;
+
+export const zDeleteTasksByIdRelationshipsFilesPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully deleted
+ */
+export const zDeleteTasksByIdRelationshipsFilesResponse = z.void();
+
+export const zGetTasksByIdRelationshipsFilesPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetTasksByIdRelationshipsFilesResponse = zTaskResponse;
+
+export const zPatchTasksByIdRelationshipsFilesBody = zTaskRelationFiles;
+
+export const zPatchTasksByIdRelationshipsFilesPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchTasksByIdRelationshipsFilesResponse = z.void();
+
+export const zPostTasksByIdRelationshipsFilesBody = zTaskRelationFiles;
+
+export const zPostTasksByIdRelationshipsFilesPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully created
+ */
+export const zPostTasksByIdRelationshipsFilesResponse = z.void();
+
+export const zGetTasksByIdSpeedsPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetTasksByIdSpeedsResponse = zTaskRelationSpeedsGetResponse;
+
+export const zDeleteTasksByIdRelationshipsSpeedsBody = zTaskRelationSpeeds;
+
+export const zDeleteTasksByIdRelationshipsSpeedsPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully deleted
+ */
+export const zDeleteTasksByIdRelationshipsSpeedsResponse = z.void();
+
+export const zGetTasksByIdRelationshipsSpeedsPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetTasksByIdRelationshipsSpeedsResponse = zTaskResponse;
+
+export const zPatchTasksByIdRelationshipsSpeedsBody = zTaskRelationSpeeds;
+
+export const zPatchTasksByIdRelationshipsSpeedsPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchTasksByIdRelationshipsSpeedsResponse = z.void();
+
+export const zPostTasksByIdRelationshipsSpeedsBody = zTaskRelationSpeeds;
+
+export const zPostTasksByIdRelationshipsSpeedsPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully created
+ */
+export const zPostTasksByIdRelationshipsSpeedsResponse = z.void();
 
 export const zDeleteTasksByIdPath = z.object({
   id: z.int()

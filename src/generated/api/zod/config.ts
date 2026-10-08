@@ -450,43 +450,40 @@ export const zGetConfigsCountQuery = z.object({
  */
 export const zGetConfigsCountResponse = zConfigCountResponse;
 
-export const zGetConfigsByIdByRelationPath = z.object({
+export const zGetConfigsByIdConfigSectionPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetConfigsByIdByRelationResponse = zConfigRelationConfigSectionGetResponse;
+export const zGetConfigsByIdConfigSectionResponse = zConfigRelationConfigSectionGetResponse;
 
-export const zGetConfigsByIdRelationshipsByRelationPath = z.object({
+export const zGetConfigsByIdRelationshipsConfigSectionPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetConfigsByIdRelationshipsByRelationResponse = zConfigResponse;
+export const zGetConfigsByIdRelationshipsConfigSectionResponse = zConfigResponse;
 
-export const zPatchConfigsByIdRelationshipsByRelationBody = zConfigRelationConfigSection;
+export const zPatchConfigsByIdRelationshipsConfigSectionBody = zConfigRelationConfigSection;
 
-export const zPatchConfigsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchConfigsByIdRelationshipsConfigSectionPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchConfigsByIdRelationshipsByRelationResponse = z.void();
+export const zPatchConfigsByIdRelationshipsConfigSectionResponse = z.void();
 
 export const zGetConfigsByIdPath = z.object({
   id: z

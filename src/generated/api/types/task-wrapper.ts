@@ -650,16 +650,58 @@ export type TaskWrapperCountResponse = {
   }>;
 };
 
-export type TaskWrapperRelationTasks = {
-  data: Array<{
-    type: 'tasks';
+export type TaskWrapperRelationAccessGroup = {
+  data: {
+    type: 'accessGroup';
     id: number;
-  }>;
+  };
+};
+
+export type TaskWrapperRelationAccessGroupGetResponse = {
+  data: {
+    type: 'accessGroup';
+    id: number;
+  };
+};
+
+export type TaskWrapperRelationHashlist = {
+  data: {
+    type: 'hashlist';
+    id: number;
+  };
+};
+
+export type TaskWrapperRelationHashlistGetResponse = {
+  data: {
+    type: 'hashlist';
+    id: number;
+  };
+};
+
+export type TaskWrapperRelationHashType = {
+  data: {
+    type: 'hashType';
+    id: number;
+  };
+};
+
+export type TaskWrapperRelationHashTypeGetResponse = {
+  data: {
+    type: 'hashType';
+    id: number;
+  };
+};
+
+export type TaskWrapperRelationTaskGetResponse = {
+  data: {
+    type: 'task';
+    id: number;
+  };
 };
 
 export type TaskWrapperRelationTasksGetResponse = {
   data: Array<{
-    type: 'tasks';
+    type: 'task';
     id: number;
   }>;
 };
@@ -890,16 +932,9 @@ export type TaskWrapperDisplayCountResponse = {
   }>;
 };
 
-export type TaskWrapperDisplayRelationTasks = {
-  data: Array<{
-    type: 'tasks';
-    id: number;
-  }>;
-};
-
 export type TaskWrapperDisplayRelationTasksGetResponse = {
   data: Array<{
-    type: 'tasks';
+    type: 'task';
     id: number;
   }>;
 };
@@ -1094,17 +1129,16 @@ export type GetTaskwrappersCountResponses = {
 
 export type GetTaskwrappersCountResponse = GetTaskwrappersCountResponses[keyof GetTaskwrappersCountResponses];
 
-export type GetTaskwrappersByIdByRelationData = {
+export type GetTaskwrappersByIdAccessGroupData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/taskwrappers/{id}/{relation}';
+  url: '/api/v2/ui/taskwrappers/{id}/accessGroup';
 };
 
-export type GetTaskwrappersByIdByRelationErrors = {
+export type GetTaskwrappersByIdAccessGroupErrors = {
   /**
    * Invalid request
    */
@@ -1123,72 +1157,29 @@ export type GetTaskwrappersByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetTaskwrappersByIdByRelationError =
-  GetTaskwrappersByIdByRelationErrors[keyof GetTaskwrappersByIdByRelationErrors];
+export type GetTaskwrappersByIdAccessGroupError =
+  GetTaskwrappersByIdAccessGroupErrors[keyof GetTaskwrappersByIdAccessGroupErrors];
 
-export type GetTaskwrappersByIdByRelationResponses = {
+export type GetTaskwrappersByIdAccessGroupResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperRelationTasksGetResponse;
+  200: TaskWrapperRelationAccessGroupGetResponse;
 };
 
-export type GetTaskwrappersByIdByRelationResponse =
-  GetTaskwrappersByIdByRelationResponses[keyof GetTaskwrappersByIdByRelationResponses];
+export type GetTaskwrappersByIdAccessGroupResponse =
+  GetTaskwrappersByIdAccessGroupResponses[keyof GetTaskwrappersByIdAccessGroupResponses];
 
-export type DeleteTaskwrappersByIdRelationshipsByRelationData = {
-  body: TaskWrapperRelationTasks;
-  path: {
-    id: number;
-    relation: string;
-  };
-  query?: never;
-  url: '/api/v2/ui/taskwrappers/{id}/relationships/{relation}';
-};
-
-export type DeleteTaskwrappersByIdRelationshipsByRelationErrors = {
-  /**
-   * Invalid request
-   */
-  400: ErrorResponse;
-  /**
-   * Authentication failed
-   */
-  401: ErrorResponse;
-  /**
-   * Permission denied
-   */
-  403: ErrorResponse;
-  /**
-   * Not Found
-   */
-  404: ErrorResponse;
-};
-
-export type DeleteTaskwrappersByIdRelationshipsByRelationError =
-  DeleteTaskwrappersByIdRelationshipsByRelationErrors[keyof DeleteTaskwrappersByIdRelationshipsByRelationErrors];
-
-export type DeleteTaskwrappersByIdRelationshipsByRelationResponses = {
-  /**
-   * successfully deleted
-   */
-  204: void;
-};
-
-export type DeleteTaskwrappersByIdRelationshipsByRelationResponse =
-  DeleteTaskwrappersByIdRelationshipsByRelationResponses[keyof DeleteTaskwrappersByIdRelationshipsByRelationResponses];
-
-export type GetTaskwrappersByIdRelationshipsByRelationData = {
+export type GetTaskwrappersByIdRelationshipsAccessGroupData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/taskwrappers/{id}/relationships/{relation}';
+  url: '/api/v2/ui/taskwrappers/{id}/relationships/accessGroup';
 };
 
-export type GetTaskwrappersByIdRelationshipsByRelationErrors = {
+export type GetTaskwrappersByIdRelationshipsAccessGroupErrors = {
   /**
    * Invalid request
    */
@@ -1207,30 +1198,29 @@ export type GetTaskwrappersByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetTaskwrappersByIdRelationshipsByRelationError =
-  GetTaskwrappersByIdRelationshipsByRelationErrors[keyof GetTaskwrappersByIdRelationshipsByRelationErrors];
+export type GetTaskwrappersByIdRelationshipsAccessGroupError =
+  GetTaskwrappersByIdRelationshipsAccessGroupErrors[keyof GetTaskwrappersByIdRelationshipsAccessGroupErrors];
 
-export type GetTaskwrappersByIdRelationshipsByRelationResponses = {
+export type GetTaskwrappersByIdRelationshipsAccessGroupResponses = {
   /**
    * successful operation
    */
   200: TaskWrapperResponse;
 };
 
-export type GetTaskwrappersByIdRelationshipsByRelationResponse =
-  GetTaskwrappersByIdRelationshipsByRelationResponses[keyof GetTaskwrappersByIdRelationshipsByRelationResponses];
+export type GetTaskwrappersByIdRelationshipsAccessGroupResponse =
+  GetTaskwrappersByIdRelationshipsAccessGroupResponses[keyof GetTaskwrappersByIdRelationshipsAccessGroupResponses];
 
-export type PatchTaskwrappersByIdRelationshipsByRelationData = {
-  body: TaskWrapperRelationTasks;
+export type PatchTaskwrappersByIdRelationshipsAccessGroupData = {
+  body: TaskWrapperRelationAccessGroup;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/taskwrappers/{id}/relationships/{relation}';
+  url: '/api/v2/ui/taskwrappers/{id}/relationships/accessGroup';
 };
 
-export type PatchTaskwrappersByIdRelationshipsByRelationErrors = {
+export type PatchTaskwrappersByIdRelationshipsAccessGroupErrors = {
   /**
    * Invalid request
    */
@@ -1253,30 +1243,111 @@ export type PatchTaskwrappersByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchTaskwrappersByIdRelationshipsByRelationError =
-  PatchTaskwrappersByIdRelationshipsByRelationErrors[keyof PatchTaskwrappersByIdRelationshipsByRelationErrors];
+export type PatchTaskwrappersByIdRelationshipsAccessGroupError =
+  PatchTaskwrappersByIdRelationshipsAccessGroupErrors[keyof PatchTaskwrappersByIdRelationshipsAccessGroupErrors];
 
-export type PatchTaskwrappersByIdRelationshipsByRelationResponses = {
+export type PatchTaskwrappersByIdRelationshipsAccessGroupResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchTaskwrappersByIdRelationshipsByRelationResponse =
-  PatchTaskwrappersByIdRelationshipsByRelationResponses[keyof PatchTaskwrappersByIdRelationshipsByRelationResponses];
+export type PatchTaskwrappersByIdRelationshipsAccessGroupResponse =
+  PatchTaskwrappersByIdRelationshipsAccessGroupResponses[keyof PatchTaskwrappersByIdRelationshipsAccessGroupResponses];
 
-export type PostTaskwrappersByIdRelationshipsByRelationData = {
-  body: TaskWrapperRelationTasks;
+export type GetTaskwrappersByIdHashlistData = {
+  body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/taskwrappers/{id}/relationships/{relation}';
+  url: '/api/v2/ui/taskwrappers/{id}/hashlist';
 };
 
-export type PostTaskwrappersByIdRelationshipsByRelationErrors = {
+export type GetTaskwrappersByIdHashlistErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTaskwrappersByIdHashlistError =
+  GetTaskwrappersByIdHashlistErrors[keyof GetTaskwrappersByIdHashlistErrors];
+
+export type GetTaskwrappersByIdHashlistResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskWrapperRelationHashlistGetResponse;
+};
+
+export type GetTaskwrappersByIdHashlistResponse =
+  GetTaskwrappersByIdHashlistResponses[keyof GetTaskwrappersByIdHashlistResponses];
+
+export type GetTaskwrappersByIdRelationshipsHashlistData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/taskwrappers/{id}/relationships/hashlist';
+};
+
+export type GetTaskwrappersByIdRelationshipsHashlistErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTaskwrappersByIdRelationshipsHashlistError =
+  GetTaskwrappersByIdRelationshipsHashlistErrors[keyof GetTaskwrappersByIdRelationshipsHashlistErrors];
+
+export type GetTaskwrappersByIdRelationshipsHashlistResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskWrapperResponse;
+};
+
+export type GetTaskwrappersByIdRelationshipsHashlistResponse =
+  GetTaskwrappersByIdRelationshipsHashlistResponses[keyof GetTaskwrappersByIdRelationshipsHashlistResponses];
+
+export type PatchTaskwrappersByIdRelationshipsHashlistData = {
+  body: TaskWrapperRelationHashlist;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/taskwrappers/{id}/relationships/hashlist';
+};
+
+export type PatchTaskwrappersByIdRelationshipsHashlistErrors = {
   /**
    * Invalid request
    */
@@ -1299,18 +1370,306 @@ export type PostTaskwrappersByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PostTaskwrappersByIdRelationshipsByRelationError =
-  PostTaskwrappersByIdRelationshipsByRelationErrors[keyof PostTaskwrappersByIdRelationshipsByRelationErrors];
+export type PatchTaskwrappersByIdRelationshipsHashlistError =
+  PatchTaskwrappersByIdRelationshipsHashlistErrors[keyof PatchTaskwrappersByIdRelationshipsHashlistErrors];
 
-export type PostTaskwrappersByIdRelationshipsByRelationResponses = {
+export type PatchTaskwrappersByIdRelationshipsHashlistResponses = {
   /**
-   * successfully created
+   * Successfull operation
    */
   204: void;
 };
 
-export type PostTaskwrappersByIdRelationshipsByRelationResponse =
-  PostTaskwrappersByIdRelationshipsByRelationResponses[keyof PostTaskwrappersByIdRelationshipsByRelationResponses];
+export type PatchTaskwrappersByIdRelationshipsHashlistResponse =
+  PatchTaskwrappersByIdRelationshipsHashlistResponses[keyof PatchTaskwrappersByIdRelationshipsHashlistResponses];
+
+export type GetTaskwrappersByIdHashTypeData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/taskwrappers/{id}/hashType';
+};
+
+export type GetTaskwrappersByIdHashTypeErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTaskwrappersByIdHashTypeError =
+  GetTaskwrappersByIdHashTypeErrors[keyof GetTaskwrappersByIdHashTypeErrors];
+
+export type GetTaskwrappersByIdHashTypeResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskWrapperRelationHashTypeGetResponse;
+};
+
+export type GetTaskwrappersByIdHashTypeResponse =
+  GetTaskwrappersByIdHashTypeResponses[keyof GetTaskwrappersByIdHashTypeResponses];
+
+export type GetTaskwrappersByIdRelationshipsHashTypeData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/taskwrappers/{id}/relationships/hashType';
+};
+
+export type GetTaskwrappersByIdRelationshipsHashTypeErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTaskwrappersByIdRelationshipsHashTypeError =
+  GetTaskwrappersByIdRelationshipsHashTypeErrors[keyof GetTaskwrappersByIdRelationshipsHashTypeErrors];
+
+export type GetTaskwrappersByIdRelationshipsHashTypeResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskWrapperResponse;
+};
+
+export type GetTaskwrappersByIdRelationshipsHashTypeResponse =
+  GetTaskwrappersByIdRelationshipsHashTypeResponses[keyof GetTaskwrappersByIdRelationshipsHashTypeResponses];
+
+export type PatchTaskwrappersByIdRelationshipsHashTypeData = {
+  body: TaskWrapperRelationHashType;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/taskwrappers/{id}/relationships/hashType';
+};
+
+export type PatchTaskwrappersByIdRelationshipsHashTypeErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchTaskwrappersByIdRelationshipsHashTypeError =
+  PatchTaskwrappersByIdRelationshipsHashTypeErrors[keyof PatchTaskwrappersByIdRelationshipsHashTypeErrors];
+
+export type PatchTaskwrappersByIdRelationshipsHashTypeResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchTaskwrappersByIdRelationshipsHashTypeResponse =
+  PatchTaskwrappersByIdRelationshipsHashTypeResponses[keyof PatchTaskwrappersByIdRelationshipsHashTypeResponses];
+
+export type GetTaskwrappersByIdTaskData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/taskwrappers/{id}/task';
+};
+
+export type GetTaskwrappersByIdTaskErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTaskwrappersByIdTaskError = GetTaskwrappersByIdTaskErrors[keyof GetTaskwrappersByIdTaskErrors];
+
+export type GetTaskwrappersByIdTaskResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskWrapperRelationTaskGetResponse;
+};
+
+export type GetTaskwrappersByIdTaskResponse = GetTaskwrappersByIdTaskResponses[keyof GetTaskwrappersByIdTaskResponses];
+
+export type GetTaskwrappersByIdRelationshipsTaskData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/taskwrappers/{id}/relationships/task';
+};
+
+export type GetTaskwrappersByIdRelationshipsTaskErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTaskwrappersByIdRelationshipsTaskError =
+  GetTaskwrappersByIdRelationshipsTaskErrors[keyof GetTaskwrappersByIdRelationshipsTaskErrors];
+
+export type GetTaskwrappersByIdRelationshipsTaskResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskWrapperResponse;
+};
+
+export type GetTaskwrappersByIdRelationshipsTaskResponse =
+  GetTaskwrappersByIdRelationshipsTaskResponses[keyof GetTaskwrappersByIdRelationshipsTaskResponses];
+
+export type GetTaskwrappersByIdTasksData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/taskwrappers/{id}/tasks';
+};
+
+export type GetTaskwrappersByIdTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTaskwrappersByIdTasksError = GetTaskwrappersByIdTasksErrors[keyof GetTaskwrappersByIdTasksErrors];
+
+export type GetTaskwrappersByIdTasksResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskWrapperRelationTasksGetResponse;
+};
+
+export type GetTaskwrappersByIdTasksResponse =
+  GetTaskwrappersByIdTasksResponses[keyof GetTaskwrappersByIdTasksResponses];
+
+export type GetTaskwrappersByIdRelationshipsTasksData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/taskwrappers/{id}/relationships/tasks';
+};
+
+export type GetTaskwrappersByIdRelationshipsTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTaskwrappersByIdRelationshipsTasksError =
+  GetTaskwrappersByIdRelationshipsTasksErrors[keyof GetTaskwrappersByIdRelationshipsTasksErrors];
+
+export type GetTaskwrappersByIdRelationshipsTasksResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskWrapperResponse;
+};
+
+export type GetTaskwrappersByIdRelationshipsTasksResponse =
+  GetTaskwrappersByIdRelationshipsTasksResponses[keyof GetTaskwrappersByIdRelationshipsTasksResponses];
 
 export type DeleteTaskwrappersByIdData = {
   body?: never;

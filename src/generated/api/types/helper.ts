@@ -10,7 +10,6 @@ import type { TaskResourceObject } from './task';
 import type {
   TaskWrapperDisplayCountResponse,
   TaskWrapperDisplayListResponse,
-  TaskWrapperDisplayRelationTasks,
   TaskWrapperDisplayRelationTasksGetResponse,
   TaskWrapperDisplayResponse,
   TaskWrapperSingleResponse
@@ -554,17 +553,16 @@ export type GetTaskwrapperdisplaysCountResponses = {
 export type GetTaskwrapperdisplaysCountResponse =
   GetTaskwrapperdisplaysCountResponses[keyof GetTaskwrapperdisplaysCountResponses];
 
-export type GetTaskwrapperdisplaysByIdByRelationData = {
+export type GetTaskwrapperdisplaysByIdTasksData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/taskwrapperdisplays/{id}/{relation}';
+  url: '/api/v2/ui/taskwrapperdisplays/{id}/tasks';
 };
 
-export type GetTaskwrapperdisplaysByIdByRelationErrors = {
+export type GetTaskwrapperdisplaysByIdTasksErrors = {
   /**
    * Invalid request
    */
@@ -583,72 +581,29 @@ export type GetTaskwrapperdisplaysByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetTaskwrapperdisplaysByIdByRelationError =
-  GetTaskwrapperdisplaysByIdByRelationErrors[keyof GetTaskwrapperdisplaysByIdByRelationErrors];
+export type GetTaskwrapperdisplaysByIdTasksError =
+  GetTaskwrapperdisplaysByIdTasksErrors[keyof GetTaskwrapperdisplaysByIdTasksErrors];
 
-export type GetTaskwrapperdisplaysByIdByRelationResponses = {
+export type GetTaskwrapperdisplaysByIdTasksResponses = {
   /**
    * successful operation
    */
   200: TaskWrapperDisplayRelationTasksGetResponse;
 };
 
-export type GetTaskwrapperdisplaysByIdByRelationResponse =
-  GetTaskwrapperdisplaysByIdByRelationResponses[keyof GetTaskwrapperdisplaysByIdByRelationResponses];
+export type GetTaskwrapperdisplaysByIdTasksResponse =
+  GetTaskwrapperdisplaysByIdTasksResponses[keyof GetTaskwrapperdisplaysByIdTasksResponses];
 
-export type DeleteTaskwrapperdisplaysByIdRelationshipsByRelationData = {
-  body: TaskWrapperDisplayRelationTasks;
-  path: {
-    id: number;
-    relation: string;
-  };
-  query?: never;
-  url: '/api/v2/ui/taskwrapperdisplays/{id}/relationships/{relation}';
-};
-
-export type DeleteTaskwrapperdisplaysByIdRelationshipsByRelationErrors = {
-  /**
-   * Invalid request
-   */
-  400: ErrorResponse;
-  /**
-   * Authentication failed
-   */
-  401: ErrorResponse;
-  /**
-   * Permission denied
-   */
-  403: ErrorResponse;
-  /**
-   * Not Found
-   */
-  404: ErrorResponse;
-};
-
-export type DeleteTaskwrapperdisplaysByIdRelationshipsByRelationError =
-  DeleteTaskwrapperdisplaysByIdRelationshipsByRelationErrors[keyof DeleteTaskwrapperdisplaysByIdRelationshipsByRelationErrors];
-
-export type DeleteTaskwrapperdisplaysByIdRelationshipsByRelationResponses = {
-  /**
-   * successfully deleted
-   */
-  204: void;
-};
-
-export type DeleteTaskwrapperdisplaysByIdRelationshipsByRelationResponse =
-  DeleteTaskwrapperdisplaysByIdRelationshipsByRelationResponses[keyof DeleteTaskwrapperdisplaysByIdRelationshipsByRelationResponses];
-
-export type GetTaskwrapperdisplaysByIdRelationshipsByRelationData = {
+export type GetTaskwrapperdisplaysByIdRelationshipsTasksData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/taskwrapperdisplays/{id}/relationships/{relation}';
+  url: '/api/v2/ui/taskwrapperdisplays/{id}/relationships/tasks';
 };
 
-export type GetTaskwrapperdisplaysByIdRelationshipsByRelationErrors = {
+export type GetTaskwrapperdisplaysByIdRelationshipsTasksErrors = {
   /**
    * Invalid request
    */
@@ -667,110 +622,18 @@ export type GetTaskwrapperdisplaysByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetTaskwrapperdisplaysByIdRelationshipsByRelationError =
-  GetTaskwrapperdisplaysByIdRelationshipsByRelationErrors[keyof GetTaskwrapperdisplaysByIdRelationshipsByRelationErrors];
+export type GetTaskwrapperdisplaysByIdRelationshipsTasksError =
+  GetTaskwrapperdisplaysByIdRelationshipsTasksErrors[keyof GetTaskwrapperdisplaysByIdRelationshipsTasksErrors];
 
-export type GetTaskwrapperdisplaysByIdRelationshipsByRelationResponses = {
+export type GetTaskwrapperdisplaysByIdRelationshipsTasksResponses = {
   /**
    * successful operation
    */
   200: TaskWrapperDisplayResponse;
 };
 
-export type GetTaskwrapperdisplaysByIdRelationshipsByRelationResponse =
-  GetTaskwrapperdisplaysByIdRelationshipsByRelationResponses[keyof GetTaskwrapperdisplaysByIdRelationshipsByRelationResponses];
-
-export type PatchTaskwrapperdisplaysByIdRelationshipsByRelationData = {
-  body: TaskWrapperDisplayRelationTasks;
-  path: {
-    id: number;
-    relation: string;
-  };
-  query?: never;
-  url: '/api/v2/ui/taskwrapperdisplays/{id}/relationships/{relation}';
-};
-
-export type PatchTaskwrapperdisplaysByIdRelationshipsByRelationErrors = {
-  /**
-   * Invalid request
-   */
-  400: ErrorResponse;
-  /**
-   * Authentication failed
-   */
-  401: ErrorResponse;
-  /**
-   * Permission denied
-   */
-  403: ErrorResponse;
-  /**
-   * Not Found
-   */
-  404: ErrorResponse;
-  /**
-   * Resource already exists
-   */
-  409: ErrorResponse;
-};
-
-export type PatchTaskwrapperdisplaysByIdRelationshipsByRelationError =
-  PatchTaskwrapperdisplaysByIdRelationshipsByRelationErrors[keyof PatchTaskwrapperdisplaysByIdRelationshipsByRelationErrors];
-
-export type PatchTaskwrapperdisplaysByIdRelationshipsByRelationResponses = {
-  /**
-   * Successfull operation
-   */
-  204: void;
-};
-
-export type PatchTaskwrapperdisplaysByIdRelationshipsByRelationResponse =
-  PatchTaskwrapperdisplaysByIdRelationshipsByRelationResponses[keyof PatchTaskwrapperdisplaysByIdRelationshipsByRelationResponses];
-
-export type PostTaskwrapperdisplaysByIdRelationshipsByRelationData = {
-  body: TaskWrapperDisplayRelationTasks;
-  path: {
-    id: number;
-    relation: string;
-  };
-  query?: never;
-  url: '/api/v2/ui/taskwrapperdisplays/{id}/relationships/{relation}';
-};
-
-export type PostTaskwrapperdisplaysByIdRelationshipsByRelationErrors = {
-  /**
-   * Invalid request
-   */
-  400: ErrorResponse;
-  /**
-   * Authentication failed
-   */
-  401: ErrorResponse;
-  /**
-   * Permission denied
-   */
-  403: ErrorResponse;
-  /**
-   * Not Found
-   */
-  404: ErrorResponse;
-  /**
-   * Resource already exists
-   */
-  409: ErrorResponse;
-};
-
-export type PostTaskwrapperdisplaysByIdRelationshipsByRelationError =
-  PostTaskwrapperdisplaysByIdRelationshipsByRelationErrors[keyof PostTaskwrapperdisplaysByIdRelationshipsByRelationErrors];
-
-export type PostTaskwrapperdisplaysByIdRelationshipsByRelationResponses = {
-  /**
-   * successfully created
-   */
-  204: void;
-};
-
-export type PostTaskwrapperdisplaysByIdRelationshipsByRelationResponse =
-  PostTaskwrapperdisplaysByIdRelationshipsByRelationResponses[keyof PostTaskwrapperdisplaysByIdRelationshipsByRelationResponses];
+export type GetTaskwrapperdisplaysByIdRelationshipsTasksResponse =
+  GetTaskwrapperdisplaysByIdRelationshipsTasksResponses[keyof GetTaskwrapperdisplaysByIdRelationshipsTasksResponses];
 
 export type GetTaskwrapperdisplaysByIdData = {
   body?: never;

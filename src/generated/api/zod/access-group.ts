@@ -391,10 +391,28 @@ export const zAccessGroupCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
+export const zAccessGroupRelationUserMembers = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('user'),
+      id: z.int()
+    })
+  )
+});
+
+export const zAccessGroupRelationUserMembersGetResponse = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('user'),
+      id: z.int()
+    })
+  )
+});
+
 export const zAccessGroupRelationAgentMembers = z.object({
   data: z.array(
     z.object({
-      type: z.literal('agentMembers'),
+      type: z.literal('agent'),
       id: z.int()
     })
   )
@@ -403,7 +421,7 @@ export const zAccessGroupRelationAgentMembers = z.object({
 export const zAccessGroupRelationAgentMembersGetResponse = z.object({
   data: z.array(
     z.object({
-      type: z.literal('agentMembers'),
+      type: z.literal('agent'),
       id: z.int()
     })
   )
@@ -457,67 +475,119 @@ export const zGetAccessgroupsCountQuery = z.object({
  */
 export const zGetAccessgroupsCountResponse = zAccessGroupCountResponse;
 
-export const zGetAccessgroupsByIdByRelationPath = z.object({
+export const zGetAccessgroupsByIdUserMembersPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetAccessgroupsByIdByRelationResponse = zAccessGroupRelationAgentMembersGetResponse;
+export const zGetAccessgroupsByIdUserMembersResponse = zAccessGroupRelationUserMembersGetResponse;
 
-export const zDeleteAccessgroupsByIdRelationshipsByRelationBody = zAccessGroupRelationAgentMembers;
+export const zDeleteAccessgroupsByIdRelationshipsUserMembersBody = zAccessGroupRelationUserMembers;
 
-export const zDeleteAccessgroupsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zDeleteAccessgroupsByIdRelationshipsUserMembersPath = z.object({
+  id: z.int()
 });
 
 /**
  * successfully deleted
  */
-export const zDeleteAccessgroupsByIdRelationshipsByRelationResponse = z.void();
+export const zDeleteAccessgroupsByIdRelationshipsUserMembersResponse = z.void();
 
-export const zGetAccessgroupsByIdRelationshipsByRelationPath = z.object({
+export const zGetAccessgroupsByIdRelationshipsUserMembersPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetAccessgroupsByIdRelationshipsByRelationResponse = zAccessGroupResponse;
+export const zGetAccessgroupsByIdRelationshipsUserMembersResponse = zAccessGroupResponse;
 
-export const zPatchAccessgroupsByIdRelationshipsByRelationBody = zAccessGroupRelationAgentMembers;
+export const zPatchAccessgroupsByIdRelationshipsUserMembersBody = zAccessGroupRelationUserMembers;
 
-export const zPatchAccessgroupsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchAccessgroupsByIdRelationshipsUserMembersPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchAccessgroupsByIdRelationshipsByRelationResponse = z.void();
+export const zPatchAccessgroupsByIdRelationshipsUserMembersResponse = z.void();
 
-export const zPostAccessgroupsByIdRelationshipsByRelationBody = zAccessGroupRelationAgentMembers;
+export const zPostAccessgroupsByIdRelationshipsUserMembersBody = zAccessGroupRelationUserMembers;
 
-export const zPostAccessgroupsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPostAccessgroupsByIdRelationshipsUserMembersPath = z.object({
+  id: z.int()
 });
 
 /**
  * successfully created
  */
-export const zPostAccessgroupsByIdRelationshipsByRelationResponse = z.void();
+export const zPostAccessgroupsByIdRelationshipsUserMembersResponse = z.void();
+
+export const zGetAccessgroupsByIdAgentMembersPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetAccessgroupsByIdAgentMembersResponse = zAccessGroupRelationAgentMembersGetResponse;
+
+export const zDeleteAccessgroupsByIdRelationshipsAgentMembersBody = zAccessGroupRelationAgentMembers;
+
+export const zDeleteAccessgroupsByIdRelationshipsAgentMembersPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully deleted
+ */
+export const zDeleteAccessgroupsByIdRelationshipsAgentMembersResponse = z.void();
+
+export const zGetAccessgroupsByIdRelationshipsAgentMembersPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetAccessgroupsByIdRelationshipsAgentMembersResponse = zAccessGroupResponse;
+
+export const zPatchAccessgroupsByIdRelationshipsAgentMembersBody = zAccessGroupRelationAgentMembers;
+
+export const zPatchAccessgroupsByIdRelationshipsAgentMembersPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchAccessgroupsByIdRelationshipsAgentMembersResponse = z.void();
+
+export const zPostAccessgroupsByIdRelationshipsAgentMembersBody = zAccessGroupRelationAgentMembers;
+
+export const zPostAccessgroupsByIdRelationshipsAgentMembersPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully created
+ */
+export const zPostAccessgroupsByIdRelationshipsAgentMembersResponse = z.void();
 
 export const zDeleteAccessgroupsByIdPath = z.object({
   id: z.int()

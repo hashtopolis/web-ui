@@ -64,8 +64,40 @@ export const zHashTypeResponse = z.object({
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/hashtypes/1')
+    }),
+    relationships: z.object({
+      crackerBinaries: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/hashtypes/relationships/crackerBinaries'),
+          related: z.string().default('/api/v2/ui/hashtypes/crackerBinaries')
+        }),
+        data: z
+          .array(
+            z.object({
+              type: z.literal('crackerBinary'),
+              id: z.int()
+            })
+          )
+          .optional()
+      })
     })
-  })
+  }),
+  included: z
+    .array(
+      z.object({
+        id: z.int(),
+        type: z.literal('crackerBinary'),
+        attributes: z.object({
+          crackerBinaryTypeId: z.int(),
+          version: z.string(),
+          downloadUrl: z.string().nullable(),
+          binaryName: z.string(),
+          filename: z.string().nullable(),
+          accessGroupId: z.int()
+        })
+      })
+    )
+    .optional()
 });
 
 export const zHashTypePostPatchResponse = z.object({
@@ -86,8 +118,40 @@ export const zHashTypePostPatchResponse = z.object({
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/hashtypes/1')
+    }),
+    relationships: z.object({
+      crackerBinaries: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/hashtypes/relationships/crackerBinaries'),
+          related: z.string().default('/api/v2/ui/hashtypes/crackerBinaries')
+        }),
+        data: z
+          .array(
+            z.object({
+              type: z.literal('crackerBinary'),
+              id: z.int()
+            })
+          )
+          .optional()
+      })
     })
-  })
+  }),
+  included: z
+    .array(
+      z.object({
+        id: z.int(),
+        type: z.literal('crackerBinary'),
+        attributes: z.object({
+          crackerBinaryTypeId: z.int(),
+          version: z.string(),
+          downloadUrl: z.string().nullable(),
+          binaryName: z.string(),
+          filename: z.string().nullable(),
+          accessGroupId: z.int()
+        })
+      })
+    )
+    .optional()
 });
 
 export const zHashTypeListResponse = z.object({
@@ -133,9 +197,41 @@ export const zHashTypeListResponse = z.object({
       }),
       links: z.object({
         self: z.string().default('/api/v2/ui/hashtypes/1')
+      }),
+      relationships: z.object({
+        crackerBinaries: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/hashtypes/relationships/crackerBinaries'),
+            related: z.string().default('/api/v2/ui/hashtypes/crackerBinaries')
+          }),
+          data: z
+            .array(
+              z.object({
+                type: z.literal('crackerBinary'),
+                id: z.int()
+              })
+            )
+            .optional()
+        })
       })
     })
-  )
+  ),
+  included: z
+    .array(
+      z.object({
+        id: z.int(),
+        type: z.literal('crackerBinary'),
+        attributes: z.object({
+          crackerBinaryTypeId: z.int(),
+          version: z.string(),
+          downloadUrl: z.string().nullable(),
+          binaryName: z.string(),
+          filename: z.string().nullable(),
+          accessGroupId: z.int()
+        })
+      })
+    )
+    .optional()
 });
 
 export const zHashTypeCountResponse = z.object({
@@ -148,6 +244,15 @@ export const zHashTypeCountResponse = z.object({
     total_count: z.int().optional()
   }),
   data: z.array(z.record(z.string(), z.unknown())).max(0)
+});
+
+export const zHashTypeRelationCrackerBinariesGetResponse = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('crackerBinary'),
+      id: z.int()
+    })
+  )
 });
 
 export const zDeleteHashtypesBody = zHashTypeDeleteMultiple;
@@ -166,7 +271,7 @@ export const zGetHashtypesQuery = z.object({
     .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
     .optional(),
   filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.string()).optional()
+  include: z.array(z.enum(['crackerBinaries'])).optional()
 });
 
 /**
@@ -198,6 +303,30 @@ export const zGetHashtypesCountQuery = z.object({
  */
 export const zGetHashtypesCountResponse = zHashTypeCountResponse;
 
+export const zGetHashtypesByIdCrackerBinariesPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHashtypesByIdCrackerBinariesResponse = zHashTypeRelationCrackerBinariesGetResponse;
+
+export const zGetHashtypesByIdRelationshipsCrackerBinariesPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHashtypesByIdRelationshipsCrackerBinariesResponse = zHashTypeResponse;
+
 export const zDeleteHashtypesByIdPath = z.object({
   id: z.int()
 });
@@ -215,7 +344,7 @@ export const zGetHashtypesByIdPath = z.object({
 });
 
 export const zGetHashtypesByIdQuery = z.object({
-  include: z.array(z.string()).optional()
+  include: z.array(z.enum(['crackerBinaries'])).optional()
 });
 
 /**

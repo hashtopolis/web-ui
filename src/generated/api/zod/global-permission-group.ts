@@ -276,7 +276,7 @@ export const zGlobalPermissionGroupCountResponse = z.object({
 export const zGlobalPermissionGroupRelationUserMembers = z.object({
   data: z.array(
     z.object({
-      type: z.literal('userMembers'),
+      type: z.literal('user'),
       id: z.int()
     })
   )
@@ -285,7 +285,7 @@ export const zGlobalPermissionGroupRelationUserMembers = z.object({
 export const zGlobalPermissionGroupRelationUserMembersGetResponse = z.object({
   data: z.array(
     z.object({
-      type: z.literal('userMembers'),
+      type: z.literal('user'),
       id: z.int()
     })
   )
@@ -339,67 +339,62 @@ export const zGetGlobalpermissiongroupsCountQuery = z.object({
  */
 export const zGetGlobalpermissiongroupsCountResponse = zGlobalPermissionGroupCountResponse;
 
-export const zGetGlobalpermissiongroupsByIdByRelationPath = z.object({
+export const zGetGlobalpermissiongroupsByIdUserMembersPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetGlobalpermissiongroupsByIdByRelationResponse = zGlobalPermissionGroupRelationUserMembersGetResponse;
+export const zGetGlobalpermissiongroupsByIdUserMembersResponse = zGlobalPermissionGroupRelationUserMembersGetResponse;
 
-export const zDeleteGlobalpermissiongroupsByIdRelationshipsByRelationBody = zGlobalPermissionGroupRelationUserMembers;
+export const zDeleteGlobalpermissiongroupsByIdRelationshipsUserMembersBody = zGlobalPermissionGroupRelationUserMembers;
 
-export const zDeleteGlobalpermissiongroupsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zDeleteGlobalpermissiongroupsByIdRelationshipsUserMembersPath = z.object({
+  id: z.int()
 });
 
 /**
  * successfully deleted
  */
-export const zDeleteGlobalpermissiongroupsByIdRelationshipsByRelationResponse = z.void();
+export const zDeleteGlobalpermissiongroupsByIdRelationshipsUserMembersResponse = z.void();
 
-export const zGetGlobalpermissiongroupsByIdRelationshipsByRelationPath = z.object({
+export const zGetGlobalpermissiongroupsByIdRelationshipsUserMembersPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetGlobalpermissiongroupsByIdRelationshipsByRelationResponse = zGlobalPermissionGroupResponse;
+export const zGetGlobalpermissiongroupsByIdRelationshipsUserMembersResponse = zGlobalPermissionGroupResponse;
 
-export const zPatchGlobalpermissiongroupsByIdRelationshipsByRelationBody = zGlobalPermissionGroupRelationUserMembers;
+export const zPatchGlobalpermissiongroupsByIdRelationshipsUserMembersBody = zGlobalPermissionGroupRelationUserMembers;
 
-export const zPatchGlobalpermissiongroupsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchGlobalpermissiongroupsByIdRelationshipsUserMembersPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchGlobalpermissiongroupsByIdRelationshipsByRelationResponse = z.void();
+export const zPatchGlobalpermissiongroupsByIdRelationshipsUserMembersResponse = z.void();
 
-export const zPostGlobalpermissiongroupsByIdRelationshipsByRelationBody = zGlobalPermissionGroupRelationUserMembers;
+export const zPostGlobalpermissiongroupsByIdRelationshipsUserMembersBody = zGlobalPermissionGroupRelationUserMembers;
 
-export const zPostGlobalpermissiongroupsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPostGlobalpermissiongroupsByIdRelationshipsUserMembersPath = z.object({
+  id: z.int()
 });
 
 /**
  * successfully created
  */
-export const zPostGlobalpermissiongroupsByIdRelationshipsByRelationResponse = z.void();
+export const zPostGlobalpermissiongroupsByIdRelationshipsUserMembersResponse = z.void();
 
 export const zDeleteGlobalpermissiongroupsByIdPath = z.object({
   id: z.int()

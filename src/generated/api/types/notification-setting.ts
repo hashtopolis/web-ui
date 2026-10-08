@@ -572,17 +572,16 @@ export type GetNotificationsCountResponses = {
 
 export type GetNotificationsCountResponse = GetNotificationsCountResponses[keyof GetNotificationsCountResponses];
 
-export type GetNotificationsByIdByRelationData = {
+export type GetNotificationsByIdUserData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/notifications/{id}/{relation}';
+  url: '/api/v2/ui/notifications/{id}/user';
 };
 
-export type GetNotificationsByIdByRelationErrors = {
+export type GetNotificationsByIdUserErrors = {
   /**
    * Invalid request
    */
@@ -601,30 +600,28 @@ export type GetNotificationsByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetNotificationsByIdByRelationError =
-  GetNotificationsByIdByRelationErrors[keyof GetNotificationsByIdByRelationErrors];
+export type GetNotificationsByIdUserError = GetNotificationsByIdUserErrors[keyof GetNotificationsByIdUserErrors];
 
-export type GetNotificationsByIdByRelationResponses = {
+export type GetNotificationsByIdUserResponses = {
   /**
    * successful operation
    */
   200: NotificationSettingRelationUserGetResponse;
 };
 
-export type GetNotificationsByIdByRelationResponse =
-  GetNotificationsByIdByRelationResponses[keyof GetNotificationsByIdByRelationResponses];
+export type GetNotificationsByIdUserResponse =
+  GetNotificationsByIdUserResponses[keyof GetNotificationsByIdUserResponses];
 
-export type GetNotificationsByIdRelationshipsByRelationData = {
+export type GetNotificationsByIdRelationshipsUserData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/notifications/{id}/relationships/{relation}';
+  url: '/api/v2/ui/notifications/{id}/relationships/user';
 };
 
-export type GetNotificationsByIdRelationshipsByRelationErrors = {
+export type GetNotificationsByIdRelationshipsUserErrors = {
   /**
    * Invalid request
    */
@@ -643,30 +640,29 @@ export type GetNotificationsByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetNotificationsByIdRelationshipsByRelationError =
-  GetNotificationsByIdRelationshipsByRelationErrors[keyof GetNotificationsByIdRelationshipsByRelationErrors];
+export type GetNotificationsByIdRelationshipsUserError =
+  GetNotificationsByIdRelationshipsUserErrors[keyof GetNotificationsByIdRelationshipsUserErrors];
 
-export type GetNotificationsByIdRelationshipsByRelationResponses = {
+export type GetNotificationsByIdRelationshipsUserResponses = {
   /**
    * successful operation
    */
   200: NotificationSettingResponse;
 };
 
-export type GetNotificationsByIdRelationshipsByRelationResponse =
-  GetNotificationsByIdRelationshipsByRelationResponses[keyof GetNotificationsByIdRelationshipsByRelationResponses];
+export type GetNotificationsByIdRelationshipsUserResponse =
+  GetNotificationsByIdRelationshipsUserResponses[keyof GetNotificationsByIdRelationshipsUserResponses];
 
-export type PatchNotificationsByIdRelationshipsByRelationData = {
+export type PatchNotificationsByIdRelationshipsUserData = {
   body: NotificationSettingRelationUser;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/notifications/{id}/relationships/{relation}';
+  url: '/api/v2/ui/notifications/{id}/relationships/user';
 };
 
-export type PatchNotificationsByIdRelationshipsByRelationErrors = {
+export type PatchNotificationsByIdRelationshipsUserErrors = {
   /**
    * Invalid request
    */
@@ -689,18 +685,18 @@ export type PatchNotificationsByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchNotificationsByIdRelationshipsByRelationError =
-  PatchNotificationsByIdRelationshipsByRelationErrors[keyof PatchNotificationsByIdRelationshipsByRelationErrors];
+export type PatchNotificationsByIdRelationshipsUserError =
+  PatchNotificationsByIdRelationshipsUserErrors[keyof PatchNotificationsByIdRelationshipsUserErrors];
 
-export type PatchNotificationsByIdRelationshipsByRelationResponses = {
+export type PatchNotificationsByIdRelationshipsUserResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchNotificationsByIdRelationshipsByRelationResponse =
-  PatchNotificationsByIdRelationshipsByRelationResponses[keyof PatchNotificationsByIdRelationshipsByRelationResponses];
+export type PatchNotificationsByIdRelationshipsUserResponse =
+  PatchNotificationsByIdRelationshipsUserResponses[keyof PatchNotificationsByIdRelationshipsUserResponses];
 
 export type DeleteNotificationsByIdData = {
   body?: never;

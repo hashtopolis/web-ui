@@ -306,7 +306,7 @@ export const zPreTaskCountResponse = z.object({
 export const zPreTaskRelationPretaskFiles = z.object({
   data: z.array(
     z.object({
-      type: z.literal('pretaskFiles'),
+      type: z.literal('file'),
       id: z.int()
     })
   )
@@ -315,7 +315,7 @@ export const zPreTaskRelationPretaskFiles = z.object({
 export const zPreTaskRelationPretaskFilesGetResponse = z.object({
   data: z.array(
     z.object({
-      type: z.literal('pretaskFiles'),
+      type: z.literal('file'),
       id: z.int()
     })
   )
@@ -370,67 +370,62 @@ export const zGetPretasksCountQuery = z.object({
  */
 export const zGetPretasksCountResponse = zPreTaskCountResponse;
 
-export const zGetPretasksByIdByRelationPath = z.object({
+export const zGetPretasksByIdPretaskFilesPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetPretasksByIdByRelationResponse = zPreTaskRelationPretaskFilesGetResponse;
+export const zGetPretasksByIdPretaskFilesResponse = zPreTaskRelationPretaskFilesGetResponse;
 
-export const zDeletePretasksByIdRelationshipsByRelationBody = zPreTaskRelationPretaskFiles;
+export const zDeletePretasksByIdRelationshipsPretaskFilesBody = zPreTaskRelationPretaskFiles;
 
-export const zDeletePretasksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zDeletePretasksByIdRelationshipsPretaskFilesPath = z.object({
+  id: z.int()
 });
 
 /**
  * successfully deleted
  */
-export const zDeletePretasksByIdRelationshipsByRelationResponse = z.void();
+export const zDeletePretasksByIdRelationshipsPretaskFilesResponse = z.void();
 
-export const zGetPretasksByIdRelationshipsByRelationPath = z.object({
+export const zGetPretasksByIdRelationshipsPretaskFilesPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetPretasksByIdRelationshipsByRelationResponse = zPreTaskResponse;
+export const zGetPretasksByIdRelationshipsPretaskFilesResponse = zPreTaskResponse;
 
-export const zPatchPretasksByIdRelationshipsByRelationBody = zPreTaskRelationPretaskFiles;
+export const zPatchPretasksByIdRelationshipsPretaskFilesBody = zPreTaskRelationPretaskFiles;
 
-export const zPatchPretasksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchPretasksByIdRelationshipsPretaskFilesPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchPretasksByIdRelationshipsByRelationResponse = z.void();
+export const zPatchPretasksByIdRelationshipsPretaskFilesResponse = z.void();
 
-export const zPostPretasksByIdRelationshipsByRelationBody = zPreTaskRelationPretaskFiles;
+export const zPostPretasksByIdRelationshipsPretaskFilesBody = zPreTaskRelationPretaskFiles;
 
-export const zPostPretasksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPostPretasksByIdRelationshipsPretaskFilesPath = z.object({
+  id: z.int()
 });
 
 /**
  * successfully created
  */
-export const zPostPretasksByIdRelationshipsByRelationResponse = z.void();
+export const zPostPretasksByIdRelationshipsPretaskFilesResponse = z.void();
 
 export const zDeletePretasksByIdPath = z.object({
   id: z.int()

@@ -692,16 +692,100 @@ export type AgentCountResponse = {
   }>;
 };
 
+export type AgentRelationUser = {
+  data: {
+    type: 'user';
+    id: number;
+  };
+};
+
+export type AgentRelationUserGetResponse = {
+  data: {
+    type: 'user';
+    id: number;
+  };
+};
+
+export type AgentRelationAccessGroups = {
+  data: Array<{
+    type: 'accessGroup';
+    id: number;
+  }>;
+};
+
+export type AgentRelationAccessGroupsGetResponse = {
+  data: Array<{
+    type: 'accessGroup';
+    id: number;
+  }>;
+};
+
+export type AgentRelationAgentStats = {
+  data: Array<{
+    type: 'agentStat';
+    id: number;
+  }>;
+};
+
+export type AgentRelationAgentStatsGetResponse = {
+  data: Array<{
+    type: 'agentStat';
+    id: number;
+  }>;
+};
+
+export type AgentRelationAgentErrors = {
+  data: Array<{
+    type: 'agentError';
+    id: number;
+  }>;
+};
+
+export type AgentRelationAgentErrorsGetResponse = {
+  data: Array<{
+    type: 'agentError';
+    id: number;
+  }>;
+};
+
+export type AgentRelationChunks = {
+  data: Array<{
+    type: 'chunk';
+    id: number;
+  }>;
+};
+
+export type AgentRelationChunksGetResponse = {
+  data: Array<{
+    type: 'chunk';
+    id: number;
+  }>;
+};
+
+export type AgentRelationTasks = {
+  data: Array<{
+    type: 'task';
+    id: number;
+  }>;
+};
+
+export type AgentRelationTasksGetResponse = {
+  data: Array<{
+    type: 'task';
+    id: number;
+  }>;
+};
+
 export type AgentRelationAssignments = {
   data: Array<{
-    type: 'assignments';
+    type: 'agentAssignment';
     id: number;
   }>;
 };
 
 export type AgentRelationAssignmentsGetResponse = {
   data: Array<{
-    type: 'assignments';
+    type: 'agentAssignment';
     id: number;
   }>;
 };
@@ -902,17 +986,16 @@ export type GetAgentsCountResponses = {
 
 export type GetAgentsCountResponse = GetAgentsCountResponses[keyof GetAgentsCountResponses];
 
-export type GetAgentsByIdByRelationData = {
+export type GetAgentsByIdUserData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/agents/{id}/{relation}';
+  url: '/api/v2/ui/agents/{id}/user';
 };
 
-export type GetAgentsByIdByRelationErrors = {
+export type GetAgentsByIdUserErrors = {
   /**
    * Invalid request
    */
@@ -931,70 +1014,27 @@ export type GetAgentsByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetAgentsByIdByRelationError = GetAgentsByIdByRelationErrors[keyof GetAgentsByIdByRelationErrors];
+export type GetAgentsByIdUserError = GetAgentsByIdUserErrors[keyof GetAgentsByIdUserErrors];
 
-export type GetAgentsByIdByRelationResponses = {
+export type GetAgentsByIdUserResponses = {
   /**
    * successful operation
    */
-  200: AgentRelationAssignmentsGetResponse;
+  200: AgentRelationUserGetResponse;
 };
 
-export type GetAgentsByIdByRelationResponse = GetAgentsByIdByRelationResponses[keyof GetAgentsByIdByRelationResponses];
+export type GetAgentsByIdUserResponse = GetAgentsByIdUserResponses[keyof GetAgentsByIdUserResponses];
 
-export type DeleteAgentsByIdRelationshipsByRelationData = {
-  body: AgentRelationAssignments;
-  path: {
-    id: number;
-    relation: string;
-  };
-  query?: never;
-  url: '/api/v2/ui/agents/{id}/relationships/{relation}';
-};
-
-export type DeleteAgentsByIdRelationshipsByRelationErrors = {
-  /**
-   * Invalid request
-   */
-  400: ErrorResponse;
-  /**
-   * Authentication failed
-   */
-  401: ErrorResponse;
-  /**
-   * Permission denied
-   */
-  403: ErrorResponse;
-  /**
-   * Not Found
-   */
-  404: ErrorResponse;
-};
-
-export type DeleteAgentsByIdRelationshipsByRelationError =
-  DeleteAgentsByIdRelationshipsByRelationErrors[keyof DeleteAgentsByIdRelationshipsByRelationErrors];
-
-export type DeleteAgentsByIdRelationshipsByRelationResponses = {
-  /**
-   * successfully deleted
-   */
-  204: void;
-};
-
-export type DeleteAgentsByIdRelationshipsByRelationResponse =
-  DeleteAgentsByIdRelationshipsByRelationResponses[keyof DeleteAgentsByIdRelationshipsByRelationResponses];
-
-export type GetAgentsByIdRelationshipsByRelationData = {
+export type GetAgentsByIdRelationshipsUserData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/agents/{id}/relationships/{relation}';
+  url: '/api/v2/ui/agents/{id}/relationships/user';
 };
 
-export type GetAgentsByIdRelationshipsByRelationErrors = {
+export type GetAgentsByIdRelationshipsUserErrors = {
   /**
    * Invalid request
    */
@@ -1013,30 +1053,29 @@ export type GetAgentsByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetAgentsByIdRelationshipsByRelationError =
-  GetAgentsByIdRelationshipsByRelationErrors[keyof GetAgentsByIdRelationshipsByRelationErrors];
+export type GetAgentsByIdRelationshipsUserError =
+  GetAgentsByIdRelationshipsUserErrors[keyof GetAgentsByIdRelationshipsUserErrors];
 
-export type GetAgentsByIdRelationshipsByRelationResponses = {
+export type GetAgentsByIdRelationshipsUserResponses = {
   /**
    * successful operation
    */
   200: AgentResponse;
 };
 
-export type GetAgentsByIdRelationshipsByRelationResponse =
-  GetAgentsByIdRelationshipsByRelationResponses[keyof GetAgentsByIdRelationshipsByRelationResponses];
+export type GetAgentsByIdRelationshipsUserResponse =
+  GetAgentsByIdRelationshipsUserResponses[keyof GetAgentsByIdRelationshipsUserResponses];
 
-export type PatchAgentsByIdRelationshipsByRelationData = {
-  body: AgentRelationAssignments;
+export type PatchAgentsByIdRelationshipsUserData = {
+  body: AgentRelationUser;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/agents/{id}/relationships/{relation}';
+  url: '/api/v2/ui/agents/{id}/relationships/user';
 };
 
-export type PatchAgentsByIdRelationshipsByRelationErrors = {
+export type PatchAgentsByIdRelationshipsUserErrors = {
   /**
    * Invalid request
    */
@@ -1059,30 +1098,151 @@ export type PatchAgentsByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchAgentsByIdRelationshipsByRelationError =
-  PatchAgentsByIdRelationshipsByRelationErrors[keyof PatchAgentsByIdRelationshipsByRelationErrors];
+export type PatchAgentsByIdRelationshipsUserError =
+  PatchAgentsByIdRelationshipsUserErrors[keyof PatchAgentsByIdRelationshipsUserErrors];
 
-export type PatchAgentsByIdRelationshipsByRelationResponses = {
+export type PatchAgentsByIdRelationshipsUserResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchAgentsByIdRelationshipsByRelationResponse =
-  PatchAgentsByIdRelationshipsByRelationResponses[keyof PatchAgentsByIdRelationshipsByRelationResponses];
+export type PatchAgentsByIdRelationshipsUserResponse =
+  PatchAgentsByIdRelationshipsUserResponses[keyof PatchAgentsByIdRelationshipsUserResponses];
 
-export type PostAgentsByIdRelationshipsByRelationData = {
-  body: AgentRelationAssignments;
+export type GetAgentsByIdAccessGroupsData = {
+  body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/agents/{id}/relationships/{relation}';
+  url: '/api/v2/ui/agents/{id}/accessGroups';
 };
 
-export type PostAgentsByIdRelationshipsByRelationErrors = {
+export type GetAgentsByIdAccessGroupsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAgentsByIdAccessGroupsError = GetAgentsByIdAccessGroupsErrors[keyof GetAgentsByIdAccessGroupsErrors];
+
+export type GetAgentsByIdAccessGroupsResponses = {
+  /**
+   * successful operation
+   */
+  200: AgentRelationAccessGroupsGetResponse;
+};
+
+export type GetAgentsByIdAccessGroupsResponse =
+  GetAgentsByIdAccessGroupsResponses[keyof GetAgentsByIdAccessGroupsResponses];
+
+export type DeleteAgentsByIdRelationshipsAccessGroupsData = {
+  body: AgentRelationAccessGroups;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/accessGroups';
+};
+
+export type DeleteAgentsByIdRelationshipsAccessGroupsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteAgentsByIdRelationshipsAccessGroupsError =
+  DeleteAgentsByIdRelationshipsAccessGroupsErrors[keyof DeleteAgentsByIdRelationshipsAccessGroupsErrors];
+
+export type DeleteAgentsByIdRelationshipsAccessGroupsResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteAgentsByIdRelationshipsAccessGroupsResponse =
+  DeleteAgentsByIdRelationshipsAccessGroupsResponses[keyof DeleteAgentsByIdRelationshipsAccessGroupsResponses];
+
+export type GetAgentsByIdRelationshipsAccessGroupsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/accessGroups';
+};
+
+export type GetAgentsByIdRelationshipsAccessGroupsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAgentsByIdRelationshipsAccessGroupsError =
+  GetAgentsByIdRelationshipsAccessGroupsErrors[keyof GetAgentsByIdRelationshipsAccessGroupsErrors];
+
+export type GetAgentsByIdRelationshipsAccessGroupsResponses = {
+  /**
+   * successful operation
+   */
+  200: AgentResponse;
+};
+
+export type GetAgentsByIdRelationshipsAccessGroupsResponse =
+  GetAgentsByIdRelationshipsAccessGroupsResponses[keyof GetAgentsByIdRelationshipsAccessGroupsResponses];
+
+export type PatchAgentsByIdRelationshipsAccessGroupsData = {
+  body: AgentRelationAccessGroups;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/accessGroups';
+};
+
+export type PatchAgentsByIdRelationshipsAccessGroupsErrors = {
   /**
    * Invalid request
    */
@@ -1105,18 +1265,1120 @@ export type PostAgentsByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PostAgentsByIdRelationshipsByRelationError =
-  PostAgentsByIdRelationshipsByRelationErrors[keyof PostAgentsByIdRelationshipsByRelationErrors];
+export type PatchAgentsByIdRelationshipsAccessGroupsError =
+  PatchAgentsByIdRelationshipsAccessGroupsErrors[keyof PatchAgentsByIdRelationshipsAccessGroupsErrors];
 
-export type PostAgentsByIdRelationshipsByRelationResponses = {
+export type PatchAgentsByIdRelationshipsAccessGroupsResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchAgentsByIdRelationshipsAccessGroupsResponse =
+  PatchAgentsByIdRelationshipsAccessGroupsResponses[keyof PatchAgentsByIdRelationshipsAccessGroupsResponses];
+
+export type PostAgentsByIdRelationshipsAccessGroupsData = {
+  body: AgentRelationAccessGroups;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/accessGroups';
+};
+
+export type PostAgentsByIdRelationshipsAccessGroupsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostAgentsByIdRelationshipsAccessGroupsError =
+  PostAgentsByIdRelationshipsAccessGroupsErrors[keyof PostAgentsByIdRelationshipsAccessGroupsErrors];
+
+export type PostAgentsByIdRelationshipsAccessGroupsResponses = {
   /**
    * successfully created
    */
   204: void;
 };
 
-export type PostAgentsByIdRelationshipsByRelationResponse =
-  PostAgentsByIdRelationshipsByRelationResponses[keyof PostAgentsByIdRelationshipsByRelationResponses];
+export type PostAgentsByIdRelationshipsAccessGroupsResponse =
+  PostAgentsByIdRelationshipsAccessGroupsResponses[keyof PostAgentsByIdRelationshipsAccessGroupsResponses];
+
+export type GetAgentsByIdAgentStatsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/agentStats';
+};
+
+export type GetAgentsByIdAgentStatsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAgentsByIdAgentStatsError = GetAgentsByIdAgentStatsErrors[keyof GetAgentsByIdAgentStatsErrors];
+
+export type GetAgentsByIdAgentStatsResponses = {
+  /**
+   * successful operation
+   */
+  200: AgentRelationAgentStatsGetResponse;
+};
+
+export type GetAgentsByIdAgentStatsResponse = GetAgentsByIdAgentStatsResponses[keyof GetAgentsByIdAgentStatsResponses];
+
+export type DeleteAgentsByIdRelationshipsAgentStatsData = {
+  body: AgentRelationAgentStats;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/agentStats';
+};
+
+export type DeleteAgentsByIdRelationshipsAgentStatsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteAgentsByIdRelationshipsAgentStatsError =
+  DeleteAgentsByIdRelationshipsAgentStatsErrors[keyof DeleteAgentsByIdRelationshipsAgentStatsErrors];
+
+export type DeleteAgentsByIdRelationshipsAgentStatsResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteAgentsByIdRelationshipsAgentStatsResponse =
+  DeleteAgentsByIdRelationshipsAgentStatsResponses[keyof DeleteAgentsByIdRelationshipsAgentStatsResponses];
+
+export type GetAgentsByIdRelationshipsAgentStatsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/agentStats';
+};
+
+export type GetAgentsByIdRelationshipsAgentStatsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAgentsByIdRelationshipsAgentStatsError =
+  GetAgentsByIdRelationshipsAgentStatsErrors[keyof GetAgentsByIdRelationshipsAgentStatsErrors];
+
+export type GetAgentsByIdRelationshipsAgentStatsResponses = {
+  /**
+   * successful operation
+   */
+  200: AgentResponse;
+};
+
+export type GetAgentsByIdRelationshipsAgentStatsResponse =
+  GetAgentsByIdRelationshipsAgentStatsResponses[keyof GetAgentsByIdRelationshipsAgentStatsResponses];
+
+export type PatchAgentsByIdRelationshipsAgentStatsData = {
+  body: AgentRelationAgentStats;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/agentStats';
+};
+
+export type PatchAgentsByIdRelationshipsAgentStatsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchAgentsByIdRelationshipsAgentStatsError =
+  PatchAgentsByIdRelationshipsAgentStatsErrors[keyof PatchAgentsByIdRelationshipsAgentStatsErrors];
+
+export type PatchAgentsByIdRelationshipsAgentStatsResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchAgentsByIdRelationshipsAgentStatsResponse =
+  PatchAgentsByIdRelationshipsAgentStatsResponses[keyof PatchAgentsByIdRelationshipsAgentStatsResponses];
+
+export type PostAgentsByIdRelationshipsAgentStatsData = {
+  body: AgentRelationAgentStats;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/agentStats';
+};
+
+export type PostAgentsByIdRelationshipsAgentStatsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostAgentsByIdRelationshipsAgentStatsError =
+  PostAgentsByIdRelationshipsAgentStatsErrors[keyof PostAgentsByIdRelationshipsAgentStatsErrors];
+
+export type PostAgentsByIdRelationshipsAgentStatsResponses = {
+  /**
+   * successfully created
+   */
+  204: void;
+};
+
+export type PostAgentsByIdRelationshipsAgentStatsResponse =
+  PostAgentsByIdRelationshipsAgentStatsResponses[keyof PostAgentsByIdRelationshipsAgentStatsResponses];
+
+export type GetAgentsByIdAgentErrorsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/agentErrors';
+};
+
+export type GetAgentsByIdAgentErrorsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAgentsByIdAgentErrorsError = GetAgentsByIdAgentErrorsErrors[keyof GetAgentsByIdAgentErrorsErrors];
+
+export type GetAgentsByIdAgentErrorsResponses = {
+  /**
+   * successful operation
+   */
+  200: AgentRelationAgentErrorsGetResponse;
+};
+
+export type GetAgentsByIdAgentErrorsResponse =
+  GetAgentsByIdAgentErrorsResponses[keyof GetAgentsByIdAgentErrorsResponses];
+
+export type DeleteAgentsByIdRelationshipsAgentErrorsData = {
+  body: AgentRelationAgentErrors;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/agentErrors';
+};
+
+export type DeleteAgentsByIdRelationshipsAgentErrorsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteAgentsByIdRelationshipsAgentErrorsError =
+  DeleteAgentsByIdRelationshipsAgentErrorsErrors[keyof DeleteAgentsByIdRelationshipsAgentErrorsErrors];
+
+export type DeleteAgentsByIdRelationshipsAgentErrorsResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteAgentsByIdRelationshipsAgentErrorsResponse =
+  DeleteAgentsByIdRelationshipsAgentErrorsResponses[keyof DeleteAgentsByIdRelationshipsAgentErrorsResponses];
+
+export type GetAgentsByIdRelationshipsAgentErrorsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/agentErrors';
+};
+
+export type GetAgentsByIdRelationshipsAgentErrorsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAgentsByIdRelationshipsAgentErrorsError =
+  GetAgentsByIdRelationshipsAgentErrorsErrors[keyof GetAgentsByIdRelationshipsAgentErrorsErrors];
+
+export type GetAgentsByIdRelationshipsAgentErrorsResponses = {
+  /**
+   * successful operation
+   */
+  200: AgentResponse;
+};
+
+export type GetAgentsByIdRelationshipsAgentErrorsResponse =
+  GetAgentsByIdRelationshipsAgentErrorsResponses[keyof GetAgentsByIdRelationshipsAgentErrorsResponses];
+
+export type PatchAgentsByIdRelationshipsAgentErrorsData = {
+  body: AgentRelationAgentErrors;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/agentErrors';
+};
+
+export type PatchAgentsByIdRelationshipsAgentErrorsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchAgentsByIdRelationshipsAgentErrorsError =
+  PatchAgentsByIdRelationshipsAgentErrorsErrors[keyof PatchAgentsByIdRelationshipsAgentErrorsErrors];
+
+export type PatchAgentsByIdRelationshipsAgentErrorsResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchAgentsByIdRelationshipsAgentErrorsResponse =
+  PatchAgentsByIdRelationshipsAgentErrorsResponses[keyof PatchAgentsByIdRelationshipsAgentErrorsResponses];
+
+export type PostAgentsByIdRelationshipsAgentErrorsData = {
+  body: AgentRelationAgentErrors;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/agentErrors';
+};
+
+export type PostAgentsByIdRelationshipsAgentErrorsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostAgentsByIdRelationshipsAgentErrorsError =
+  PostAgentsByIdRelationshipsAgentErrorsErrors[keyof PostAgentsByIdRelationshipsAgentErrorsErrors];
+
+export type PostAgentsByIdRelationshipsAgentErrorsResponses = {
+  /**
+   * successfully created
+   */
+  204: void;
+};
+
+export type PostAgentsByIdRelationshipsAgentErrorsResponse =
+  PostAgentsByIdRelationshipsAgentErrorsResponses[keyof PostAgentsByIdRelationshipsAgentErrorsResponses];
+
+export type GetAgentsByIdChunksData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/chunks';
+};
+
+export type GetAgentsByIdChunksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAgentsByIdChunksError = GetAgentsByIdChunksErrors[keyof GetAgentsByIdChunksErrors];
+
+export type GetAgentsByIdChunksResponses = {
+  /**
+   * successful operation
+   */
+  200: AgentRelationChunksGetResponse;
+};
+
+export type GetAgentsByIdChunksResponse = GetAgentsByIdChunksResponses[keyof GetAgentsByIdChunksResponses];
+
+export type DeleteAgentsByIdRelationshipsChunksData = {
+  body: AgentRelationChunks;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/chunks';
+};
+
+export type DeleteAgentsByIdRelationshipsChunksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteAgentsByIdRelationshipsChunksError =
+  DeleteAgentsByIdRelationshipsChunksErrors[keyof DeleteAgentsByIdRelationshipsChunksErrors];
+
+export type DeleteAgentsByIdRelationshipsChunksResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteAgentsByIdRelationshipsChunksResponse =
+  DeleteAgentsByIdRelationshipsChunksResponses[keyof DeleteAgentsByIdRelationshipsChunksResponses];
+
+export type GetAgentsByIdRelationshipsChunksData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/chunks';
+};
+
+export type GetAgentsByIdRelationshipsChunksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAgentsByIdRelationshipsChunksError =
+  GetAgentsByIdRelationshipsChunksErrors[keyof GetAgentsByIdRelationshipsChunksErrors];
+
+export type GetAgentsByIdRelationshipsChunksResponses = {
+  /**
+   * successful operation
+   */
+  200: AgentResponse;
+};
+
+export type GetAgentsByIdRelationshipsChunksResponse =
+  GetAgentsByIdRelationshipsChunksResponses[keyof GetAgentsByIdRelationshipsChunksResponses];
+
+export type PatchAgentsByIdRelationshipsChunksData = {
+  body: AgentRelationChunks;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/chunks';
+};
+
+export type PatchAgentsByIdRelationshipsChunksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchAgentsByIdRelationshipsChunksError =
+  PatchAgentsByIdRelationshipsChunksErrors[keyof PatchAgentsByIdRelationshipsChunksErrors];
+
+export type PatchAgentsByIdRelationshipsChunksResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchAgentsByIdRelationshipsChunksResponse =
+  PatchAgentsByIdRelationshipsChunksResponses[keyof PatchAgentsByIdRelationshipsChunksResponses];
+
+export type PostAgentsByIdRelationshipsChunksData = {
+  body: AgentRelationChunks;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/chunks';
+};
+
+export type PostAgentsByIdRelationshipsChunksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostAgentsByIdRelationshipsChunksError =
+  PostAgentsByIdRelationshipsChunksErrors[keyof PostAgentsByIdRelationshipsChunksErrors];
+
+export type PostAgentsByIdRelationshipsChunksResponses = {
+  /**
+   * successfully created
+   */
+  204: void;
+};
+
+export type PostAgentsByIdRelationshipsChunksResponse =
+  PostAgentsByIdRelationshipsChunksResponses[keyof PostAgentsByIdRelationshipsChunksResponses];
+
+export type GetAgentsByIdTasksData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/tasks';
+};
+
+export type GetAgentsByIdTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAgentsByIdTasksError = GetAgentsByIdTasksErrors[keyof GetAgentsByIdTasksErrors];
+
+export type GetAgentsByIdTasksResponses = {
+  /**
+   * successful operation
+   */
+  200: AgentRelationTasksGetResponse;
+};
+
+export type GetAgentsByIdTasksResponse = GetAgentsByIdTasksResponses[keyof GetAgentsByIdTasksResponses];
+
+export type DeleteAgentsByIdRelationshipsTasksData = {
+  body: AgentRelationTasks;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/tasks';
+};
+
+export type DeleteAgentsByIdRelationshipsTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteAgentsByIdRelationshipsTasksError =
+  DeleteAgentsByIdRelationshipsTasksErrors[keyof DeleteAgentsByIdRelationshipsTasksErrors];
+
+export type DeleteAgentsByIdRelationshipsTasksResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteAgentsByIdRelationshipsTasksResponse =
+  DeleteAgentsByIdRelationshipsTasksResponses[keyof DeleteAgentsByIdRelationshipsTasksResponses];
+
+export type GetAgentsByIdRelationshipsTasksData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/tasks';
+};
+
+export type GetAgentsByIdRelationshipsTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAgentsByIdRelationshipsTasksError =
+  GetAgentsByIdRelationshipsTasksErrors[keyof GetAgentsByIdRelationshipsTasksErrors];
+
+export type GetAgentsByIdRelationshipsTasksResponses = {
+  /**
+   * successful operation
+   */
+  200: AgentResponse;
+};
+
+export type GetAgentsByIdRelationshipsTasksResponse =
+  GetAgentsByIdRelationshipsTasksResponses[keyof GetAgentsByIdRelationshipsTasksResponses];
+
+export type PatchAgentsByIdRelationshipsTasksData = {
+  body: AgentRelationTasks;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/tasks';
+};
+
+export type PatchAgentsByIdRelationshipsTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchAgentsByIdRelationshipsTasksError =
+  PatchAgentsByIdRelationshipsTasksErrors[keyof PatchAgentsByIdRelationshipsTasksErrors];
+
+export type PatchAgentsByIdRelationshipsTasksResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchAgentsByIdRelationshipsTasksResponse =
+  PatchAgentsByIdRelationshipsTasksResponses[keyof PatchAgentsByIdRelationshipsTasksResponses];
+
+export type PostAgentsByIdRelationshipsTasksData = {
+  body: AgentRelationTasks;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/tasks';
+};
+
+export type PostAgentsByIdRelationshipsTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostAgentsByIdRelationshipsTasksError =
+  PostAgentsByIdRelationshipsTasksErrors[keyof PostAgentsByIdRelationshipsTasksErrors];
+
+export type PostAgentsByIdRelationshipsTasksResponses = {
+  /**
+   * successfully created
+   */
+  204: void;
+};
+
+export type PostAgentsByIdRelationshipsTasksResponse =
+  PostAgentsByIdRelationshipsTasksResponses[keyof PostAgentsByIdRelationshipsTasksResponses];
+
+export type GetAgentsByIdAssignmentsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/assignments';
+};
+
+export type GetAgentsByIdAssignmentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAgentsByIdAssignmentsError = GetAgentsByIdAssignmentsErrors[keyof GetAgentsByIdAssignmentsErrors];
+
+export type GetAgentsByIdAssignmentsResponses = {
+  /**
+   * successful operation
+   */
+  200: AgentRelationAssignmentsGetResponse;
+};
+
+export type GetAgentsByIdAssignmentsResponse =
+  GetAgentsByIdAssignmentsResponses[keyof GetAgentsByIdAssignmentsResponses];
+
+export type DeleteAgentsByIdRelationshipsAssignmentsData = {
+  body: AgentRelationAssignments;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/assignments';
+};
+
+export type DeleteAgentsByIdRelationshipsAssignmentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteAgentsByIdRelationshipsAssignmentsError =
+  DeleteAgentsByIdRelationshipsAssignmentsErrors[keyof DeleteAgentsByIdRelationshipsAssignmentsErrors];
+
+export type DeleteAgentsByIdRelationshipsAssignmentsResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteAgentsByIdRelationshipsAssignmentsResponse =
+  DeleteAgentsByIdRelationshipsAssignmentsResponses[keyof DeleteAgentsByIdRelationshipsAssignmentsResponses];
+
+export type GetAgentsByIdRelationshipsAssignmentsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/assignments';
+};
+
+export type GetAgentsByIdRelationshipsAssignmentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAgentsByIdRelationshipsAssignmentsError =
+  GetAgentsByIdRelationshipsAssignmentsErrors[keyof GetAgentsByIdRelationshipsAssignmentsErrors];
+
+export type GetAgentsByIdRelationshipsAssignmentsResponses = {
+  /**
+   * successful operation
+   */
+  200: AgentResponse;
+};
+
+export type GetAgentsByIdRelationshipsAssignmentsResponse =
+  GetAgentsByIdRelationshipsAssignmentsResponses[keyof GetAgentsByIdRelationshipsAssignmentsResponses];
+
+export type PatchAgentsByIdRelationshipsAssignmentsData = {
+  body: AgentRelationAssignments;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/assignments';
+};
+
+export type PatchAgentsByIdRelationshipsAssignmentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchAgentsByIdRelationshipsAssignmentsError =
+  PatchAgentsByIdRelationshipsAssignmentsErrors[keyof PatchAgentsByIdRelationshipsAssignmentsErrors];
+
+export type PatchAgentsByIdRelationshipsAssignmentsResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchAgentsByIdRelationshipsAssignmentsResponse =
+  PatchAgentsByIdRelationshipsAssignmentsResponses[keyof PatchAgentsByIdRelationshipsAssignmentsResponses];
+
+export type PostAgentsByIdRelationshipsAssignmentsData = {
+  body: AgentRelationAssignments;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agents/{id}/relationships/assignments';
+};
+
+export type PostAgentsByIdRelationshipsAssignmentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostAgentsByIdRelationshipsAssignmentsError =
+  PostAgentsByIdRelationshipsAssignmentsErrors[keyof PostAgentsByIdRelationshipsAssignmentsErrors];
+
+export type PostAgentsByIdRelationshipsAssignmentsResponses = {
+  /**
+   * successfully created
+   */
+  204: void;
+};
+
+export type PostAgentsByIdRelationshipsAssignmentsResponse =
+  PostAgentsByIdRelationshipsAssignmentsResponses[keyof PostAgentsByIdRelationshipsAssignmentsResponses];
 
 export type DeleteAgentsByIdData = {
   body?: never;

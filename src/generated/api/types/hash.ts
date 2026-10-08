@@ -248,6 +248,20 @@ export type HashCountResponse = {
   }>;
 };
 
+export type HashRelationChunk = {
+  data: {
+    type: 'chunk';
+    id: number;
+  };
+};
+
+export type HashRelationChunkGetResponse = {
+  data: {
+    type: 'chunk';
+    id: number;
+  };
+};
+
 export type HashRelationHashlist = {
   data: {
     type: 'hashlist';
@@ -374,17 +388,16 @@ export type GetHashesCountResponses = {
 
 export type GetHashesCountResponse = GetHashesCountResponses[keyof GetHashesCountResponses];
 
-export type GetHashesByIdByRelationData = {
+export type GetHashesByIdChunkData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/hashes/{id}/{relation}';
+  url: '/api/v2/ui/hashes/{id}/chunk';
 };
 
-export type GetHashesByIdByRelationErrors = {
+export type GetHashesByIdChunkErrors = {
   /**
    * Invalid request
    */
@@ -403,28 +416,27 @@ export type GetHashesByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetHashesByIdByRelationError = GetHashesByIdByRelationErrors[keyof GetHashesByIdByRelationErrors];
+export type GetHashesByIdChunkError = GetHashesByIdChunkErrors[keyof GetHashesByIdChunkErrors];
 
-export type GetHashesByIdByRelationResponses = {
+export type GetHashesByIdChunkResponses = {
   /**
    * successful operation
    */
-  200: HashRelationHashlistGetResponse;
+  200: HashRelationChunkGetResponse;
 };
 
-export type GetHashesByIdByRelationResponse = GetHashesByIdByRelationResponses[keyof GetHashesByIdByRelationResponses];
+export type GetHashesByIdChunkResponse = GetHashesByIdChunkResponses[keyof GetHashesByIdChunkResponses];
 
-export type GetHashesByIdRelationshipsByRelationData = {
+export type GetHashesByIdRelationshipsChunkData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/hashes/{id}/relationships/{relation}';
+  url: '/api/v2/ui/hashes/{id}/relationships/chunk';
 };
 
-export type GetHashesByIdRelationshipsByRelationErrors = {
+export type GetHashesByIdRelationshipsChunkErrors = {
   /**
    * Invalid request
    */
@@ -443,30 +455,29 @@ export type GetHashesByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetHashesByIdRelationshipsByRelationError =
-  GetHashesByIdRelationshipsByRelationErrors[keyof GetHashesByIdRelationshipsByRelationErrors];
+export type GetHashesByIdRelationshipsChunkError =
+  GetHashesByIdRelationshipsChunkErrors[keyof GetHashesByIdRelationshipsChunkErrors];
 
-export type GetHashesByIdRelationshipsByRelationResponses = {
+export type GetHashesByIdRelationshipsChunkResponses = {
   /**
    * successful operation
    */
   200: HashResponse;
 };
 
-export type GetHashesByIdRelationshipsByRelationResponse =
-  GetHashesByIdRelationshipsByRelationResponses[keyof GetHashesByIdRelationshipsByRelationResponses];
+export type GetHashesByIdRelationshipsChunkResponse =
+  GetHashesByIdRelationshipsChunkResponses[keyof GetHashesByIdRelationshipsChunkResponses];
 
-export type PatchHashesByIdRelationshipsByRelationData = {
-  body: HashRelationHashlist;
+export type PatchHashesByIdRelationshipsChunkData = {
+  body: HashRelationChunk;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/hashes/{id}/relationships/{relation}';
+  url: '/api/v2/ui/hashes/{id}/relationships/chunk';
 };
 
-export type PatchHashesByIdRelationshipsByRelationErrors = {
+export type PatchHashesByIdRelationshipsChunkErrors = {
   /**
    * Invalid request
    */
@@ -489,18 +500,143 @@ export type PatchHashesByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchHashesByIdRelationshipsByRelationError =
-  PatchHashesByIdRelationshipsByRelationErrors[keyof PatchHashesByIdRelationshipsByRelationErrors];
+export type PatchHashesByIdRelationshipsChunkError =
+  PatchHashesByIdRelationshipsChunkErrors[keyof PatchHashesByIdRelationshipsChunkErrors];
 
-export type PatchHashesByIdRelationshipsByRelationResponses = {
+export type PatchHashesByIdRelationshipsChunkResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchHashesByIdRelationshipsByRelationResponse =
-  PatchHashesByIdRelationshipsByRelationResponses[keyof PatchHashesByIdRelationshipsByRelationResponses];
+export type PatchHashesByIdRelationshipsChunkResponse =
+  PatchHashesByIdRelationshipsChunkResponses[keyof PatchHashesByIdRelationshipsChunkResponses];
+
+export type GetHashesByIdHashlistData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashes/{id}/hashlist';
+};
+
+export type GetHashesByIdHashlistErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHashesByIdHashlistError = GetHashesByIdHashlistErrors[keyof GetHashesByIdHashlistErrors];
+
+export type GetHashesByIdHashlistResponses = {
+  /**
+   * successful operation
+   */
+  200: HashRelationHashlistGetResponse;
+};
+
+export type GetHashesByIdHashlistResponse = GetHashesByIdHashlistResponses[keyof GetHashesByIdHashlistResponses];
+
+export type GetHashesByIdRelationshipsHashlistData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashes/{id}/relationships/hashlist';
+};
+
+export type GetHashesByIdRelationshipsHashlistErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHashesByIdRelationshipsHashlistError =
+  GetHashesByIdRelationshipsHashlistErrors[keyof GetHashesByIdRelationshipsHashlistErrors];
+
+export type GetHashesByIdRelationshipsHashlistResponses = {
+  /**
+   * successful operation
+   */
+  200: HashResponse;
+};
+
+export type GetHashesByIdRelationshipsHashlistResponse =
+  GetHashesByIdRelationshipsHashlistResponses[keyof GetHashesByIdRelationshipsHashlistResponses];
+
+export type PatchHashesByIdRelationshipsHashlistData = {
+  body: HashRelationHashlist;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashes/{id}/relationships/hashlist';
+};
+
+export type PatchHashesByIdRelationshipsHashlistErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchHashesByIdRelationshipsHashlistError =
+  PatchHashesByIdRelationshipsHashlistErrors[keyof PatchHashesByIdRelationshipsHashlistErrors];
+
+export type PatchHashesByIdRelationshipsHashlistResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchHashesByIdRelationshipsHashlistResponse =
+  PatchHashesByIdRelationshipsHashlistResponses[keyof PatchHashesByIdRelationshipsHashlistResponses];
 
 export type GetHashesByIdData = {
   body?: never;
