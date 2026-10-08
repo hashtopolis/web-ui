@@ -5,7 +5,8 @@ export const zSupertaskCreate = z.object({
     type: z.literal('supertask'),
     attributes: z.object({
       pretasks: z.array(z.int()),
-      supertaskName: z.string()
+      supertaskName: z.string(),
+      crackerBinaryTypeId: z.int()
     })
   })
 });
@@ -53,6 +54,7 @@ export const zSupertaskResponse = z.object({
     type: z.literal('supertask'),
     attributes: z.object({
       supertaskName: z.string(),
+      crackerBinaryTypeId: z.int(),
       amountPretasks: z.int().optional()
     }),
     links: z.object({
@@ -112,6 +114,7 @@ export const zSupertaskSingleResponse = z.object({
     type: z.literal('supertask'),
     attributes: z.object({
       supertaskName: z.string(),
+      crackerBinaryTypeId: z.int(),
       amountPretasks: z.int().optional()
     }),
     links: z.object({
@@ -171,6 +174,7 @@ export const zSupertaskPostPatchResponse = z.object({
     type: z.literal('supertask'),
     attributes: z.object({
       supertaskName: z.string(),
+      crackerBinaryTypeId: z.int(),
       amountPretasks: z.int().optional()
     }),
     links: z.object({
@@ -255,6 +259,7 @@ export const zSupertaskListResponse = z.object({
       type: z.literal('supertask'),
       attributes: z.object({
         supertaskName: z.string(),
+        crackerBinaryTypeId: z.int(),
         amountPretasks: z.int().optional()
       }),
       links: z.object({
