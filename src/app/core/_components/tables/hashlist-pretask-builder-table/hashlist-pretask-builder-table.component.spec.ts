@@ -9,6 +9,7 @@ import { JPretask } from '@models/pretask.model';
 
 import {
   CrackerHashtypeSupportService,
+  SUPPORT_LOOKUP_FAILED,
   buildUnsupportedHashtypeMessage
 } from '@services/crackers/cracker-hashtype-support.service';
 import { SERV } from '@services/main.config';
@@ -265,6 +266,19 @@ describe('HashlistPretaskBuilderTableComponent', () => {
       expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith(`Failed to create 2 task(s). ${message}`);
       expect(mockGlobalService.getAll).toHaveBeenCalledTimes(1);
       expect(support.getSupportedCrackerBinaryIds).toHaveBeenCalledTimes(1);
+      expect(mockGlobalService.create).not.toHaveBeenCalled();
+    });
+
+    it('says the check failed when the support lookup failed', async () => {
+      support.getSupportedCrackerBinaryIds.and.returnValue(of(SUPPORT_LOOKUP_FAILED));
+      component.pretasks = [pretask(1)];
+      component.selectedPretaskIds = new Set([1]);
+
+      await component.createTasksFromSelection();
+
+      expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith(
+        'Failed to create 1 task(s). Could not check which cracker versions support hashtype 1000 (NTLM).'
+      );
       expect(mockGlobalService.create).not.toHaveBeenCalled();
     });
 

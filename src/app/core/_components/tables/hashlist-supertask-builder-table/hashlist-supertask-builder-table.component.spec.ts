@@ -13,6 +13,7 @@ import { JSuperTask } from '@models/supertask.model';
 import { CrackerBinaryTypesService } from '@services/crackers/cracker-binary-types.service';
 import {
   CrackerHashtypeSupportService,
+  SUPPORT_LOOKUP_FAILED,
   buildUnsupportedHashtypeMessage
 } from '@services/crackers/cracker-hashtype-support.service';
 import { SERV, ServiceConfig } from '@services/main.config';
@@ -281,6 +282,24 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
 
       expect(component.unsupportedHashtypeMessage).toBe(buildUnsupportedHashtypeMessage(1000, 'NTLM'));
       expect(fixture.nativeElement.querySelector('[data-testid="unsupported-hashtype"]')).toBeTruthy();
+    });
+
+    it('says the check failed when the support lookup failed', async () => {
+      support.getSupportedCrackerBinaryIds.and.returnValue(of(SUPPORT_LOOKUP_FAILED));
+      component.hashTypeId = 1000;
+      component.hashtypeDescription = 'NTLM';
+      component.supertasks = [supertask(11, 'WL set', 2)];
+      await internals().loadSupport();
+
+      await internals().initializeRows();
+
+      expect(component.unsupportedHashtypeMessage).toBe(
+        'Could not check which cracker versions support hashtype 1000 (NTLM).'
+      );
+      expect(component.isRowBlocked(component.supertasks[0])).toBeTrue();
+      expect(component.rowBlockedMessage(component.supertasks[0])).toBe(
+        'Could not check which generic versions support this hashtype.'
+      );
     });
 
     it('does not filter without a hashtype', async () => {

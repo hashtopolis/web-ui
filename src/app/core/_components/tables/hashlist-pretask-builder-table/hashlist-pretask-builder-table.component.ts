@@ -236,7 +236,7 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
     if (this.crackerVersionByType.has(crackerBinaryTypeId)) {
       const cached = this.crackerVersionByType.get(crackerBinaryTypeId) ?? null;
       if (cached === null) {
-        this.failureReasons.add(this.unsupportedHashtypeMessage());
+        this.failureReasons.add(this.unsupportedHashtypeMessage(await this.getSupportedCrackerBinaryIds()));
       }
       return cached;
     }
@@ -261,7 +261,7 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
       if (!selectedCracker) {
         // remember the miss, so several selected pretasks of this type show the message once
         this.crackerVersionByType.set(crackerBinaryTypeId, null);
-        this.failureReasons.add(this.unsupportedHashtypeMessage());
+        this.failureReasons.add(this.unsupportedHashtypeMessage(supported));
         return null;
       }
 
@@ -274,8 +274,8 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
     }
   }
 
-  private unsupportedHashtypeMessage(): string {
-    return buildUnsupportedHashtypeMessage(this.hashTypeId as HashTypeId, this.hashtypeDescription);
+  private unsupportedHashtypeMessage(supported: SupportedCrackerBinaryIds): string {
+    return buildUnsupportedHashtypeMessage(this.hashTypeId as HashTypeId, this.hashtypeDescription, supported);
   }
 
   /** Versions supporting the hashtype of the hashlist, null (no filter) without a hashtype */

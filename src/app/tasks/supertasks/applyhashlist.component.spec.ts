@@ -11,6 +11,7 @@ import { ResponseWrapper } from '@models/response.model';
 import { CrackerBinaryTypesService } from '@services/crackers/cracker-binary-types.service';
 import {
   CrackerHashtypeSupportService,
+  SUPPORT_LOOKUP_FAILED,
   buildUnsupportedHashtypeMessage
 } from '@services/crackers/cracker-hashtype-support.service';
 import { SERV, ServiceConfig } from '@services/main.config';
@@ -230,6 +231,28 @@ describe('ApplyHashlistComponent', () => {
       expect(component.noCrackerVersionsAvailable).toBeFalse();
       expect(fixture.nativeElement.querySelector('[data-testid="unsupported-hashtype"]')).toBeTruthy();
       expect(gs.chelper).not.toHaveBeenCalled();
+    });
+
+    it('shows no required hint on a version select the user opened before the block', () => {
+      support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      create();
+      component.form.controls.crackerBinaryId.markAsTouched();
+
+      component.handleChangeHashlist(1);
+
+      expect(component.form.controls.crackerBinaryId.touched).toBeFalse();
+    });
+
+    it('says the check failed when the support lookup failed', () => {
+      support.getSupportedCrackerBinaryIds.and.returnValue(of(SUPPORT_LOOKUP_FAILED));
+      create();
+
+      component.handleChangeHashlist(1);
+
+      expect(component.form.controls.crackerBinaryId.value).toBeNull();
+      expect(component.unsupportedHashtypeMessage).toBe(
+        'Could not check which cracker versions support hashtype 1000.'
+      );
     });
 
     it('applies a hashlist chosen before the versions loaded once they arrive', () => {

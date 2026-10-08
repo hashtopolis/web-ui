@@ -266,12 +266,20 @@ export class ApplyHashlistComponent implements OnInit {
     const hashlist = this.selectedHashlist;
     this.unsupportedHashtypeMessage =
       hashlist && this.versions.length > 0 && supported.length === 0
-        ? buildUnsupportedHashtypeMessage(hashlist.hashTypeId, hashlist.hashType?.description)
+        ? buildUnsupportedHashtypeMessage(
+            hashlist.hashTypeId,
+            hashlist.hashType?.description,
+            this.supportedCrackerBinaryIds
+          )
         : null;
 
     const current = versionCtrl.value;
     const keep = current !== null && supported.some((version) => version.id === current);
     versionCtrl.setValue(keep ? current : (supported.at(-1)?.id ?? null));
+    if (this.unsupportedHashtypeMessage) {
+      // the alert explains the block, the select keeps its layout without the required hint, even when opened before
+      versionCtrl.markAsUntouched();
+    }
     this.changeDetectorRef.detectChanges();
   }
 

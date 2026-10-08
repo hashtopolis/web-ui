@@ -9,6 +9,7 @@ import { JCrackerBinaryType } from '@models/cracker-binary.model';
 
 import {
   CrackerHashtypeSupportService,
+  SUPPORT_LOOKUP_FAILED,
   buildUnsupportedHashtypeMessage,
   filterSupportedCrackerTypes,
   filterSupportedCrackerVersions,
@@ -65,6 +66,15 @@ describe('cracker hashtype support helpers', () => {
     expect(buildUnsupportedHashtypeMessage(1000)).toBe('No accessible cracker version supports hashtype 1000.');
     expect(buildUnsupportedHashtypeMessage(1000, null)).toBe('No accessible cracker version supports hashtype 1000.');
   });
+
+  it('says the check failed instead of claiming no support when the lookup failed', () => {
+    expect(buildUnsupportedHashtypeMessage(1000, 'NTLM', SUPPORT_LOOKUP_FAILED)).toBe(
+      'Could not check which cracker versions support hashtype 1000 (NTLM).'
+    );
+    expect(buildUnsupportedHashtypeMessage(1000, 'NTLM', new Set())).toBe(
+      'No accessible cracker version supports hashtype 1000 (NTLM).'
+    );
+  });
 });
 
 describe('CrackerHashtypeSupportService', () => {
@@ -109,12 +119,13 @@ describe('CrackerHashtypeSupportService', () => {
     expect(options.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
   });
 
-  it('resolves to an empty set on error', async () => {
+  it('resolves to the empty failure marker on error', async () => {
     spyOn(console, 'error');
     gs.getRelationships.and.returnValue(throwError(() => new HttpErrorResponse({ status: 403 })));
 
     const ids = await firstValueFrom(service.getSupportedCrackerBinaryIds(1000));
 
+    expect(ids).toBe(SUPPORT_LOOKUP_FAILED);
     expect(ids.size).toBe(0);
   });
 });
