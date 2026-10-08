@@ -1,10 +1,17 @@
 import { z } from 'zod';
 
 import { BaseModel } from '@models/base.model';
+import { JHashtype } from '@models/hashtype.model';
 import { AccessGroupId, CrackerBinaryTypeId } from '@models/id.types';
 
 /** Name of the cracker binary type task forms preselect when it is available. */
 export const DEFAULT_CRACKER_BINARY_TYPE_NAME = 'hashcat';
+
+/**
+ * Type name of the cracker binaries whose hashtypes are determined by the background scan of their archive and
+ * cannot be edited manually. Matches the backend (CrackerUtils::HASHCAT_BINARY_TYPE).
+ */
+export const HASHCAT_CRACKER_BINARY_TYPE_NAME = 'hashcat';
 
 /** Sources a new cracker binary archive can come from. */
 export const CrackerSource = {
@@ -26,6 +33,7 @@ export type CrackerSource = (typeof CrackerSource)[keyof typeof CrackerSource];
  * @prop filename             Name of the archive stored on the server, null for external download urls
  * @prop accessGroupId        ID of the access group containing the binary
  * @prop crackerBinaryType    Included cracker binary type
+ * @prop hashtypes            Included hashtypes the binary supports
  */
 export interface JCrackerBinary extends BaseModel {
   binaryName: string;
@@ -35,6 +43,7 @@ export interface JCrackerBinary extends BaseModel {
   filename: string | null;
   accessGroupId: AccessGroupId;
   crackerBinaryType?: JCrackerBinaryType;
+  hashtypes?: JHashtype[];
 }
 
 /**
@@ -45,6 +54,14 @@ export interface JCrackerBinaryType extends BaseModel {
   crackerVersions: JCrackerBinary[];
   //Only crackers with chunking are supported right now: isChunkingAvailable: boolean;
   typeName: string;
+}
+
+/**
+ * True if the hashtypes of the binary are determined by the background scan, i.e. read-only in the UI.
+ * Needs the included crackerBinaryType.
+ */
+export function isHashcatCrackerBinary(binary: Pick<JCrackerBinary, 'crackerBinaryType'>): boolean {
+  return binary.crackerBinaryType?.typeName === HASHCAT_CRACKER_BINARY_TYPE_NAME;
 }
 
 /**

@@ -20,12 +20,14 @@ export const BackgroundJobStatusLabel: Record<BackgroundJobStatus, string> = {
  * Job types known to the UI. Later backend versions add more types, which are shown with their raw name.
  */
 export const BackgroundJobType = {
-  RECOUNT_FILE: 'recount_file'
+  RECOUNT_FILE: 'recount_file',
+  SCAN_CRACKER: 'scan_cracker'
 } as const;
 export type BackgroundJobType = (typeof BackgroundJobType)[keyof typeof BackgroundJobType];
 
 export const BackgroundJobTypeLabel: Record<string, string> = {
-  [BackgroundJobType.RECOUNT_FILE]: 'Recount file lines'
+  [BackgroundJobType.RECOUNT_FILE]: 'Recount file lines',
+  [BackgroundJobType.SCAN_CRACKER]: 'Scan cracker binary'
 };
 
 export function formatBackgroundJobStatus(status: number): string {

@@ -20,12 +20,13 @@ describe('background-jobs.config', () => {
   });
 
   describe('formatBackgroundJobType', () => {
-    it('labels recount_file', () => {
+    it('labels recount_file and scan_cracker', () => {
       expect(formatBackgroundJobType('recount_file')).toBe('Recount file lines');
+      expect(formatBackgroundJobType('scan_cracker')).toBe('Scan cracker binary');
     });
 
     it('falls back to the raw type for types added by later backend versions', () => {
-      expect(formatBackgroundJobType('scan_cracker')).toBe('scan_cracker');
+      expect(formatBackgroundJobType('future_job')).toBe('future_job');
     });
   });
 
