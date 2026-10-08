@@ -78,3 +78,13 @@
   color: var(--muted-foreground);
   font-size: var(--text-sm);
 }
+
+.row-type {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.row-hint {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}

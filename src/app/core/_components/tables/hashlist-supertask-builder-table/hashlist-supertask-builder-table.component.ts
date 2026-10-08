@@ -1,27 +1,22 @@
-import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse } from '@generated/api/zod';
+import { zCrackerBinaryListResponse } from '@generated/api/zod';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 import { Component, DestroyRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PageEvent } from '@angular/material/paginator';
 
-import {
-  DEFAULT_CRACKER_BINARY_TYPE_NAME,
-  JCrackerBinary,
-  JCrackerBinaryType,
-  zCrackerBinaryTypeList
-} from '@models/cracker-binary.model';
+import { JCrackerBinary } from '@models/cracker-binary.model';
 import { CrackerBinaryId, CrackerBinaryTypeId, HashTypeId } from '@models/id.types';
 import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JSuperTask } from '@models/supertask.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { CrackerBinaryTypesService, fallbackCrackerTypeName } from '@services/crackers/cracker-binary-types.service';
 import {
   CrackerHashtypeSupportService,
   SupportedCrackerBinaryIds,
   buildUnsupportedHashtypeMessage,
-  filterSupportedCrackerTypes,
   filterSupportedCrackerVersions
 } from '@services/crackers/cracker-hashtype-support.service';
 import { SERV } from '@services/main.config';
@@ -31,9 +26,13 @@ import { AlertService } from '@services/shared/alert.service';
 
 import { HashlistSupertaskBuilderDataSource } from '@datasources/hashlist-supertask-builder.datasource';
 
-import { CRACKER_TYPE_FIELD_MAPPING, CRACKER_VERSION_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
+import { CRACKER_VERSION_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
+/**
+ * Creates supertasks for a hashlist from the supertask templates. Each row shows the cracker type of its supertask
+ * and offers the versions of that type supporting the hashtype of the hashlist.
+ */
 @Component({
   selector: 'app-hashlist-supertask-builder-table',
   templateUrl: './hashlist-supertask-builder-table.component.html',
@@ -55,16 +54,15 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
 
   readonly pageSizeOptions = [10, 25, 50, 100];
 
-  crackerTypes: SelectOption<CrackerBinaryTypeId>[] = [];
+  /** Versions of the row's cracker type, filtered by hashtype support; undefined while loading */
   rowVersions: Partial<Record<number, SelectOption<CrackerBinaryId>[]>> = {};
-
-  selectedTypeByRow: Partial<Record<number, CrackerBinaryTypeId>> = {};
   selectedVersionByRow: Partial<Record<number, CrackerBinaryId>> = {};
   rowLoading: Partial<Record<number, boolean>> = {};
 
-  /** Block message when no accessible cracker version supports the hashtype of the hashlist */
+  /** Block message when no accessible cracker version at all supports the hashtype of the hashlist */
   unsupportedHashtypeMessage: string | null = null;
 
+  private typeNames: ReadonlyMap<CrackerBinaryTypeId, string> = new Map();
   private supportedCrackerBinaryIds: SupportedCrackerBinaryIds = null;
 
   private readonly serializer = new JsonAPISerializer();
@@ -75,6 +73,7 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
   private readonly alert = inject(AlertService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly crackerSupport = inject(CrackerHashtypeSupportService);
+  private readonly crackerBinaryTypes = inject(CrackerBinaryTypesService);
 
   ngOnInit(): void {
     this.dataSource = new HashlistSupertaskBuilderDataSource(this.injector);
@@ -90,12 +89,12 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
         void this.initializeRows();
       });
 
-    // Types must be known before rows initialize, but a failure must not stop the rows from loading:
-    // without types the create controls stay disabled while the templates are still listed.
-    void this.loadCrackerTypes()
+    // The hashtype support and the type names must be known before rows initialize, but a failure must not stop
+    // the rows from loading: without them the create controls stay disabled while the templates are still listed.
+    void this.loadSupport()
       .catch((error) => {
         // The global HTTP interceptor already surfaces the error dialog for this request.
-        console.error('Failed loading binary types:', error);
+        console.error('Failed loading the hashtype support:', error);
       })
       .finally(() => {
         this.dataSource.loadAll();
@@ -127,16 +126,22 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
     this.dataSource.reload();
   }
 
-  async onTypeChanged(rowId: number, typeId: number): Promise<void> {
-    this.selectedTypeByRow[rowId] = typeId;
-    try {
-      const versions = await this.getVersionsForType(typeId);
-      this.rowVersions[rowId] = versions;
-      this.selectedVersionByRow[rowId] = versions.slice(-1)[0]?.id as CrackerBinaryId;
-    } catch (error) {
-      // The global HTTP interceptor already surfaces the error dialog for this request.
-      console.error('Failed loading binary versions:', error);
-    }
+  /** Name of the supertask's cracker type */
+  typeName(supertask: JSuperTask): string {
+    return this.typeNames.get(supertask.crackerBinaryTypeId) ?? fallbackCrackerTypeName(supertask.crackerBinaryTypeId);
+  }
+
+  /** True once the versions of the row's type are loaded and none can be used */
+  isRowBlocked(supertask: JSuperTask): boolean {
+    return this.rowVersions[supertask.id]?.length === 0;
+  }
+
+  /** Why the row cannot create a supertask */
+  rowBlockedMessage(supertask: JSuperTask): string {
+    const type = this.typeName(supertask);
+    return this.hashTypeId !== null
+      ? `No accessible ${type} version supports this hashtype.`
+      : `No accessible ${type} version.`;
   }
 
   async createSupertask(supertaskTemplateId: number): Promise<void> {
@@ -167,29 +172,14 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
     }
   }
 
+  /** Load the versions of each row's cracker type and preselect the newest one */
   private async initializeRows(): Promise<void> {
-    if (!this.crackerTypes.length || !this.supertasks.length) {
-      return;
-    }
-
-    const preferredType = this.crackerTypes.find(
-      (item) => item.name?.toLowerCase() === DEFAULT_CRACKER_BINARY_TYPE_NAME
-    )?.id;
-    const fallbackType = this.crackerTypes[0]?.id;
-    const defaultType = (preferredType ?? fallbackType) as CrackerBinaryTypeId;
-
-    if (!defaultType) {
-      return;
-    }
-
     try {
       for (const supertask of this.supertasks) {
-        if (this.selectedTypeByRow[supertask.id]) {
+        if (this.rowVersions[supertask.id]) {
           continue;
         }
-
-        this.selectedTypeByRow[supertask.id] = defaultType;
-        const versions = await this.getVersionsForType(defaultType);
+        const versions = await this.getVersionsForType(supertask.crackerBinaryTypeId);
         this.rowVersions[supertask.id] = versions;
         this.selectedVersionByRow[supertask.id] = versions.slice(-1)[0]?.id as CrackerBinaryId;
       }
@@ -199,21 +189,17 @@ export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy
     }
   }
 
-  private async loadCrackerTypes(): Promise<void> {
+  /** Load which versions support the hashtype (if any is known) and the names of the cracker types */
+  private async loadSupport(): Promise<void> {
     if (this.hashTypeId !== null) {
       this.supportedCrackerBinaryIds = await firstValueFrom(
         this.crackerSupport.getSupportedCrackerBinaryIds(this.hashTypeId)
       );
     }
-    const response = await lastValueFrom(this.gs.getAll(SERV.CRACKERS_TYPES, { include: ['crackerVersions'] }));
-    const crackerTypes: JCrackerBinaryType[] = zCrackerBinaryTypeList.parse(
-      this.serializer.deserialize(response, zCrackerBinaryTypeListResponse)
-    );
-    const supportedTypes = filterSupportedCrackerTypes(crackerTypes, this.supportedCrackerBinaryIds);
-
-    this.crackerTypes = transformSelectOptions(supportedTypes, CRACKER_TYPE_FIELD_MAPPING);
+    this.typeNames = await firstValueFrom(this.crackerBinaryTypes.getTypeNames());
+    // the support lookup is already restricted to accessible versions, an empty set means nothing supports it
     this.unsupportedHashtypeMessage =
-      this.hashTypeId !== null && supportedTypes.length === 0
+      this.hashTypeId !== null && this.supportedCrackerBinaryIds?.size === 0
         ? buildUnsupportedHashtypeMessage(this.hashTypeId, this.hashtypeDescription)
         : null;
   }

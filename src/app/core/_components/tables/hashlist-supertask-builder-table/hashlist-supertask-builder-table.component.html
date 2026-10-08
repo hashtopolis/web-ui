@@ -21,21 +21,19 @@
                 <a [routerLink]="['/tasks', supertask.id, 'edit']">{{ supertask.supertaskName }}</a>
 
                 <div class="row-actions">
-                  <input-select
-                    title="Binary type"
-                    [items]="crackerTypes"
-                    [ngModel]="selectedTypeByRow[supertask.id]"
-                    (ngModelChange)="onTypeChanged(supertask.id, $event)"
-                  >
-                  </input-select>
+                  <span class="row-type" data-testid="row-type">{{ typeName(supertask) }}</span>
 
-                  <input-select
-                    title="Version"
-                    [items]="rowVersions[supertask.id] ?? []"
-                    [ngModel]="selectedVersionByRow[supertask.id]"
-                    (ngModelChange)="selectedVersionByRow[supertask.id] = $event"
-                  >
-                  </input-select>
+                  @if (isRowBlocked(supertask)) {
+                    <span class="row-hint" data-testid="row-blocked">{{ rowBlockedMessage(supertask) }}</span>
+                  } @else {
+                    <input-select
+                      title="Version"
+                      [items]="rowVersions[supertask.id] ?? []"
+                      [ngModel]="selectedVersionByRow[supertask.id]"
+                      (ngModelChange)="selectedVersionByRow[supertask.id] = $event"
+                    >
+                    </input-select>
+                  }
 
                   <button-submit
                     [name]="'Create Supertask'"
