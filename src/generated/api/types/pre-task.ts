@@ -271,14 +271,14 @@ export type PreTaskCountResponse = {
 
 export type PreTaskRelationPretaskFiles = {
   data: Array<{
-    type: 'pretaskFiles';
+    type: 'file';
     id: number;
   }>;
 };
 
 export type PreTaskRelationPretaskFilesGetResponse = {
   data: Array<{
-    type: 'pretaskFiles';
+    type: 'file';
     id: number;
   }>;
 };
@@ -516,17 +516,16 @@ export type GetPretasksCountResponses = {
 
 export type GetPretasksCountResponse = GetPretasksCountResponses[keyof GetPretasksCountResponses];
 
-export type GetPretasksByIdByRelationData = {
+export type GetPretasksByIdPretaskFilesData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/pretasks/{id}/{relation}';
+  url: '/api/v2/ui/pretasks/{id}/pretaskFiles';
 };
 
-export type GetPretasksByIdByRelationErrors = {
+export type GetPretasksByIdPretaskFilesErrors = {
   /**
    * Invalid request
    */
@@ -545,29 +544,29 @@ export type GetPretasksByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetPretasksByIdByRelationError = GetPretasksByIdByRelationErrors[keyof GetPretasksByIdByRelationErrors];
+export type GetPretasksByIdPretaskFilesError =
+  GetPretasksByIdPretaskFilesErrors[keyof GetPretasksByIdPretaskFilesErrors];
 
-export type GetPretasksByIdByRelationResponses = {
+export type GetPretasksByIdPretaskFilesResponses = {
   /**
    * successful operation
    */
   200: PreTaskRelationPretaskFilesGetResponse;
 };
 
-export type GetPretasksByIdByRelationResponse =
-  GetPretasksByIdByRelationResponses[keyof GetPretasksByIdByRelationResponses];
+export type GetPretasksByIdPretaskFilesResponse =
+  GetPretasksByIdPretaskFilesResponses[keyof GetPretasksByIdPretaskFilesResponses];
 
-export type DeletePretasksByIdRelationshipsByRelationData = {
+export type DeletePretasksByIdRelationshipsPretaskFilesData = {
   body: PreTaskRelationPretaskFiles;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/pretasks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/pretasks/{id}/relationships/pretaskFiles';
 };
 
-export type DeletePretasksByIdRelationshipsByRelationErrors = {
+export type DeletePretasksByIdRelationshipsPretaskFilesErrors = {
   /**
    * Invalid request
    */
@@ -586,30 +585,29 @@ export type DeletePretasksByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type DeletePretasksByIdRelationshipsByRelationError =
-  DeletePretasksByIdRelationshipsByRelationErrors[keyof DeletePretasksByIdRelationshipsByRelationErrors];
+export type DeletePretasksByIdRelationshipsPretaskFilesError =
+  DeletePretasksByIdRelationshipsPretaskFilesErrors[keyof DeletePretasksByIdRelationshipsPretaskFilesErrors];
 
-export type DeletePretasksByIdRelationshipsByRelationResponses = {
+export type DeletePretasksByIdRelationshipsPretaskFilesResponses = {
   /**
    * successfully deleted
    */
   204: void;
 };
 
-export type DeletePretasksByIdRelationshipsByRelationResponse =
-  DeletePretasksByIdRelationshipsByRelationResponses[keyof DeletePretasksByIdRelationshipsByRelationResponses];
+export type DeletePretasksByIdRelationshipsPretaskFilesResponse =
+  DeletePretasksByIdRelationshipsPretaskFilesResponses[keyof DeletePretasksByIdRelationshipsPretaskFilesResponses];
 
-export type GetPretasksByIdRelationshipsByRelationData = {
+export type GetPretasksByIdRelationshipsPretaskFilesData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/pretasks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/pretasks/{id}/relationships/pretaskFiles';
 };
 
-export type GetPretasksByIdRelationshipsByRelationErrors = {
+export type GetPretasksByIdRelationshipsPretaskFilesErrors = {
   /**
    * Invalid request
    */
@@ -628,30 +626,29 @@ export type GetPretasksByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetPretasksByIdRelationshipsByRelationError =
-  GetPretasksByIdRelationshipsByRelationErrors[keyof GetPretasksByIdRelationshipsByRelationErrors];
+export type GetPretasksByIdRelationshipsPretaskFilesError =
+  GetPretasksByIdRelationshipsPretaskFilesErrors[keyof GetPretasksByIdRelationshipsPretaskFilesErrors];
 
-export type GetPretasksByIdRelationshipsByRelationResponses = {
+export type GetPretasksByIdRelationshipsPretaskFilesResponses = {
   /**
    * successful operation
    */
   200: PreTaskResponse;
 };
 
-export type GetPretasksByIdRelationshipsByRelationResponse =
-  GetPretasksByIdRelationshipsByRelationResponses[keyof GetPretasksByIdRelationshipsByRelationResponses];
+export type GetPretasksByIdRelationshipsPretaskFilesResponse =
+  GetPretasksByIdRelationshipsPretaskFilesResponses[keyof GetPretasksByIdRelationshipsPretaskFilesResponses];
 
-export type PatchPretasksByIdRelationshipsByRelationData = {
+export type PatchPretasksByIdRelationshipsPretaskFilesData = {
   body: PreTaskRelationPretaskFiles;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/pretasks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/pretasks/{id}/relationships/pretaskFiles';
 };
 
-export type PatchPretasksByIdRelationshipsByRelationErrors = {
+export type PatchPretasksByIdRelationshipsPretaskFilesErrors = {
   /**
    * Invalid request
    */
@@ -674,30 +671,29 @@ export type PatchPretasksByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchPretasksByIdRelationshipsByRelationError =
-  PatchPretasksByIdRelationshipsByRelationErrors[keyof PatchPretasksByIdRelationshipsByRelationErrors];
+export type PatchPretasksByIdRelationshipsPretaskFilesError =
+  PatchPretasksByIdRelationshipsPretaskFilesErrors[keyof PatchPretasksByIdRelationshipsPretaskFilesErrors];
 
-export type PatchPretasksByIdRelationshipsByRelationResponses = {
+export type PatchPretasksByIdRelationshipsPretaskFilesResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchPretasksByIdRelationshipsByRelationResponse =
-  PatchPretasksByIdRelationshipsByRelationResponses[keyof PatchPretasksByIdRelationshipsByRelationResponses];
+export type PatchPretasksByIdRelationshipsPretaskFilesResponse =
+  PatchPretasksByIdRelationshipsPretaskFilesResponses[keyof PatchPretasksByIdRelationshipsPretaskFilesResponses];
 
-export type PostPretasksByIdRelationshipsByRelationData = {
+export type PostPretasksByIdRelationshipsPretaskFilesData = {
   body: PreTaskRelationPretaskFiles;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/pretasks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/pretasks/{id}/relationships/pretaskFiles';
 };
 
-export type PostPretasksByIdRelationshipsByRelationErrors = {
+export type PostPretasksByIdRelationshipsPretaskFilesErrors = {
   /**
    * Invalid request
    */
@@ -720,18 +716,18 @@ export type PostPretasksByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PostPretasksByIdRelationshipsByRelationError =
-  PostPretasksByIdRelationshipsByRelationErrors[keyof PostPretasksByIdRelationshipsByRelationErrors];
+export type PostPretasksByIdRelationshipsPretaskFilesError =
+  PostPretasksByIdRelationshipsPretaskFilesErrors[keyof PostPretasksByIdRelationshipsPretaskFilesErrors];
 
-export type PostPretasksByIdRelationshipsByRelationResponses = {
+export type PostPretasksByIdRelationshipsPretaskFilesResponses = {
   /**
    * successfully created
    */
   204: void;
 };
 
-export type PostPretasksByIdRelationshipsByRelationResponse =
-  PostPretasksByIdRelationshipsByRelationResponses[keyof PostPretasksByIdRelationshipsByRelationResponses];
+export type PostPretasksByIdRelationshipsPretaskFilesResponse =
+  PostPretasksByIdRelationshipsPretaskFilesResponses[keyof PostPretasksByIdRelationshipsPretaskFilesResponses];
 
 export type DeletePretasksByIdData = {
   body?: never;

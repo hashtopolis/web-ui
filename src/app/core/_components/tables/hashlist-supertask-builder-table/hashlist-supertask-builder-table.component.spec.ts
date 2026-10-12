@@ -1,23 +1,64 @@
-import { of } from 'rxjs';
+import { zCrackerBinaryListResponse } from '@generated/api/zod';
+import { Observable, of } from 'rxjs';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { CrackerBinaryId, CrackerBinaryTypeId } from '@models/id.types';
+import { RequestParams } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
 import { JSuperTask } from '@models/supertask.model';
 
-import { SERV } from '@services/main.config';
+import { CrackerBinaryTypesService } from '@services/crackers/cracker-binary-types.service';
+import {
+  CrackerHashtypeSupportService,
+  SUPPORT_LOOKUP_FAILED,
+  buildUnsupportedHashtypeMessage
+} from '@services/crackers/cracker-hashtype-support.service';
+import { SERV, ServiceConfig } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import { HashlistSupertaskBuilderTableComponent } from '@components/tables/hashlist-supertask-builder-table/hashlist-supertask-builder-table.component';
 
 import { SelectOption } from '@src/app/shared/utils/forms';
+import { mockValidResponse } from '@src/app/testing/mock-response';
 
 class TestHashlistSupertaskBuilderTableComponent extends HashlistSupertaskBuilderTableComponent {
   override ngOnInit(): void {}
   override ngOnDestroy(): void {}
+}
+
+function crackerVersion(id: number, crackerBinaryTypeId: number) {
+  return {
+    id,
+    type: 'crackerBinary' as const,
+    attributes: {
+      crackerBinaryTypeId,
+      binaryName: 'hashcat',
+      version: `${id}`,
+      downloadUrl: '',
+      filename: null,
+      accessGroupId: 1
+    }
+  };
+}
+
+const HASHCAT_VERSIONS = mockValidResponse(zCrackerBinaryListResponse, {
+  data: [crackerVersion(10, 1), crackerVersion(11, 1)]
+});
+
+const GENERIC_VERSIONS = mockValidResponse(zCrackerBinaryListResponse, { data: [crackerVersion(20, 2)] });
+
+function supertask(id: number, supertaskName: string, crackerBinaryTypeId: number): JSuperTask {
+  return { id, supertaskName, type: 'supertask', crackerBinaryTypeId };
+}
+
+/** Versions by the cracker type requested through the filter */
+function versionsByType(config: ServiceConfig, params?: RequestParams): Observable<ResponseWrapper> {
+  const typeId = config.URL === SERV.CRACKERS.URL ? params?.filter?.[0]?.value : undefined;
+  return of(typeId === 2 ? GENERIC_VERSIONS : HASHCAT_VERSIONS);
 }
 
 describe('HashlistSupertaskBuilderTableComponent', () => {
@@ -25,6 +66,18 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
   let fixture: ComponentFixture<TestHashlistSupertaskBuilderTableComponent>;
   let mockGlobalService: jasmine.SpyObj<GlobalService>;
   let mockAlertService: jasmine.SpyObj<AlertService>;
+  let support: jasmine.SpyObj<CrackerHashtypeSupportService>;
+  let crackerBinaryTypes: jasmine.SpyObj<CrackerBinaryTypesService>;
+
+  type Internals = {
+    loadSupport(): Promise<void>;
+    initializeRows(): Promise<void>;
+    getVersionsForType(id: number): Promise<SelectOption<CrackerBinaryId>[]>;
+  };
+
+  function internals(): Internals {
+    return component as unknown as Internals;
+  }
 
   beforeEach(async () => {
     mockGlobalService = jasmine.createSpyObj('GlobalService', ['chelper', 'getAll']);
@@ -33,11 +86,26 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
 
     mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
 
+    support = jasmine.createSpyObj('CrackerHashtypeSupportService', ['getSupportedCrackerBinaryIds']);
+    support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([11])));
+
+    crackerBinaryTypes = jasmine.createSpyObj('CrackerBinaryTypesService', ['getTypeNames']);
+    crackerBinaryTypes.getTypeNames.and.returnValue(
+      of(
+        new Map<CrackerBinaryTypeId, string>([
+          [1, 'hashcat'],
+          [2, 'generic']
+        ])
+      )
+    );
+
     await TestBed.configureTestingModule({
       declarations: [TestHashlistSupertaskBuilderTableComponent],
       providers: [
         { provide: GlobalService, useValue: mockGlobalService },
-        { provide: AlertService, useValue: mockAlertService }
+        { provide: AlertService, useValue: mockAlertService },
+        { provide: CrackerHashtypeSupportService, useValue: support },
+        { provide: CrackerBinaryTypesService, useValue: crackerBinaryTypes }
       ],
       imports: [RouterTestingModule],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -56,10 +124,7 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
   });
 
   it('should render supertask rows', async () => {
-    component.supertasks = [
-      { id: 10, supertaskName: 'BF set', type: 'supertask' } as JSuperTask,
-      { id: 11, supertaskName: 'WL set', type: 'supertask' } as JSuperTask
-    ];
+    component.supertasks = [supertask(10, 'BF set', 1), supertask(11, 'WL set', 2)];
 
     fixture.detectChanges();
     await fixture.whenStable();
@@ -71,7 +136,7 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
   });
 
   it('should link the name to the supertask', async () => {
-    component.supertasks = [{ id: 10, supertaskName: 'BF set', type: 'supertask' } as JSuperTask];
+    component.supertasks = [supertask(10, 'BF set', 1)];
 
     fixture.detectChanges();
     await fixture.whenStable();
@@ -105,23 +170,31 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
     expect(component.rowLoading[10]).toBeFalse();
   });
 
-  it('should update versions and default selected version when binary type changes', async () => {
-    const versions = [
-      { id: 1 as CrackerBinaryId, name: '6.2.6' },
-      { id: 2 as CrackerBinaryId, name: '6.2.7' }
-    ] as SelectOption<CrackerBinaryId>[];
+  it('initializes each row with the versions of its own type', async () => {
+    mockGlobalService.getAll.and.callFake(
+      versionsByType as unknown as (...args: unknown[]) => ReturnType<typeof mockGlobalService.getAll>
+    );
+    component.supertasks = [supertask(10, 'BF set', 1), supertask(11, 'WL set', 2)];
+    await internals().loadSupport();
 
-    const privateComponent = component as unknown as {
-      [key: string]: unknown;
-    };
-    privateComponent['getVersionsForType'] = async (): Promise<SelectOption<CrackerBinaryId>[]> => versions;
+    await internals().initializeRows();
 
-    await component.onTypeChanged(22, 5 as CrackerBinaryTypeId);
-    await fixture.whenStable();
+    expect(component.rowVersions[10]?.map((option) => option.id)).toEqual([10, 11]);
+    expect(component.selectedVersionByRow[10]).toBe(11 as CrackerBinaryId);
+    expect(component.rowVersions[11]?.map((option) => option.id)).toEqual([20]);
+    expect(component.selectedVersionByRow[11]).toBe(20 as CrackerBinaryId);
+    expect(mockGlobalService.getAll.calls.allArgs().every(([config]) => config.URL === SERV.CRACKERS.URL)).toBeTrue();
+  });
 
-    expect(component.selectedTypeByRow[22]).toBe(5 as CrackerBinaryTypeId);
-    expect(component.rowVersions[22]).toEqual(versions);
-    expect(component.selectedVersionByRow[22]).toBe(2 as CrackerBinaryId);
+  it('shows the type name per row and falls back for unknown ids', async () => {
+    component.supertasks = [supertask(10, 'BF set', 1), supertask(11, 'WL set', 7)];
+    await internals().loadSupport();
+    fixture.detectChanges();
+
+    const types = Array.from(fixture.nativeElement.querySelectorAll('[data-testid="row-type"]')).map((el) =>
+      (el as HTMLElement).textContent?.trim()
+    );
+    expect(types).toEqual(['hashcat', 'Type #7']);
   });
 
   it('should keep the after cursor when paging forward', () => {
@@ -160,5 +233,82 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
 
     expect(setPaginationConfig).toHaveBeenCalledWith(25, 30, null, null, 0);
     expect(reload).toHaveBeenCalled();
+  });
+
+  describe('hashtype support', () => {
+    beforeEach(() => {
+      mockGlobalService.getAll.and.callFake(
+        versionsByType as unknown as (...args: unknown[]) => ReturnType<typeof mockGlobalService.getAll>
+      );
+    });
+
+    it('offers only the versions supporting the hashtype', async () => {
+      component.hashTypeId = 1000;
+
+      await internals().loadSupport();
+      const versions = await internals().getVersionsForType(1);
+
+      expect(support.getSupportedCrackerBinaryIds).toHaveBeenCalledWith(1000);
+      expect(versions.map((option) => option.id)).toEqual([11]);
+      expect(component.unsupportedHashtypeMessage).toBeNull();
+    });
+
+    it('blocks a row whose type has no supported version', async () => {
+      component.hashTypeId = 1000;
+      component.supertasks = [supertask(10, 'BF set', 1), supertask(11, 'WL set', 2)];
+      await internals().loadSupport();
+
+      await internals().initializeRows();
+      fixture.detectChanges();
+
+      expect(component.isRowBlocked(component.supertasks[0])).toBeFalse();
+      expect(component.selectedVersionByRow[10]).toBe(11 as CrackerBinaryId);
+      expect(component.isRowBlocked(component.supertasks[1])).toBeTrue();
+      expect(component.selectedVersionByRow[11]).toBeUndefined();
+      expect(component.rowBlockedMessage(component.supertasks[1])).toBe(
+        'No accessible generic version supports this hashtype.'
+      );
+      expect(fixture.nativeElement.querySelectorAll('[data-testid="row-blocked"]').length).toBe(1);
+      expect(component.unsupportedHashtypeMessage).toBeNull();
+    });
+
+    it('shows the block message when no version supports the hashtype', async () => {
+      support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      component.hashTypeId = 1000;
+      component.hashtypeDescription = 'NTLM';
+
+      await internals().loadSupport();
+      fixture.detectChanges();
+
+      expect(component.unsupportedHashtypeMessage).toBe(buildUnsupportedHashtypeMessage(1000, 'NTLM'));
+      expect(fixture.nativeElement.querySelector('[data-testid="unsupported-hashtype"]')).toBeTruthy();
+    });
+
+    it('says the check failed when the support lookup failed', async () => {
+      support.getSupportedCrackerBinaryIds.and.returnValue(of(SUPPORT_LOOKUP_FAILED));
+      component.hashTypeId = 1000;
+      component.hashtypeDescription = 'NTLM';
+      component.supertasks = [supertask(11, 'WL set', 2)];
+      await internals().loadSupport();
+
+      await internals().initializeRows();
+
+      expect(component.unsupportedHashtypeMessage).toBe(
+        'Could not check which cracker versions support hashtype 1000 (NTLM).'
+      );
+      expect(component.isRowBlocked(component.supertasks[0])).toBeTrue();
+      expect(component.rowBlockedMessage(component.supertasks[0])).toBe(
+        'Could not check which generic versions support this hashtype.'
+      );
+    });
+
+    it('does not filter without a hashtype', async () => {
+      await internals().loadSupport();
+      const versions = await internals().getVersionsForType(1);
+
+      expect(support.getSupportedCrackerBinaryIds).not.toHaveBeenCalled();
+      expect(versions.map((option) => option.id)).toEqual([10, 11]);
+      expect(component.rowBlockedMessage(supertask(11, 'WL set', 2))).toBe('No accessible generic version.');
+    });
   });
 });

@@ -1,11 +1,13 @@
 import { catchError } from 'rxjs';
 
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { CrackerBinaryTypeId } from '@models/id.types';
 import { JSuperTask, JSuperTaskAggregateFields } from '@models/supertask.model';
 
 import { SuperTaskContextMenuService } from '@services/context-menu/tasks/supertask-menu.service';
+import { CrackerBinaryTypesService, fallbackCrackerTypeName } from '@services/crackers/cracker-binary-types.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -34,6 +36,9 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
   dataSource: SuperTasksDataSource;
   selectedFilterColumn: HTTableColumn;
 
+  private crackerTypeNames: ReadonlyMap<CrackerBinaryTypeId, string> = new Map();
+  private crackerBinaryTypes = inject(CrackerBinaryTypesService);
+
   ngOnInit(): void {
     this.setColumnLabels(SupertasksTableColumnLabel);
     this.tableColumns = this.getColumns();
@@ -45,8 +50,14 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
   }
 
   ngAfterViewInit(): void {
-    // Wait until paginator is defined
-    this.dataSource.loadAll();
+    // the type names are needed to render the rows; getTypeNames never fails, so the rows always load
+    this.crackerBinaryTypes
+      .getTypeNames()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((names) => {
+        this.crackerTypeNames = names;
+        this.dataSource.loadAll();
+      });
   }
 
   filter(input: string) {
@@ -97,8 +108,20 @@ export class SuperTasksTableComponent extends BaseTableComponent implements OnIn
         render: (supertask: JSuperTaskAggregateFields) => (supertask.amountPretasks ? supertask.amountPretasks : ''),
         export: async (supertask: JSuperTaskAggregateFields) =>
           supertask.amountPretasks ? supertask.amountPretasks.toString() : ''
+      },
+      {
+        id: SupertasksTableCol.CRACKER_TYPE,
+        dataKey: 'crackerBinaryTypeId',
+        isSortable: true,
+        render: (supertask: JSuperTask) => this.crackerTypeName(supertask.crackerBinaryTypeId),
+        export: async (supertask: JSuperTask) => this.crackerTypeName(supertask.crackerBinaryTypeId)
       }
     ];
+  }
+
+  /** Name of a cracker binary type, `Type #<id>` if the type list does not contain it */
+  private crackerTypeName(id: CrackerBinaryTypeId): string {
+    return this.crackerTypeNames.get(id) ?? fallbackCrackerTypeName(id);
   }
 
   openDialog(data: DialogData<JSuperTask>) {

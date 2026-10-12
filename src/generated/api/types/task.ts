@@ -839,16 +839,86 @@ export type TaskCountResponse = {
   }>;
 };
 
+export type TaskRelationCrackerBinary = {
+  data: {
+    type: 'crackerBinary';
+    id: number;
+  };
+};
+
+export type TaskRelationCrackerBinaryGetResponse = {
+  data: {
+    type: 'crackerBinary';
+    id: number;
+  };
+};
+
+export type TaskRelationCrackerBinaryType = {
+  data: {
+    type: 'crackerBinaryType';
+    id: number;
+  };
+};
+
+export type TaskRelationCrackerBinaryTypeGetResponse = {
+  data: {
+    type: 'crackerBinaryType';
+    id: number;
+  };
+};
+
+export type TaskRelationHashlist = {
+  data: {
+    type: 'hashlist';
+    id: number;
+  };
+};
+
+export type TaskRelationHashlistGetResponse = {
+  data: {
+    type: 'hashlist';
+    id: number;
+  };
+};
+
+export type TaskRelationAssignedAgents = {
+  data: Array<{
+    type: 'agent';
+    id: number;
+  }>;
+};
+
+export type TaskRelationAssignedAgentsGetResponse = {
+  data: Array<{
+    type: 'agent';
+    id: number;
+  }>;
+};
+
+export type TaskRelationFiles = {
+  data: Array<{
+    type: 'file';
+    id: number;
+  }>;
+};
+
+export type TaskRelationFilesGetResponse = {
+  data: Array<{
+    type: 'file';
+    id: number;
+  }>;
+};
+
 export type TaskRelationSpeeds = {
   data: Array<{
-    type: 'speeds';
+    type: 'speed';
     id: number;
   }>;
 };
 
 export type TaskRelationSpeedsGetResponse = {
   data: Array<{
-    type: 'speeds';
+    type: 'speed';
     id: number;
   }>;
 };
@@ -1086,17 +1156,16 @@ export type GetTasksCountResponses = {
 
 export type GetTasksCountResponse = GetTasksCountResponses[keyof GetTasksCountResponses];
 
-export type GetTasksByIdByRelationData = {
+export type GetTasksByIdCrackerBinaryData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/tasks/{id}/{relation}';
+  url: '/api/v2/ui/tasks/{id}/crackerBinary';
 };
 
-export type GetTasksByIdByRelationErrors = {
+export type GetTasksByIdCrackerBinaryErrors = {
   /**
    * Invalid request
    */
@@ -1115,70 +1184,28 @@ export type GetTasksByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetTasksByIdByRelationError = GetTasksByIdByRelationErrors[keyof GetTasksByIdByRelationErrors];
+export type GetTasksByIdCrackerBinaryError = GetTasksByIdCrackerBinaryErrors[keyof GetTasksByIdCrackerBinaryErrors];
 
-export type GetTasksByIdByRelationResponses = {
+export type GetTasksByIdCrackerBinaryResponses = {
   /**
    * successful operation
    */
-  200: TaskRelationSpeedsGetResponse;
+  200: TaskRelationCrackerBinaryGetResponse;
 };
 
-export type GetTasksByIdByRelationResponse = GetTasksByIdByRelationResponses[keyof GetTasksByIdByRelationResponses];
+export type GetTasksByIdCrackerBinaryResponse =
+  GetTasksByIdCrackerBinaryResponses[keyof GetTasksByIdCrackerBinaryResponses];
 
-export type DeleteTasksByIdRelationshipsByRelationData = {
-  body: TaskRelationSpeeds;
-  path: {
-    id: number;
-    relation: string;
-  };
-  query?: never;
-  url: '/api/v2/ui/tasks/{id}/relationships/{relation}';
-};
-
-export type DeleteTasksByIdRelationshipsByRelationErrors = {
-  /**
-   * Invalid request
-   */
-  400: ErrorResponse;
-  /**
-   * Authentication failed
-   */
-  401: ErrorResponse;
-  /**
-   * Permission denied
-   */
-  403: ErrorResponse;
-  /**
-   * Not Found
-   */
-  404: ErrorResponse;
-};
-
-export type DeleteTasksByIdRelationshipsByRelationError =
-  DeleteTasksByIdRelationshipsByRelationErrors[keyof DeleteTasksByIdRelationshipsByRelationErrors];
-
-export type DeleteTasksByIdRelationshipsByRelationResponses = {
-  /**
-   * successfully deleted
-   */
-  204: void;
-};
-
-export type DeleteTasksByIdRelationshipsByRelationResponse =
-  DeleteTasksByIdRelationshipsByRelationResponses[keyof DeleteTasksByIdRelationshipsByRelationResponses];
-
-export type GetTasksByIdRelationshipsByRelationData = {
+export type GetTasksByIdRelationshipsCrackerBinaryData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/tasks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/tasks/{id}/relationships/crackerBinary';
 };
 
-export type GetTasksByIdRelationshipsByRelationErrors = {
+export type GetTasksByIdRelationshipsCrackerBinaryErrors = {
   /**
    * Invalid request
    */
@@ -1197,30 +1224,29 @@ export type GetTasksByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetTasksByIdRelationshipsByRelationError =
-  GetTasksByIdRelationshipsByRelationErrors[keyof GetTasksByIdRelationshipsByRelationErrors];
+export type GetTasksByIdRelationshipsCrackerBinaryError =
+  GetTasksByIdRelationshipsCrackerBinaryErrors[keyof GetTasksByIdRelationshipsCrackerBinaryErrors];
 
-export type GetTasksByIdRelationshipsByRelationResponses = {
+export type GetTasksByIdRelationshipsCrackerBinaryResponses = {
   /**
    * successful operation
    */
   200: TaskResponse;
 };
 
-export type GetTasksByIdRelationshipsByRelationResponse =
-  GetTasksByIdRelationshipsByRelationResponses[keyof GetTasksByIdRelationshipsByRelationResponses];
+export type GetTasksByIdRelationshipsCrackerBinaryResponse =
+  GetTasksByIdRelationshipsCrackerBinaryResponses[keyof GetTasksByIdRelationshipsCrackerBinaryResponses];
 
-export type PatchTasksByIdRelationshipsByRelationData = {
-  body: TaskRelationSpeeds;
+export type PatchTasksByIdRelationshipsCrackerBinaryData = {
+  body: TaskRelationCrackerBinary;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/tasks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/tasks/{id}/relationships/crackerBinary';
 };
 
-export type PatchTasksByIdRelationshipsByRelationErrors = {
+export type PatchTasksByIdRelationshipsCrackerBinaryErrors = {
   /**
    * Invalid request
    */
@@ -1243,30 +1269,111 @@ export type PatchTasksByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchTasksByIdRelationshipsByRelationError =
-  PatchTasksByIdRelationshipsByRelationErrors[keyof PatchTasksByIdRelationshipsByRelationErrors];
+export type PatchTasksByIdRelationshipsCrackerBinaryError =
+  PatchTasksByIdRelationshipsCrackerBinaryErrors[keyof PatchTasksByIdRelationshipsCrackerBinaryErrors];
 
-export type PatchTasksByIdRelationshipsByRelationResponses = {
+export type PatchTasksByIdRelationshipsCrackerBinaryResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchTasksByIdRelationshipsByRelationResponse =
-  PatchTasksByIdRelationshipsByRelationResponses[keyof PatchTasksByIdRelationshipsByRelationResponses];
+export type PatchTasksByIdRelationshipsCrackerBinaryResponse =
+  PatchTasksByIdRelationshipsCrackerBinaryResponses[keyof PatchTasksByIdRelationshipsCrackerBinaryResponses];
 
-export type PostTasksByIdRelationshipsByRelationData = {
-  body: TaskRelationSpeeds;
+export type GetTasksByIdCrackerBinaryTypeData = {
+  body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/tasks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/tasks/{id}/crackerBinaryType';
 };
 
-export type PostTasksByIdRelationshipsByRelationErrors = {
+export type GetTasksByIdCrackerBinaryTypeErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTasksByIdCrackerBinaryTypeError =
+  GetTasksByIdCrackerBinaryTypeErrors[keyof GetTasksByIdCrackerBinaryTypeErrors];
+
+export type GetTasksByIdCrackerBinaryTypeResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskRelationCrackerBinaryTypeGetResponse;
+};
+
+export type GetTasksByIdCrackerBinaryTypeResponse =
+  GetTasksByIdCrackerBinaryTypeResponses[keyof GetTasksByIdCrackerBinaryTypeResponses];
+
+export type GetTasksByIdRelationshipsCrackerBinaryTypeData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/crackerBinaryType';
+};
+
+export type GetTasksByIdRelationshipsCrackerBinaryTypeErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTasksByIdRelationshipsCrackerBinaryTypeError =
+  GetTasksByIdRelationshipsCrackerBinaryTypeErrors[keyof GetTasksByIdRelationshipsCrackerBinaryTypeErrors];
+
+export type GetTasksByIdRelationshipsCrackerBinaryTypeResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskResponse;
+};
+
+export type GetTasksByIdRelationshipsCrackerBinaryTypeResponse =
+  GetTasksByIdRelationshipsCrackerBinaryTypeResponses[keyof GetTasksByIdRelationshipsCrackerBinaryTypeResponses];
+
+export type PatchTasksByIdRelationshipsCrackerBinaryTypeData = {
+  body: TaskRelationCrackerBinaryType;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/crackerBinaryType';
+};
+
+export type PatchTasksByIdRelationshipsCrackerBinaryTypeErrors = {
   /**
    * Invalid request
    */
@@ -1289,18 +1396,777 @@ export type PostTasksByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PostTasksByIdRelationshipsByRelationError =
-  PostTasksByIdRelationshipsByRelationErrors[keyof PostTasksByIdRelationshipsByRelationErrors];
+export type PatchTasksByIdRelationshipsCrackerBinaryTypeError =
+  PatchTasksByIdRelationshipsCrackerBinaryTypeErrors[keyof PatchTasksByIdRelationshipsCrackerBinaryTypeErrors];
 
-export type PostTasksByIdRelationshipsByRelationResponses = {
+export type PatchTasksByIdRelationshipsCrackerBinaryTypeResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchTasksByIdRelationshipsCrackerBinaryTypeResponse =
+  PatchTasksByIdRelationshipsCrackerBinaryTypeResponses[keyof PatchTasksByIdRelationshipsCrackerBinaryTypeResponses];
+
+export type GetTasksByIdHashlistData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/hashlist';
+};
+
+export type GetTasksByIdHashlistErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTasksByIdHashlistError = GetTasksByIdHashlistErrors[keyof GetTasksByIdHashlistErrors];
+
+export type GetTasksByIdHashlistResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskRelationHashlistGetResponse;
+};
+
+export type GetTasksByIdHashlistResponse = GetTasksByIdHashlistResponses[keyof GetTasksByIdHashlistResponses];
+
+export type GetTasksByIdRelationshipsHashlistData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/hashlist';
+};
+
+export type GetTasksByIdRelationshipsHashlistErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTasksByIdRelationshipsHashlistError =
+  GetTasksByIdRelationshipsHashlistErrors[keyof GetTasksByIdRelationshipsHashlistErrors];
+
+export type GetTasksByIdRelationshipsHashlistResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskResponse;
+};
+
+export type GetTasksByIdRelationshipsHashlistResponse =
+  GetTasksByIdRelationshipsHashlistResponses[keyof GetTasksByIdRelationshipsHashlistResponses];
+
+export type PatchTasksByIdRelationshipsHashlistData = {
+  body: TaskRelationHashlist;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/hashlist';
+};
+
+export type PatchTasksByIdRelationshipsHashlistErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchTasksByIdRelationshipsHashlistError =
+  PatchTasksByIdRelationshipsHashlistErrors[keyof PatchTasksByIdRelationshipsHashlistErrors];
+
+export type PatchTasksByIdRelationshipsHashlistResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchTasksByIdRelationshipsHashlistResponse =
+  PatchTasksByIdRelationshipsHashlistResponses[keyof PatchTasksByIdRelationshipsHashlistResponses];
+
+export type GetTasksByIdAssignedAgentsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/assignedAgents';
+};
+
+export type GetTasksByIdAssignedAgentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTasksByIdAssignedAgentsError = GetTasksByIdAssignedAgentsErrors[keyof GetTasksByIdAssignedAgentsErrors];
+
+export type GetTasksByIdAssignedAgentsResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskRelationAssignedAgentsGetResponse;
+};
+
+export type GetTasksByIdAssignedAgentsResponse =
+  GetTasksByIdAssignedAgentsResponses[keyof GetTasksByIdAssignedAgentsResponses];
+
+export type DeleteTasksByIdRelationshipsAssignedAgentsData = {
+  body: TaskRelationAssignedAgents;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/assignedAgents';
+};
+
+export type DeleteTasksByIdRelationshipsAssignedAgentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteTasksByIdRelationshipsAssignedAgentsError =
+  DeleteTasksByIdRelationshipsAssignedAgentsErrors[keyof DeleteTasksByIdRelationshipsAssignedAgentsErrors];
+
+export type DeleteTasksByIdRelationshipsAssignedAgentsResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteTasksByIdRelationshipsAssignedAgentsResponse =
+  DeleteTasksByIdRelationshipsAssignedAgentsResponses[keyof DeleteTasksByIdRelationshipsAssignedAgentsResponses];
+
+export type GetTasksByIdRelationshipsAssignedAgentsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/assignedAgents';
+};
+
+export type GetTasksByIdRelationshipsAssignedAgentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTasksByIdRelationshipsAssignedAgentsError =
+  GetTasksByIdRelationshipsAssignedAgentsErrors[keyof GetTasksByIdRelationshipsAssignedAgentsErrors];
+
+export type GetTasksByIdRelationshipsAssignedAgentsResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskResponse;
+};
+
+export type GetTasksByIdRelationshipsAssignedAgentsResponse =
+  GetTasksByIdRelationshipsAssignedAgentsResponses[keyof GetTasksByIdRelationshipsAssignedAgentsResponses];
+
+export type PatchTasksByIdRelationshipsAssignedAgentsData = {
+  body: TaskRelationAssignedAgents;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/assignedAgents';
+};
+
+export type PatchTasksByIdRelationshipsAssignedAgentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchTasksByIdRelationshipsAssignedAgentsError =
+  PatchTasksByIdRelationshipsAssignedAgentsErrors[keyof PatchTasksByIdRelationshipsAssignedAgentsErrors];
+
+export type PatchTasksByIdRelationshipsAssignedAgentsResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchTasksByIdRelationshipsAssignedAgentsResponse =
+  PatchTasksByIdRelationshipsAssignedAgentsResponses[keyof PatchTasksByIdRelationshipsAssignedAgentsResponses];
+
+export type PostTasksByIdRelationshipsAssignedAgentsData = {
+  body: TaskRelationAssignedAgents;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/assignedAgents';
+};
+
+export type PostTasksByIdRelationshipsAssignedAgentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostTasksByIdRelationshipsAssignedAgentsError =
+  PostTasksByIdRelationshipsAssignedAgentsErrors[keyof PostTasksByIdRelationshipsAssignedAgentsErrors];
+
+export type PostTasksByIdRelationshipsAssignedAgentsResponses = {
   /**
    * successfully created
    */
   204: void;
 };
 
-export type PostTasksByIdRelationshipsByRelationResponse =
-  PostTasksByIdRelationshipsByRelationResponses[keyof PostTasksByIdRelationshipsByRelationResponses];
+export type PostTasksByIdRelationshipsAssignedAgentsResponse =
+  PostTasksByIdRelationshipsAssignedAgentsResponses[keyof PostTasksByIdRelationshipsAssignedAgentsResponses];
+
+export type GetTasksByIdFilesData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/files';
+};
+
+export type GetTasksByIdFilesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTasksByIdFilesError = GetTasksByIdFilesErrors[keyof GetTasksByIdFilesErrors];
+
+export type GetTasksByIdFilesResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskRelationFilesGetResponse;
+};
+
+export type GetTasksByIdFilesResponse = GetTasksByIdFilesResponses[keyof GetTasksByIdFilesResponses];
+
+export type DeleteTasksByIdRelationshipsFilesData = {
+  body: TaskRelationFiles;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/files';
+};
+
+export type DeleteTasksByIdRelationshipsFilesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteTasksByIdRelationshipsFilesError =
+  DeleteTasksByIdRelationshipsFilesErrors[keyof DeleteTasksByIdRelationshipsFilesErrors];
+
+export type DeleteTasksByIdRelationshipsFilesResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteTasksByIdRelationshipsFilesResponse =
+  DeleteTasksByIdRelationshipsFilesResponses[keyof DeleteTasksByIdRelationshipsFilesResponses];
+
+export type GetTasksByIdRelationshipsFilesData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/files';
+};
+
+export type GetTasksByIdRelationshipsFilesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTasksByIdRelationshipsFilesError =
+  GetTasksByIdRelationshipsFilesErrors[keyof GetTasksByIdRelationshipsFilesErrors];
+
+export type GetTasksByIdRelationshipsFilesResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskResponse;
+};
+
+export type GetTasksByIdRelationshipsFilesResponse =
+  GetTasksByIdRelationshipsFilesResponses[keyof GetTasksByIdRelationshipsFilesResponses];
+
+export type PatchTasksByIdRelationshipsFilesData = {
+  body: TaskRelationFiles;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/files';
+};
+
+export type PatchTasksByIdRelationshipsFilesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchTasksByIdRelationshipsFilesError =
+  PatchTasksByIdRelationshipsFilesErrors[keyof PatchTasksByIdRelationshipsFilesErrors];
+
+export type PatchTasksByIdRelationshipsFilesResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchTasksByIdRelationshipsFilesResponse =
+  PatchTasksByIdRelationshipsFilesResponses[keyof PatchTasksByIdRelationshipsFilesResponses];
+
+export type PostTasksByIdRelationshipsFilesData = {
+  body: TaskRelationFiles;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/files';
+};
+
+export type PostTasksByIdRelationshipsFilesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostTasksByIdRelationshipsFilesError =
+  PostTasksByIdRelationshipsFilesErrors[keyof PostTasksByIdRelationshipsFilesErrors];
+
+export type PostTasksByIdRelationshipsFilesResponses = {
+  /**
+   * successfully created
+   */
+  204: void;
+};
+
+export type PostTasksByIdRelationshipsFilesResponse =
+  PostTasksByIdRelationshipsFilesResponses[keyof PostTasksByIdRelationshipsFilesResponses];
+
+export type GetTasksByIdSpeedsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/speeds';
+};
+
+export type GetTasksByIdSpeedsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTasksByIdSpeedsError = GetTasksByIdSpeedsErrors[keyof GetTasksByIdSpeedsErrors];
+
+export type GetTasksByIdSpeedsResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskRelationSpeedsGetResponse;
+};
+
+export type GetTasksByIdSpeedsResponse = GetTasksByIdSpeedsResponses[keyof GetTasksByIdSpeedsResponses];
+
+export type DeleteTasksByIdRelationshipsSpeedsData = {
+  body: TaskRelationSpeeds;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/speeds';
+};
+
+export type DeleteTasksByIdRelationshipsSpeedsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteTasksByIdRelationshipsSpeedsError =
+  DeleteTasksByIdRelationshipsSpeedsErrors[keyof DeleteTasksByIdRelationshipsSpeedsErrors];
+
+export type DeleteTasksByIdRelationshipsSpeedsResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteTasksByIdRelationshipsSpeedsResponse =
+  DeleteTasksByIdRelationshipsSpeedsResponses[keyof DeleteTasksByIdRelationshipsSpeedsResponses];
+
+export type GetTasksByIdRelationshipsSpeedsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/speeds';
+};
+
+export type GetTasksByIdRelationshipsSpeedsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetTasksByIdRelationshipsSpeedsError =
+  GetTasksByIdRelationshipsSpeedsErrors[keyof GetTasksByIdRelationshipsSpeedsErrors];
+
+export type GetTasksByIdRelationshipsSpeedsResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskResponse;
+};
+
+export type GetTasksByIdRelationshipsSpeedsResponse =
+  GetTasksByIdRelationshipsSpeedsResponses[keyof GetTasksByIdRelationshipsSpeedsResponses];
+
+export type PatchTasksByIdRelationshipsSpeedsData = {
+  body: TaskRelationSpeeds;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/speeds';
+};
+
+export type PatchTasksByIdRelationshipsSpeedsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchTasksByIdRelationshipsSpeedsError =
+  PatchTasksByIdRelationshipsSpeedsErrors[keyof PatchTasksByIdRelationshipsSpeedsErrors];
+
+export type PatchTasksByIdRelationshipsSpeedsResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchTasksByIdRelationshipsSpeedsResponse =
+  PatchTasksByIdRelationshipsSpeedsResponses[keyof PatchTasksByIdRelationshipsSpeedsResponses];
+
+export type PostTasksByIdRelationshipsSpeedsData = {
+  body: TaskRelationSpeeds;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/tasks/{id}/relationships/speeds';
+};
+
+export type PostTasksByIdRelationshipsSpeedsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostTasksByIdRelationshipsSpeedsError =
+  PostTasksByIdRelationshipsSpeedsErrors[keyof PostTasksByIdRelationshipsSpeedsErrors];
+
+export type PostTasksByIdRelationshipsSpeedsResponses = {
+  /**
+   * successfully created
+   */
+  204: void;
+};
+
+export type PostTasksByIdRelationshipsSpeedsResponse =
+  PostTasksByIdRelationshipsSpeedsResponses[keyof PostTasksByIdRelationshipsSpeedsResponses];
 
 export type DeleteTasksByIdData = {
   body?: never;

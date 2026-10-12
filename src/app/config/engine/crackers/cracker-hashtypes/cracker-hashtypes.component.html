@@ -1,0 +1,30 @@
+<app-table>
+  <app-page-subtitle subtitle="Supported Hashtypes"></app-page-subtitle>
+  @if (isHashcat) {
+    <p class="text-sm text-muted-foreground mt-2 mb-3" data-testid="hashcat-scan-note">
+      The hashtypes of hashcat versions are determined by a background scan of the archive. Changing the download URL
+      triggers a new scan.
+    </p>
+    @if (assignedHashtypeIds?.length === 0) {
+      <p class="text-sm mb-3" data-testid="hashcat-scan-pending">
+        No hashtypes yet. The scan of this version is pending or has failed, see
+        <a routerLink="/config/background-jobs">Background Jobs</a>.
+      </p>
+    }
+  } @else if (editable) {
+    <div class="mt-2 mb-3">
+      <button-submit
+        data-testid="open-add-hashtypes"
+        [name]="'Add Hashtypes'"
+        (click)="openAddDialog()"
+      ></button-submit>
+    </div>
+  }
+
+  <app-cracker-hashtypes-table
+    #hashtypesTable
+    [crackerBinaryId]="crackerBinaryId"
+    [editable]="editable"
+    (hashtypesRemoved)="onHashtypesRemoved()"
+  ></app-cracker-hashtypes-table>
+</app-table>

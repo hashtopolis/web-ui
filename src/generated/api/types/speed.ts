@@ -226,6 +226,20 @@ export type SpeedCountResponse = {
   }>;
 };
 
+export type SpeedRelationAgent = {
+  data: {
+    type: 'agent';
+    id: number;
+  };
+};
+
+export type SpeedRelationAgentGetResponse = {
+  data: {
+    type: 'agent';
+    id: number;
+  };
+};
+
 export type SpeedRelationTask = {
   data: {
     type: 'task';
@@ -352,17 +366,16 @@ export type GetSpeedsCountResponses = {
 
 export type GetSpeedsCountResponse = GetSpeedsCountResponses[keyof GetSpeedsCountResponses];
 
-export type GetSpeedsByIdByRelationData = {
+export type GetSpeedsByIdAgentData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/speeds/{id}/{relation}';
+  url: '/api/v2/ui/speeds/{id}/agent';
 };
 
-export type GetSpeedsByIdByRelationErrors = {
+export type GetSpeedsByIdAgentErrors = {
   /**
    * Invalid request
    */
@@ -381,28 +394,27 @@ export type GetSpeedsByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetSpeedsByIdByRelationError = GetSpeedsByIdByRelationErrors[keyof GetSpeedsByIdByRelationErrors];
+export type GetSpeedsByIdAgentError = GetSpeedsByIdAgentErrors[keyof GetSpeedsByIdAgentErrors];
 
-export type GetSpeedsByIdByRelationResponses = {
+export type GetSpeedsByIdAgentResponses = {
   /**
    * successful operation
    */
-  200: SpeedRelationTaskGetResponse;
+  200: SpeedRelationAgentGetResponse;
 };
 
-export type GetSpeedsByIdByRelationResponse = GetSpeedsByIdByRelationResponses[keyof GetSpeedsByIdByRelationResponses];
+export type GetSpeedsByIdAgentResponse = GetSpeedsByIdAgentResponses[keyof GetSpeedsByIdAgentResponses];
 
-export type GetSpeedsByIdRelationshipsByRelationData = {
+export type GetSpeedsByIdRelationshipsAgentData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/speeds/{id}/relationships/{relation}';
+  url: '/api/v2/ui/speeds/{id}/relationships/agent';
 };
 
-export type GetSpeedsByIdRelationshipsByRelationErrors = {
+export type GetSpeedsByIdRelationshipsAgentErrors = {
   /**
    * Invalid request
    */
@@ -421,30 +433,29 @@ export type GetSpeedsByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetSpeedsByIdRelationshipsByRelationError =
-  GetSpeedsByIdRelationshipsByRelationErrors[keyof GetSpeedsByIdRelationshipsByRelationErrors];
+export type GetSpeedsByIdRelationshipsAgentError =
+  GetSpeedsByIdRelationshipsAgentErrors[keyof GetSpeedsByIdRelationshipsAgentErrors];
 
-export type GetSpeedsByIdRelationshipsByRelationResponses = {
+export type GetSpeedsByIdRelationshipsAgentResponses = {
   /**
    * successful operation
    */
   200: SpeedResponse;
 };
 
-export type GetSpeedsByIdRelationshipsByRelationResponse =
-  GetSpeedsByIdRelationshipsByRelationResponses[keyof GetSpeedsByIdRelationshipsByRelationResponses];
+export type GetSpeedsByIdRelationshipsAgentResponse =
+  GetSpeedsByIdRelationshipsAgentResponses[keyof GetSpeedsByIdRelationshipsAgentResponses];
 
-export type PatchSpeedsByIdRelationshipsByRelationData = {
-  body: SpeedRelationTask;
+export type PatchSpeedsByIdRelationshipsAgentData = {
+  body: SpeedRelationAgent;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/speeds/{id}/relationships/{relation}';
+  url: '/api/v2/ui/speeds/{id}/relationships/agent';
 };
 
-export type PatchSpeedsByIdRelationshipsByRelationErrors = {
+export type PatchSpeedsByIdRelationshipsAgentErrors = {
   /**
    * Invalid request
    */
@@ -467,18 +478,143 @@ export type PatchSpeedsByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchSpeedsByIdRelationshipsByRelationError =
-  PatchSpeedsByIdRelationshipsByRelationErrors[keyof PatchSpeedsByIdRelationshipsByRelationErrors];
+export type PatchSpeedsByIdRelationshipsAgentError =
+  PatchSpeedsByIdRelationshipsAgentErrors[keyof PatchSpeedsByIdRelationshipsAgentErrors];
 
-export type PatchSpeedsByIdRelationshipsByRelationResponses = {
+export type PatchSpeedsByIdRelationshipsAgentResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchSpeedsByIdRelationshipsByRelationResponse =
-  PatchSpeedsByIdRelationshipsByRelationResponses[keyof PatchSpeedsByIdRelationshipsByRelationResponses];
+export type PatchSpeedsByIdRelationshipsAgentResponse =
+  PatchSpeedsByIdRelationshipsAgentResponses[keyof PatchSpeedsByIdRelationshipsAgentResponses];
+
+export type GetSpeedsByIdTaskData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/speeds/{id}/task';
+};
+
+export type GetSpeedsByIdTaskErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetSpeedsByIdTaskError = GetSpeedsByIdTaskErrors[keyof GetSpeedsByIdTaskErrors];
+
+export type GetSpeedsByIdTaskResponses = {
+  /**
+   * successful operation
+   */
+  200: SpeedRelationTaskGetResponse;
+};
+
+export type GetSpeedsByIdTaskResponse = GetSpeedsByIdTaskResponses[keyof GetSpeedsByIdTaskResponses];
+
+export type GetSpeedsByIdRelationshipsTaskData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/speeds/{id}/relationships/task';
+};
+
+export type GetSpeedsByIdRelationshipsTaskErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetSpeedsByIdRelationshipsTaskError =
+  GetSpeedsByIdRelationshipsTaskErrors[keyof GetSpeedsByIdRelationshipsTaskErrors];
+
+export type GetSpeedsByIdRelationshipsTaskResponses = {
+  /**
+   * successful operation
+   */
+  200: SpeedResponse;
+};
+
+export type GetSpeedsByIdRelationshipsTaskResponse =
+  GetSpeedsByIdRelationshipsTaskResponses[keyof GetSpeedsByIdRelationshipsTaskResponses];
+
+export type PatchSpeedsByIdRelationshipsTaskData = {
+  body: SpeedRelationTask;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/speeds/{id}/relationships/task';
+};
+
+export type PatchSpeedsByIdRelationshipsTaskErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchSpeedsByIdRelationshipsTaskError =
+  PatchSpeedsByIdRelationshipsTaskErrors[keyof PatchSpeedsByIdRelationshipsTaskErrors];
+
+export type PatchSpeedsByIdRelationshipsTaskResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchSpeedsByIdRelationshipsTaskResponse =
+  PatchSpeedsByIdRelationshipsTaskResponses[keyof PatchSpeedsByIdRelationshipsTaskResponses];
 
 export type GetSpeedsByIdData = {
   body?: never;

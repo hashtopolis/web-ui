@@ -634,17 +634,16 @@ export type GetConfigsCountResponses = {
 
 export type GetConfigsCountResponse = GetConfigsCountResponses[keyof GetConfigsCountResponses];
 
-export type GetConfigsByIdByRelationData = {
+export type GetConfigsByIdConfigSectionData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/configs/{id}/{relation}';
+  url: '/api/v2/ui/configs/{id}/configSection';
 };
 
-export type GetConfigsByIdByRelationErrors = {
+export type GetConfigsByIdConfigSectionErrors = {
   /**
    * Invalid request
    */
@@ -663,29 +662,29 @@ export type GetConfigsByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetConfigsByIdByRelationError = GetConfigsByIdByRelationErrors[keyof GetConfigsByIdByRelationErrors];
+export type GetConfigsByIdConfigSectionError =
+  GetConfigsByIdConfigSectionErrors[keyof GetConfigsByIdConfigSectionErrors];
 
-export type GetConfigsByIdByRelationResponses = {
+export type GetConfigsByIdConfigSectionResponses = {
   /**
    * successful operation
    */
   200: ConfigRelationConfigSectionGetResponse;
 };
 
-export type GetConfigsByIdByRelationResponse =
-  GetConfigsByIdByRelationResponses[keyof GetConfigsByIdByRelationResponses];
+export type GetConfigsByIdConfigSectionResponse =
+  GetConfigsByIdConfigSectionResponses[keyof GetConfigsByIdConfigSectionResponses];
 
-export type GetConfigsByIdRelationshipsByRelationData = {
+export type GetConfigsByIdRelationshipsConfigSectionData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/configs/{id}/relationships/{relation}';
+  url: '/api/v2/ui/configs/{id}/relationships/configSection';
 };
 
-export type GetConfigsByIdRelationshipsByRelationErrors = {
+export type GetConfigsByIdRelationshipsConfigSectionErrors = {
   /**
    * Invalid request
    */
@@ -704,30 +703,29 @@ export type GetConfigsByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetConfigsByIdRelationshipsByRelationError =
-  GetConfigsByIdRelationshipsByRelationErrors[keyof GetConfigsByIdRelationshipsByRelationErrors];
+export type GetConfigsByIdRelationshipsConfigSectionError =
+  GetConfigsByIdRelationshipsConfigSectionErrors[keyof GetConfigsByIdRelationshipsConfigSectionErrors];
 
-export type GetConfigsByIdRelationshipsByRelationResponses = {
+export type GetConfigsByIdRelationshipsConfigSectionResponses = {
   /**
    * successful operation
    */
   200: ConfigResponse;
 };
 
-export type GetConfigsByIdRelationshipsByRelationResponse =
-  GetConfigsByIdRelationshipsByRelationResponses[keyof GetConfigsByIdRelationshipsByRelationResponses];
+export type GetConfigsByIdRelationshipsConfigSectionResponse =
+  GetConfigsByIdRelationshipsConfigSectionResponses[keyof GetConfigsByIdRelationshipsConfigSectionResponses];
 
-export type PatchConfigsByIdRelationshipsByRelationData = {
+export type PatchConfigsByIdRelationshipsConfigSectionData = {
   body: ConfigRelationConfigSection;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/configs/{id}/relationships/{relation}';
+  url: '/api/v2/ui/configs/{id}/relationships/configSection';
 };
 
-export type PatchConfigsByIdRelationshipsByRelationErrors = {
+export type PatchConfigsByIdRelationshipsConfigSectionErrors = {
   /**
    * Invalid request
    */
@@ -750,18 +748,18 @@ export type PatchConfigsByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchConfigsByIdRelationshipsByRelationError =
-  PatchConfigsByIdRelationshipsByRelationErrors[keyof PatchConfigsByIdRelationshipsByRelationErrors];
+export type PatchConfigsByIdRelationshipsConfigSectionError =
+  PatchConfigsByIdRelationshipsConfigSectionErrors[keyof PatchConfigsByIdRelationshipsConfigSectionErrors];
 
-export type PatchConfigsByIdRelationshipsByRelationResponses = {
+export type PatchConfigsByIdRelationshipsConfigSectionResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchConfigsByIdRelationshipsByRelationResponse =
-  PatchConfigsByIdRelationshipsByRelationResponses[keyof PatchConfigsByIdRelationshipsByRelationResponses];
+export type PatchConfigsByIdRelationshipsConfigSectionResponse =
+  PatchConfigsByIdRelationshipsConfigSectionResponses[keyof PatchConfigsByIdRelationshipsConfigSectionResponses];
 
 export type GetConfigsByIdData = {
   body?: never;

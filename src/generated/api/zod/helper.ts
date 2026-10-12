@@ -1,6 +1,7 @@
 import * as z from 'zod';
 
 import { zAccessGroupResourceObject } from './access-group';
+import { zToken } from './common';
 import { zConfigResourceObject } from './config';
 import { zFileSingleResponse } from './file';
 import { zGlobalPermissionGroupResourceObject } from './global-permission-group';
@@ -11,7 +12,6 @@ import { zTaskResourceObject } from './task';
 import {
   zTaskWrapperDisplayCountResponse,
   zTaskWrapperDisplayListResponse,
-  zTaskWrapperDisplayRelationTasks,
   zTaskWrapperDisplayRelationTasksGetResponse,
   zTaskWrapperDisplayResponse,
   zTaskWrapperSingleResponse
@@ -430,67 +430,29 @@ export const zGetTaskwrapperdisplaysCountQuery = z.object({
  */
 export const zGetTaskwrapperdisplaysCountResponse = zTaskWrapperDisplayCountResponse;
 
-export const zGetTaskwrapperdisplaysByIdByRelationPath = z.object({
+export const zGetTaskwrapperdisplaysByIdTasksPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetTaskwrapperdisplaysByIdByRelationResponse = zTaskWrapperDisplayRelationTasksGetResponse;
+export const zGetTaskwrapperdisplaysByIdTasksResponse = zTaskWrapperDisplayRelationTasksGetResponse;
 
-export const zDeleteTaskwrapperdisplaysByIdRelationshipsByRelationBody = zTaskWrapperDisplayRelationTasks;
-
-export const zDeleteTaskwrapperdisplaysByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
-});
-
-/**
- * successfully deleted
- */
-export const zDeleteTaskwrapperdisplaysByIdRelationshipsByRelationResponse = z.void();
-
-export const zGetTaskwrapperdisplaysByIdRelationshipsByRelationPath = z.object({
+export const zGetTaskwrapperdisplaysByIdRelationshipsTasksPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetTaskwrapperdisplaysByIdRelationshipsByRelationResponse = zTaskWrapperDisplayResponse;
-
-export const zPatchTaskwrapperdisplaysByIdRelationshipsByRelationBody = zTaskWrapperDisplayRelationTasks;
-
-export const zPatchTaskwrapperdisplaysByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
-});
-
-/**
- * Successfull operation
- */
-export const zPatchTaskwrapperdisplaysByIdRelationshipsByRelationResponse = z.void();
-
-export const zPostTaskwrapperdisplaysByIdRelationshipsByRelationBody = zTaskWrapperDisplayRelationTasks;
-
-export const zPostTaskwrapperdisplaysByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
-});
-
-/**
- * successfully created
- */
-export const zPostTaskwrapperdisplaysByIdRelationshipsByRelationResponse = z.void();
+export const zGetTaskwrapperdisplaysByIdRelationshipsTasksResponse = zTaskWrapperDisplayResponse;
 
 export const zGetTaskwrapperdisplaysByIdPath = z.object({
   id: z
@@ -822,3 +784,13 @@ export const zPostUnassignAgentBody = zUnassignAgentHelperApi;
  * successful operation
  */
 export const zPostUnassignAgentResponse = zUnassignAgentHelperApiResponse;
+
+/**
+ * Success
+ */
+export const zDeleteRefreshResponse = z.void();
+
+/**
+ * Success
+ */
+export const zPostRefreshResponse = zToken;

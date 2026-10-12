@@ -215,43 +215,40 @@ export const zGetBackgroundJobsCountQuery = z.object({
  */
 export const zGetBackgroundJobsCountResponse = zBackgroundJobCountResponse;
 
-export const zGetBackgroundJobsByIdByRelationPath = z.object({
+export const zGetBackgroundJobsByIdUserPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetBackgroundJobsByIdByRelationResponse = zBackgroundJobRelationUserGetResponse;
+export const zGetBackgroundJobsByIdUserResponse = zBackgroundJobRelationUserGetResponse;
 
-export const zGetBackgroundJobsByIdRelationshipsByRelationPath = z.object({
+export const zGetBackgroundJobsByIdRelationshipsUserPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetBackgroundJobsByIdRelationshipsByRelationResponse = zBackgroundJobResponse;
+export const zGetBackgroundJobsByIdRelationshipsUserResponse = zBackgroundJobResponse;
 
-export const zPatchBackgroundJobsByIdRelationshipsByRelationBody = zBackgroundJobRelationUser;
+export const zPatchBackgroundJobsByIdRelationshipsUserBody = zBackgroundJobRelationUser;
 
-export const zPatchBackgroundJobsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchBackgroundJobsByIdRelationshipsUserPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchBackgroundJobsByIdRelationshipsByRelationResponse = z.void();
+export const zPatchBackgroundJobsByIdRelationshipsUserResponse = z.void();
 
 export const zDeleteBackgroundJobsByIdPath = z.object({
   id: z.int()

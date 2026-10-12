@@ -754,16 +754,72 @@ export type HashlistCountResponse = {
   }>;
 };
 
+export type HashlistRelationAccessGroup = {
+  data: {
+    type: 'accessGroup';
+    id: number;
+  };
+};
+
+export type HashlistRelationAccessGroupGetResponse = {
+  data: {
+    type: 'accessGroup';
+    id: number;
+  };
+};
+
+export type HashlistRelationHashType = {
+  data: {
+    type: 'hashType';
+    id: number;
+  };
+};
+
+export type HashlistRelationHashTypeGetResponse = {
+  data: {
+    type: 'hashType';
+    id: number;
+  };
+};
+
+export type HashlistRelationHashes = {
+  data: Array<{
+    type: 'hash';
+    id: number;
+  }>;
+};
+
+export type HashlistRelationHashesGetResponse = {
+  data: Array<{
+    type: 'hash';
+    id: number;
+  }>;
+};
+
+export type HashlistRelationHashlists = {
+  data: Array<{
+    type: 'hashlist';
+    id: number;
+  }>;
+};
+
+export type HashlistRelationHashlistsGetResponse = {
+  data: Array<{
+    type: 'hashlist';
+    id: number;
+  }>;
+};
+
 export type HashlistRelationTasks = {
   data: Array<{
-    type: 'tasks';
+    type: 'task';
     id: number;
   }>;
 };
 
 export type HashlistRelationTasksGetResponse = {
   data: Array<{
-    type: 'tasks';
+    type: 'task';
     id: number;
   }>;
 };
@@ -995,17 +1051,16 @@ export type GetHashlistsCountResponses = {
 
 export type GetHashlistsCountResponse = GetHashlistsCountResponses[keyof GetHashlistsCountResponses];
 
-export type GetHashlistsByIdByRelationData = {
+export type GetHashlistsByIdAccessGroupData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/hashlists/{id}/{relation}';
+  url: '/api/v2/ui/hashlists/{id}/accessGroup';
 };
 
-export type GetHashlistsByIdByRelationErrors = {
+export type GetHashlistsByIdAccessGroupErrors = {
   /**
    * Invalid request
    */
@@ -1024,71 +1079,29 @@ export type GetHashlistsByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetHashlistsByIdByRelationError = GetHashlistsByIdByRelationErrors[keyof GetHashlistsByIdByRelationErrors];
+export type GetHashlistsByIdAccessGroupError =
+  GetHashlistsByIdAccessGroupErrors[keyof GetHashlistsByIdAccessGroupErrors];
 
-export type GetHashlistsByIdByRelationResponses = {
+export type GetHashlistsByIdAccessGroupResponses = {
   /**
    * successful operation
    */
-  200: HashlistRelationTasksGetResponse;
+  200: HashlistRelationAccessGroupGetResponse;
 };
 
-export type GetHashlistsByIdByRelationResponse =
-  GetHashlistsByIdByRelationResponses[keyof GetHashlistsByIdByRelationResponses];
+export type GetHashlistsByIdAccessGroupResponse =
+  GetHashlistsByIdAccessGroupResponses[keyof GetHashlistsByIdAccessGroupResponses];
 
-export type DeleteHashlistsByIdRelationshipsByRelationData = {
-  body: HashlistRelationTasks;
-  path: {
-    id: number;
-    relation: string;
-  };
-  query?: never;
-  url: '/api/v2/ui/hashlists/{id}/relationships/{relation}';
-};
-
-export type DeleteHashlistsByIdRelationshipsByRelationErrors = {
-  /**
-   * Invalid request
-   */
-  400: ErrorResponse;
-  /**
-   * Authentication failed
-   */
-  401: ErrorResponse;
-  /**
-   * Permission denied
-   */
-  403: ErrorResponse;
-  /**
-   * Not Found
-   */
-  404: ErrorResponse;
-};
-
-export type DeleteHashlistsByIdRelationshipsByRelationError =
-  DeleteHashlistsByIdRelationshipsByRelationErrors[keyof DeleteHashlistsByIdRelationshipsByRelationErrors];
-
-export type DeleteHashlistsByIdRelationshipsByRelationResponses = {
-  /**
-   * successfully deleted
-   */
-  204: void;
-};
-
-export type DeleteHashlistsByIdRelationshipsByRelationResponse =
-  DeleteHashlistsByIdRelationshipsByRelationResponses[keyof DeleteHashlistsByIdRelationshipsByRelationResponses];
-
-export type GetHashlistsByIdRelationshipsByRelationData = {
+export type GetHashlistsByIdRelationshipsAccessGroupData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/hashlists/{id}/relationships/{relation}';
+  url: '/api/v2/ui/hashlists/{id}/relationships/accessGroup';
 };
 
-export type GetHashlistsByIdRelationshipsByRelationErrors = {
+export type GetHashlistsByIdRelationshipsAccessGroupErrors = {
   /**
    * Invalid request
    */
@@ -1107,30 +1120,29 @@ export type GetHashlistsByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetHashlistsByIdRelationshipsByRelationError =
-  GetHashlistsByIdRelationshipsByRelationErrors[keyof GetHashlistsByIdRelationshipsByRelationErrors];
+export type GetHashlistsByIdRelationshipsAccessGroupError =
+  GetHashlistsByIdRelationshipsAccessGroupErrors[keyof GetHashlistsByIdRelationshipsAccessGroupErrors];
 
-export type GetHashlistsByIdRelationshipsByRelationResponses = {
+export type GetHashlistsByIdRelationshipsAccessGroupResponses = {
   /**
    * successful operation
    */
   200: HashlistResponse;
 };
 
-export type GetHashlistsByIdRelationshipsByRelationResponse =
-  GetHashlistsByIdRelationshipsByRelationResponses[keyof GetHashlistsByIdRelationshipsByRelationResponses];
+export type GetHashlistsByIdRelationshipsAccessGroupResponse =
+  GetHashlistsByIdRelationshipsAccessGroupResponses[keyof GetHashlistsByIdRelationshipsAccessGroupResponses];
 
-export type PatchHashlistsByIdRelationshipsByRelationData = {
-  body: HashlistRelationTasks;
+export type PatchHashlistsByIdRelationshipsAccessGroupData = {
+  body: HashlistRelationAccessGroup;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/hashlists/{id}/relationships/{relation}';
+  url: '/api/v2/ui/hashlists/{id}/relationships/accessGroup';
 };
 
-export type PatchHashlistsByIdRelationshipsByRelationErrors = {
+export type PatchHashlistsByIdRelationshipsAccessGroupErrors = {
   /**
    * Invalid request
    */
@@ -1153,30 +1165,110 @@ export type PatchHashlistsByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchHashlistsByIdRelationshipsByRelationError =
-  PatchHashlistsByIdRelationshipsByRelationErrors[keyof PatchHashlistsByIdRelationshipsByRelationErrors];
+export type PatchHashlistsByIdRelationshipsAccessGroupError =
+  PatchHashlistsByIdRelationshipsAccessGroupErrors[keyof PatchHashlistsByIdRelationshipsAccessGroupErrors];
 
-export type PatchHashlistsByIdRelationshipsByRelationResponses = {
+export type PatchHashlistsByIdRelationshipsAccessGroupResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchHashlistsByIdRelationshipsByRelationResponse =
-  PatchHashlistsByIdRelationshipsByRelationResponses[keyof PatchHashlistsByIdRelationshipsByRelationResponses];
+export type PatchHashlistsByIdRelationshipsAccessGroupResponse =
+  PatchHashlistsByIdRelationshipsAccessGroupResponses[keyof PatchHashlistsByIdRelationshipsAccessGroupResponses];
 
-export type PostHashlistsByIdRelationshipsByRelationData = {
-  body: HashlistRelationTasks;
+export type GetHashlistsByIdHashTypeData = {
+  body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/hashlists/{id}/relationships/{relation}';
+  url: '/api/v2/ui/hashlists/{id}/hashType';
 };
 
-export type PostHashlistsByIdRelationshipsByRelationErrors = {
+export type GetHashlistsByIdHashTypeErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHashlistsByIdHashTypeError = GetHashlistsByIdHashTypeErrors[keyof GetHashlistsByIdHashTypeErrors];
+
+export type GetHashlistsByIdHashTypeResponses = {
+  /**
+   * successful operation
+   */
+  200: HashlistRelationHashTypeGetResponse;
+};
+
+export type GetHashlistsByIdHashTypeResponse =
+  GetHashlistsByIdHashTypeResponses[keyof GetHashlistsByIdHashTypeResponses];
+
+export type GetHashlistsByIdRelationshipsHashTypeData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/relationships/hashType';
+};
+
+export type GetHashlistsByIdRelationshipsHashTypeErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHashlistsByIdRelationshipsHashTypeError =
+  GetHashlistsByIdRelationshipsHashTypeErrors[keyof GetHashlistsByIdRelationshipsHashTypeErrors];
+
+export type GetHashlistsByIdRelationshipsHashTypeResponses = {
+  /**
+   * successful operation
+   */
+  200: HashlistResponse;
+};
+
+export type GetHashlistsByIdRelationshipsHashTypeResponse =
+  GetHashlistsByIdRelationshipsHashTypeResponses[keyof GetHashlistsByIdRelationshipsHashTypeResponses];
+
+export type PatchHashlistsByIdRelationshipsHashTypeData = {
+  body: HashlistRelationHashType;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/relationships/hashType';
+};
+
+export type PatchHashlistsByIdRelationshipsHashTypeErrors = {
   /**
    * Invalid request
    */
@@ -1199,18 +1291,652 @@ export type PostHashlistsByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PostHashlistsByIdRelationshipsByRelationError =
-  PostHashlistsByIdRelationshipsByRelationErrors[keyof PostHashlistsByIdRelationshipsByRelationErrors];
+export type PatchHashlistsByIdRelationshipsHashTypeError =
+  PatchHashlistsByIdRelationshipsHashTypeErrors[keyof PatchHashlistsByIdRelationshipsHashTypeErrors];
 
-export type PostHashlistsByIdRelationshipsByRelationResponses = {
+export type PatchHashlistsByIdRelationshipsHashTypeResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchHashlistsByIdRelationshipsHashTypeResponse =
+  PatchHashlistsByIdRelationshipsHashTypeResponses[keyof PatchHashlistsByIdRelationshipsHashTypeResponses];
+
+export type GetHashlistsByIdHashesData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/hashes';
+};
+
+export type GetHashlistsByIdHashesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHashlistsByIdHashesError = GetHashlistsByIdHashesErrors[keyof GetHashlistsByIdHashesErrors];
+
+export type GetHashlistsByIdHashesResponses = {
+  /**
+   * successful operation
+   */
+  200: HashlistRelationHashesGetResponse;
+};
+
+export type GetHashlistsByIdHashesResponse = GetHashlistsByIdHashesResponses[keyof GetHashlistsByIdHashesResponses];
+
+export type DeleteHashlistsByIdRelationshipsHashesData = {
+  body: HashlistRelationHashes;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/relationships/hashes';
+};
+
+export type DeleteHashlistsByIdRelationshipsHashesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteHashlistsByIdRelationshipsHashesError =
+  DeleteHashlistsByIdRelationshipsHashesErrors[keyof DeleteHashlistsByIdRelationshipsHashesErrors];
+
+export type DeleteHashlistsByIdRelationshipsHashesResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteHashlistsByIdRelationshipsHashesResponse =
+  DeleteHashlistsByIdRelationshipsHashesResponses[keyof DeleteHashlistsByIdRelationshipsHashesResponses];
+
+export type GetHashlistsByIdRelationshipsHashesData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/relationships/hashes';
+};
+
+export type GetHashlistsByIdRelationshipsHashesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHashlistsByIdRelationshipsHashesError =
+  GetHashlistsByIdRelationshipsHashesErrors[keyof GetHashlistsByIdRelationshipsHashesErrors];
+
+export type GetHashlistsByIdRelationshipsHashesResponses = {
+  /**
+   * successful operation
+   */
+  200: HashlistResponse;
+};
+
+export type GetHashlistsByIdRelationshipsHashesResponse =
+  GetHashlistsByIdRelationshipsHashesResponses[keyof GetHashlistsByIdRelationshipsHashesResponses];
+
+export type PatchHashlistsByIdRelationshipsHashesData = {
+  body: HashlistRelationHashes;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/relationships/hashes';
+};
+
+export type PatchHashlistsByIdRelationshipsHashesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchHashlistsByIdRelationshipsHashesError =
+  PatchHashlistsByIdRelationshipsHashesErrors[keyof PatchHashlistsByIdRelationshipsHashesErrors];
+
+export type PatchHashlistsByIdRelationshipsHashesResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchHashlistsByIdRelationshipsHashesResponse =
+  PatchHashlistsByIdRelationshipsHashesResponses[keyof PatchHashlistsByIdRelationshipsHashesResponses];
+
+export type PostHashlistsByIdRelationshipsHashesData = {
+  body: HashlistRelationHashes;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/relationships/hashes';
+};
+
+export type PostHashlistsByIdRelationshipsHashesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostHashlistsByIdRelationshipsHashesError =
+  PostHashlistsByIdRelationshipsHashesErrors[keyof PostHashlistsByIdRelationshipsHashesErrors];
+
+export type PostHashlistsByIdRelationshipsHashesResponses = {
   /**
    * successfully created
    */
   204: void;
 };
 
-export type PostHashlistsByIdRelationshipsByRelationResponse =
-  PostHashlistsByIdRelationshipsByRelationResponses[keyof PostHashlistsByIdRelationshipsByRelationResponses];
+export type PostHashlistsByIdRelationshipsHashesResponse =
+  PostHashlistsByIdRelationshipsHashesResponses[keyof PostHashlistsByIdRelationshipsHashesResponses];
+
+export type GetHashlistsByIdHashlistsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/hashlists';
+};
+
+export type GetHashlistsByIdHashlistsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHashlistsByIdHashlistsError = GetHashlistsByIdHashlistsErrors[keyof GetHashlistsByIdHashlistsErrors];
+
+export type GetHashlistsByIdHashlistsResponses = {
+  /**
+   * successful operation
+   */
+  200: HashlistRelationHashlistsGetResponse;
+};
+
+export type GetHashlistsByIdHashlistsResponse =
+  GetHashlistsByIdHashlistsResponses[keyof GetHashlistsByIdHashlistsResponses];
+
+export type DeleteHashlistsByIdRelationshipsHashlistsData = {
+  body: HashlistRelationHashlists;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/relationships/hashlists';
+};
+
+export type DeleteHashlistsByIdRelationshipsHashlistsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteHashlistsByIdRelationshipsHashlistsError =
+  DeleteHashlistsByIdRelationshipsHashlistsErrors[keyof DeleteHashlistsByIdRelationshipsHashlistsErrors];
+
+export type DeleteHashlistsByIdRelationshipsHashlistsResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteHashlistsByIdRelationshipsHashlistsResponse =
+  DeleteHashlistsByIdRelationshipsHashlistsResponses[keyof DeleteHashlistsByIdRelationshipsHashlistsResponses];
+
+export type GetHashlistsByIdRelationshipsHashlistsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/relationships/hashlists';
+};
+
+export type GetHashlistsByIdRelationshipsHashlistsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHashlistsByIdRelationshipsHashlistsError =
+  GetHashlistsByIdRelationshipsHashlistsErrors[keyof GetHashlistsByIdRelationshipsHashlistsErrors];
+
+export type GetHashlistsByIdRelationshipsHashlistsResponses = {
+  /**
+   * successful operation
+   */
+  200: HashlistResponse;
+};
+
+export type GetHashlistsByIdRelationshipsHashlistsResponse =
+  GetHashlistsByIdRelationshipsHashlistsResponses[keyof GetHashlistsByIdRelationshipsHashlistsResponses];
+
+export type PatchHashlistsByIdRelationshipsHashlistsData = {
+  body: HashlistRelationHashlists;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/relationships/hashlists';
+};
+
+export type PatchHashlistsByIdRelationshipsHashlistsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchHashlistsByIdRelationshipsHashlistsError =
+  PatchHashlistsByIdRelationshipsHashlistsErrors[keyof PatchHashlistsByIdRelationshipsHashlistsErrors];
+
+export type PatchHashlistsByIdRelationshipsHashlistsResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchHashlistsByIdRelationshipsHashlistsResponse =
+  PatchHashlistsByIdRelationshipsHashlistsResponses[keyof PatchHashlistsByIdRelationshipsHashlistsResponses];
+
+export type PostHashlistsByIdRelationshipsHashlistsData = {
+  body: HashlistRelationHashlists;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/relationships/hashlists';
+};
+
+export type PostHashlistsByIdRelationshipsHashlistsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostHashlistsByIdRelationshipsHashlistsError =
+  PostHashlistsByIdRelationshipsHashlistsErrors[keyof PostHashlistsByIdRelationshipsHashlistsErrors];
+
+export type PostHashlistsByIdRelationshipsHashlistsResponses = {
+  /**
+   * successfully created
+   */
+  204: void;
+};
+
+export type PostHashlistsByIdRelationshipsHashlistsResponse =
+  PostHashlistsByIdRelationshipsHashlistsResponses[keyof PostHashlistsByIdRelationshipsHashlistsResponses];
+
+export type GetHashlistsByIdTasksData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/tasks';
+};
+
+export type GetHashlistsByIdTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHashlistsByIdTasksError = GetHashlistsByIdTasksErrors[keyof GetHashlistsByIdTasksErrors];
+
+export type GetHashlistsByIdTasksResponses = {
+  /**
+   * successful operation
+   */
+  200: HashlistRelationTasksGetResponse;
+};
+
+export type GetHashlistsByIdTasksResponse = GetHashlistsByIdTasksResponses[keyof GetHashlistsByIdTasksResponses];
+
+export type DeleteHashlistsByIdRelationshipsTasksData = {
+  body: HashlistRelationTasks;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/relationships/tasks';
+};
+
+export type DeleteHashlistsByIdRelationshipsTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteHashlistsByIdRelationshipsTasksError =
+  DeleteHashlistsByIdRelationshipsTasksErrors[keyof DeleteHashlistsByIdRelationshipsTasksErrors];
+
+export type DeleteHashlistsByIdRelationshipsTasksResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteHashlistsByIdRelationshipsTasksResponse =
+  DeleteHashlistsByIdRelationshipsTasksResponses[keyof DeleteHashlistsByIdRelationshipsTasksResponses];
+
+export type GetHashlistsByIdRelationshipsTasksData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/relationships/tasks';
+};
+
+export type GetHashlistsByIdRelationshipsTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHashlistsByIdRelationshipsTasksError =
+  GetHashlistsByIdRelationshipsTasksErrors[keyof GetHashlistsByIdRelationshipsTasksErrors];
+
+export type GetHashlistsByIdRelationshipsTasksResponses = {
+  /**
+   * successful operation
+   */
+  200: HashlistResponse;
+};
+
+export type GetHashlistsByIdRelationshipsTasksResponse =
+  GetHashlistsByIdRelationshipsTasksResponses[keyof GetHashlistsByIdRelationshipsTasksResponses];
+
+export type PatchHashlistsByIdRelationshipsTasksData = {
+  body: HashlistRelationTasks;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/relationships/tasks';
+};
+
+export type PatchHashlistsByIdRelationshipsTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchHashlistsByIdRelationshipsTasksError =
+  PatchHashlistsByIdRelationshipsTasksErrors[keyof PatchHashlistsByIdRelationshipsTasksErrors];
+
+export type PatchHashlistsByIdRelationshipsTasksResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchHashlistsByIdRelationshipsTasksResponse =
+  PatchHashlistsByIdRelationshipsTasksResponses[keyof PatchHashlistsByIdRelationshipsTasksResponses];
+
+export type PostHashlistsByIdRelationshipsTasksData = {
+  body: HashlistRelationTasks;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/hashlists/{id}/relationships/tasks';
+};
+
+export type PostHashlistsByIdRelationshipsTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostHashlistsByIdRelationshipsTasksError =
+  PostHashlistsByIdRelationshipsTasksErrors[keyof PostHashlistsByIdRelationshipsTasksErrors];
+
+export type PostHashlistsByIdRelationshipsTasksResponses = {
+  /**
+   * successfully created
+   */
+  204: void;
+};
+
+export type PostHashlistsByIdRelationshipsTasksResponse =
+  PostHashlistsByIdRelationshipsTasksResponses[keyof PostHashlistsByIdRelationshipsTasksResponses];
 
 export type DeleteHashlistsByIdData = {
   body?: never;

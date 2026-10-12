@@ -844,10 +844,74 @@ export const zHashlistCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
+export const zHashlistRelationAccessGroup = z.object({
+  data: z.object({
+    type: z.literal('accessGroup'),
+    id: z.int()
+  })
+});
+
+export const zHashlistRelationAccessGroupGetResponse = z.object({
+  data: z.object({
+    type: z.literal('accessGroup'),
+    id: z.int()
+  })
+});
+
+export const zHashlistRelationHashType = z.object({
+  data: z.object({
+    type: z.literal('hashType'),
+    id: z.int()
+  })
+});
+
+export const zHashlistRelationHashTypeGetResponse = z.object({
+  data: z.object({
+    type: z.literal('hashType'),
+    id: z.int()
+  })
+});
+
+export const zHashlistRelationHashes = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('hash'),
+      id: z.int()
+    })
+  )
+});
+
+export const zHashlistRelationHashesGetResponse = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('hash'),
+      id: z.int()
+    })
+  )
+});
+
+export const zHashlistRelationHashlists = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('hashlist'),
+      id: z.int()
+    })
+  )
+});
+
+export const zHashlistRelationHashlistsGetResponse = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('hashlist'),
+      id: z.int()
+    })
+  )
+});
+
 export const zHashlistRelationTasks = z.object({
   data: z.array(
     z.object({
-      type: z.literal('tasks'),
+      type: z.literal('task'),
       id: z.int()
     })
   )
@@ -856,7 +920,7 @@ export const zHashlistRelationTasks = z.object({
 export const zHashlistRelationTasksGetResponse = z.object({
   data: z.array(
     z.object({
-      type: z.literal('tasks'),
+      type: z.literal('task'),
       id: z.int()
     })
   )
@@ -910,67 +974,246 @@ export const zGetHashlistsCountQuery = z.object({
  */
 export const zGetHashlistsCountResponse = zHashlistCountResponse;
 
-export const zGetHashlistsByIdByRelationPath = z.object({
+export const zGetHashlistsByIdAccessGroupPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetHashlistsByIdByRelationResponse = zHashlistRelationTasksGetResponse;
+export const zGetHashlistsByIdAccessGroupResponse = zHashlistRelationAccessGroupGetResponse;
 
-export const zDeleteHashlistsByIdRelationshipsByRelationBody = zHashlistRelationTasks;
-
-export const zDeleteHashlistsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
-});
-
-/**
- * successfully deleted
- */
-export const zDeleteHashlistsByIdRelationshipsByRelationResponse = z.void();
-
-export const zGetHashlistsByIdRelationshipsByRelationPath = z.object({
+export const zGetHashlistsByIdRelationshipsAccessGroupPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetHashlistsByIdRelationshipsByRelationResponse = zHashlistResponse;
+export const zGetHashlistsByIdRelationshipsAccessGroupResponse = zHashlistResponse;
 
-export const zPatchHashlistsByIdRelationshipsByRelationBody = zHashlistRelationTasks;
+export const zPatchHashlistsByIdRelationshipsAccessGroupBody = zHashlistRelationAccessGroup;
 
-export const zPatchHashlistsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchHashlistsByIdRelationshipsAccessGroupPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchHashlistsByIdRelationshipsByRelationResponse = z.void();
+export const zPatchHashlistsByIdRelationshipsAccessGroupResponse = z.void();
 
-export const zPostHashlistsByIdRelationshipsByRelationBody = zHashlistRelationTasks;
+export const zGetHashlistsByIdHashTypePath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
 
-export const zPostHashlistsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+/**
+ * successful operation
+ */
+export const zGetHashlistsByIdHashTypeResponse = zHashlistRelationHashTypeGetResponse;
+
+export const zGetHashlistsByIdRelationshipsHashTypePath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHashlistsByIdRelationshipsHashTypeResponse = zHashlistResponse;
+
+export const zPatchHashlistsByIdRelationshipsHashTypeBody = zHashlistRelationHashType;
+
+export const zPatchHashlistsByIdRelationshipsHashTypePath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchHashlistsByIdRelationshipsHashTypeResponse = z.void();
+
+export const zGetHashlistsByIdHashesPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHashlistsByIdHashesResponse = zHashlistRelationHashesGetResponse;
+
+export const zDeleteHashlistsByIdRelationshipsHashesBody = zHashlistRelationHashes;
+
+export const zDeleteHashlistsByIdRelationshipsHashesPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully deleted
+ */
+export const zDeleteHashlistsByIdRelationshipsHashesResponse = z.void();
+
+export const zGetHashlistsByIdRelationshipsHashesPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHashlistsByIdRelationshipsHashesResponse = zHashlistResponse;
+
+export const zPatchHashlistsByIdRelationshipsHashesBody = zHashlistRelationHashes;
+
+export const zPatchHashlistsByIdRelationshipsHashesPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchHashlistsByIdRelationshipsHashesResponse = z.void();
+
+export const zPostHashlistsByIdRelationshipsHashesBody = zHashlistRelationHashes;
+
+export const zPostHashlistsByIdRelationshipsHashesPath = z.object({
+  id: z.int()
 });
 
 /**
  * successfully created
  */
-export const zPostHashlistsByIdRelationshipsByRelationResponse = z.void();
+export const zPostHashlistsByIdRelationshipsHashesResponse = z.void();
+
+export const zGetHashlistsByIdHashlistsPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHashlistsByIdHashlistsResponse = zHashlistRelationHashlistsGetResponse;
+
+export const zDeleteHashlistsByIdRelationshipsHashlistsBody = zHashlistRelationHashlists;
+
+export const zDeleteHashlistsByIdRelationshipsHashlistsPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully deleted
+ */
+export const zDeleteHashlistsByIdRelationshipsHashlistsResponse = z.void();
+
+export const zGetHashlistsByIdRelationshipsHashlistsPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHashlistsByIdRelationshipsHashlistsResponse = zHashlistResponse;
+
+export const zPatchHashlistsByIdRelationshipsHashlistsBody = zHashlistRelationHashlists;
+
+export const zPatchHashlistsByIdRelationshipsHashlistsPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchHashlistsByIdRelationshipsHashlistsResponse = z.void();
+
+export const zPostHashlistsByIdRelationshipsHashlistsBody = zHashlistRelationHashlists;
+
+export const zPostHashlistsByIdRelationshipsHashlistsPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully created
+ */
+export const zPostHashlistsByIdRelationshipsHashlistsResponse = z.void();
+
+export const zGetHashlistsByIdTasksPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHashlistsByIdTasksResponse = zHashlistRelationTasksGetResponse;
+
+export const zDeleteHashlistsByIdRelationshipsTasksBody = zHashlistRelationTasks;
+
+export const zDeleteHashlistsByIdRelationshipsTasksPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully deleted
+ */
+export const zDeleteHashlistsByIdRelationshipsTasksResponse = z.void();
+
+export const zGetHashlistsByIdRelationshipsTasksPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHashlistsByIdRelationshipsTasksResponse = zHashlistResponse;
+
+export const zPatchHashlistsByIdRelationshipsTasksBody = zHashlistRelationTasks;
+
+export const zPatchHashlistsByIdRelationshipsTasksPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchHashlistsByIdRelationshipsTasksResponse = z.void();
+
+export const zPostHashlistsByIdRelationshipsTasksBody = zHashlistRelationTasks;
+
+export const zPostHashlistsByIdRelationshipsTasksPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully created
+ */
+export const zPostHashlistsByIdRelationshipsTasksResponse = z.void();
 
 export const zDeleteHashlistsByIdPath = z.object({
   id: z.int()

@@ -4,6 +4,7 @@ import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
+import { CrackerBinaryTypeId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
 
 import { PreTaskContextMenuService } from '@services/context-menu/tasks/pretask-menu.service';
@@ -80,6 +81,9 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     return this._unassignOption;
   }
 
+  /** Cracker binary type the pretasks not part of the supertask are limited to (reverse query only) */
+  @Input() crackerBinaryTypeId: CrackerBinaryTypeId | null = null;
+
   /**
    * Determines if the row/bulk delete action should perform deletion of the pretask or unassignment from the supertask
    */
@@ -107,6 +111,7 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       this.isDetail = true;
       this.dataSource.setSuperTaskId(this.supertTaskId);
       this.dataSource.setReverseQuery(this.reverseQuery);
+      this.dataSource.setCrackerBinaryTypeId(this.crackerBinaryTypeId);
     }
     this.contextMenuService = new PreTaskContextMenuService(
       this.permissionService,

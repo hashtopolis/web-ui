@@ -3,6 +3,13 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <input-text title="Name" formControlName="supertaskName" [isRequired]="true"></input-text>
 
+      <input-select
+        title="Cracker type"
+        formControlName="crackerBinaryTypeId"
+        [items]="selectCrackerTypes"
+        [isRequired]="true"
+      ></input-select>
+
       <input-multiselect
         [isLoading]="isLoading"
         [placeholder]="'Tasks...'"

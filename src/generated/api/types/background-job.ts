@@ -314,17 +314,16 @@ export type GetBackgroundJobsCountResponses = {
 
 export type GetBackgroundJobsCountResponse = GetBackgroundJobsCountResponses[keyof GetBackgroundJobsCountResponses];
 
-export type GetBackgroundJobsByIdByRelationData = {
+export type GetBackgroundJobsByIdUserData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/backgroundJobs/{id}/{relation}';
+  url: '/api/v2/ui/backgroundJobs/{id}/user';
 };
 
-export type GetBackgroundJobsByIdByRelationErrors = {
+export type GetBackgroundJobsByIdUserErrors = {
   /**
    * Invalid request
    */
@@ -343,30 +342,28 @@ export type GetBackgroundJobsByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetBackgroundJobsByIdByRelationError =
-  GetBackgroundJobsByIdByRelationErrors[keyof GetBackgroundJobsByIdByRelationErrors];
+export type GetBackgroundJobsByIdUserError = GetBackgroundJobsByIdUserErrors[keyof GetBackgroundJobsByIdUserErrors];
 
-export type GetBackgroundJobsByIdByRelationResponses = {
+export type GetBackgroundJobsByIdUserResponses = {
   /**
    * successful operation
    */
   200: BackgroundJobRelationUserGetResponse;
 };
 
-export type GetBackgroundJobsByIdByRelationResponse =
-  GetBackgroundJobsByIdByRelationResponses[keyof GetBackgroundJobsByIdByRelationResponses];
+export type GetBackgroundJobsByIdUserResponse =
+  GetBackgroundJobsByIdUserResponses[keyof GetBackgroundJobsByIdUserResponses];
 
-export type GetBackgroundJobsByIdRelationshipsByRelationData = {
+export type GetBackgroundJobsByIdRelationshipsUserData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/backgroundJobs/{id}/relationships/{relation}';
+  url: '/api/v2/ui/backgroundJobs/{id}/relationships/user';
 };
 
-export type GetBackgroundJobsByIdRelationshipsByRelationErrors = {
+export type GetBackgroundJobsByIdRelationshipsUserErrors = {
   /**
    * Invalid request
    */
@@ -385,30 +382,29 @@ export type GetBackgroundJobsByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetBackgroundJobsByIdRelationshipsByRelationError =
-  GetBackgroundJobsByIdRelationshipsByRelationErrors[keyof GetBackgroundJobsByIdRelationshipsByRelationErrors];
+export type GetBackgroundJobsByIdRelationshipsUserError =
+  GetBackgroundJobsByIdRelationshipsUserErrors[keyof GetBackgroundJobsByIdRelationshipsUserErrors];
 
-export type GetBackgroundJobsByIdRelationshipsByRelationResponses = {
+export type GetBackgroundJobsByIdRelationshipsUserResponses = {
   /**
    * successful operation
    */
   200: BackgroundJobResponse;
 };
 
-export type GetBackgroundJobsByIdRelationshipsByRelationResponse =
-  GetBackgroundJobsByIdRelationshipsByRelationResponses[keyof GetBackgroundJobsByIdRelationshipsByRelationResponses];
+export type GetBackgroundJobsByIdRelationshipsUserResponse =
+  GetBackgroundJobsByIdRelationshipsUserResponses[keyof GetBackgroundJobsByIdRelationshipsUserResponses];
 
-export type PatchBackgroundJobsByIdRelationshipsByRelationData = {
+export type PatchBackgroundJobsByIdRelationshipsUserData = {
   body: BackgroundJobRelationUser;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/backgroundJobs/{id}/relationships/{relation}';
+  url: '/api/v2/ui/backgroundJobs/{id}/relationships/user';
 };
 
-export type PatchBackgroundJobsByIdRelationshipsByRelationErrors = {
+export type PatchBackgroundJobsByIdRelationshipsUserErrors = {
   /**
    * Invalid request
    */
@@ -431,18 +427,18 @@ export type PatchBackgroundJobsByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchBackgroundJobsByIdRelationshipsByRelationError =
-  PatchBackgroundJobsByIdRelationshipsByRelationErrors[keyof PatchBackgroundJobsByIdRelationshipsByRelationErrors];
+export type PatchBackgroundJobsByIdRelationshipsUserError =
+  PatchBackgroundJobsByIdRelationshipsUserErrors[keyof PatchBackgroundJobsByIdRelationshipsUserErrors];
 
-export type PatchBackgroundJobsByIdRelationshipsByRelationResponses = {
+export type PatchBackgroundJobsByIdRelationshipsUserResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchBackgroundJobsByIdRelationshipsByRelationResponse =
-  PatchBackgroundJobsByIdRelationshipsByRelationResponses[keyof PatchBackgroundJobsByIdRelationshipsByRelationResponses];
+export type PatchBackgroundJobsByIdRelationshipsUserResponse =
+  PatchBackgroundJobsByIdRelationshipsUserResponses[keyof PatchBackgroundJobsByIdRelationshipsUserResponses];
 
 export type DeleteBackgroundJobsByIdData = {
   body?: never;

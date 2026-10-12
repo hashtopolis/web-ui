@@ -240,6 +240,20 @@ export type ChunkCountResponse = {
   }>;
 };
 
+export type ChunkRelationAgent = {
+  data: {
+    type: 'agent';
+    id: number;
+  };
+};
+
+export type ChunkRelationAgentGetResponse = {
+  data: {
+    type: 'agent';
+    id: number;
+  };
+};
+
 export type ChunkRelationTask = {
   data: {
     type: 'task';
@@ -366,17 +380,16 @@ export type GetChunksCountResponses = {
 
 export type GetChunksCountResponse = GetChunksCountResponses[keyof GetChunksCountResponses];
 
-export type GetChunksByIdByRelationData = {
+export type GetChunksByIdAgentData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/chunks/{id}/{relation}';
+  url: '/api/v2/ui/chunks/{id}/agent';
 };
 
-export type GetChunksByIdByRelationErrors = {
+export type GetChunksByIdAgentErrors = {
   /**
    * Invalid request
    */
@@ -395,28 +408,27 @@ export type GetChunksByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetChunksByIdByRelationError = GetChunksByIdByRelationErrors[keyof GetChunksByIdByRelationErrors];
+export type GetChunksByIdAgentError = GetChunksByIdAgentErrors[keyof GetChunksByIdAgentErrors];
 
-export type GetChunksByIdByRelationResponses = {
+export type GetChunksByIdAgentResponses = {
   /**
    * successful operation
    */
-  200: ChunkRelationTaskGetResponse;
+  200: ChunkRelationAgentGetResponse;
 };
 
-export type GetChunksByIdByRelationResponse = GetChunksByIdByRelationResponses[keyof GetChunksByIdByRelationResponses];
+export type GetChunksByIdAgentResponse = GetChunksByIdAgentResponses[keyof GetChunksByIdAgentResponses];
 
-export type GetChunksByIdRelationshipsByRelationData = {
+export type GetChunksByIdRelationshipsAgentData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/chunks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/chunks/{id}/relationships/agent';
 };
 
-export type GetChunksByIdRelationshipsByRelationErrors = {
+export type GetChunksByIdRelationshipsAgentErrors = {
   /**
    * Invalid request
    */
@@ -435,30 +447,29 @@ export type GetChunksByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetChunksByIdRelationshipsByRelationError =
-  GetChunksByIdRelationshipsByRelationErrors[keyof GetChunksByIdRelationshipsByRelationErrors];
+export type GetChunksByIdRelationshipsAgentError =
+  GetChunksByIdRelationshipsAgentErrors[keyof GetChunksByIdRelationshipsAgentErrors];
 
-export type GetChunksByIdRelationshipsByRelationResponses = {
+export type GetChunksByIdRelationshipsAgentResponses = {
   /**
    * successful operation
    */
   200: ChunkResponse;
 };
 
-export type GetChunksByIdRelationshipsByRelationResponse =
-  GetChunksByIdRelationshipsByRelationResponses[keyof GetChunksByIdRelationshipsByRelationResponses];
+export type GetChunksByIdRelationshipsAgentResponse =
+  GetChunksByIdRelationshipsAgentResponses[keyof GetChunksByIdRelationshipsAgentResponses];
 
-export type PatchChunksByIdRelationshipsByRelationData = {
-  body: ChunkRelationTask;
+export type PatchChunksByIdRelationshipsAgentData = {
+  body: ChunkRelationAgent;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/chunks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/chunks/{id}/relationships/agent';
 };
 
-export type PatchChunksByIdRelationshipsByRelationErrors = {
+export type PatchChunksByIdRelationshipsAgentErrors = {
   /**
    * Invalid request
    */
@@ -481,18 +492,143 @@ export type PatchChunksByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchChunksByIdRelationshipsByRelationError =
-  PatchChunksByIdRelationshipsByRelationErrors[keyof PatchChunksByIdRelationshipsByRelationErrors];
+export type PatchChunksByIdRelationshipsAgentError =
+  PatchChunksByIdRelationshipsAgentErrors[keyof PatchChunksByIdRelationshipsAgentErrors];
 
-export type PatchChunksByIdRelationshipsByRelationResponses = {
+export type PatchChunksByIdRelationshipsAgentResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchChunksByIdRelationshipsByRelationResponse =
-  PatchChunksByIdRelationshipsByRelationResponses[keyof PatchChunksByIdRelationshipsByRelationResponses];
+export type PatchChunksByIdRelationshipsAgentResponse =
+  PatchChunksByIdRelationshipsAgentResponses[keyof PatchChunksByIdRelationshipsAgentResponses];
+
+export type GetChunksByIdTaskData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/chunks/{id}/task';
+};
+
+export type GetChunksByIdTaskErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetChunksByIdTaskError = GetChunksByIdTaskErrors[keyof GetChunksByIdTaskErrors];
+
+export type GetChunksByIdTaskResponses = {
+  /**
+   * successful operation
+   */
+  200: ChunkRelationTaskGetResponse;
+};
+
+export type GetChunksByIdTaskResponse = GetChunksByIdTaskResponses[keyof GetChunksByIdTaskResponses];
+
+export type GetChunksByIdRelationshipsTaskData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/chunks/{id}/relationships/task';
+};
+
+export type GetChunksByIdRelationshipsTaskErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetChunksByIdRelationshipsTaskError =
+  GetChunksByIdRelationshipsTaskErrors[keyof GetChunksByIdRelationshipsTaskErrors];
+
+export type GetChunksByIdRelationshipsTaskResponses = {
+  /**
+   * successful operation
+   */
+  200: ChunkResponse;
+};
+
+export type GetChunksByIdRelationshipsTaskResponse =
+  GetChunksByIdRelationshipsTaskResponses[keyof GetChunksByIdRelationshipsTaskResponses];
+
+export type PatchChunksByIdRelationshipsTaskData = {
+  body: ChunkRelationTask;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/chunks/{id}/relationships/task';
+};
+
+export type PatchChunksByIdRelationshipsTaskErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchChunksByIdRelationshipsTaskError =
+  PatchChunksByIdRelationshipsTaskErrors[keyof PatchChunksByIdRelationshipsTaskErrors];
+
+export type PatchChunksByIdRelationshipsTaskResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchChunksByIdRelationshipsTaskResponse =
+  PatchChunksByIdRelationshipsTaskResponses[keyof PatchChunksByIdRelationshipsTaskResponses];
 
 export type GetChunksByIdData = {
   body?: never;

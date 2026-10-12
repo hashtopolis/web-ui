@@ -337,16 +337,30 @@ export type AccessGroupCountResponse = {
   }>;
 };
 
+export type AccessGroupRelationUserMembers = {
+  data: Array<{
+    type: 'user';
+    id: number;
+  }>;
+};
+
+export type AccessGroupRelationUserMembersGetResponse = {
+  data: Array<{
+    type: 'user';
+    id: number;
+  }>;
+};
+
 export type AccessGroupRelationAgentMembers = {
   data: Array<{
-    type: 'agentMembers';
+    type: 'agent';
     id: number;
   }>;
 };
 
 export type AccessGroupRelationAgentMembersGetResponse = {
   data: Array<{
-    type: 'agentMembers';
+    type: 'agent';
     id: number;
   }>;
 };
@@ -578,17 +592,16 @@ export type GetAccessgroupsCountResponses = {
 
 export type GetAccessgroupsCountResponse = GetAccessgroupsCountResponses[keyof GetAccessgroupsCountResponses];
 
-export type GetAccessgroupsByIdByRelationData = {
+export type GetAccessgroupsByIdUserMembersData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/accessgroups/{id}/{relation}';
+  url: '/api/v2/ui/accessgroups/{id}/userMembers';
 };
 
-export type GetAccessgroupsByIdByRelationErrors = {
+export type GetAccessgroupsByIdUserMembersErrors = {
   /**
    * Invalid request
    */
@@ -607,30 +620,29 @@ export type GetAccessgroupsByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetAccessgroupsByIdByRelationError =
-  GetAccessgroupsByIdByRelationErrors[keyof GetAccessgroupsByIdByRelationErrors];
+export type GetAccessgroupsByIdUserMembersError =
+  GetAccessgroupsByIdUserMembersErrors[keyof GetAccessgroupsByIdUserMembersErrors];
 
-export type GetAccessgroupsByIdByRelationResponses = {
+export type GetAccessgroupsByIdUserMembersResponses = {
   /**
    * successful operation
    */
-  200: AccessGroupRelationAgentMembersGetResponse;
+  200: AccessGroupRelationUserMembersGetResponse;
 };
 
-export type GetAccessgroupsByIdByRelationResponse =
-  GetAccessgroupsByIdByRelationResponses[keyof GetAccessgroupsByIdByRelationResponses];
+export type GetAccessgroupsByIdUserMembersResponse =
+  GetAccessgroupsByIdUserMembersResponses[keyof GetAccessgroupsByIdUserMembersResponses];
 
-export type DeleteAccessgroupsByIdRelationshipsByRelationData = {
-  body: AccessGroupRelationAgentMembers;
+export type DeleteAccessgroupsByIdRelationshipsUserMembersData = {
+  body: AccessGroupRelationUserMembers;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/accessgroups/{id}/relationships/{relation}';
+  url: '/api/v2/ui/accessgroups/{id}/relationships/userMembers';
 };
 
-export type DeleteAccessgroupsByIdRelationshipsByRelationErrors = {
+export type DeleteAccessgroupsByIdRelationshipsUserMembersErrors = {
   /**
    * Invalid request
    */
@@ -649,30 +661,29 @@ export type DeleteAccessgroupsByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type DeleteAccessgroupsByIdRelationshipsByRelationError =
-  DeleteAccessgroupsByIdRelationshipsByRelationErrors[keyof DeleteAccessgroupsByIdRelationshipsByRelationErrors];
+export type DeleteAccessgroupsByIdRelationshipsUserMembersError =
+  DeleteAccessgroupsByIdRelationshipsUserMembersErrors[keyof DeleteAccessgroupsByIdRelationshipsUserMembersErrors];
 
-export type DeleteAccessgroupsByIdRelationshipsByRelationResponses = {
+export type DeleteAccessgroupsByIdRelationshipsUserMembersResponses = {
   /**
    * successfully deleted
    */
   204: void;
 };
 
-export type DeleteAccessgroupsByIdRelationshipsByRelationResponse =
-  DeleteAccessgroupsByIdRelationshipsByRelationResponses[keyof DeleteAccessgroupsByIdRelationshipsByRelationResponses];
+export type DeleteAccessgroupsByIdRelationshipsUserMembersResponse =
+  DeleteAccessgroupsByIdRelationshipsUserMembersResponses[keyof DeleteAccessgroupsByIdRelationshipsUserMembersResponses];
 
-export type GetAccessgroupsByIdRelationshipsByRelationData = {
+export type GetAccessgroupsByIdRelationshipsUserMembersData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/accessgroups/{id}/relationships/{relation}';
+  url: '/api/v2/ui/accessgroups/{id}/relationships/userMembers';
 };
 
-export type GetAccessgroupsByIdRelationshipsByRelationErrors = {
+export type GetAccessgroupsByIdRelationshipsUserMembersErrors = {
   /**
    * Invalid request
    */
@@ -691,30 +702,29 @@ export type GetAccessgroupsByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetAccessgroupsByIdRelationshipsByRelationError =
-  GetAccessgroupsByIdRelationshipsByRelationErrors[keyof GetAccessgroupsByIdRelationshipsByRelationErrors];
+export type GetAccessgroupsByIdRelationshipsUserMembersError =
+  GetAccessgroupsByIdRelationshipsUserMembersErrors[keyof GetAccessgroupsByIdRelationshipsUserMembersErrors];
 
-export type GetAccessgroupsByIdRelationshipsByRelationResponses = {
+export type GetAccessgroupsByIdRelationshipsUserMembersResponses = {
   /**
    * successful operation
    */
   200: AccessGroupResponse;
 };
 
-export type GetAccessgroupsByIdRelationshipsByRelationResponse =
-  GetAccessgroupsByIdRelationshipsByRelationResponses[keyof GetAccessgroupsByIdRelationshipsByRelationResponses];
+export type GetAccessgroupsByIdRelationshipsUserMembersResponse =
+  GetAccessgroupsByIdRelationshipsUserMembersResponses[keyof GetAccessgroupsByIdRelationshipsUserMembersResponses];
 
-export type PatchAccessgroupsByIdRelationshipsByRelationData = {
-  body: AccessGroupRelationAgentMembers;
+export type PatchAccessgroupsByIdRelationshipsUserMembersData = {
+  body: AccessGroupRelationUserMembers;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/accessgroups/{id}/relationships/{relation}';
+  url: '/api/v2/ui/accessgroups/{id}/relationships/userMembers';
 };
 
-export type PatchAccessgroupsByIdRelationshipsByRelationErrors = {
+export type PatchAccessgroupsByIdRelationshipsUserMembersErrors = {
   /**
    * Invalid request
    */
@@ -737,30 +747,29 @@ export type PatchAccessgroupsByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchAccessgroupsByIdRelationshipsByRelationError =
-  PatchAccessgroupsByIdRelationshipsByRelationErrors[keyof PatchAccessgroupsByIdRelationshipsByRelationErrors];
+export type PatchAccessgroupsByIdRelationshipsUserMembersError =
+  PatchAccessgroupsByIdRelationshipsUserMembersErrors[keyof PatchAccessgroupsByIdRelationshipsUserMembersErrors];
 
-export type PatchAccessgroupsByIdRelationshipsByRelationResponses = {
+export type PatchAccessgroupsByIdRelationshipsUserMembersResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchAccessgroupsByIdRelationshipsByRelationResponse =
-  PatchAccessgroupsByIdRelationshipsByRelationResponses[keyof PatchAccessgroupsByIdRelationshipsByRelationResponses];
+export type PatchAccessgroupsByIdRelationshipsUserMembersResponse =
+  PatchAccessgroupsByIdRelationshipsUserMembersResponses[keyof PatchAccessgroupsByIdRelationshipsUserMembersResponses];
 
-export type PostAccessgroupsByIdRelationshipsByRelationData = {
-  body: AccessGroupRelationAgentMembers;
+export type PostAccessgroupsByIdRelationshipsUserMembersData = {
+  body: AccessGroupRelationUserMembers;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/accessgroups/{id}/relationships/{relation}';
+  url: '/api/v2/ui/accessgroups/{id}/relationships/userMembers';
 };
 
-export type PostAccessgroupsByIdRelationshipsByRelationErrors = {
+export type PostAccessgroupsByIdRelationshipsUserMembersErrors = {
   /**
    * Invalid request
    */
@@ -783,18 +792,231 @@ export type PostAccessgroupsByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PostAccessgroupsByIdRelationshipsByRelationError =
-  PostAccessgroupsByIdRelationshipsByRelationErrors[keyof PostAccessgroupsByIdRelationshipsByRelationErrors];
+export type PostAccessgroupsByIdRelationshipsUserMembersError =
+  PostAccessgroupsByIdRelationshipsUserMembersErrors[keyof PostAccessgroupsByIdRelationshipsUserMembersErrors];
 
-export type PostAccessgroupsByIdRelationshipsByRelationResponses = {
+export type PostAccessgroupsByIdRelationshipsUserMembersResponses = {
   /**
    * successfully created
    */
   204: void;
 };
 
-export type PostAccessgroupsByIdRelationshipsByRelationResponse =
-  PostAccessgroupsByIdRelationshipsByRelationResponses[keyof PostAccessgroupsByIdRelationshipsByRelationResponses];
+export type PostAccessgroupsByIdRelationshipsUserMembersResponse =
+  PostAccessgroupsByIdRelationshipsUserMembersResponses[keyof PostAccessgroupsByIdRelationshipsUserMembersResponses];
+
+export type GetAccessgroupsByIdAgentMembersData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/accessgroups/{id}/agentMembers';
+};
+
+export type GetAccessgroupsByIdAgentMembersErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAccessgroupsByIdAgentMembersError =
+  GetAccessgroupsByIdAgentMembersErrors[keyof GetAccessgroupsByIdAgentMembersErrors];
+
+export type GetAccessgroupsByIdAgentMembersResponses = {
+  /**
+   * successful operation
+   */
+  200: AccessGroupRelationAgentMembersGetResponse;
+};
+
+export type GetAccessgroupsByIdAgentMembersResponse =
+  GetAccessgroupsByIdAgentMembersResponses[keyof GetAccessgroupsByIdAgentMembersResponses];
+
+export type DeleteAccessgroupsByIdRelationshipsAgentMembersData = {
+  body: AccessGroupRelationAgentMembers;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/accessgroups/{id}/relationships/agentMembers';
+};
+
+export type DeleteAccessgroupsByIdRelationshipsAgentMembersErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteAccessgroupsByIdRelationshipsAgentMembersError =
+  DeleteAccessgroupsByIdRelationshipsAgentMembersErrors[keyof DeleteAccessgroupsByIdRelationshipsAgentMembersErrors];
+
+export type DeleteAccessgroupsByIdRelationshipsAgentMembersResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteAccessgroupsByIdRelationshipsAgentMembersResponse =
+  DeleteAccessgroupsByIdRelationshipsAgentMembersResponses[keyof DeleteAccessgroupsByIdRelationshipsAgentMembersResponses];
+
+export type GetAccessgroupsByIdRelationshipsAgentMembersData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/accessgroups/{id}/relationships/agentMembers';
+};
+
+export type GetAccessgroupsByIdRelationshipsAgentMembersErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAccessgroupsByIdRelationshipsAgentMembersError =
+  GetAccessgroupsByIdRelationshipsAgentMembersErrors[keyof GetAccessgroupsByIdRelationshipsAgentMembersErrors];
+
+export type GetAccessgroupsByIdRelationshipsAgentMembersResponses = {
+  /**
+   * successful operation
+   */
+  200: AccessGroupResponse;
+};
+
+export type GetAccessgroupsByIdRelationshipsAgentMembersResponse =
+  GetAccessgroupsByIdRelationshipsAgentMembersResponses[keyof GetAccessgroupsByIdRelationshipsAgentMembersResponses];
+
+export type PatchAccessgroupsByIdRelationshipsAgentMembersData = {
+  body: AccessGroupRelationAgentMembers;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/accessgroups/{id}/relationships/agentMembers';
+};
+
+export type PatchAccessgroupsByIdRelationshipsAgentMembersErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchAccessgroupsByIdRelationshipsAgentMembersError =
+  PatchAccessgroupsByIdRelationshipsAgentMembersErrors[keyof PatchAccessgroupsByIdRelationshipsAgentMembersErrors];
+
+export type PatchAccessgroupsByIdRelationshipsAgentMembersResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchAccessgroupsByIdRelationshipsAgentMembersResponse =
+  PatchAccessgroupsByIdRelationshipsAgentMembersResponses[keyof PatchAccessgroupsByIdRelationshipsAgentMembersResponses];
+
+export type PostAccessgroupsByIdRelationshipsAgentMembersData = {
+  body: AccessGroupRelationAgentMembers;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/accessgroups/{id}/relationships/agentMembers';
+};
+
+export type PostAccessgroupsByIdRelationshipsAgentMembersErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostAccessgroupsByIdRelationshipsAgentMembersError =
+  PostAccessgroupsByIdRelationshipsAgentMembersErrors[keyof PostAccessgroupsByIdRelationshipsAgentMembersErrors];
+
+export type PostAccessgroupsByIdRelationshipsAgentMembersResponses = {
+  /**
+   * successfully created
+   */
+  204: void;
+};
+
+export type PostAccessgroupsByIdRelationshipsAgentMembersResponse =
+  PostAccessgroupsByIdRelationshipsAgentMembersResponses[keyof PostAccessgroupsByIdRelationshipsAgentMembersResponses];
 
 export type DeleteAccessgroupsByIdData = {
   body?: never;

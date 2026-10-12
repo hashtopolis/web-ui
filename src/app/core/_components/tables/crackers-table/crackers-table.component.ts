@@ -1,11 +1,12 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JCrackerBinary, JCrackerBinaryType } from '@models/cracker-binary.model';
 
 import { CrackersContextMenuService } from '@services/context-menu/crackers/crackers-menu.service';
+import { CrackerBinaryTypesService } from '@services/crackers/cracker-binary-types.service';
 import { SERV } from '@services/main.config';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -30,6 +31,8 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
   tableColumns: HTTableColumn[] = [];
   dataSource: CrackersDataSource;
   selectedFilterColumn: HTTableColumn;
+
+  private crackerBinaryTypes = inject(CrackerBinaryTypesService);
 
   ngOnInit(): void {
     this.setColumnLabels(CrackersTableColumnLabel);
@@ -179,6 +182,7 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => {
+        this.crackerBinaryTypes.invalidate();
         this.alertService.showSuccessMessage('Successfully deleted crackers');
         this.dataSource.reload();
       });
@@ -198,6 +202,7 @@ export class CrackersTableComponent extends BaseTableComponent implements OnInit
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => {
+        this.crackerBinaryTypes.invalidate();
         this.alertService.showSuccessMessage('Successfully deleted cracker');
         this.reload();
       });

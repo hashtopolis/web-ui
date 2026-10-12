@@ -372,6 +372,20 @@ export type AgentAssignmentCountResponse = {
   }>;
 };
 
+export type AgentAssignmentRelationAgent = {
+  data: {
+    type: 'agent';
+    id: number;
+  };
+};
+
+export type AgentAssignmentRelationAgentGetResponse = {
+  data: {
+    type: 'agent';
+    id: number;
+  };
+};
+
 export type AgentAssignmentRelationTask = {
   data: {
     type: 'task';
@@ -620,17 +634,16 @@ export type GetAgentassignmentsCountResponses = {
 export type GetAgentassignmentsCountResponse =
   GetAgentassignmentsCountResponses[keyof GetAgentassignmentsCountResponses];
 
-export type GetAgentassignmentsByIdByRelationData = {
+export type GetAgentassignmentsByIdAgentData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/agentassignments/{id}/{relation}';
+  url: '/api/v2/ui/agentassignments/{id}/agent';
 };
 
-export type GetAgentassignmentsByIdByRelationErrors = {
+export type GetAgentassignmentsByIdAgentErrors = {
   /**
    * Invalid request
    */
@@ -649,30 +662,29 @@ export type GetAgentassignmentsByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetAgentassignmentsByIdByRelationError =
-  GetAgentassignmentsByIdByRelationErrors[keyof GetAgentassignmentsByIdByRelationErrors];
+export type GetAgentassignmentsByIdAgentError =
+  GetAgentassignmentsByIdAgentErrors[keyof GetAgentassignmentsByIdAgentErrors];
 
-export type GetAgentassignmentsByIdByRelationResponses = {
+export type GetAgentassignmentsByIdAgentResponses = {
   /**
    * successful operation
    */
-  200: AgentAssignmentRelationTaskGetResponse;
+  200: AgentAssignmentRelationAgentGetResponse;
 };
 
-export type GetAgentassignmentsByIdByRelationResponse =
-  GetAgentassignmentsByIdByRelationResponses[keyof GetAgentassignmentsByIdByRelationResponses];
+export type GetAgentassignmentsByIdAgentResponse =
+  GetAgentassignmentsByIdAgentResponses[keyof GetAgentassignmentsByIdAgentResponses];
 
-export type GetAgentassignmentsByIdRelationshipsByRelationData = {
+export type GetAgentassignmentsByIdRelationshipsAgentData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/agentassignments/{id}/relationships/{relation}';
+  url: '/api/v2/ui/agentassignments/{id}/relationships/agent';
 };
 
-export type GetAgentassignmentsByIdRelationshipsByRelationErrors = {
+export type GetAgentassignmentsByIdRelationshipsAgentErrors = {
   /**
    * Invalid request
    */
@@ -691,30 +703,29 @@ export type GetAgentassignmentsByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetAgentassignmentsByIdRelationshipsByRelationError =
-  GetAgentassignmentsByIdRelationshipsByRelationErrors[keyof GetAgentassignmentsByIdRelationshipsByRelationErrors];
+export type GetAgentassignmentsByIdRelationshipsAgentError =
+  GetAgentassignmentsByIdRelationshipsAgentErrors[keyof GetAgentassignmentsByIdRelationshipsAgentErrors];
 
-export type GetAgentassignmentsByIdRelationshipsByRelationResponses = {
+export type GetAgentassignmentsByIdRelationshipsAgentResponses = {
   /**
    * successful operation
    */
   200: AgentAssignmentResponse;
 };
 
-export type GetAgentassignmentsByIdRelationshipsByRelationResponse =
-  GetAgentassignmentsByIdRelationshipsByRelationResponses[keyof GetAgentassignmentsByIdRelationshipsByRelationResponses];
+export type GetAgentassignmentsByIdRelationshipsAgentResponse =
+  GetAgentassignmentsByIdRelationshipsAgentResponses[keyof GetAgentassignmentsByIdRelationshipsAgentResponses];
 
-export type PatchAgentassignmentsByIdRelationshipsByRelationData = {
-  body: AgentAssignmentRelationTask;
+export type PatchAgentassignmentsByIdRelationshipsAgentData = {
+  body: AgentAssignmentRelationAgent;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/agentassignments/{id}/relationships/{relation}';
+  url: '/api/v2/ui/agentassignments/{id}/relationships/agent';
 };
 
-export type PatchAgentassignmentsByIdRelationshipsByRelationErrors = {
+export type PatchAgentassignmentsByIdRelationshipsAgentErrors = {
   /**
    * Invalid request
    */
@@ -737,18 +748,145 @@ export type PatchAgentassignmentsByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchAgentassignmentsByIdRelationshipsByRelationError =
-  PatchAgentassignmentsByIdRelationshipsByRelationErrors[keyof PatchAgentassignmentsByIdRelationshipsByRelationErrors];
+export type PatchAgentassignmentsByIdRelationshipsAgentError =
+  PatchAgentassignmentsByIdRelationshipsAgentErrors[keyof PatchAgentassignmentsByIdRelationshipsAgentErrors];
 
-export type PatchAgentassignmentsByIdRelationshipsByRelationResponses = {
+export type PatchAgentassignmentsByIdRelationshipsAgentResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchAgentassignmentsByIdRelationshipsByRelationResponse =
-  PatchAgentassignmentsByIdRelationshipsByRelationResponses[keyof PatchAgentassignmentsByIdRelationshipsByRelationResponses];
+export type PatchAgentassignmentsByIdRelationshipsAgentResponse =
+  PatchAgentassignmentsByIdRelationshipsAgentResponses[keyof PatchAgentassignmentsByIdRelationshipsAgentResponses];
+
+export type GetAgentassignmentsByIdTaskData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agentassignments/{id}/task';
+};
+
+export type GetAgentassignmentsByIdTaskErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAgentassignmentsByIdTaskError =
+  GetAgentassignmentsByIdTaskErrors[keyof GetAgentassignmentsByIdTaskErrors];
+
+export type GetAgentassignmentsByIdTaskResponses = {
+  /**
+   * successful operation
+   */
+  200: AgentAssignmentRelationTaskGetResponse;
+};
+
+export type GetAgentassignmentsByIdTaskResponse =
+  GetAgentassignmentsByIdTaskResponses[keyof GetAgentassignmentsByIdTaskResponses];
+
+export type GetAgentassignmentsByIdRelationshipsTaskData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agentassignments/{id}/relationships/task';
+};
+
+export type GetAgentassignmentsByIdRelationshipsTaskErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetAgentassignmentsByIdRelationshipsTaskError =
+  GetAgentassignmentsByIdRelationshipsTaskErrors[keyof GetAgentassignmentsByIdRelationshipsTaskErrors];
+
+export type GetAgentassignmentsByIdRelationshipsTaskResponses = {
+  /**
+   * successful operation
+   */
+  200: AgentAssignmentResponse;
+};
+
+export type GetAgentassignmentsByIdRelationshipsTaskResponse =
+  GetAgentassignmentsByIdRelationshipsTaskResponses[keyof GetAgentassignmentsByIdRelationshipsTaskResponses];
+
+export type PatchAgentassignmentsByIdRelationshipsTaskData = {
+  body: AgentAssignmentRelationTask;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/agentassignments/{id}/relationships/task';
+};
+
+export type PatchAgentassignmentsByIdRelationshipsTaskErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchAgentassignmentsByIdRelationshipsTaskError =
+  PatchAgentassignmentsByIdRelationshipsTaskErrors[keyof PatchAgentassignmentsByIdRelationshipsTaskErrors];
+
+export type PatchAgentassignmentsByIdRelationshipsTaskResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchAgentassignmentsByIdRelationshipsTaskResponse =
+  PatchAgentassignmentsByIdRelationshipsTaskResponses[keyof PatchAgentassignmentsByIdRelationshipsTaskResponses];
 
 export type DeleteAgentassignmentsByIdData = {
   body?: never;
