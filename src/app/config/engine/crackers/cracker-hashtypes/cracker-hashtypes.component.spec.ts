@@ -132,6 +132,11 @@ describe('CrackerHashtypesComponent', () => {
       expect(config?.data).toEqual({ crackerBinaryId: 12, assignedHashtypeIds: [1000], canCreate: false });
     });
 
+    it('focuses the dialog itself, so the hashtype search does not open its options over the actions', () => {
+      component.openAddDialog();
+      expect(dialog.open.calls.mostRecent().args[1]?.autoFocus).toBe('dialog');
+    });
+
     it('reloads the table and the assigned ids after hashtypes were added', async () => {
       gs.getRelationshipLink.and.returnValue(of(assignedResponse([0, 1000])));
 

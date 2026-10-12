@@ -83,6 +83,8 @@ export class CrackerHashtypesComponent implements OnInit {
         AddCrackerHashtypesDialogComponent,
         {
           width: '640px',
+          // focusing the first field would open the hashtype options over the dialog actions
+          autoFocus: 'dialog',
           data: {
             crackerBinaryId: this.crackerBinaryId,
             assignedHashtypeIds: this.assignedHashtypeIds,
