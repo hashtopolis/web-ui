@@ -44,6 +44,7 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 export class InputNumberComponent extends AbstractInputComponent<number> {
   @Input() min?: number;
   @Input() max?: number;
+  @Input() placeholder = '';
 
   onValueChange(event: Event): void {
     const target = event.target as HTMLInputElement;

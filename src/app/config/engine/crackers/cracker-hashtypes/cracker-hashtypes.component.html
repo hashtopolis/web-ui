@@ -12,68 +12,13 @@
       </p>
     }
   } @else if (editable) {
-    <div class="mt-2 mb-3 flex gap-2">
+    <div class="mt-2 mb-3">
       <button-submit
-        data-testid="toggle-add-hashtypes"
-        [name]="showAddForm ? 'Close' : 'Add Hashtypes'"
-        (click)="toggleAddForm()"
+        data-testid="open-add-hashtypes"
+        [name]="'Add Hashtypes'"
+        (click)="openAddDialog()"
       ></button-submit>
-      @if (canCreate) {
-        <button-submit
-          data-testid="toggle-create-hashtype"
-          [name]="showCreateForm ? 'Close' : 'New Hashtype'"
-          (click)="toggleCreateForm()"
-        ></button-submit>
-      }
     </div>
-
-    @if (showAddForm) {
-      <form [formGroup]="addForm" class="mb-3">
-        @if (!isLoadingOptions) {
-          <div class="flex flex-col items-start">
-            <input-multiselect
-              [items]="selectHashtypes"
-              [label]="'Select or search Hashtypes'"
-              [placeholder]="'Hashtypes...'"
-              [mergeIdAndName]="true"
-              formControlName="hashtypeIds"
-              class="flex-1"
-            ></input-multiselect>
-            <div class="flex items-center mt-2.5">
-              <button-submit
-                data-testid="add-hashtypes"
-                [name]="'Add'"
-                [loading]="isAdding"
-                (click)="onAdd()"
-              ></button-submit>
-            </div>
-          </div>
-        } @else {
-          <div class="loading-spinner">
-            <mat-spinner diameter="32"></mat-spinner>
-            <span>Loading Hashtypes...</span>
-          </div>
-        }
-      </form>
-    }
-
-    @if (showCreateForm) {
-      <form [formGroup]="createForm" class="mb-3" data-testid="create-hashtype-form">
-        <div class="flex flex-col items-start gap-2">
-          <input-number title="Mode" formControlName="hashTypeId" [min]="0" [isRequired]="true"></input-number>
-          <input-text title="Description" formControlName="description" [isRequired]="true"></input-text>
-          <input-check title="Salted" formControlName="isSalted"></input-check>
-          <input-check title="Slow Hash" formControlName="isSlowHash"></input-check>
-          <button-submit
-            data-testid="create-hashtype"
-            [name]="'Create'"
-            [loading]="isCreating"
-            [disabled]="isCreating"
-            (click)="onCreate()"
-          ></button-submit>
-        </div>
-      </form>
-    }
   }
 
   <app-cracker-hashtypes-table
