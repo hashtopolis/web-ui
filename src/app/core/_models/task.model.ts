@@ -122,6 +122,7 @@ export interface JTaskWrapperDisplay extends BaseModel {
   hashlistCracked?: number;
   hashTypeId?: number;
   hashTypeDescription?: string;
+  hashlistIsSecret?: boolean;
   groupName?: string;
   status?: number;
   currentSpeed?: number;
