@@ -1,8 +1,8 @@
 # Manual test: hashtypes of cracker binaries (#886)
 
-Manual UI test for the web-ui branch `886-hashtype-association` against the backend stack of hashtopolis/server#2503 and #2505, including the server commits that grant hashtype read with the hashlist permissions and backfill the supertask cracker type.
+Manual UI test for the web-ui branch `886-hashtype-association` against the backend stack of hashtopolis/server#2503 and #2505, including the server commits that grant hashtype read with the hashlist permissions, backfill the supertask cracker type and revert the hashtype visibility filter (`e234ac56`, hashtypes are a global catalog again).
 
-Last run: 2026-10-08, all steps passed after the fixes listed under [Findings of the first run](#findings-of-the-first-run).
+Last run: 2026-10-12 on a fresh database, all steps passed. See [Findings](#findings) for what the runs changed.
 
 Conventions: log in as admin unless a step says otherwise. Navigate through the menus and buttons, type a route only where a step asks for it. "Three dots" is the row action menu at the end of a table row.
 
@@ -46,6 +46,8 @@ INSERT INTO CrackerBinaryHashtype (crackerBinaryId, hashTypeId) VALUES (LAST_INS
 SQL
 ```
 
+- A fresh database only has the cracker type `hashcat`. Create the type `generic` first (Binaries → Crackers, or `POST /ui/crackertypes`) and use its id instead of `2` above.
+- The scan runs the hashcat binary on the server. On an arm64 host (e.g. Apple silicon) the server container needs the x86-64 C library for the scan of the real hashcat version: `docker exec -u root hashtopolis-server-dev sh -c 'dpkg --add-architecture amd64 && apt-get update && apt-get install -y libc6:amd64 libstdc++6:amd64'`, then queue the scan again (a pending `scan_cracker` job for the version) and run the background jobs. The container loses this when it is recreated.
 - The scan looks for the archive at `/usr/local/share/hashtopolis/crackers/<id>_hashcat-0.0.1-noscan.7z`. Put any non-archive file there (owned by `www-data`, `docker exec -u root`), then run the background jobs once: `docker exec hashtopolis-server-dev php -d xdebug.mode=off -f /var/www/html/src/inc/cron.php`. The job of the dummy version must end as Failed.
 - Pretasks inserted by SQL need `color = ''`, not `NULL`, or the UI rejects the pretask list. Supertasks need `crackerBinaryTypeId` set and one `SupertaskPretask` row each.
 - Hashlists and tasks are easiest through the API (`POST /api/v2/auth/token` with basic auth for a token). The body must be JSON:API (`{"data":{"type":"hashlist","attributes":{...}}}`, `Content-Type: application/vnd.api+json`). A hashlist needs `hashCount: 0`, `sourceType: "paste"` and `sourceData` base64 encoded. Create the task on the archived hashlist before archiving the hashlist, then archive task, task wrapper and hashlist.
@@ -74,19 +76,19 @@ The steps below assume this state. Only step 7 changes it, and restores it at it
 **generic 1.0, editable**
 
 1. The table lists SHA1 (100) and SHA256 (1400).
-2. Click "Add Hashtypes" and type `ntlm`: NTLM is offered. Typing `sha` or `256` does not offer SHA1 or SHA256.
-3. Pick NTLM → "Add": toast "Added 1 hashtype", the table has 3 rows.
+2. Click "Add Hashtypes": a dialog "Add Hashtypes" opens on the tab "Existing", the hashtype search is not focused and shows no options yet. Type `ntlm`: NTLM is offered. Typing `sha` or `256` does not offer SHA1 or SHA256.
+3. Pick NTLM → "Add": the dialog closes, toast "Added 1 hashtype", the table has 3 rows.
 4. On the NTLM row: three dots → "Remove Hashtype" → confirm: toast "Removed 1 hashtype".
 5. Click "Add Hashtypes" again: NTLM is offered again.
-6. Close the add form. The version is back at SHA1 and SHA256.
+6. Close the dialog with "Cancel". The version is back at SHA1 and SHA256.
 
 **generic 1.0, create hashtypes**
 
-1. With the add form open, click "New Hashtype": the form with Mode, Description, Salted and Slow Hash opens, the add form closes.
-2. Mode `99000`, Description `[886] Custom mode`, "Create": toast "Created hashtype 99000 ([886] Custom mode) and added it to this version.", the table lists it.
-3. "New Hashtype" again, Mode `0`, Description `anything`, "Create": toast "Hashtype 0 already existed and was added to this version. Its existing description was kept.", the table lists MD5.
-4. "New Hashtype" again, Mode `0`, any description (it is required), "Create": red toast "Hashtype 0 is already assigned to this version.", no request is sent.
-5. Clean up: on the rows 99000 and MD5, three dots → "Remove Hashtype". Config → Hashtypes → 99000 → three dots → delete. The version is back at SHA1 and SHA256.
+1. "Add Hashtypes" → tab "New": the form with "Mode (hashcat -m)" (placeholder "e.g. 1400", numbers only), Description, Salted and Slow Hash; the dialog action reads "Create and add".
+2. Mode `99000`, Description `[886] Custom mode`, "Create and add": the dialog closes, toast "Created hashtype 99000 ([886] Custom mode) and added it to this version.", the table lists it.
+3. Again in the tab "New": Mode `0`, Description `anything`, "Create and add": toast "Hashtype 0 already existed and was added to this version. Its existing description was kept.", the table lists MD5.
+4. Again: Mode `0`, any description (it is required), "Create and add": red toast "Hashtype 0 is already assigned to this version.", no request is sent, the dialog stays open with the input.
+5. Close the dialog. Clean up: on the rows 99000 and MD5, three dots → "Remove Hashtype". Config → Hashtypes → 99000 → three dots → delete. The version is back at SHA1 and SHA256.
 
 ## 2. New Task (Tasks → New Task)
 
@@ -141,7 +143,7 @@ Always open the hashlist page from the list: the builder remembers a failed look
 2. Tasks → Tasks → "[886] Copy me: generic on SHA1" → three dots → "Copy to Task":
    - hashcat with its newest supported version is selected instead of generic 1.0.
    - Info toast: "The cracker version of the copied task is not accessible or does not support the hashtype of the hashlist, the latest supported version was selected instead."
-3. Restore: Binaries → Crackers → generic 1.0 → "Add Hashtypes" → SHA1 → "Add". The version lists SHA1 and SHA256 again.
+3. Restore: Binaries → Crackers → generic 1.0 → "Add Hashtypes" → pick SHA1 in the tab "Existing" → "Add". The version lists SHA1 and SHA256 again.
 
 ## 8. Unchanged flows (regression)
 
@@ -150,7 +152,7 @@ Always open the hashlist page from the list: the builder remembers a failed look
 3. Tasks → Tasks → open a task: "Cracker Information" shows type and version read-only.
 4. Config → Background Jobs: the scans are listed as "Scan cracker binary"; delete the failed one.
 5. Config → Hashtypes: there is no "New Hashtype" button, the route `#/config/hashtypes/new` shows the not found page. Edit and delete of a hashtype work as before.
-6. As a user with hashtype read but without hashtype update (the "claude" user below): Config has no "Hashtypes" entry, the routes `#/config/hashtypes` and `#/config/hashtypes/0/edit` show the toast "Access denied: You do not have the required role 'update HashTypes'", the cracker version page still shows "Supported Hashtypes" (with "Add Hashtypes" when the user may update crackers, without "New Hashtype").
+6. As a user with hashtype read but without hashtype update (the "claude" user below): Config has no "Hashtypes" entry, the routes `#/config/hashtypes` and `#/config/hashtypes/0/edit` show the toast "Access denied: You do not have the required role 'update HashTypes'", the cracker version page still shows "Supported Hashtypes" (with "Add Hashtypes" when the user may update crackers; the dialog then has no tabs, only the existing hashtypes, because the user may not create hashtypes).
 
 ### The "claude" test user
 
@@ -172,9 +174,13 @@ As the "claude" user:
 
 1. Tasks → New Task → select "[886] SHA1": hashcat and generic are offered, a version is preselected, no alert. Create the task: it is listed under Tasks.
 2. "Failed to load preprocessors" may show: preprocessor read comes only with server configuration, unrelated to #886.
-3. Against a backend without the hashtype read in the hashlist bundles, the version lookup answers 403. The selects stay empty and the alert must read "Could not check which cracker versions support hashtype 100.", not "No accessible cracker version supports …".
+3. Open the created task (Tasks → Tasks → click it): no error dialog, the hashlist field shows "[886] SHA1 / SHA1".
+4. Tasks → New Task → select "[886] Unsupported hashtype": the alert "No accessible cracker version supports hashtype 123456 ([886] Test, no cracker).", no error dialog. Before the server revert of the hashtype visibility filter, non-admins got a "not found" dialog here and in step 3 whenever none of their versions was linked to the hashtype.
+5. Against a backend without the hashtype read in the hashlist bundles, the version lookup answers 403. The selects stay empty and the alert must read "Could not check which cracker versions support hashtype 100.", not "No accessible cracker version supports …".
 
-## Findings of the first run
+## Findings
+
+### First run (2026-10-08)
 
 Fixed after the run of 2026-10-08:
 
@@ -183,13 +189,24 @@ Fixed after the run of 2026-10-08:
 - A failed support lookup (403) produced "No accessible cracker version supports …". It now says the check failed.
 - The backend granted hashtype read only with server configuration access, so task creators without it could not create any task. Hashtype read now comes with the hashlist permissions (server).
 
-Known, not fixed:
+### Second run (2026-10-12, fresh database)
+
+Fixed after the run:
+
+- Adding and creating hashtypes moved into a dialog with the tabs "Existing" and "New". The dialog opened with the hashtype search focused, its options covered the dialog actions; it now focuses the dialog itself.
+- The mode field took letters without feedback (it is numeric); it is now labeled "Mode (hashcat -m)" with the placeholder "e.g. 1400".
+- Non-admins got "not found" dialogs for hashtypes none of their versions was linked to (support lookup, Edit Task) and an empty hashtype list on New Hashlist. The server revert of the hashtype visibility filter fixes all three.
+
+### Known, not fixed
 
 - Without a hashlist, New Task and Apply Hashlist preselect the version with the highest id, which can be a version without hashtypes (e.g. 0.0.1-noscan).
 - Hashlist page, "Create supertask": the cracker type label and the row hint sit lower than the supertask name, and the row hint repeats the alert when all rows are blocked.
 - Permission editor: unticking "Hash type → Read" also removes hashlist and server configuration access, because the boxes map to the old bundles.
+- Removing a hashlist chip (New Task, Apply Hashlist) keeps the focus in the field and opens its options over the cracker selects; a click on a select there picks a hashlist again.
+- The hashtype search shows HTML entities ("Joomla &lt; 2.5.18"), the hashtypes table shows the description correctly.
+- A login token that is no longer valid (e.g. after a database reset) shows "Signature verification failed" (400) dialogs instead of returning to the login page.
 
 ## Known gaps (backend, not part of the web-ui PR)
 
-- The scan runs the cracker on the server: only a Linux build for the server's CPU can be scanned.
-- Non-admins only see hashtypes linked to a cracker binary of their access groups. "New Hashtype" on a generic version also adds an existing mode which was invisible to them; after that they can see it, and with hashtype update or delete permission change or delete it for everyone.
+- The scan runs the cracker on the server: only a Linux build for the server's CPU can be scanned (see the arm64 note under Seeding).
+- Hashtypes are a global catalog: anyone with hashtype update or delete permission can change or delete any hashtype, also one used by other users' cracker versions.
