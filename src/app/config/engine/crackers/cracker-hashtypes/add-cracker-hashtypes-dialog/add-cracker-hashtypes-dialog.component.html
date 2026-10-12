@@ -1,0 +1,76 @@
+<h2 mat-dialog-title>Add Hashtypes</h2>
+<mat-dialog-content>
+  @if (data.canCreate) {
+    <mat-tab-group [(selectedIndex)]="selectedTab" mat-stretch-tabs="false" animationDuration="0ms">
+      <mat-tab label="Existing">
+        <div class="pt-4">
+          <ng-container *ngTemplateOutlet="existing"></ng-container>
+        </div>
+      </mat-tab>
+      <mat-tab label="New">
+        <form [formGroup]="createForm" class="flex flex-col gap-2 pt-4" data-testid="create-hashtype-form">
+          <input-number
+            title="Mode (hashcat -m)"
+            placeholder="e.g. 1400"
+            formControlName="hashTypeId"
+            [min]="0"
+            [isRequired]="true"
+          ></input-number>
+          <input-text title="Description" formControlName="description" [isRequired]="true"></input-text>
+          <input-check title="Salted" formControlName="isSalted"></input-check>
+          <input-check title="Slow Hash" formControlName="isSlowHash"></input-check>
+          <p class="text-sm text-muted-foreground">
+            If the mode already exists, it is added to this version with its existing description.
+          </p>
+        </form>
+      </mat-tab>
+    </mat-tab-group>
+  } @else {
+    <ng-container *ngTemplateOutlet="existing"></ng-container>
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" mat-dialog-close>Cancel</button>
+  @if (isNewTab) {
+    <button
+      mat-flat-button
+      color="primary"
+      type="button"
+      data-testid="create-hashtype"
+      [disabled]="isCreating"
+      (click)="onCreate()"
+    >
+      Create and add
+    </button>
+  } @else {
+    <button
+      mat-flat-button
+      color="primary"
+      type="button"
+      data-testid="add-hashtypes"
+      [disabled]="isAdding || addForm.controls.hashtypeIds.value.length === 0"
+      (click)="onAdd()"
+    >
+      Add
+    </button>
+  }
+</mat-dialog-actions>
+
+<ng-template #existing>
+  <form [formGroup]="addForm">
+    @if (isLoadingOptions) {
+      <div class="loading-spinner">
+        <mat-spinner diameter="32"></mat-spinner>
+        <span>Loading Hashtypes...</span>
+      </div>
+    } @else {
+      <input-multiselect
+        [items]="selectHashtypes"
+        [label]="'Select or search Hashtypes'"
+        [placeholder]="'Hashtypes...'"
+        [mergeIdAndName]="true"
+        formControlName="hashtypeIds"
+      ></input-multiselect>
+    }
+  </form>
+</ng-template>
