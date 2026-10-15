@@ -2,7 +2,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { zAgentListResponse, zHashlistListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { TJsonApiData } from 'jsona/lib/JsonaTypes';
 import { of } from 'rxjs';
-import { PipesModule } from '@src/app/shared/pipes.module';
 
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
@@ -25,6 +24,7 @@ import { NotificationsRoleService } from '@services/roles/config/notifications-r
 import { NewNotificationComponent } from '@src/app/account/notifications/notification/new-notification.component';
 import { ACTION, NOTIF } from '@src/app/core/_constants/notifications.config';
 import { ComponentsModule } from '@src/app/shared/components.module';
+import { PipesModule } from '@src/app/shared/pipes.module';
 import { findEl, setFieldValue } from '@src/app/spec-helpers/element.spec-helper';
 import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 

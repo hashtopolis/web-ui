@@ -1,6 +1,6 @@
 import { PageTitle } from '@src/app/core/_decorators/autotitle';
 
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'app-background-jobs',

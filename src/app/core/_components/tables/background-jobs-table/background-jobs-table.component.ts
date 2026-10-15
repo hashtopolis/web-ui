@@ -6,7 +6,7 @@ import {
 } from '@constants/background-jobs.config';
 import { catchError } from 'rxjs';
 
-import { AfterViewInit, Component, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JBackgroundJob } from '@models/background-job.model';

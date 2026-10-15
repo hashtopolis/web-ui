@@ -5,12 +5,12 @@ import { filter } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   OnInit,
   PLATFORM_ID,
-  inject,
-  ChangeDetectionStrategy
+  inject
 } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';

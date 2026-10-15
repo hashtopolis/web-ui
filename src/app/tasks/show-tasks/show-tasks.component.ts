@@ -1,10 +1,10 @@
-import { TasksTableComponent } from '@src/app/core/_components/tables/tasks-table/tasks-table.component';
-import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-
-import { Component, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild, inject } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
+
+import { TasksTableComponent } from '@src/app/core/_components/tables/tasks-table/tasks-table.component';
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 
 @Component({
   selector: 'app-show-tasks',

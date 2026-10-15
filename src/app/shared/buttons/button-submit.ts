@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, Input, ViewEncapsulation, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, ViewEncapsulation, inject } from '@angular/core';
 
 /**
  * Variants for `<button-submit>`. Const-object + `(typeof X)[keyof typeof X]`

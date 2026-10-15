@@ -1,10 +1,6 @@
 import { map } from 'rxjs/operators';
-import { uiDatePipe } from '@src/app/core/_pipes/date.pipe';
-import { GlobalService } from '@src/app/core/_services/main.service';
-import { AlertService } from '@src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 
-import { Component, DestroyRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -13,7 +9,11 @@ import { JUser } from '@models/user.model';
 
 import { SERV } from '@services/main.config';
 
+import { uiDatePipe } from '@src/app/core/_pipes/date.pipe';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { GlobalService } from '@src/app/core/_services/main.service';
+import { AlertService } from '@src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 import { emailValidator } from '@src/app/core/_validators/email.validator';
 import { passwordMatchValidator } from '@src/app/core/_validators/password.validator';
 import { zChangeOwnPasswordHelperApiResponse, zCurrentUserHelperApiResponse } from '@src/generated/api/zod';

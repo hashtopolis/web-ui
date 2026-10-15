@@ -1,7 +1,7 @@
 import { zCrackerBinaryRelationHashtypesGetResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
-import { Component, DestroyRef, Input, OnInit, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, Input, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { RouterModule } from '@angular/router';

@@ -1,6 +1,7 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+
 import { DialogData } from './timeout-dialog.model';
 
 @Component({

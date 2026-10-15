@@ -3,7 +3,7 @@ import vfsFonts from 'pdfmake/build/vfs_fonts';
 import { firstValueFrom } from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
 import {

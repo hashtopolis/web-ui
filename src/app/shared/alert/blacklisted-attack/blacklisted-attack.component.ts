@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 
 import { UIConfigService } from '@services/shared/storage.service';
 

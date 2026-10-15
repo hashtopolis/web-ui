@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 
 import { RoleService } from '@services/roles/base/role.service';
 import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlist-role.service';
