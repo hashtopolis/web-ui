@@ -3,7 +3,7 @@ import { zAgentResponse, zGetBestTasksAgentResponse, zUserListResponse } from '@
 import { of, throwError } from 'rxjs';
 
 import { CommonModule } from '@angular/common';
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -12,7 +12,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatStepperModule } from '@angular/material/stepper';
-import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { SERV } from '@services/main.config';
@@ -29,6 +28,7 @@ import { InputModule } from '@src/app/shared/input/input.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
 import { PipesModule } from '@src/app/shared/pipes.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 
 // Mock components - only for components not included in imported modules

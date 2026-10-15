@@ -4,7 +4,7 @@ import { zHashlistResponse } from '@generated/api/zod';
 import { lastValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
-import { Component, DestroyRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';

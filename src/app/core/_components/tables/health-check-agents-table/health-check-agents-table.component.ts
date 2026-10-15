@@ -1,6 +1,6 @@
 import { Observable, of } from 'rxjs';
 
-import { AfterViewInit, Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 
 import { JHealthCheckAgent } from '@models/health-check.model';
 

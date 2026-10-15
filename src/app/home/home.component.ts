@@ -1,7 +1,7 @@
 import { zGetCompletedCountHelperApiResponse, zGetCracksPerDayHelperApiResponse } from '@generated/api/zod';
 import { Observable, Subscription, catchError, forkJoin, map, of } from 'rxjs';
 
-import { Component, DestroyRef, OnDestroy, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { BuiltInTheme } from '@models/config-ui.model';

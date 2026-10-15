@@ -1,8 +1,8 @@
-import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
+
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 
 @Component({
   selector: 'app-preprocessors',

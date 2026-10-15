@@ -1,19 +1,23 @@
 /// <reference types="jasmine" />
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
-import { Router, NavigationEnd } from '@angular/router';
-import { Subject } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
+import { Subject } from 'rxjs';
 
-import { ActionMenuComponent } from './action-menu.component';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { NavigationEnd, Router } from '@angular/router';
+
+import { UIConfig } from '@models/config-ui.model';
+
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
-import { UIConfig } from '@models/config-ui.model';
+
+import { ActionMenuComponent } from './action-menu.component';
+
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 @Component({
   template: '<action-menu [actionMenuItems]="[]" label="Test"></action-menu>',

@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs';
 
-import { AfterViewInit, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JAccessGroup } from '@models/access-group.model';

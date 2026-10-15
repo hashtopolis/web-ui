@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, forwardRef, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, forwardRef, inject } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { FileSizePipe } from '@src/app/core/_pipes/file-size.pipe';

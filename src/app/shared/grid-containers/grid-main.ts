@@ -1,4 +1,4 @@
-import { Component, HostBinding, Input, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, Input } from '@angular/core';
 
 @Component({
   selector: 'grid-main',

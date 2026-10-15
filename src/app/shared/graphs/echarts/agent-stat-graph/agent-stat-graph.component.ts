@@ -2,14 +2,14 @@ import { EChartsCoreOption } from 'echarts/core';
 import { type EChartsType, init } from 'echarts/core';
 
 import {
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   Input,
   OnChanges,
   OnDestroy,
   SimpleChanges,
-  ViewChild,
-  ChangeDetectionStrategy
+  ViewChild
 } from '@angular/core';
 
 import { JAgentStat } from '@models/agent-stats.model';

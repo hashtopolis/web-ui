@@ -1,6 +1,6 @@
 import { DateFormat, Setting, TimeFormat, dateFormats, layouts, themes, timeFormats } from '@constants/settings.config';
 
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 
 import { UIConfig } from '@models/config-ui.model';
 import { BuiltInTheme } from '@models/config-ui.model';

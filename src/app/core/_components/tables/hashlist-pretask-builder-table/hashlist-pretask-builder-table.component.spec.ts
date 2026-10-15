@@ -1,8 +1,8 @@
 import { of } from 'rxjs';
 
+import { provideLocationMocks } from '@angular/common/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideLocationMocks } from '@angular/common/testing';
 import { RouterLink, provideRouter } from '@angular/router';
 
 import { JPretask } from '@models/pretask.model';

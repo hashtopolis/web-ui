@@ -20,14 +20,14 @@ import type { TopLevelFormatterParams } from 'echarts/types/dist/shared';
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   Input,
   OnChanges,
   SimpleChanges,
   ViewChild,
-  inject,
-  ChangeDetectionStrategy
+  inject
 } from '@angular/core';
 
 import { UIConfig } from '@models/config-ui.model';

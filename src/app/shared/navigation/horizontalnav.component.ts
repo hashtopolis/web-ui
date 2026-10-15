@@ -1,8 +1,9 @@
 import { Subject } from 'rxjs';
-import { HorizontalNav } from '@src/app/core/_models/horizontalnav.model';
 
-import { Component, Input, OnDestroy, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, inject } from '@angular/core';
 import { Router } from '@angular/router';
+
+import { HorizontalNav } from '@src/app/core/_models/horizontalnav.model';
 
 @Component({
   selector: 'horizontalnav',
