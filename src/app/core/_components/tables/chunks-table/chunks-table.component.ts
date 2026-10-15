@@ -82,6 +82,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit, 
         id: ChunksTableCol.ID,
         isNumeric: true,
         dataKey: 'id',
+        routerLink: (chunk: JChunk) => this.renderChunkDetailLink(chunk.id),
         isSearchable: true,
         isSortable: true
       },

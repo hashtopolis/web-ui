@@ -76,6 +76,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
       {
         id: TasksChunksTableCol.ID,
         dataKey: 'id',
+        routerLink: (chunk: JChunk) => this.renderChunkDetailLink(chunk.id),
         isSortable: true,
         isSearchable: true
       },
