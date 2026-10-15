@@ -6,10 +6,10 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 import { InputMultiSelectComponent } from '@src/app/shared/input/multiselect/multiselect.component';
 import { SelectOption } from '@src/app/shared/utils/forms';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 const ITEMS: SelectOption<number>[] = [
   { id: 1, name: 'Alpha' },

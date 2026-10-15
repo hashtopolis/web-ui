@@ -1,6 +1,6 @@
 import { findHashType } from 'hashtype-detector/dist/lib/es6/index';
 
-import { ApplicationRef, Component, OnInit, ViewEncapsulation, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ApplicationRef, ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 
 interface HashTypeOption {

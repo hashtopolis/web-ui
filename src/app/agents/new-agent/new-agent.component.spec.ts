@@ -1,14 +1,13 @@
 import { of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatStepperModule } from '@angular/material/stepper';
-import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 import { Router } from '@angular/router';
 
 import { SERV } from '@services/main.config';
@@ -20,6 +19,7 @@ import { NewAgentComponent } from '@src/app/agents/new-agent/new-agent.component
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 import { mockResponse } from '@src/app/testing/mock-response';
 
 // AgentBinary table mock

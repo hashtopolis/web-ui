@@ -1,9 +1,10 @@
 import { Observable, of } from 'rxjs';
-import { environment } from '@src/environments/environment';
 import { z } from 'zod';
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+
+import { environment } from '@src/environments/environment';
 
 /** Local-storage key the resolved API endpoint is persisted under. */
 export const API_ENDPOINT_STORAGE_KEY = 'prodApiEndpoint';

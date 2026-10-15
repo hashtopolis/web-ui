@@ -1,12 +1,12 @@
-import { PageTitle } from '@src/app/core/_decorators/autotitle';
-import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-
-import { ChangeDetectorRef, Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { AlertService } from '@services/shared/alert.service';
 
 import { MAX_SEARCH_LENGTH, MAX_SEARCH_SIZE } from '@components/tables/search-hash-table/search-hash-table.constants';
+
+import { PageTitle } from '@src/app/core/_decorators/autotitle';
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 
 @Component({
   selector: 'app-search-hash',

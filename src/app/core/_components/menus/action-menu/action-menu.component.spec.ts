@@ -1,17 +1,21 @@
 /// <reference types="jasmine" />
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
-import { Router, NavigationEnd } from '@angular/router';
-import { Subject } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
+import { Subject } from 'rxjs';
+
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { NavigationEnd, Router } from '@angular/router';
+
+import { UIConfig } from '@models/config-ui.model';
+
+import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { ActionMenuComponent } from './action-menu.component';
-import { LocalStorageService } from '@services/storage/local-storage.service';
-import { UIConfig } from '@models/config-ui.model';
+
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 describe('ActionMenuComponent', () => {
   let component: ActionMenuComponent;

@@ -2,6 +2,7 @@ import { zCrackerBinaryListResponse } from '@generated/api/zod';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 import {
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   EventEmitter,
@@ -10,8 +11,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  inject,
-  ChangeDetectionStrategy
+  inject
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PageEvent } from '@angular/material/paginator';

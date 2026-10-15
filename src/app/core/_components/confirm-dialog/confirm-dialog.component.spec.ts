@@ -1,11 +1,11 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 import { ConfirmDialogComponent } from '@components/confirm-dialog/confirm-dialog.component';
 
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 describe('ConfirmDialogComponent', () => {
   let component: ConfirmDialogComponent;

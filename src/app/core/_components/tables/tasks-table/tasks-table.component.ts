@@ -1,6 +1,6 @@
 import { Observable, catchError, forkJoin, of } from 'rxjs';
 
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 

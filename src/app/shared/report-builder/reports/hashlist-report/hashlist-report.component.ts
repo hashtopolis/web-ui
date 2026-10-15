@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 
 import { HashlistReportDataSource } from '@src/app/shared/report-builder/datasources/hashlists.datasource';
 import { BaseReportComponent } from '@src/app/shared/report-builder/reports/base-report/base-report.component';

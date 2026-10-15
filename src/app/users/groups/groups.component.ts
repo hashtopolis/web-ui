@@ -1,8 +1,8 @@
-import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 import { AccessGroupRoleService } from '@services/roles/user/accessgroup-role.service';
+
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 
 @Component({
   selector: 'app-groups',

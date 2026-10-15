@@ -1,5 +1,6 @@
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+
 import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-globalpermissionsgroups',

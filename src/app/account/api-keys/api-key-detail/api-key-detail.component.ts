@@ -3,7 +3,7 @@ import { zApiTokenResponse } from '@generated/api/zod';
 import { lastValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ApiTokenStatus, JApiToken, computeApiTokenStatus } from '@models/api-token.model';

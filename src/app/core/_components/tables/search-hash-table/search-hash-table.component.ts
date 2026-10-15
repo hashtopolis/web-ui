@@ -1,6 +1,6 @@
 import { Observable, of } from 'rxjs';
 
-import { Component, Input, OnChanges, OnInit, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 import { SearchHashModel } from '@models/hash.model';
 

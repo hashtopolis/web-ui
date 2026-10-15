@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 
 import { UserPermissions } from '@models/global-permission-group.model';
 import { JUser } from '@models/user.model';

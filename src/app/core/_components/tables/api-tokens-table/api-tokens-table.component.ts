@@ -1,7 +1,7 @@
 import { Observable, catchError, firstValueFrom, of } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 

@@ -1,7 +1,7 @@
 import { zApiTokenPostPatchResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
-import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 

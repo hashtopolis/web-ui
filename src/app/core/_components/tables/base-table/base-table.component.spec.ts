@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';

@@ -3,6 +3,7 @@ import { Observable, of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   DestroyRef,
@@ -11,8 +12,7 @@ import {
   NgZone,
   SecurityContext,
   ViewChild,
-  inject,
-  ChangeDetectionStrategy
+  inject
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';

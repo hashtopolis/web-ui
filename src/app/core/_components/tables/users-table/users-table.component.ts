@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs';
 
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JUser } from '@models/user.model';

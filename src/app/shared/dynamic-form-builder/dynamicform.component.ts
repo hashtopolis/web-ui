@@ -2,6 +2,7 @@ import { Subject, Subscription, takeUntil } from 'rxjs';
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   EventEmitter,
@@ -9,8 +10,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  inject,
-  ChangeDetectionStrategy
+  inject
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 

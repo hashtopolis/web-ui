@@ -3,13 +3,13 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 import { GlobalService } from '@services/main.service';
 import { FieldType, MetadataFormField } from '@services/metadata.service';
 
 import { DynamicFormComponent } from '@src/app/shared/dynamic-form-builder/dynamicform.component';
 import { InputModule } from '@src/app/shared/input/input.module';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 describe('DynamicFormComponent validation state', () => {
   let fixture: ComponentFixture<DynamicFormComponent>;

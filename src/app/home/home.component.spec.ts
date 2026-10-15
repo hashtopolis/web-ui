@@ -2,7 +2,7 @@ import { zGetCompletedCountHelperApiResponse, zGetCracksPerDayHelperApiResponse 
 import { Subject, of, throwError } from 'rxjs';
 
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { Component, DebugElement, Injector, Input, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DebugElement, Injector, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { RouterLink, RouterLinkWithHref, provideRouter } from '@angular/router';

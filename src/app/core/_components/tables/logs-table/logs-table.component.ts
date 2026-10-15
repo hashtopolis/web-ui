@@ -1,15 +1,14 @@
-import { LogsDataSource } from '@src/app/core/_datasources/logs.datasource';
-import { JLog } from '@src/app/core/_models/log.model';
-import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
-
-import { AfterViewInit, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { LogsTableCol, LogsTableColumnLabel } from '@components/tables/logs-table/logs-table.constants';
 
+import { LogsDataSource } from '@src/app/core/_datasources/logs.datasource';
+import { JLog } from '@src/app/core/_models/log.model';
 import { FilterType } from '@src/app/core/_models/request-params.model';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'logs-table',

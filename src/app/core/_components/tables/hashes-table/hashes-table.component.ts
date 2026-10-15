@@ -1,6 +1,6 @@
 import { HashesViewType } from '@constants/hashes.config';
 
-import { AfterViewInit, Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 
 import { JHash } from '@models/hash.model';
 

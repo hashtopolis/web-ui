@@ -5,6 +5,7 @@ import { faBook, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   EventEmitter,
@@ -14,8 +15,7 @@ import {
   Output,
   Renderer2,
   ViewChild,
-  inject,
-  ChangeDetectionStrategy
+  inject
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatMenuTrigger } from '@angular/material/menu';
