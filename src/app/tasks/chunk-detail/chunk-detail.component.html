@@ -1,0 +1,248 @@
+<app-page [title]="'Chunk #' + chunkId">
+  @if (isLoading) {
+    <div class="chunk-empty">Loading chunk…</div>
+  } @else if (notFound || !chunk) {
+    <div class="chunk-empty">
+      Chunk #{{ chunkId }} could not be found, or you do not have access to it.
+      <a routerLink="/tasks/chunks">Back to all chunks</a>
+    </div>
+  } @else {
+    <div class="chunk-detail">
+      <!-- Header -->
+      <section class="chunk-card chunk-hero">
+        <div class="chunk-hero__top">
+          <div class="chunk-hero__meta">
+            <span [class]="stateClass" data-testid="chunk-state">{{ stateLabel }}</span>
+            <span class="chunk-hero__context">
+              Task
+              <a [routerLink]="['/tasks', 'show-tasks', chunk.taskId, 'edit']">{{
+                chunk.task?.taskName ?? '#' + chunk.taskId
+              }}</a>
+              @if (chunk.agentId !== null) {
+                · Agent
+                <a [routerLink]="['/agents', 'show-agents', chunk.agentId, 'edit']">{{
+                  chunk.agent?.agentName ?? '#' + chunk.agentId
+                }}</a>
+              } @else {
+                · <span class="muted" title="The agent that worked this chunk has been deleted">Agent deleted</span>
+              }
+            </span>
+          </div>
+          <div class="chunk-hero__percent">{{ progressPercent | number: '1.0-2' }}<span>%</span></div>
+        </div>
+
+        <div
+          class="progress"
+          [class.progress--active]="isActive"
+          role="progressbar"
+          aria-label="Chunk progress"
+          [attr.aria-valuenow]="progressPercent"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <div class="progress__fill" [style.width.%]="progressPercent"></div>
+        </div>
+        <div class="progress__labels">
+          <span>{{ processed | number }} of {{ chunk.length | number }} keyspace positions</span>
+          <span>checkpoint {{ chunk.checkpoint | number }}</span>
+        </div>
+      </section>
+
+      <!-- Stat tiles -->
+      <section class="chunk-stats">
+        <div class="chunk-card stat">
+          <div class="stat__label">Speed</div>
+          <div class="stat__value">{{ chunk.speed > 0 ? (chunk.speed | hashRate) : '—' }}</div>
+          <div class="stat__hint">{{ isActive ? 'current' : 'last reported' }}</div>
+        </div>
+        <div class="chunk-card stat">
+          <div class="stat__label">Cracked</div>
+          <div class="stat__value">
+            @if (chunk.cracked > 0) {
+              <a [routerLink]="['/hashlists', 'hashes', 'chunks', chunk.id]">{{ chunk.cracked | number }}</a>
+            } @else {
+              0
+            }
+          </div>
+          <div class="stat__hint">hashes in this chunk</div>
+        </div>
+        <div class="chunk-card stat">
+          <div class="stat__label">Time spent</div>
+          <div class="stat__value">{{ timeSpent > 0 ? (timeSpent | sectotime) : '—' }}</div>
+          <div class="stat__hint">
+            @if (task?.chunkTime) {
+              target chunk time {{ task?.chunkTime }}s
+            } @else {
+              dispatch → last activity
+            }
+          </div>
+        </div>
+        <div class="chunk-card stat">
+          <div class="stat__label">Length</div>
+          <div class="stat__value">{{ chunk.length | number }}</div>
+          <div class="stat__hint">
+            @if (averageRate > 0) {
+              ≈ {{ averageRate | number: '1.0-0' }} positions/s
+            } @else {
+              keyspace positions
+            }
+          </div>
+        </div>
+      </section>
+
+      <div class="chunk-grid">
+        <!-- Keyspace -->
+        <section class="chunk-card">
+          <h3 class="chunk-card__title">Keyspace</h3>
+
+          @if (task) {
+            <div class="ks-caption">Position within the task keyspace</div>
+            <div class="ks-bar" aria-hidden="true">
+              <div class="ks-bar__dispatched" [style.width.%]="taskDispatchedPercent"></div>
+              <div class="ks-bar__chunk" [style.left.%]="chunkSegment.left" [style.width.%]="chunkSegment.width"></div>
+            </div>
+            <div class="ks-legend">
+              <span><i class="swatch swatch--chunk"></i>This chunk</span>
+              <span
+                ><i class="swatch swatch--dispatched"></i>Dispatched ({{
+                  taskDispatchedPercent | number: '1.0-1'
+                }}%)</span
+              >
+              <span class="ks-legend__end">{{ taskKeyspace | number }}</span>
+            </div>
+          }
+
+          <div class="ks-caption">Inside this chunk</div>
+          <div class="ks-zoom" aria-hidden="true">
+            <div class="ks-zoom__done" [style.width.%]="progressPercent"></div>
+            @if (progressPercent > 0 && progressPercent < 100) {
+              <div class="ks-zoom__marker" [style.left.%]="progressPercent"></div>
+            }
+          </div>
+          <div class="ks-scale">
+            <span>skip {{ chunk.skip | number }}</span>
+            <span>end {{ chunkEnd | number }}</span>
+          </div>
+
+          <dl class="kv">
+            <dt>Skip (-s)</dt>
+            <dd>{{ chunk.skip | number }}</dd>
+            <dt>Length (-l)</dt>
+            <dd>{{ chunk.length | number }}</dd>
+            <dt>Checkpoint</dt>
+            <dd>{{ chunk.checkpoint | number }}</dd>
+            <dt>Remaining</dt>
+            <dd>{{ chunk.length - processed | number }}</dd>
+          </dl>
+        </section>
+
+        <!-- Timeline + context -->
+        <section class="chunk-card">
+          <h3 class="chunk-card__title">Timeline</h3>
+          <ol class="timeline">
+            <li class="timeline__item" [class.timeline__item--done]="chunk.dispatchTime > 0">
+              <div class="timeline__label">Dispatched</div>
+              <div class="timeline__value">
+                {{ chunk.dispatchTime > 0 ? (chunk.dispatchTime | uiDate) : 'Not yet' }}
+              </div>
+            </li>
+            <li
+              class="timeline__item"
+              [class.timeline__item--done]="chunk.solveTime > 0"
+              [class.timeline__item--live]="isActive"
+            >
+              <div class="timeline__label">{{ isActive ? 'Last activity (running)' : 'Last activity' }}</div>
+              <div class="timeline__value">{{ chunk.solveTime > 0 ? (chunk.solveTime | uiDate) : 'No activity' }}</div>
+            </li>
+          </ol>
+
+          <h3 class="chunk-card__title">Task context</h3>
+          <dl class="kv">
+            @if (task?.hashlist; as hashlist) {
+              <dt>Hashlist</dt>
+              <dd>
+                <a [routerLink]="['/hashlists', 'hashlist', hashlist.id, 'edit']">{{ hashlist.name }}</a>
+              </dd>
+              <dt>Hash type</dt>
+              <dd>{{ hashlist.hashTypeId }}</dd>
+            }
+            @if (task?.crackerBinary; as cracker) {
+              <dt>Cracker</dt>
+              <dd>{{ cracker.binaryName }} {{ cracker.version }}</dd>
+            }
+            @if (task) {
+              <dt>Attack</dt>
+              <dd>
+                <code class="inline-code">{{ task.attackCmd }}</code>
+              </dd>
+            }
+            @if (task?.files?.length) {
+              <dt>Files</dt>
+              <dd>
+                @for (file of task?.files; track file.id) {
+                  <span class="file-chip">{{ file.filename }}</span>
+                }
+              </dd>
+            }
+          </dl>
+        </section>
+      </div>
+
+      <!-- Speed graph -->
+      <section class="chunk-card">
+        <h3 class="chunk-card__title">Speed while working on this chunk</h3>
+        @if (speeds.length) {
+          <app-task-speed-graph [speeds]="speeds"></app-task-speed-graph>
+        } @else {
+          <div class="chunk-empty chunk-empty--inline">
+            No speed samples recorded for this agent during this chunk (old samples may have been cleaned up).
+          </div>
+        }
+      </section>
+
+      <!-- Rerun command -->
+      <section class="chunk-card">
+        <div class="cmd-header">
+          <h3 class="chunk-card__title">Re-run this chunk</h3>
+          <mat-button-toggle-group
+            [value]="commandVariant"
+            (change)="setCommandVariant($event.value)"
+            hideSingleSelectionIndicator
+            aria-label="Command variant"
+          >
+            <mat-button-toggle value="standalone">Standalone</mat-button-toggle>
+            <mat-button-toggle value="agent">As the agent runs it</mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+
+        <div class="cmd">
+          <pre class="cmd__code" data-testid="chunk-command"><span class="cmd__prompt">$ </span>{{ command }}</pre>
+          <button type="button" class="cmd__copy" (click)="copyCommand()" title="Copy to clipboard">Copy</button>
+        </div>
+
+        <ul class="cmd-notes">
+          <li>
+            Run from the agent's data directory: the hashlist is expected at
+            <code class="inline-code">hashlists/{{ task?.hashlist?.id ?? '&lt;id&gt;' }}</code> and task files under
+            <code class="inline-code">files/</code>.
+          </li>
+          @if (usesPipe) {
+            <li>
+              This task enforces piping, so candidates are generated with <code class="inline-code">--stdout</code> and
+              piped into hashcat.
+            </li>
+          }
+          @if (usesPreprocessor) {
+            <li class="warn">
+              This task uses a preprocessor. The agent feeds hashcat from the preprocessor instead; the command above
+              only covers the hashcat side.
+            </li>
+          }
+          @if (!task) {
+            <li class="warn">The task could not be loaded, so the attack command and hash type are missing.</li>
+          }
+        </ul>
+      </section>
+    </div>
+  }
+</app-page>
