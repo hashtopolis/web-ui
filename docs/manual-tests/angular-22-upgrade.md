@@ -53,7 +53,7 @@ A fresh review stack is enough: at least one hashlist, one task with a few chunk
 
 Each page below renders, shows the same values as on Angular 21, and shows nothing like "undefined" or an empty field where a value was shown before.
 
-1. Hashlists → edit a hashlist (three dots → edit).
+1. Hashlists → edit a hashlist (three dots → edit). The read-only "Hash Type" field shows `<id> - <description>` (e.g. `0 - MD5`). While the page loads it is empty; it never shows "null - null" or "undefined - undefined". This one deliberately differs from Angular 21, which showed "null - null" while loading.
 2. Users → Global permission groups → edit a group.
 3. Account → API keys → create a new API key, then open its detail page.
 4. A page that uses the wordlist generator (e.g. Files → New wordlist → generator).
