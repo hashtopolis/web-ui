@@ -14,7 +14,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSelectHarness } from '@angular/material/select/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
@@ -244,7 +243,6 @@ describe('NewNotificationComponent', () => {
         MatSnackBarModule
       ],
       providers: [
-        provideAnimations(),
         { provide: GlobalService, useValue: mockService },
         { provide: NotificationsRoleService, useValue: mockRoleService },
         provideHttpClient(withInterceptorsFromDi())

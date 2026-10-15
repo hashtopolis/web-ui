@@ -12,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatStepperModule } from '@angular/material/stepper';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { SERV } from '@services/main.config';
@@ -205,7 +205,6 @@ describe('EditAgentComponent', () => {
         FontAwesomeModule,
         ReactiveFormsModule,
         FormsModule,
-        NoopAnimationsModule,
         MatStepperModule,
         MatExpansionModule,
         MatProgressSpinnerModule,
@@ -221,6 +220,7 @@ describe('EditAgentComponent', () => {
         CoreFormsModule
       ],
       providers: [
+        provideDisabledMaterialAnimations(),
         { provide: AlertService, useValue: alertServiceSpy },
         { provide: GlobalService, useValue: globalServiceSpy },
         { provide: Router, useValue: routerSpy },
