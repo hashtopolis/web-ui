@@ -2,9 +2,9 @@ import { HTTP_SKIP_CACHE_HEADER_CONFIG } from '@constants/http.config';
 import { HttpCacheInterceptor } from '@interceptors/http-cache.interceptor';
 import { lastValueFrom } from 'rxjs';
 
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
 import { CacheGetResult, HttpCacheService } from '@services/shared/http-cache.service';
@@ -18,8 +18,9 @@ describe('HttpCacheInterceptor', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
         SessionStorageService,
         HttpCacheService,
         {
