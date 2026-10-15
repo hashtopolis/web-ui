@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { AgentRoleService } from '@services/roles/agents/agent-role.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -10,10 +10,10 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
   standalone: false
 })
 export class ShowAgentsComponent {
-  constructor(
-    private titleService: AutoTitleService,
-    protected agentRoleService: AgentRoleService
-  ) {
+  private titleService = inject(AutoTitleService);
+  protected agentRoleService = inject(AgentRoleService);
+
+  constructor() {
     this.titleService.set(['Agents Overview']);
   }
 }

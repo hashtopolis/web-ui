@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewChild, inject } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
@@ -13,16 +13,16 @@ import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.servi
   standalone: false
 })
 export class HashlistComponent {
+  readonly titleService = inject(AutoTitleService);
+  readonly roleService = inject(HashListRoleService);
+
   @ViewChild('table') table: HashlistsTableComponent;
 
   pageTitle = 'Hashlists';
   showCreateButton: boolean = true;
 
-  constructor(
-    readonly titleService: AutoTitleService,
-    readonly roleService: HashListRoleService
-  ) {
-    titleService.set(['Show Hashlists']);
+  constructor() {
+    this.titleService.set(['Show Hashlists']);
     this.showCreateButton = this.roleService.hasRole('create');
   }
 
