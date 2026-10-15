@@ -1,6 +1,5 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
-import { MomentModule } from 'ngx-moment';
 
 import { CommonModule } from '@angular/common';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
@@ -48,7 +47,6 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     ComponentsModule,
     BrowserModule,
     CommonModule,
-    MomentModule,
     PipesModule,
     FormsModule,
     AuthModule,
