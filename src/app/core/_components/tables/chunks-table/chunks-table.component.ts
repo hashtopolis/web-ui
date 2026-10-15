@@ -17,6 +17,7 @@ import { ChunksDataSource } from '@datasources/chunks.datasource';
 
 import { ChunkStateLabels, ChunkStatePillClass } from '@src/app/core/_constants/chunks.config';
 import { FilterType } from '@src/app/core/_models/request-params.model';
+import { chunkCheckpointPercent, chunkProgressPercent, chunkTimeSpent } from '@src/app/shared/utils/chunk';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertToLocale } from '@src/app/shared/utils/util';
 
@@ -168,7 +169,7 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   renderTimeSpent(chunk: JChunk): SafeHtml {
-    const seconds = chunk.solveTime - chunk.dispatchTime;
+    const seconds = chunkTimeSpent(chunk);
     if (seconds) {
       return this.sanitize(formatSeconds(seconds));
     }
@@ -177,20 +178,21 @@ export class ChunksTableComponent extends BaseTableComponent implements OnInit, 
   }
 
   renderCheckpoint(chunk: JChunk): SafeHtml {
-    const percent = chunk.progress ? (((chunk.checkpoint - chunk.skip) / chunk.length) * 100).toFixed(2) : 0;
-    const data = chunk.checkpoint ? `${chunk.checkpoint} (${convertToLocale(Number(percent))}%)` : '0';
+    if (!chunk.checkpoint) {
+      return this.sanitize('0');
+    }
+    const percent = Number(chunkCheckpointPercent(chunk).toFixed(2));
 
-    return this.sanitize(data);
+    return this.sanitize(`${chunk.checkpoint} (${convertToLocale(percent)}%)`);
   }
 
   renderProgress(chunk: JChunk): SafeHtml {
-    if (chunk.progress === undefined) {
+    const percent = chunkProgressPercent(chunk);
+    if (percent === null) {
       return this.sanitize('N/A');
-    } else if (chunk.progress > 0) {
-      return this.sanitize(`${convertToLocale(chunk.progress / 100)}%`);
     }
 
-    return `${chunk.progress ? chunk.progress : 0}`;
+    return this.sanitize(`${convertToLocale(percent)}%`);
   }
 
   renderDispatchTime(chunk: JChunk): SafeHtml {

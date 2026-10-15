@@ -1,6 +1,6 @@
 import { ChunkState, ChunkStateLabels, ChunkStatePillClass } from '@constants/chunks.config';
 import { zChunkResponse, zSpeedListResponse, zTaskResponse } from '@generated/api/zod';
-import { Observable, catchError, finalize, map, of, switchMap } from 'rxjs';
+import { Observable, catchError, map, of, switchMap, tap } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
@@ -30,6 +30,7 @@ import { UIConfigService } from '@services/shared/storage.service';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { TaskSpeedGraphComponent } from '@src/app/shared/graphs/echarts/task-speed-graph/task-speed-graph.component';
 import { PipesModule } from '@src/app/shared/pipes.module';
+import { chunkProcessed, chunkProgressPercent, chunkTimeSpent } from '@src/app/shared/utils/chunk';
 import { buildChunkCommand } from '@src/app/tasks/chunk-detail/chunk-command';
 
 /** Speed samples are reported every few seconds; allow a little slack around the chunk's time window. */
@@ -78,29 +79,29 @@ export class ChunkDetailComponent implements OnInit {
   protected readonly ChunkState = ChunkState;
 
   ngOnInit(): void {
-    this.chunkId = zIdRouteParams.parse(this.route.snapshot.params).id;
-    this.titleService.set([`Chunk #${this.chunkId}`]);
-
-    this.loadChunk()
+    // Subscribe to the params (not the snapshot): navigating from one chunk to another reuses this component.
+    this.route.params
       .pipe(
-        switchMap((chunk) => {
-          this.chunk = chunk;
-          return chunk ? this.loadTask(chunk.taskId) : of(null);
-        }),
-        switchMap((task) => {
-          this.task = task;
-          this.updateCommand();
-          return this.chunk ? this.loadSpeeds(this.chunk) : of([]);
-        }),
-        finalize(() => {
-          this.isLoading = false;
+        map((params) => zIdRouteParams.parse(params).id),
+        tap((chunkId) => {
+          this.chunkId = chunkId;
+          this.chunk = null;
+          this.task = null;
+          this.speeds = [];
+          this.isLoading = true;
+          this.titleService.set([`Chunk #${chunkId}`]);
           this.cdr.markForCheck();
         }),
+        switchMap(() => this.loadAll()),
         takeUntilDestroyed(this.destroyRef)
       )
-      .subscribe((speeds) => {
+      .subscribe(({ chunk, task, speeds }) => {
+        this.chunk = chunk;
+        this.task = task;
         this.speeds = speeds;
-        this.notFound = !this.chunk;
+        this.notFound = !chunk;
+        this.isLoading = false;
+        this.updateCommand();
         this.cdr.markForCheck();
       });
   }
@@ -115,20 +116,14 @@ export class ChunkDetailComponent implements OnInit {
     return this.chunk ? `pill ${ChunkStatePillClass[this.chunk.state] ?? ''}` : 'pill';
   }
 
-  /** Progress through the chunk in percent. The API reports progress in hundredths of a percent. */
+  /** Progress through the chunk in percent, see chunkProgressPercent. */
   get progressPercent(): number {
-    if (!this.chunk) return 0;
-    if (this.chunk.progress > 0) return Math.min(100, this.chunk.progress / 100);
-    if (this.chunk.length > 0 && this.chunk.checkpoint > this.chunk.skip) {
-      return Math.min(100, ((this.chunk.checkpoint - this.chunk.skip) / this.chunk.length) * 100);
-    }
-    return 0;
+    return this.chunk ? (chunkProgressPercent(this.chunk) ?? 0) : 0;
   }
 
   /** Keyspace positions covered so far, derived from the checkpoint. */
   get processed(): number {
-    if (!this.chunk || this.chunk.checkpoint <= this.chunk.skip) return 0;
-    return Math.min(this.chunk.length, this.chunk.checkpoint - this.chunk.skip);
+    return this.chunk ? chunkProcessed(this.chunk) : 0;
   }
 
   get chunkEnd(): number {
@@ -136,8 +131,7 @@ export class ChunkDetailComponent implements OnInit {
   }
 
   get timeSpent(): number {
-    if (!this.chunk || !this.chunk.dispatchTime || !this.chunk.solveTime) return 0;
-    return Math.max(0, this.chunk.solveTime - this.chunk.dispatchTime);
+    return this.chunk ? chunkTimeSpent(this.chunk) : 0;
   }
 
   /** Average throughput over the chunk's lifetime (keyspace positions per second). */
@@ -208,6 +202,19 @@ export class ChunkDetailComponent implements OnInit {
       agentFlags: this.commandVariant === 'agent',
       statusTimer: this.task?.statusTimer
     });
+  }
+
+  /** Loads the chunk, then its task and the agent's speed samples during the chunk. */
+  private loadAll(): Observable<{ chunk: JChunk | null; task: JTask | null; speeds: SpeedStat[] }> {
+    return this.loadChunk().pipe(
+      switchMap((chunk) =>
+        chunk
+          ? this.loadTask(chunk.taskId).pipe(
+              switchMap((task) => this.loadSpeeds(chunk).pipe(map((speeds) => ({ chunk, task, speeds }))))
+            )
+          : of({ chunk: null, task: null, speeds: [] })
+      )
+    );
   }
 
   private loadChunk(): Observable<JChunk | null> {
