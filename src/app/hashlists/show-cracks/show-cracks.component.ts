@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
@@ -9,7 +9,9 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
   standalone: false
 })
 export class ShowCracksComponent {
-  constructor(private titleService: AutoTitleService) {
-    titleService.set(['Show Cracks']);
+  private titleService = inject(AutoTitleService);
+
+  constructor() {
+    this.titleService.set(['Show Cracks']);
   }
 }

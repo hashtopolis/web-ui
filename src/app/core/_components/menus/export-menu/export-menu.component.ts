@@ -1,8 +1,7 @@
-/* eslint-disable @angular-eslint/component-selector */
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
-import { ExportMenuAction, ExportMenuLabel } from './export-menu.constants';
-import { BaseMenuComponent } from '../base-menu/base-menu.component';
+import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
+import { ExportMenuAction, ExportMenuLabel } from '@components/menus/export-menu/export-menu.constants';
 
 @Component({
   selector: 'export-menu',

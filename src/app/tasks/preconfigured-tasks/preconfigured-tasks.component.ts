@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -14,13 +14,13 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
  *
  */
 export class PreconfiguredTasksComponent {
+  private titleService = inject(AutoTitleService);
+  readonly roleService = inject(PreconfiguredTasksRoleService);
+
   showCreateButton: boolean = true;
 
-  constructor(
-    private titleService: AutoTitleService,
-    readonly roleService: PreconfiguredTasksRoleService
-  ) {
-    titleService.set(['Show Preconfigured Task']);
+  constructor() {
+    this.titleService.set(['Show Preconfigured Task']);
     this.showCreateButton = this.roleService.hasRole('create');
   }
 }
