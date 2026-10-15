@@ -1,13 +1,14 @@
 /* eslint-disable @angular-eslint/component-selector */
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ExportMenuAction, ExportMenuLabel } from './export-menu.constants';
 
 import { BaseMenuComponent } from '../base-menu/base-menu.component';
 
 @Component({
-    selector: 'export-menu',
-    templateUrl: './export-menu.component.html',
-    standalone: false
+  selector: 'export-menu',
+  templateUrl: './export-menu.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false
 })
 export class ExportMenuComponent extends BaseMenuComponent implements OnInit {
   ngOnInit(): void {

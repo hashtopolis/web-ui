@@ -1,7 +1,7 @@
 import { zPreprocessorResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -60,7 +60,7 @@ describe('NewEditPreprocessorComponent', () => {
             paramMap: of({ get: () => null })
           }
         },
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting()
       ]
     }).compileComponents();

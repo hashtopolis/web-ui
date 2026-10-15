@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { ApiKeyRevealStore } from '@services/api-key-reveal.store';
@@ -13,6 +13,7 @@ import {
 @Component({
   selector: 'app-api-keys',
   templateUrl: './api-keys.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class ApiKeysComponent implements OnInit {

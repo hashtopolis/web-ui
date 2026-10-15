@@ -1,7 +1,7 @@
 import { zApiTokenPostPatchResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -29,6 +29,7 @@ import {
 @Component({
   selector: 'app-new-api-key',
   templateUrl: './new-api-key.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class NewApiKeyComponent implements OnInit {

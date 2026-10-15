@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-page-subtitle',
   templateUrl: './page-subtitle.component.html',
   styleUrls: ['./page-subtitle.component.scss'],
   host: { class: 'block' },
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class PageSubTitleComponent {

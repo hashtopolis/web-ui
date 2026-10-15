@@ -4,7 +4,7 @@ import { concat, defer, firstValueFrom, ignoreElements, lastValueFrom, tap } fro
 import { z } from 'zod';
 
 import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -78,7 +78,8 @@ const CRACKERS_PAGE = ['/config/engine/crackers'];
     PageTitleModule,
     ReactiveFormsModule
   ],
-  templateUrl: './cracker-version-form.component.html'
+  templateUrl: './cracker-version-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager
 })
 export class CrackerVersionFormComponent implements OnInit {
   protected readonly CrackerSource = CrackerSource;

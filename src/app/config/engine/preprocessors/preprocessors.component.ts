@@ -1,12 +1,13 @@
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
 
 @Component({
   selector: 'app-preprocessors',
   templateUrl: './preprocessors.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class PreprocessorsComponent {

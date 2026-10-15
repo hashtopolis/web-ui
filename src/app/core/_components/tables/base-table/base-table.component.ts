@@ -11,7 +11,8 @@ import {
   NgZone,
   SecurityContext,
   ViewChild,
-  inject
+  inject,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
@@ -54,6 +55,7 @@ import { formatPercentage } from '@src/app/shared/utils/util';
 @Component({
   selector: 'app-base-table',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class BaseTableComponent {

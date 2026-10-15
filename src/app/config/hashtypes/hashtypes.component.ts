@@ -1,6 +1,6 @@
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 
 /**
  * Global list of the hashtypes. Hashtypes are not created here: hashcat versions get them from the background scan,
@@ -9,6 +9,7 @@ import { Component, inject } from '@angular/core';
 @Component({
   selector: 'app-hashtypes',
   templateUrl: './hashtypes.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class HashtypesComponent {

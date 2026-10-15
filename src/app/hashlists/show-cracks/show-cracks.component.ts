@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 @Component({
   selector: 'app-show-cracks',
   templateUrl: './show-cracks.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class ShowCracksComponent {

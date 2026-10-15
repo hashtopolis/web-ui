@@ -1,6 +1,6 @@
 import { Subject, of } from 'rxjs';
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -78,7 +78,7 @@ describe('TasksAgentsTableComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [TestTasksAgentsTableComponent],
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         { provide: ExportService, useValue: mockExportService },
         { provide: MatDialog, useValue: mockDialog },

@@ -3,7 +3,7 @@ import { zPreTaskResponse } from '@generated/api/zod';
 import { lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -32,6 +32,7 @@ import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attac
 @Component({
   selector: 'app-edit-preconfigured-tasks',
   templateUrl: './edit-preconfigured-tasks.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class EditPreconfiguredTasksComponent implements OnInit {

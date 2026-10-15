@@ -4,7 +4,7 @@
 import { zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -27,6 +27,7 @@ const DEFAULT_SESSION_LIFETIME_SECONDS = 3600;
 @Component({
   selector: 'app-new-user',
   templateUrl: './new-user.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class NewUserComponent implements OnInit {

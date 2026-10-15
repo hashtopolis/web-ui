@@ -5,7 +5,7 @@ import { zAgentResponse, zGetBestTasksAgentResponse, zUserListResponse } from '@
 import { lastValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -46,6 +46,7 @@ type ShownAgent = JAgentWith<'agentStats' | 'accessGroups' | 'assignments' | 'cr
 @Component({
   selector: 'app-edit-agent',
   templateUrl: './edit-agent.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class EditAgentComponent implements OnInit {

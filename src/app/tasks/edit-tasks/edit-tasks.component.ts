@@ -10,7 +10,7 @@ import {
 import { finalize, lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
@@ -59,6 +59,7 @@ type EditedTask = JTaskWith<
   templateUrl: './edit-tasks.component.html',
   styleUrls: ['./edit-tasks.component.scss'],
   providers: [FileSizePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class EditTasksComponent implements OnInit, OnDestroy {
