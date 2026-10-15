@@ -1,8 +1,8 @@
 import { map } from 'rxjs/operators';
-import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { AlertService } from 'src/app/core/_services/shared/alert.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { uiDatePipe } from '@src/app/core/_pipes/date.pipe';
+import { GlobalService } from '@src/app/core/_services/main.service';
+import { AlertService } from '@src/app/core/_services/shared/alert.service';
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 
 import { Component, DestroyRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';

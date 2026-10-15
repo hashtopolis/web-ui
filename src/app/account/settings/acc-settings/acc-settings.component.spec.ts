@@ -1,9 +1,9 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { of } from 'rxjs';
-import { SERV } from 'src/app/core/_services/main.config';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { ComponentsModule } from 'src/app/shared/components.module';
-import { PipesModule } from 'src/app/shared/pipes.module';
+import { SERV } from '@src/app/core/_services/main.config';
+import { GlobalService } from '@src/app/core/_services/main.service';
+import { ComponentsModule } from '@src/app/shared/components.module';
+import { PipesModule } from '@src/app/shared/pipes.module';
 
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';

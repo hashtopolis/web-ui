@@ -1,4 +1,4 @@
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
