@@ -7,7 +7,7 @@ import { PipesModule } from 'src/app/shared/pipes.module';
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { CommonModule } from '@angular/common';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -247,7 +247,7 @@ describe('NewNotificationComponent', () => {
         provideAnimations(),
         { provide: GlobalService, useValue: mockService },
         { provide: NotificationsRoleService, useValue: mockRoleService },
-        provideHttpClient(withInterceptorsFromDi())
+        provideHttpClient(withXhr(), withInterceptorsFromDi())
       ]
     }).compileComponents();
 

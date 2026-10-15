@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
@@ -43,7 +43,7 @@ describe('FilePreviewService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [FilePreviewService, provideHttpClient(), provideHttpClientTesting()]
+      providers: [FilePreviewService, provideHttpClient(withXhr()), provideHttpClientTesting()]
     });
     service = TestBed.inject(FilePreviewService);
     httpMock = TestBed.inject(HttpTestingController);

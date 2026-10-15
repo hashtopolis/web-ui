@@ -1,6 +1,6 @@
 import { zCrackerBinaryTypeListResponse, zPreTaskResponse, zTaskResponse } from '@generated/api/zod';
 
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -31,6 +31,7 @@ import { NewPretaskForm, getNewPretaskForm } from '@src/app/tasks/new-preconfigu
   templateUrl: './new-preconfigured-tasks.component.html',
   styleUrls: ['./new-preconfigured-tasks.component.scss'],
   host: { class: 'block' },
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class NewPreconfiguredTasksComponent implements OnInit {

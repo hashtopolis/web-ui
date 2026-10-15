@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 export const DividerVariant = {
   Faint: 'faint',
@@ -18,6 +18,7 @@ export type DividerOrientation = (typeof DividerOrientation)[keyof typeof Divide
   template: '',
   styleUrls: ['./divider.component.scss'],
   standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: {
     '[attr.data-variant]': 'variant',
     '[attr.data-orientation]': 'orientation',

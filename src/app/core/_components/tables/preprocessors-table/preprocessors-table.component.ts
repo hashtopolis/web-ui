@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JPreprocessor } from '@models/preprocessor.model';
@@ -27,6 +27,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
 @Component({
   selector: 'app-preprocessors-table',
   templateUrl: './preprocessors-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class PreprocessorsTableComponent extends BaseTableComponent implements OnInit {

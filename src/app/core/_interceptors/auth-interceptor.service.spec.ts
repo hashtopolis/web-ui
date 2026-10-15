@@ -1,6 +1,12 @@
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
-import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  HttpClient,
+  provideHttpClient,
+  withInterceptorsFromDi,
+  withXhr
+} from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
@@ -41,7 +47,7 @@ describe('AuthInterceptorService', () => {
     TestBed.configureTestingModule({
       providers: [
         // DI-registered interceptors only run when they are explicitly wired in
-        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClient(withXhr(), withInterceptorsFromDi()),
         provideHttpClientTesting(),
         { provide: AuthService, useValue: spy },
         { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true }

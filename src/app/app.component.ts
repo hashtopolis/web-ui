@@ -3,7 +3,15 @@ import { Keepalive } from '@ng-idle/keepalive';
 import { filter } from 'rxjs';
 
 import { isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  PLATFORM_ID,
+  inject,
+  ChangeDetectionStrategy
+} from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 
@@ -28,6 +36,7 @@ import { DialogData } from '@src/app/shared/dialog/timeout/timeout-dialog.model'
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class AppComponent implements OnInit, AfterViewInit {

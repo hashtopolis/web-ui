@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 
@@ -10,6 +10,7 @@ import { ShowFullValueDialogData } from '@src/app/shared/dialog/show-full-value-
 @Component({
   selector: 'app-show-full-value-dialog',
   imports: [MatDialogModule, MatButtonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './show-full-value-dialog.component.html'
 })
 export class ShowFullValueDialogComponent {

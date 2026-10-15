@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl, FormArray, FormControl } from '@angular/forms';
 
 import { AlertService } from '@services/shared/alert.service';
@@ -19,6 +19,7 @@ import { Wordpolis } from '@src/app/shared/wordlist-generator/wordpolis-wrapper'
   selector: 'wordlist-generator',
   templateUrl: './wordlist-generator.component.html',
   styleUrls: ['./wordlist-generator.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class WordlistGeneratorComponent implements OnInit {

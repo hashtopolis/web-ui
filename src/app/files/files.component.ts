@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { TableSettingsKey } from '@models/config-ui.model';
@@ -11,6 +11,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 @Component({
   selector: 'app-files',
   templateUrl: './files.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class FilesComponent implements OnInit {

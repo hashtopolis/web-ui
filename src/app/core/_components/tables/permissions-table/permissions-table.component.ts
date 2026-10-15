@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JGlobalPermissionGroup } from '@models/global-permission-group.model';
@@ -27,6 +27,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
 @Component({
   selector: 'app-permissions-table',
   templateUrl: './permissions-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class PermissionsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

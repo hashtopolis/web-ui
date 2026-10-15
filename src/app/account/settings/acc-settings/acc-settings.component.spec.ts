@@ -6,7 +6,7 @@ import { ComponentsModule } from 'src/app/shared/components.module';
 import { PipesModule } from 'src/app/shared/pipes.module';
 
 import { CommonModule } from '@angular/common';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -114,7 +114,7 @@ describe('AccountSettingsComponent', () => {
           provide: AlertService,
           useValue: alertSpy
         },
-        provideHttpClient(withInterceptorsFromDi())
+        provideHttpClient(withXhr(), withInterceptorsFromDi())
       ]
     }).compileComponents();
 

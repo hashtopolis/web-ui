@@ -1,6 +1,6 @@
 import { firstValueFrom } from 'rxjs';
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -19,6 +19,7 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
 @Component({
   selector: 'app-new-cracker',
   imports: [ButtonsModule, FormsModule, GridModule, InputModule, PageTitleModule, ReactiveFormsModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './new-cracker.component.html'
 })
 export class NewCrackerComponent {

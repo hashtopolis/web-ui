@@ -1,7 +1,7 @@
 import { TasksTableComponent } from 'src/app/core/_components/tables/tasks-table/tasks-table.component';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
-import { Component, ViewChild, inject } from '@angular/core';
+import { Component, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
@@ -10,6 +10,7 @@ import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
   selector: 'app-show-tasks',
   templateUrl: './show-tasks.component.html',
   styleUrls: ['./show-tasks.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class ShowTasksComponent {

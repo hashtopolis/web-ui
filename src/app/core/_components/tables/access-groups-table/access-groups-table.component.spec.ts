@@ -1,6 +1,6 @@
 import { Observable, Subject, of, throwError } from 'rxjs';
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -85,7 +85,7 @@ describe('AccessGroupsTableComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [TestAccessGroupsTableComponent],
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         { provide: MatDialog, useValue: mockDialog },
         { provide: GlobalService, useValue: mockGlobalService },

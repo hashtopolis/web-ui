@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
   templateUrl: './page.component.html',
   styleUrls: ['./page.component.scss'],
   host: { class: 'block' },
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class PageComponent {

@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JHashlist } from '@models/hashlist.model';
@@ -27,6 +27,7 @@ import { HashListFormatLabels } from '@src/app/core/_constants/hashlist.config';
 @Component({
   selector: 'app-superhashlist-hashlist-table',
   templateUrl: './super-hashlist-hashlist-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class SuperHashlistsHashlistsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

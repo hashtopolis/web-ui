@@ -1,7 +1,7 @@
 import { HttpHeaderName } from '@constants/http.config';
 import { of } from 'rxjs';
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
@@ -100,7 +100,7 @@ describe('EditTasksComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [EditTasksComponent],
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         { provide: AutoTitleService, useValue: titleServiceSpy },
         { provide: AlertService, useValue: alertServiceSpy },
@@ -592,7 +592,7 @@ describe('EditTasksComponent (edit-task-cAll route)', () => {
     await TestBed.configureTestingModule({
       declarations: [EditTasksComponent],
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         { provide: AutoTitleService, useValue: titleServiceSpy },
         { provide: AlertService, useValue: alertServiceSpy },

@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JNotification } from '@models/notification.model';
@@ -28,6 +28,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
 @Component({
   selector: 'app-notifications-table',
   templateUrl: './notifications-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class NotificationsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

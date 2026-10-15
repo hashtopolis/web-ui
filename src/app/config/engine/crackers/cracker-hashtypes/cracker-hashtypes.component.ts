@@ -1,7 +1,7 @@
 import { zCrackerBinaryRelationHashtypesGetResponse } from '@generated/api/zod';
 import { firstValueFrom } from 'rxjs';
 
-import { Component, DestroyRef, Input, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, DestroyRef, Input, OnInit, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { RouterModule } from '@angular/router';
@@ -30,6 +30,7 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
 @Component({
   selector: 'app-cracker-hashtypes',
   imports: [ButtonsModule, ComponentsModule, CoreComponentsModule, PageTitleModule, RouterModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './cracker-hashtypes.component.html'
 })
 export class CrackerHashtypesComponent implements OnInit {

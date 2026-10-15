@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -6,6 +6,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 @Component({
   selector: 'app-supertasks',
   templateUrl: './supertasks.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class SupertasksComponent {

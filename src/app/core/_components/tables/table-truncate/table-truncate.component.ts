@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { BaseModel, DynamicModel } from '@models/base.model';
@@ -17,6 +17,7 @@ export const TABLE_TRUNCATE_MAX_LENGTH = 64;
 @Component({
   selector: 'table-truncate',
   templateUrl: './table-truncate.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class TableTruncateComponent implements OnInit {

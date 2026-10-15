@@ -21,7 +21,9 @@
             <app-form-row [columns]="2">
               <input-text
                 title="Hash Type"
-                [value]="hashtype?.id + ' - ' + hashtype?.description"
+                [value]="
+                  $safeNavigationMigration(hashtype?.id) + ' - ' + $safeNavigationMigration(hashtype?.description)
+                "
                 [readonly]="true"
               ></input-text>
               <input-text

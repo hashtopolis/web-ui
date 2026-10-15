@@ -1,7 +1,7 @@
 import { PageTitle } from 'src/app/core/_decorators/autotitle';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { AlertService } from '@services/shared/alert.service';
@@ -11,6 +11,7 @@ import { MAX_SEARCH_LENGTH, MAX_SEARCH_SIZE } from '@components/tables/search-ha
 @Component({
   selector: 'app-search-hash',
   templateUrl: './search-hash.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 @PageTitle(['Search Hash'])

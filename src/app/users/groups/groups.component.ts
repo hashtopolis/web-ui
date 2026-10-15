@@ -1,12 +1,13 @@
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { AccessGroupRoleService } from '@services/roles/user/accessgroup-role.service';
 
 @Component({
   selector: 'app-groups',
   templateUrl: './groups.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class GroupsComponent {

@@ -1,7 +1,7 @@
 import { zGlobalPermissionGroupListResponse, zUserResponse } from '@generated/api/zod';
 import { finalize } from 'rxjs';
 
-import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -36,6 +36,7 @@ import {
   selector: 'app-edit-users',
   templateUrl: './edit-users.component.html',
   providers: [uiDatePipe],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class EditUsersComponent implements OnInit {

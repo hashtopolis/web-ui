@@ -8,7 +8,8 @@ import {
   OnDestroy,
   OnInit,
   SimpleChanges,
-  inject
+  inject,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
@@ -41,7 +42,8 @@ import { TimePrecision, formatDate } from '@src/app/shared/utils/datetime';
   templateUrl: './last-updated.component.html',
   styleUrls: ['./last-updated.component.scss'],
   host: { class: 'text-xs text-muted-foreground' },
-  imports: [MatProgressSpinner]
+  imports: [MatProgressSpinner],
+  changeDetection: ChangeDetectionStrategy.Eager
 })
 export class LastUpdatedComponent implements OnInit, OnDestroy, OnChanges {
   /** The actual last time data was loaded */

@@ -2,7 +2,7 @@ import { Buffer } from 'buffer';
 
 import { Subject, of } from 'rxjs';
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
@@ -36,7 +36,7 @@ describe('AuthService', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         AuthService,
         { provide: ConfigService, useValue: { getEndpoint: () => 'http://localhost' } },
@@ -110,7 +110,7 @@ describe('AuthService.autoLogin', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         AuthService,
         { provide: ConfigService, useValue: { getEndpoint: () => 'http://localhost' } },
@@ -241,7 +241,7 @@ describe('AuthService refresh token', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(),
+        provideHttpClient(withXhr()),
         provideHttpClientTesting(),
         AuthService,
         { provide: ConfigService, useValue: { getEndpoint: () => 'http://localhost' } },

@@ -1,6 +1,6 @@
 import { Observable, of } from 'rxjs';
 
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { JHealthCheckAgent } from '@models/health-check.model';
 
@@ -20,6 +20,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 @Component({
   selector: 'app-health-check-agents-table',
   templateUrl: './health-check-agents-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class HealthCheckAgentsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

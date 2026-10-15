@@ -5,7 +5,7 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { ConfigService } from 'src/app/core/_services/shared/config.service';
 
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -24,6 +24,7 @@ import { environment } from '@src/environments/environment';
 @Component({
   selector: 'app-new-agent',
   templateUrl: './new-agent.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class NewAgentComponent implements OnInit {

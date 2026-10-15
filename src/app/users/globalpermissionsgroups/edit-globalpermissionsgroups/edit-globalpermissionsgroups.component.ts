@@ -3,7 +3,7 @@
  */
 import { zGlobalPermissionGroupResponse } from '@generated/api/zod';
 
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
@@ -21,6 +21,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 @Component({
   selector: 'app-edit-globalpermissionsgroups',
   templateUrl: './edit-globalpermissionsgroups.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class EditGlobalpermissionsgroupsComponent implements OnInit {

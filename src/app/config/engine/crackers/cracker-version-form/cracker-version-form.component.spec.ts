@@ -1,8 +1,8 @@
 import { zCrackerBinaryResponse, zGetAccessGroupsHelperApiResponse } from '@generated/api/zod';
 import { Subject, of, throwError } from 'rxjs';
 
-import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { HttpErrorResponse, provideHttpClient, withXhr } from '@angular/common/http';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -22,7 +22,7 @@ import { CrackerHashtypesComponent } from '@src/app/config/engine/crackers/crack
 import { CrackerVersionFormComponent } from '@src/app/config/engine/crackers/cracker-version-form/cracker-version-form.component';
 import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 
-@Component({ selector: 'app-cracker-hashtypes', template: '' })
+@Component({ selector: 'app-cracker-hashtypes', changeDetection: ChangeDetectionStrategy.Eager, template: '' })
 class StubCrackerHashtypesComponent {
   @Input() crackerBinaryId: number;
   @Input() isHashcat = false;
@@ -76,7 +76,7 @@ describe('CrackerVersionFormComponent', () => {
         { provide: HashTypesRoleService, useValue: hashtypeRoles },
         { provide: ConfigService, useValue: { getEndpoint: () => 'http://localhost:8080/api/v2' } },
         { provide: ActivatedRoute, useValue: { snapshot: { data: routeData, params: routeParams } } },
-        provideHttpClient()
+        provideHttpClient(withXhr())
       ]
     })
       .overrideComponent(CrackerVersionFormComponent, {

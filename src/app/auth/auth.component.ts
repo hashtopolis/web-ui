@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, DestroyRef, ElementRef, OnInit, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  ElementRef,
+  OnInit,
+  inject,
+  ChangeDetectionStrategy
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { FormControl } from '@angular/forms';
@@ -20,6 +28,7 @@ export interface LoginForm {
   selector: 'app-login',
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class AuthComponent implements OnInit, AfterViewInit {

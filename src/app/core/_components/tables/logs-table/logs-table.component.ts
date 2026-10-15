@@ -2,7 +2,7 @@ import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
 import { JLog } from 'src/app/core/_models/log.model';
 import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
 
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
@@ -14,6 +14,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
 @Component({
   selector: 'logs-table',
   templateUrl: './logs-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class LogsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
