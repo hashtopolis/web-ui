@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -10,13 +10,13 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
   standalone: false
 })
 export class SupertasksComponent {
+  private titleService = inject(AutoTitleService);
+  readonly roleService = inject(SupertasksRoleService);
+
   showCreateButton: boolean = true;
 
-  constructor(
-    private titleService: AutoTitleService,
-    readonly roleService: SupertasksRoleService
-  ) {
-    titleService.set(['Show Preconfigured Task']);
+  constructor() {
+    this.titleService.set(['Show Preconfigured Task']);
     this.showCreateButton = this.roleService.hasRole('create');
   }
 }

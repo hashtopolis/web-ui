@@ -83,66 +83,99 @@ describe('ActionMenuComponent', () => {
 
     it('should be active when currentUrl matches routerLinkAdd', () => {
       component.currentUrl = ['agents', 'new-agent'];
-      component.actionMenuItems = [[{
-        label: 'Agents',
-        routerLink: ['agents', 'show-agents'],
-        routerLinkAdd: ['agents', 'new-agent']
-      }]];
+      component.actionMenuItems = [
+        [
+          {
+            label: 'Agents',
+            routerLink: ['agents', 'show-agents'],
+            routerLinkAdd: ['agents', 'new-agent']
+          }
+        ]
+      ];
       component.checkIsActive();
       expect(component.isActive).toBeTrue();
     });
 
     it('should NOT be active when routerLink matches but routerLinkAdd does not', () => {
       component.currentUrl = ['agents', 'something-else'];
-      component.actionMenuItems = [[{
-        label: 'Agents',
-        routerLink: ['agents', 'show-agents'],
-        routerLinkAdd: ['agents', 'new-agent']
-      }]];
+      component.actionMenuItems = [
+        [
+          {
+            label: 'Agents',
+            routerLink: ['agents', 'show-agents'],
+            routerLinkAdd: ['agents', 'new-agent']
+          }
+        ]
+      ];
       component.checkIsActive();
       expect(component.isActive).toBeFalse();
     });
 
     it('should be active when currentUrl matches an activeRoute', () => {
       component.currentUrl = ['config', 'task-chunk'];
-      component.actionMenuItems = [[{
-        label: 'Settings',
-        routerLink: ['config', 'agent'],
-        activeRoutes: [['config', 'task-chunk'], ['config', 'hch']]
-      }]];
+      component.actionMenuItems = [
+        [
+          {
+            label: 'Settings',
+            routerLink: ['config', 'agent'],
+            activeRoutes: [
+              ['config', 'task-chunk'],
+              ['config', 'hch']
+            ]
+          }
+        ]
+      ];
       component.checkIsActive();
       expect(component.isActive).toBeTrue();
     });
 
     it('should be active when currentUrl matches second activeRoute', () => {
       component.currentUrl = ['config', 'hch'];
-      component.actionMenuItems = [[{
-        label: 'Settings',
-        routerLink: ['config', 'agent'],
-        activeRoutes: [['config', 'task-chunk'], ['config', 'hch']]
-      }]];
+      component.actionMenuItems = [
+        [
+          {
+            label: 'Settings',
+            routerLink: ['config', 'agent'],
+            activeRoutes: [
+              ['config', 'task-chunk'],
+              ['config', 'hch']
+            ]
+          }
+        ]
+      ];
       component.checkIsActive();
       expect(component.isActive).toBeTrue();
     });
 
     it('should NOT be active when currentUrl does not match any activeRoute', () => {
       component.currentUrl = ['config', 'something-else'];
-      component.actionMenuItems = [[{
-        label: 'Settings',
-        routerLink: ['config', 'agent'],
-        activeRoutes: [['config', 'task-chunk'], ['config', 'hch']]
-      }]];
+      component.actionMenuItems = [
+        [
+          {
+            label: 'Settings',
+            routerLink: ['config', 'agent'],
+            activeRoutes: [
+              ['config', 'task-chunk'],
+              ['config', 'hch']
+            ]
+          }
+        ]
+      ];
       component.checkIsActive();
       expect(component.isActive).toBeFalse();
     });
 
     it('should be active when currentUrl matches a 3-segment activeRoute', () => {
       component.currentUrl = ['tasks', 'import-supertasks', 'wrbulk'];
-      component.actionMenuItems = [[{
-        label: 'Supertask Builder',
-        routerLink: ['tasks', 'import-supertasks', 'masks'],
-        activeRoutes: [['tasks', 'import-supertasks', 'wrbulk']]
-      }]];
+      component.actionMenuItems = [
+        [
+          {
+            label: 'Supertask Builder',
+            routerLink: ['tasks', 'import-supertasks', 'masks'],
+            activeRoutes: [['tasks', 'import-supertasks', 'wrbulk']]
+          }
+        ]
+      ];
       component.checkIsActive();
       expect(component.isActive).toBeTrue();
     });

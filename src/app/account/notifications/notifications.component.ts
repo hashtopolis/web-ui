@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { NotificationsRoleService } from '@services/roles/config/notifications-role.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -15,13 +15,13 @@ export interface Filter {
   standalone: false
 })
 export class NotificationsComponent {
+  private titleService = inject(AutoTitleService);
+  private roleService = inject(NotificationsRoleService);
+
   protected showCreateButton: boolean = true;
 
-  constructor(
-    private titleService: AutoTitleService,
-    private roleService: NotificationsRoleService
-  ) {
+  constructor() {
     this.showCreateButton = this.roleService.hasRole('create');
-    titleService.set(['Notifications']);
+    this.titleService.set(['Notifications']);
   }
 }

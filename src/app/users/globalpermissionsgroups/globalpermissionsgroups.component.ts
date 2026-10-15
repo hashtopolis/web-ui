@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 
@@ -9,7 +9,9 @@ import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.servi
   standalone: false
 })
 export class GlobalpermissionsgroupsComponent {
-  constructor(private titleService: AutoTitleService) {
-    titleService.set(['Show Global Permissions']);
+  private titleService = inject(AutoTitleService);
+
+  constructor() {
+    this.titleService.set(['Show Global Permissions']);
   }
 }

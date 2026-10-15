@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
 
@@ -11,12 +11,12 @@ import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.servi
   standalone: false
 })
 export class PreprocessorsComponent {
+  private titleService = inject(AutoTitleService);
+  private preprocssesorRoleService = inject(PreprocessorRoleService);
+
   protected showCreateButton = false;
 
-  constructor(
-    private titleService: AutoTitleService,
-    private preprocssesorRoleService: PreprocessorRoleService
-  ) {
+  constructor() {
     this.titleService.set(['Show Preprocessors']);
     this.showCreateButton = this.preprocssesorRoleService.hasRole('create');
   }

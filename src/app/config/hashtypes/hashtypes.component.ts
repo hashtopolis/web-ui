@@ -1,6 +1,6 @@
-import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
-
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 
 /**
  * Global list of the hashtypes. Hashtypes are not created here: hashcat versions get them from the background scan,

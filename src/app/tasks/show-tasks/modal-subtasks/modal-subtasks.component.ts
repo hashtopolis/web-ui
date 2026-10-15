@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
@@ -8,11 +8,11 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
   standalone: false
 })
 export class ModalSubtasksComponent {
-  constructor(
-    @Inject(MAT_DIALOG_DATA)
-    public data: { supertaskId: number; supertaskName: string },
-    private dialogRef: MatDialogRef<ModalSubtasksComponent>
-  ) {}
+  data = inject<{
+    supertaskId: number;
+    supertaskName: string;
+  }>(MAT_DIALOG_DATA);
+  private dialogRef = inject<MatDialogRef<ModalSubtasksComponent>>(MatDialogRef);
 
   get supertaskId(): number {
     return this.data.supertaskId;
