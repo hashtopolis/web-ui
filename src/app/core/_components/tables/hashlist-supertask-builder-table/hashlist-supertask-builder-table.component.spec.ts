@@ -3,7 +3,8 @@ import { Observable, of } from 'rxjs';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideLocationMocks } from '@angular/common/testing';
+import { RouterLink, provideRouter } from '@angular/router';
 
 import { CrackerBinaryId, CrackerBinaryTypeId } from '@models/id.types';
 import { RequestParams } from '@models/request-params.model';
@@ -105,9 +106,11 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
         { provide: GlobalService, useValue: mockGlobalService },
         { provide: AlertService, useValue: mockAlertService },
         { provide: CrackerHashtypeSupportService, useValue: support },
-        { provide: CrackerBinaryTypesService, useValue: crackerBinaryTypes }
+        { provide: CrackerBinaryTypesService, useValue: crackerBinaryTypes },
+        provideRouter([]),
+        provideLocationMocks()
       ],
-      imports: [RouterTestingModule],
+      imports: [RouterLink],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
 

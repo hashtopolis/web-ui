@@ -1,7 +1,8 @@
 import { zGetAccessGroupsHelperApiResponse, zHashlistResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
 
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideLocationMocks } from '@angular/common/testing';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -142,7 +143,6 @@ describe('EditHashlistComponent', () => {
       declarations: [EditHashlistComponent, PageSubTitleComponent],
       imports: [
         ReactiveFormsModule,
-        HttpClientTestingModule,
         InputModule,
         ButtonsModule,
         ComponentsModule,
@@ -151,6 +151,8 @@ describe('EditHashlistComponent', () => {
         MatExpansionModule
       ],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         StaticArrayPipe,
         { provide: GlobalService, useValue: gsSpy },
         { provide: AlertService, useValue: alertSpy },

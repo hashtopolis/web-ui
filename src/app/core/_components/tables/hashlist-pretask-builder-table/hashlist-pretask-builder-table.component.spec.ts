@@ -3,7 +3,8 @@ import { of } from 'rxjs';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
+import { provideLocationMocks } from '@angular/common/testing';
+import { RouterLink, provideRouter } from '@angular/router';
 
 import { JPretask } from '@models/pretask.model';
 
@@ -64,9 +65,11 @@ describe('HashlistPretaskBuilderTableComponent', () => {
       providers: [
         { provide: GlobalService, useValue: mockGlobalService },
         { provide: AlertService, useValue: mockAlertService },
-        { provide: CrackerHashtypeSupportService, useValue: support }
+        { provide: CrackerHashtypeSupportService, useValue: support },
+        provideRouter([]),
+        provideLocationMocks()
       ],
-      imports: [RouterTestingModule],
+      imports: [RouterLink],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
 
