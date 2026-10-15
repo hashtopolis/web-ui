@@ -6,7 +6,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 import { InputMultiSelectComponent } from '@src/app/shared/input/multiselect/multiselect.component';
 import { SelectOption } from '@src/app/shared/utils/forms';
@@ -99,7 +99,10 @@ describe('InputMultiSelectComponent', () => {
       component.onSearchInputChange({ target: { value: 'ga' } } as unknown as Event);
 
       const chipInput = jasmine.createSpyObj('chipInput', ['clear']);
-      component.onInputChipAdd({ value: 'ga', chipInput } as unknown as import('@angular/material/chips').MatChipInputEvent);
+      component.onInputChipAdd({
+        value: 'ga',
+        chipInput
+      } as unknown as import('@angular/material/chips').MatChipInputEvent);
 
       expect(component.selectedItems).toEqual([ITEMS[2]]);
       expect(chipInput.clear).toHaveBeenCalled();
@@ -112,7 +115,10 @@ describe('InputMultiSelectComponent', () => {
       component.onSearchInputChange({ target: { value: 'zzz' } } as unknown as Event);
 
       const chipInput = jasmine.createSpyObj('chipInput', ['clear']);
-      component.onInputChipAdd({ value: 'zzz', chipInput } as unknown as import('@angular/material/chips').MatChipInputEvent);
+      component.onInputChipAdd({
+        value: 'zzz',
+        chipInput
+      } as unknown as import('@angular/material/chips').MatChipInputEvent);
 
       expect(component.selectedItems).toEqual([]);
       expect(control.hasError('invalidSelection')).toBeTrue();
@@ -224,14 +230,8 @@ describe('InputMultiSelectComponent (readonly)', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [InputMultiSelectComponent],
-      imports: [
-        NoopAnimationsModule,
-        MatFormFieldModule,
-        MatChipsModule,
-        MatInputModule,
-        MatTooltipModule,
-        MatAutocompleteModule
-      ]
+      imports: [MatFormFieldModule, MatChipsModule, MatInputModule, MatTooltipModule, MatAutocompleteModule],
+      providers: [provideDisabledMaterialAnimations()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(InputMultiSelectComponent);
@@ -260,14 +260,8 @@ describe('InputMultiSelectComponent chip removal interaction', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [InputMultiSelectComponent],
-      imports: [
-        NoopAnimationsModule,
-        MatFormFieldModule,
-        MatChipsModule,
-        MatInputModule,
-        MatTooltipModule,
-        MatAutocompleteModule
-      ]
+      imports: [MatFormFieldModule, MatChipsModule, MatInputModule, MatTooltipModule, MatAutocompleteModule],
+      providers: [provideDisabledMaterialAnimations()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(InputMultiSelectComponent);

@@ -8,7 +8,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { Router, NavigationEnd } from '@angular/router';
 import { Subject } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 import { ActionMenuComponent } from './action-menu.component';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -39,15 +39,9 @@ describe('ActionMenuComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [ActionMenuComponent],
-      imports: [
-        NoopAnimationsModule,
-        MatMenuModule,
-        MatButtonModule,
-        MatIconModule,
-        MatDividerModule,
-        FontAwesomeModule
-      ],
+      imports: [MatMenuModule, MatButtonModule, MatIconModule, MatDividerModule, FontAwesomeModule],
       providers: [
+        provideDisabledMaterialAnimations(),
         { provide: Router, useValue: routerSpy },
         { provide: LocalStorageService, useValue: storageSpy }
       ]

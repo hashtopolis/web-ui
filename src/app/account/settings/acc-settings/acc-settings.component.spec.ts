@@ -16,7 +16,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
-import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { AlertService } from '@services/shared/alert.service';
@@ -105,7 +104,6 @@ describe('AccountSettingsComponent', () => {
         MatButtonModule
       ],
       providers: [
-        provideAnimations(),
         {
           provide: GlobalService,
           useValue: mockService
