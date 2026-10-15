@@ -1,6 +1,6 @@
 import { of, throwError } from 'rxjs';
 
-import { provideHttpClient, withXhr } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -35,7 +35,7 @@ describe('NewCrackerComponent', () => {
         { provide: Router, useValue: mockRouter },
         { provide: AlertService, useValue: mockAlertService },
         { provide: CrackerBinaryRoleService, useValue: mockRoleService },
-        provideHttpClient(withXhr())
+        provideHttpClient()
       ]
     }).compileComponents();
   });

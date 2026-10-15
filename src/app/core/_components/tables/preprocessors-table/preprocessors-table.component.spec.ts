@@ -1,4 +1,4 @@
-import { provideHttpClient, withXhr } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -42,7 +42,7 @@ describe('PreprocessorsTableComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [TestPreprocessorsTableComponent],
       providers: [
-        provideHttpClient(withXhr()),
+        provideHttpClient(),
         provideHttpClientTesting(),
         { provide: ExportService, useValue: mockExportService }
       ],
