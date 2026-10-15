@@ -1,8 +1,8 @@
 import { zConfigListResponse } from '@generated/api/zod';
-import { VouchersTableComponent } from 'src/app/core/_components/tables/vouchers-table/vouchers-table.component';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { ConfigService } from 'src/app/core/_services/shared/config.service';
+import { VouchersTableComponent } from '@src/app/core/_components/tables/vouchers-table/vouchers-table.component';
+import { GlobalService } from '@src/app/core/_services/main.service';
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
+import { ConfigService } from '@src/app/core/_services/shared/config.service';
 
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, DestroyRef, OnInit, ViewChild, inject, ChangeDetectionStrategy } from '@angular/core';
