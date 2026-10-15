@@ -117,6 +117,8 @@
   --text-base: var(--text-base);
   --text-lg: var(--text-lg);
   --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
 
   /* Spacing — exposes --space-* tokens as p-*, m-*, gap-*, w-*, h-* utilities.
      Tailwind v4 reads --spacing-<name> entries; named utilities (gap-md)

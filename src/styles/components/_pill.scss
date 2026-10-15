@@ -20,4 +20,26 @@
     background: color-mix(in srgb, var(--destructive) 18%, transparent);
     color: var(--destructive);
   }
+
+  /* Chunk states, see ChunkStatePillClass in core/_constants/chunks.config.ts */
+  $chunk-states: (
+    new: var(--subtle-foreground),
+    init: var(--info),
+    running: var(--info),
+    paused: var(--warning),
+    exhausted: var(--success),
+    cracked: var(--status-cracked),
+    aborted: var(--destructive),
+    quit: var(--destructive),
+    bypass: var(--warning),
+    trimmed: var(--warning),
+    aborting: var(--destructive)
+  );
+
+  @each $state, $color in $chunk-states {
+    &.pill-#{$state} {
+      background: color-mix(in srgb, #{$color} 18%, transparent);
+      color: $color;
+    }
+  }
 }

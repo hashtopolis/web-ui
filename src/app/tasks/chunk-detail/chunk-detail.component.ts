@@ -1,4 +1,4 @@
-import { ChunkState, ChunkStateLabels } from '@constants/chunks.config';
+import { ChunkState, ChunkStateLabels, ChunkStatePillClass } from '@constants/chunks.config';
 import { zChunkResponse, zSpeedListResponse, zTaskResponse } from '@generated/api/zod';
 import { Observable, catchError, finalize, map, of, switchMap } from 'rxjs';
 
@@ -6,7 +6,10 @@ import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { JChunk } from '@models/chunk.model';
@@ -37,15 +40,17 @@ type CommandVariant = 'standalone' | 'agent';
 @Component({
   selector: 'app-chunk-detail',
   templateUrl: './chunk-detail.component.html',
-  styleUrls: ['./chunk-detail.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     RouterModule,
     ComponentsModule,
     PipesModule,
+    MatButtonModule,
     MatButtonToggle,
     MatButtonToggleGroup,
+    MatCardModule,
+    MatIconModule,
     TaskSpeedGraphComponent
   ]
 })
@@ -107,7 +112,7 @@ export class ChunkDetailComponent implements OnInit {
   }
 
   get stateClass(): string {
-    return `pill pill-${this.stateLabel.toLowerCase().replace(/[^a-z]/g, '')}`;
+    return this.chunk ? `pill ${ChunkStatePillClass[this.chunk.state] ?? ''}` : 'pill';
   }
 
   /** Progress through the chunk in percent. The API reports progress in hundredths of a percent. */

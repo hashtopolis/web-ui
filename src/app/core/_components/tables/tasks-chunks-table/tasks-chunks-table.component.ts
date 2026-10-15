@@ -18,7 +18,7 @@ import {
 
 import { TasksChunksDataSource } from '@datasources/tasks-chunks.datasource';
 
-import { ChunkStateLabels } from '@src/app/core/_constants/chunks.config';
+import { ChunkStateLabels, ChunkStatePillClass } from '@src/app/core/_constants/chunks.config';
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { formatSeconds, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 import { convertToLocale } from '@src/app/shared/utils/util';
@@ -171,7 +171,7 @@ export class TasksChunksTableComponent extends BaseTableComponent implements OnI
       return this.sanitize(`<span class="pill">${chunk.state}</span>`);
     }
 
-    return this.sanitize(`<span class="pill pill-${label.toLowerCase()}">${label}</span>`);
+    return this.sanitize(`<span class="pill ${ChunkStatePillClass[chunk.state]}">${label}</span>`);
   }
 
   renderTimeSpent(chunk: JChunk): SafeHtml {

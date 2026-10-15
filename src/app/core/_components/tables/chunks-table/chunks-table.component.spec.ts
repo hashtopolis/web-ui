@@ -378,7 +378,7 @@ describe('ChunksTableComponent', () => {
       const chunk = { state: 10 } as JChunk;
       const result = component.renderState(chunk);
 
-      expect(result).toContain(ChunkStateLabels[ChunkState.ABORTING].toLowerCase());
+      expect(result).toContain('class="pill pill-aborting"');
       expect(result).toContain(ChunkStateLabels[ChunkState.ABORTING]);
     });
 

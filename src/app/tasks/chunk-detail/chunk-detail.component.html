@@ -1,210 +1,286 @@
 <app-page [title]="'Chunk #' + chunkId">
   @if (isLoading) {
-    <div class="chunk-empty">Loading chunk…</div>
+    <div class="p-xl text-center text-muted-foreground">Loading chunk…</div>
   } @else if (notFound || !chunk) {
-    <div class="chunk-empty">
+    <div class="p-xl text-center text-muted-foreground">
       Chunk #{{ chunkId }} could not be found, or you do not have access to it.
-      <a routerLink="/tasks/chunks">Back to all chunks</a>
+      <a class="block mt-xs" routerLink="/tasks/chunks">Back to all chunks</a>
     </div>
   } @else {
-    <div class="chunk-detail">
+    <div class="flex flex-col gap-md">
       <!-- Header -->
-      <section class="chunk-card chunk-hero">
-        <div class="chunk-hero__top">
-          <div class="chunk-hero__meta">
-            <span [class]="stateClass" data-testid="chunk-state">{{ stateLabel }}</span>
-            <span class="chunk-hero__context">
-              Task
-              <a [routerLink]="['/tasks', 'show-tasks', chunk.taskId, 'edit']">{{
-                chunk.task?.taskName ?? '#' + chunk.taskId
-              }}</a>
-              @if (chunk.agentId !== null) {
-                · Agent
-                <a [routerLink]="['/agents', 'show-agents', chunk.agentId, 'edit']">{{
-                  chunk.agent?.agentName ?? '#' + chunk.agentId
+      <mat-card appearance="outlined">
+        <mat-card-content>
+          <div class="flex flex-wrap items-end justify-between gap-md mb-sm">
+            <div class="flex flex-wrap items-center gap-sm">
+              <span [class]="stateClass" data-testid="chunk-state">{{ stateLabel }}</span>
+              <span class="text-sm text-muted-foreground">
+                Task
+                <a [routerLink]="['/tasks', 'show-tasks', chunk.taskId, 'edit']">{{
+                  chunk.task?.taskName ?? '#' + chunk.taskId
                 }}</a>
-              } @else {
-                · <span class="muted" title="The agent that worked this chunk has been deleted">Agent deleted</span>
-              }
-            </span>
+                @if (chunk.agentId !== null) {
+                  · Agent
+                  <a [routerLink]="['/agents', 'show-agents', chunk.agentId, 'edit']">{{
+                    chunk.agent?.agentName ?? '#' + chunk.agentId
+                  }}</a>
+                } @else {
+                  ·
+                  <span class="text-subtle-foreground" title="The agent that worked this chunk has been deleted"
+                    >Agent deleted</span
+                  >
+                }
+              </span>
+            </div>
+            <div class="font-heading text-3xl font-semibold leading-none tabular-nums text-heading-foreground">
+              {{ progressPercent | number: '1.0-2' }}<span class="text-lg text-muted-foreground">%</span>
+            </div>
           </div>
-          <div class="chunk-hero__percent">{{ progressPercent | number: '1.0-2' }}<span>%</span></div>
-        </div>
 
-        <div
-          class="progress"
-          [class.progress--active]="isActive"
-          role="progressbar"
-          aria-label="Chunk progress"
-          [attr.aria-valuenow]="progressPercent"
-          aria-valuemin="0"
-          aria-valuemax="100"
-        >
-          <div class="progress__fill" [style.width.%]="progressPercent"></div>
-        </div>
-        <div class="progress__labels">
-          <span>{{ processed | number }} of {{ chunk.length | number }} keyspace positions</span>
-          <span>checkpoint {{ chunk.checkpoint | number }}</span>
-        </div>
-      </section>
+          <div
+            class="h-3 rounded-full bg-well overflow-hidden"
+            role="progressbar"
+            aria-label="Chunk progress"
+            [attr.aria-valuenow]="progressPercent"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            <div
+              class="h-full rounded-full transition-all"
+              [class]="isActive ? 'bg-info motion-safe:animate-pulse' : 'bg-success'"
+              [style.width.%]="progressPercent"
+            ></div>
+          </div>
+          <div class="flex flex-wrap justify-between gap-sm mt-xs text-xs text-muted-foreground tabular-nums">
+            <span>{{ processed | number }} of {{ chunk.length | number }} keyspace positions</span>
+            <span>checkpoint {{ chunk.checkpoint | number }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
 
       <!-- Stat tiles -->
-      <section class="chunk-stats">
-        <div class="chunk-card stat">
-          <div class="stat__label">Speed</div>
-          <div class="stat__value">{{ chunk.speed > 0 ? (chunk.speed | hashRate) : '—' }}</div>
-          <div class="stat__hint">{{ isActive ? 'current' : 'last reported' }}</div>
-        </div>
-        <div class="chunk-card stat">
-          <div class="stat__label">Cracked</div>
-          <div class="stat__value">
-            @if (chunk.cracked > 0) {
-              <a [routerLink]="['/hashlists', 'hashes', 'chunks', chunk.id]">{{ chunk.cracked | number }}</a>
-            } @else {
-              0
-            }
-          </div>
-          <div class="stat__hint">hashes in this chunk</div>
-        </div>
-        <div class="chunk-card stat">
-          <div class="stat__label">Time spent</div>
-          <div class="stat__value">{{ timeSpent > 0 ? (timeSpent | sectotime) : '—' }}</div>
-          <div class="stat__hint">
-            @if (task?.chunkTime) {
-              target chunk time {{ task?.chunkTime }}s
-            } @else {
-              dispatch → last activity
-            }
-          </div>
-        </div>
-        <div class="chunk-card stat">
-          <div class="stat__label">Length</div>
-          <div class="stat__value">{{ chunk.length | number }}</div>
-          <div class="stat__hint">
-            @if (averageRate > 0) {
-              ≈ {{ averageRate | number: '1.0-0' }} positions/s
-            } @else {
-              keyspace positions
-            }
-          </div>
-        </div>
-      </section>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+        <mat-card appearance="outlined" class="metric-card">
+          <mat-card-content>
+            <div class="flex items-center gap-sm">
+              <div class="icon-box w-9 h-9 rounded-md bg-primary-muted flex items-center justify-center shrink-0">
+                <mat-icon>speed</mat-icon>
+              </div>
+              <span class="metric-label">Speed</span>
+            </div>
+            <div class="flex-1 min-h-0"></div>
+            <div class="metric-value">{{ chunk.speed > 0 ? (chunk.speed | hashRate) : '—' }}</div>
+            <div class="metric-suffix">{{ isActive ? 'Current speed' : 'Last reported speed' }}</div>
+          </mat-card-content>
+        </mat-card>
 
-      <div class="chunk-grid">
+        <mat-card appearance="outlined" class="metric-card">
+          <mat-card-content>
+            <div class="flex items-center gap-sm">
+              <div class="icon-box w-9 h-9 rounded-md bg-primary-muted flex items-center justify-center shrink-0">
+                <mat-icon>lock_open</mat-icon>
+              </div>
+              <span class="metric-label">Cracked</span>
+            </div>
+            <div class="flex-1 min-h-0"></div>
+            <div class="metric-value">
+              @if (chunk.cracked > 0) {
+                <a [routerLink]="['/hashlists', 'hashes', 'chunks', chunk.id]">{{ chunk.cracked | number }}</a>
+              } @else {
+                0
+              }
+            </div>
+            <div class="metric-suffix">Hashes cracked in this chunk</div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="metric-card">
+          <mat-card-content>
+            <div class="flex items-center gap-sm">
+              <div class="icon-box w-9 h-9 rounded-md bg-primary-muted flex items-center justify-center shrink-0">
+                <mat-icon>timer</mat-icon>
+              </div>
+              <span class="metric-label">Time spent</span>
+            </div>
+            <div class="flex-1 min-h-0"></div>
+            <div class="metric-value">{{ timeSpent > 0 ? (timeSpent | sectotime) : '—' }}</div>
+            <div class="metric-suffix">
+              @if (task?.chunkTime) {
+                Target chunk time {{ task?.chunkTime }}s
+              } @else {
+                Dispatch → last activity
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card appearance="outlined" class="metric-card">
+          <mat-card-content>
+            <div class="flex items-center gap-sm">
+              <div class="icon-box w-9 h-9 rounded-md bg-primary-muted flex items-center justify-center shrink-0">
+                <mat-icon>straighten</mat-icon>
+              </div>
+              <span class="metric-label">Length</span>
+            </div>
+            <div class="flex-1 min-h-0"></div>
+            <div class="metric-value">{{ chunk.length | number }}</div>
+            <div class="metric-suffix">
+              @if (averageRate > 0) {
+                ≈ {{ averageRate | number: '1.0-0' }} positions/s
+              } @else {
+                Keyspace positions
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-md">
         <!-- Keyspace -->
-        <section class="chunk-card">
-          <h3 class="chunk-card__title">Keyspace</h3>
+        <mat-card appearance="outlined" class="min-w-0">
+          <mat-card-content>
+            <app-page-subtitle subtitle="Keyspace"></app-page-subtitle>
 
-          @if (task) {
-            <div class="ks-caption">Position within the task keyspace</div>
-            <div class="ks-bar" aria-hidden="true">
-              <div class="ks-bar__dispatched" [style.width.%]="taskDispatchedPercent"></div>
-              <div class="ks-bar__chunk" [style.left.%]="chunkSegment.left" [style.width.%]="chunkSegment.width"></div>
-            </div>
-            <div class="ks-legend">
-              <span><i class="swatch swatch--chunk"></i>This chunk</span>
-              <span
-                ><i class="swatch swatch--dispatched"></i>Dispatched ({{
-                  taskDispatchedPercent | number: '1.0-1'
-                }}%)</span
-              >
-              <span class="ks-legend__end">{{ taskKeyspace | number }}</span>
-            </div>
-          }
-
-          <div class="ks-caption">Inside this chunk</div>
-          <div class="ks-zoom" aria-hidden="true">
-            <div class="ks-zoom__done" [style.width.%]="progressPercent"></div>
-            @if (progressPercent > 0 && progressPercent < 100) {
-              <div class="ks-zoom__marker" [style.left.%]="progressPercent"></div>
+            @if (task) {
+              <div class="mb-xs text-xs text-muted-foreground">Position within the task keyspace</div>
+              <div class="relative h-4 rounded-sm bg-well overflow-hidden" aria-hidden="true">
+                <div class="absolute inset-y-0 left-0 bg-info/20" [style.width.%]="taskDispatchedPercent"></div>
+                <div
+                  class="absolute inset-y-0 bg-info"
+                  [style.left.%]="chunkSegment.left"
+                  [style.width.%]="chunkSegment.width"
+                ></div>
+              </div>
+              <div class="flex flex-wrap items-center gap-md mt-xs text-xs text-muted-foreground">
+                <span class="inline-flex items-center gap-xs"
+                  ><i class="size-2.5 rounded-xs bg-info"></i>This chunk</span
+                >
+                <span class="inline-flex items-center gap-xs"
+                  ><i class="size-2.5 rounded-xs bg-info/20 border border-info/40"></i>Dispatched ({{
+                    taskDispatchedPercent | number: '1.0-1'
+                  }}%)</span
+                >
+                <span class="ml-auto tabular-nums">{{ taskKeyspace | number }}</span>
+              </div>
             }
-          </div>
-          <div class="ks-scale">
-            <span>skip {{ chunk.skip | number }}</span>
-            <span>end {{ chunkEnd | number }}</span>
-          </div>
 
-          <dl class="kv">
-            <dt>Skip (-s)</dt>
-            <dd>{{ chunk.skip | number }}</dd>
-            <dt>Length (-l)</dt>
-            <dd>{{ chunk.length | number }}</dd>
-            <dt>Checkpoint</dt>
-            <dd>{{ chunk.checkpoint | number }}</dd>
-            <dt>Remaining</dt>
-            <dd>{{ chunk.length - processed | number }}</dd>
-          </dl>
-        </section>
+            <div class="mt-sm mb-xs text-xs text-muted-foreground">Inside this chunk</div>
+            <div class="relative h-7 rounded-sm bg-well border border-border overflow-hidden" aria-hidden="true">
+              <div class="h-full bg-success/50" [style.width.%]="progressPercent"></div>
+              @if (progressPercent > 0 && progressPercent < 100) {
+                <div
+                  class="absolute inset-y-0 w-0.5 -ml-px bg-heading-foreground"
+                  [style.left.%]="progressPercent"
+                ></div>
+              }
+            </div>
+            <div class="flex justify-between mt-2xs text-xs text-subtle-foreground tabular-nums">
+              <span>skip {{ chunk.skip | number }}</span>
+              <span>end {{ chunkEnd | number }}</span>
+            </div>
+
+            <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-md gap-y-xs mt-md mb-0 text-sm tabular-nums">
+              <dt class="text-muted-foreground">Skip (-s)</dt>
+              <dd class="m-0">{{ chunk.skip | number }}</dd>
+              <dt class="text-muted-foreground">Length (-l)</dt>
+              <dd class="m-0">{{ chunk.length | number }}</dd>
+              <dt class="text-muted-foreground">Checkpoint</dt>
+              <dd class="m-0">{{ chunk.checkpoint | number }}</dd>
+              <dt class="text-muted-foreground">Remaining</dt>
+              <dd class="m-0">{{ chunk.length - processed | number }}</dd>
+            </dl>
+          </mat-card-content>
+        </mat-card>
 
         <!-- Timeline + context -->
-        <section class="chunk-card">
-          <h3 class="chunk-card__title">Timeline</h3>
-          <ol class="timeline">
-            <li class="timeline__item" [class.timeline__item--done]="chunk.dispatchTime > 0">
-              <div class="timeline__label">Dispatched</div>
-              <div class="timeline__value">
-                {{ chunk.dispatchTime > 0 ? (chunk.dispatchTime | uiDate) : 'Not yet' }}
-              </div>
-            </li>
-            <li
-              class="timeline__item"
-              [class.timeline__item--done]="chunk.solveTime > 0"
-              [class.timeline__item--live]="isActive"
-            >
-              <div class="timeline__label">{{ isActive ? 'Last activity (running)' : 'Last activity' }}</div>
-              <div class="timeline__value">{{ chunk.solveTime > 0 ? (chunk.solveTime | uiDate) : 'No activity' }}</div>
-            </li>
-          </ol>
+        <mat-card appearance="outlined" class="min-w-0">
+          <mat-card-content>
+            <app-page-subtitle subtitle="Timeline"></app-page-subtitle>
+            <ol class="list-none m-0 p-0">
+              <li class="relative pl-lg pb-md">
+                <span class="absolute left-2 top-5 bottom-0.5 w-0.5 bg-border"></span>
+                <span
+                  class="absolute left-1 top-1.5 size-2.5 rounded-full border-2"
+                  [class]="chunk.dispatchTime > 0 ? 'border-success bg-success' : 'border-border-strong bg-card'"
+                ></span>
+                <div class="text-xs text-muted-foreground">Dispatched</div>
+                <div class="text-sm tabular-nums">
+                  {{ chunk.dispatchTime > 0 ? (chunk.dispatchTime | uiDate) : 'Not yet' }}
+                </div>
+              </li>
+              <li class="relative pl-lg pb-md">
+                <span
+                  class="absolute left-1 top-1.5 size-2.5 rounded-full border-2"
+                  [class]="
+                    isActive
+                      ? 'border-info bg-info ring-4 ring-info/25'
+                      : chunk.solveTime > 0
+                        ? 'border-success bg-success'
+                        : 'border-border-strong bg-card'
+                  "
+                ></span>
+                <div class="text-xs text-muted-foreground">
+                  {{ isActive ? 'Last activity (running)' : 'Last activity' }}
+                </div>
+                <div class="text-sm tabular-nums">
+                  {{ chunk.solveTime > 0 ? (chunk.solveTime | uiDate) : 'No activity' }}
+                </div>
+              </li>
+            </ol>
 
-          <h3 class="chunk-card__title">Task context</h3>
-          <dl class="kv">
-            @if (task?.hashlist; as hashlist) {
-              <dt>Hashlist</dt>
-              <dd>
-                <a [routerLink]="['/hashlists', 'hashlist', hashlist.id, 'edit']">{{ hashlist.name }}</a>
-              </dd>
-              <dt>Hash type</dt>
-              <dd>{{ hashlist.hashTypeId }}</dd>
-            }
-            @if (task?.crackerBinary; as cracker) {
-              <dt>Cracker</dt>
-              <dd>{{ cracker.binaryName }} {{ cracker.version }}</dd>
-            }
-            @if (task) {
-              <dt>Attack</dt>
-              <dd>
-                <code class="inline-code">{{ task.attackCmd }}</code>
-              </dd>
-            }
-            @if (task?.files?.length) {
-              <dt>Files</dt>
-              <dd>
-                @for (file of task?.files; track file.id) {
-                  <span class="file-chip">{{ file.filename }}</span>
-                }
-              </dd>
-            }
-          </dl>
-        </section>
+            <app-page-subtitle subtitle="Task context" class="mt-sm"></app-page-subtitle>
+            <dl class="grid grid-cols-[auto_minmax(0,1fr)] gap-x-md gap-y-xs m-0 text-sm">
+              @if (task?.hashlist; as hashlist) {
+                <dt class="text-muted-foreground">Hashlist</dt>
+                <dd class="m-0">
+                  <a [routerLink]="['/hashlists', 'hashlist', hashlist.id, 'edit']">{{ hashlist.name }}</a>
+                </dd>
+                <dt class="text-muted-foreground">Hash type</dt>
+                <dd class="m-0">{{ hashlist.hashTypeId }}</dd>
+              }
+              @if (task?.crackerBinary; as cracker) {
+                <dt class="text-muted-foreground">Cracker</dt>
+                <dd class="m-0">{{ cracker.binaryName }} {{ cracker.version }}</dd>
+              }
+              @if (task) {
+                <dt class="text-muted-foreground">Attack</dt>
+                <dd class="m-0 break-words">
+                  <code class="font-mono text-xs px-xs py-0.5 rounded-sm bg-well">{{ task.attackCmd }}</code>
+                </dd>
+              }
+              @if (task?.files?.length) {
+                <dt class="text-muted-foreground">Files</dt>
+                <dd class="m-0 flex flex-wrap gap-2xs">
+                  @for (file of task?.files; track file.id) {
+                    <span class="px-xs rounded-full border border-border text-xs">{{ file.filename }}</span>
+                  }
+                </dd>
+              }
+            </dl>
+          </mat-card-content>
+        </mat-card>
       </div>
 
       <!-- Speed graph -->
-      <section class="chunk-card">
-        <h3 class="chunk-card__title">Speed while working on this chunk</h3>
-        @if (speeds.length) {
-          <app-task-speed-graph [speeds]="speeds"></app-task-speed-graph>
-        } @else {
-          <div class="chunk-empty chunk-empty--inline">
-            No speed samples recorded for this agent during this chunk (old samples may have been cleaned up).
-          </div>
-        }
-      </section>
+      <mat-card appearance="outlined">
+        <mat-card-content>
+          <app-page-subtitle subtitle="Speed while working on this chunk"></app-page-subtitle>
+          @if (speeds.length) {
+            <app-task-speed-graph [speeds]="speeds"></app-task-speed-graph>
+          } @else {
+            <div class="p-md text-center text-sm text-muted-foreground">
+              No speed samples recorded for this agent during this chunk (old samples may have been cleaned up).
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
 
       <!-- Rerun command -->
-      <section class="chunk-card">
-        <div class="cmd-header">
-          <h3 class="chunk-card__title">Re-run this chunk</h3>
+      <mat-card appearance="outlined">
+        <mat-card-content>
+          <app-page-subtitle subtitle="Re-run this chunk"></app-page-subtitle>
           <mat-button-toggle-group
+            class="mb-sm"
             [value]="commandVariant"
             (change)="setCommandVariant($event.value)"
             hideSingleSelectionIndicator
@@ -213,36 +289,44 @@
             <mat-button-toggle value="standalone">Standalone</mat-button-toggle>
             <mat-button-toggle value="agent">As the agent runs it</mat-button-toggle>
           </mat-button-toggle-group>
-        </div>
 
-        <div class="cmd">
-          <pre class="cmd__code" data-testid="chunk-command"><span class="cmd__prompt">$ </span>{{ command }}</pre>
-          <button type="button" class="cmd__copy" (click)="copyCommand()" title="Copy to clipboard">Copy</button>
-        </div>
+          <div class="flex flex-col sm:flex-row items-start gap-sm p-md rounded-md bg-well border border-border">
+            <pre
+              class="flex-1 min-w-0 m-0 font-mono text-sm leading-relaxed whitespace-pre-wrap break-words text-foreground"
+              data-testid="chunk-command"
+            ><span class="select-none text-subtle-foreground">$ </span>{{ command }}</pre>
+            <button matButton="outlined" class="shrink-0" (click)="copyCommand()">
+              <mat-icon>content_copy</mat-icon>
+              Copy
+            </button>
+          </div>
 
-        <ul class="cmd-notes">
-          <li>
-            Run from the agent's data directory: the hashlist is expected at
-            <code class="inline-code">hashlists/{{ task?.hashlist?.id ?? '&lt;id&gt;' }}</code> and task files under
-            <code class="inline-code">files/</code>.
-          </li>
-          @if (usesPipe) {
+          <ul class="mt-sm mb-0 pl-md text-xs text-muted-foreground flex flex-col gap-2xs">
             <li>
-              This task enforces piping, so candidates are generated with <code class="inline-code">--stdout</code> and
-              piped into hashcat.
+              Run from the agent's data directory: the hashlist is expected at
+              <code class="font-mono px-xs rounded-sm bg-well">hashlists/{{ task?.hashlist?.id ?? '&lt;id&gt;' }}</code>
+              and task files under <code class="font-mono px-xs rounded-sm bg-well">files/</code>.
             </li>
-          }
-          @if (usesPreprocessor) {
-            <li class="warn">
-              This task uses a preprocessor. The agent feeds hashcat from the preprocessor instead; the command above
-              only covers the hashcat side.
-            </li>
-          }
-          @if (!task) {
-            <li class="warn">The task could not be loaded, so the attack command and hash type are missing.</li>
-          }
-        </ul>
-      </section>
+            @if (usesPipe) {
+              <li>
+                This task enforces piping, so candidates are generated with
+                <code class="font-mono px-xs rounded-sm bg-well">--stdout</code> and piped into hashcat.
+              </li>
+            }
+            @if (usesPreprocessor) {
+              <li class="text-warning">
+                This task uses a preprocessor. The agent feeds hashcat from the preprocessor instead; the command above
+                only covers the hashcat side.
+              </li>
+            }
+            @if (!task) {
+              <li class="text-warning">
+                The task could not be loaded, so the attack command and hash type are missing.
+              </li>
+            }
+          </ul>
+        </mat-card-content>
+      </mat-card>
     </div>
   }
 </app-page>
