@@ -4,7 +4,6 @@ import { of, throwError } from 'rxjs';
 import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { HashTypeId } from '@models/id.types';
 import { FilterType, RequestParams } from '@models/request-params.model';
@@ -18,6 +17,7 @@ import {
   AddCrackerHashtypesDialogComponent,
   AddCrackerHashtypesDialogData
 } from '@src/app/config/engine/crackers/cracker-hashtypes/add-cracker-hashtypes-dialog/add-cracker-hashtypes-dialog.component';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 import { mockValidResponse } from '@src/app/testing/mock-response';
 
 const HASHTYPES = mockValidResponse(zHashTypeListResponse, {
@@ -51,8 +51,9 @@ describe('AddCrackerHashtypesDialogComponent', () => {
       canCreate: data.canCreate ?? false
     };
     await TestBed.configureTestingModule({
-      imports: [AddCrackerHashtypesDialogComponent, NoopAnimationsModule],
+      imports: [AddCrackerHashtypesDialogComponent],
       providers: [
+        provideDisabledMaterialAnimations(),
         { provide: GlobalService, useValue: gs },
         { provide: AlertService, useValue: alert },
         { provide: MatDialogRef, useValue: dialogRef },

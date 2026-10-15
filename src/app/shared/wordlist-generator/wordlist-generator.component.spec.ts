@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 import { AlertService } from '@services/shared/alert.service';
 
@@ -33,7 +33,6 @@ describe('WordlistGeneratorComponent', () => {
       declarations: [WordlistGeneratorComponent],
       imports: [
         ReactiveFormsModule,
-        NoopAnimationsModule,
         MatDialogModule,
         MatFormFieldModule,
         MatInputModule,
@@ -46,7 +45,7 @@ describe('WordlistGeneratorComponent', () => {
         GridModule,
         ButtonsModule
       ],
-      providers: [{ provide: AlertService, useClass: MockAlertService }]
+      providers: [provideDisabledMaterialAnimations(), { provide: AlertService, useClass: MockAlertService }]
     }).compileComponents();
 
     fixture = TestBed.createComponent(WordlistGeneratorComponent);

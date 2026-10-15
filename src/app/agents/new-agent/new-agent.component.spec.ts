@@ -8,7 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatStepperModule } from '@angular/material/stepper';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 import { Router } from '@angular/router';
 
 import { SERV } from '@services/main.config';
@@ -69,7 +69,6 @@ describe('NewAgentComponent', () => {
       imports: [
         ReactiveFormsModule,
         FormsModule,
-        NoopAnimationsModule,
         MatStepperModule,
         MatIconModule,
         MatFormFieldModule,
@@ -79,6 +78,7 @@ describe('NewAgentComponent', () => {
         TableModule
       ],
       providers: [
+        provideDisabledMaterialAnimations(),
         { provide: Clipboard, useValue: clipboardSpy },
         { provide: AlertService, useValue: alertServiceSpy },
         { provide: ConfigService, useValue: configServiceSpy },

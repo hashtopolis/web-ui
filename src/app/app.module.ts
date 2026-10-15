@@ -15,7 +15,6 @@ import { MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule } from '@angular/mater
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule, Title } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppInitService } from '@services/app-init.service';
 import { ConfigService } from '@services/shared/config.service';
@@ -41,7 +40,6 @@ import { PipesModule } from '@src/app/shared/pipes.module';
   declarations: [PageNotFoundComponent, ErrorPageComponent, FooterComponent, AppComponent],
   bootstrap: [AppComponent],
   imports: [
-    BrowserAnimationsModule,
     ReactiveFormsModule,
     FontAwesomeModule,
     ComponentsModule,
