@@ -24,7 +24,7 @@ type ConfigValues = Record<string, string | boolean | number>;
 type ConfigIds = Record<string, number>;
 
 @Component({
-  selector: 'app-form',
+  selector: 'app-form-config',
   templateUrl: 'formconfig.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
