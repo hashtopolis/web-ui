@@ -34,6 +34,7 @@
     "useDefineForClassFields": false,
     "skipLibCheck": true
   },
+  "include": ["src/**/*.ts"],
   "exclude": ["src/assets/optparse/**/*.js"],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
