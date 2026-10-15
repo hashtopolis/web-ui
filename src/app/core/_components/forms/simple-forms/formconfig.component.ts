@@ -1,7 +1,7 @@
 import { zConfigListResponse } from '@generated/api/zod';
 import { forkJoin } from 'rxjs';
 
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -26,6 +26,7 @@ type ConfigIds = Record<string, number>;
 @Component({
   selector: 'app-form',
   templateUrl: 'formconfig.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 /**

@@ -46,7 +46,7 @@ export interface ApplyHashlistForm {
 @Component({
   selector: 'app-applyhashlist',
   templateUrl: './applyhashlist.component.html',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class ApplyHashlistComponent implements OnInit {

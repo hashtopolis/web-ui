@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
@@ -31,6 +31,7 @@ import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
 @Component({
   selector: 'table-dialog',
   templateUrl: 'table-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class TableDialogComponent<T> {

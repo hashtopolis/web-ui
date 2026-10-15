@@ -1,7 +1,7 @@
 import { findHashType } from 'hashtype-detector/dist/lib/es6/index';
 
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { ApplicationRef, Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
+import { ApplicationRef, Component, OnInit, ViewEncapsulation, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 
@@ -22,6 +22,7 @@ interface HashTypeMatch {
   templateUrl: './hashtype-detector.component.html',
   styleUrls: ['./hashtype-detector.component.scss'],
   encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class HashtypeDetectorComponent implements OnInit {

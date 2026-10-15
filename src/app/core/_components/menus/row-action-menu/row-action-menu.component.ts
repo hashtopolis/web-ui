@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
 
@@ -10,6 +10,7 @@ import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.compone
 @Component({
   selector: 'row-action-menu',
   templateUrl: './row-action-menu.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class RowActionMenuComponent extends BaseMenuComponent implements OnInit {

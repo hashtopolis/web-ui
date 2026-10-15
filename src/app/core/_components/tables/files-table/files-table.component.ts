@@ -1,7 +1,7 @@
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FileType, JFile } from '@models/file.model';
@@ -37,6 +37,7 @@ import { formatFileSize } from '@src/app/shared/utils/util';
 @Component({
   selector: 'app-files-table',
   templateUrl: './files-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class FilesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

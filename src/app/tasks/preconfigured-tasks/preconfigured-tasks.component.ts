@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -6,6 +6,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 @Component({
   selector: 'app-preconfigured-tasks',
   templateUrl: './preconfigured-tasks.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 /**

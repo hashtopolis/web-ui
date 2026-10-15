@@ -26,7 +26,8 @@ import {
   OnChanges,
   SimpleChanges,
   ViewChild,
-  inject
+  inject,
+  ChangeDetectionStrategy
 } from '@angular/core';
 
 import { UIConfig } from '@models/config-ui.model';
@@ -81,6 +82,7 @@ use([
 
 @Component({
   selector: 'app-task-speed-graph',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div #chart style="height: 310px;"></div>`
 })
 export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {

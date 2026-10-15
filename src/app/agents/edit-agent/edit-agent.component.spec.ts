@@ -3,7 +3,7 @@ import { zAgentResponse, zGetBestTasksAgentResponse, zUserListResponse } from '@
 import { of, throwError } from 'rxjs';
 
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -35,6 +35,7 @@ import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response'
 @Component({
   selector: 'app-agent-stats',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MockAgentStatsComponent {
@@ -44,6 +45,7 @@ export class MockAgentStatsComponent {
 @Component({
   selector: 'app-agent-environment',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MockAgentEnvironmentComponent {
@@ -53,6 +55,7 @@ export class MockAgentEnvironmentComponent {
 @Component({
   selector: 'app-chunks-table',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MockChunksTableComponent {
@@ -62,6 +65,7 @@ export class MockChunksTableComponent {
 @Component({
   selector: 'app-agent-stat-graph',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MockAgentStatGraphComponent {
@@ -72,6 +76,7 @@ export class MockAgentStatGraphComponent {
 @Component({
   selector: 'app-agent-error-table',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MockAgentErrorTableComponent {

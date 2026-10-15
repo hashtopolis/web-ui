@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { zErrorPageRouteData } from '@models/routes.schema';
@@ -6,6 +6,7 @@ import { zErrorPageRouteData } from '@models/routes.schema';
 @Component({
   selector: 'app-error-page',
   templateUrl: './error-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class ErrorPageComponent implements OnInit {

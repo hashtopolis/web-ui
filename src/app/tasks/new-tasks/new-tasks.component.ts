@@ -73,7 +73,7 @@ type CopyData = Pick<
   selector: 'app-new-tasks',
   templateUrl: './new-tasks.component.html',
   styleUrls: ['./new-tasks.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: { class: 'block' },
   standalone: false
 })

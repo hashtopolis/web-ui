@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { PageTitle } from '@src/app/core/_decorators/autotitle';
 import { CookieService } from '@src/app/core/_services/shared/cookies.service';
@@ -6,6 +6,7 @@ import { CookieService } from '@src/app/core/_services/shared/cookies.service';
 @Component({
   selector: 'app-agent-status',
   templateUrl: './agent-status.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 @PageTitle(['Agent Status'])

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { UserPermissions } from '@models/global-permission-group.model';
 import { JUser } from '@models/user.model';
@@ -19,6 +19,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 @Component({
   selector: 'access-permission-groups-users-table',
   templateUrl: './access-permission-groups-users-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class AccessPermissionGroupsUsersTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

@@ -1,7 +1,7 @@
 import { of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,6 +26,7 @@ import { mockResponse } from '@src/app/testing/mock-response';
 @Component({
   selector: 'app-agent-binaries-table',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MockAgentBinariesTableComponent {
@@ -36,6 +37,7 @@ export class MockAgentBinariesTableComponent {
 @Component({
   selector: 'app-vouchers-table',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MockVouchersTableComponent {}

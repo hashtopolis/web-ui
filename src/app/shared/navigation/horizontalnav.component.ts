@@ -1,12 +1,13 @@
 import { Subject } from 'rxjs';
 import { HorizontalNav } from 'src/app/core/_models/horizontalnav.model';
 
-import { Component, Input, OnDestroy, inject } from '@angular/core';
+import { Component, Input, OnDestroy, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'horizontalnav',
   templateUrl: 'horizontalnav.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class HorizontalNavComponent implements OnDestroy {

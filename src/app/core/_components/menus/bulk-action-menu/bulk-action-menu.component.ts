@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
 
@@ -13,6 +13,7 @@ import { DataType } from '@components/tables/ht-table/ht-table.models';
 @Component({
   selector: 'bulk-action-menu',
   templateUrl: './bulk-action-menu.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit {

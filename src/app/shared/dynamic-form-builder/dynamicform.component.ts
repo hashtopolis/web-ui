@@ -9,7 +9,8 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  inject
+  inject,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 
@@ -28,6 +29,7 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
   selector: 'app-dynamic-form',
   templateUrl: 'dynamicform.component.html',
   styleUrls: ['./dynamicform.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {

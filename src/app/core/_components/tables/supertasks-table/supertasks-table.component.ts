@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs';
 
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JSuperTask, JSuperTaskAggregateFields } from '@models/supertask.model';
@@ -27,6 +27,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
 @Component({
   selector: 'app-supertasks-table',
   templateUrl: './supertasks-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class SuperTasksTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

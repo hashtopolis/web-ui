@@ -1,6 +1,6 @@
 import { HashesViewType } from '@constants/hashes.config';
 
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
@@ -21,6 +21,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 @Component({
   selector: 'hashes-table',
   templateUrl: './hashes-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class HashesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

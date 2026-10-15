@@ -1,6 +1,6 @@
 import { zChunkResponse, zHashlistResponse, zTaskResponse } from '@generated/api/zod';
 
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params } from '@angular/router';
 
@@ -22,6 +22,7 @@ import { HashesViewType } from '@src/app/core/_constants/hashes.config';
 @Component({
   selector: 'app-hashes',
   templateUrl: './hashes.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class HashesComponent implements OnInit {

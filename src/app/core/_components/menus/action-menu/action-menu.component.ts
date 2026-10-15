@@ -14,7 +14,8 @@ import {
   Output,
   Renderer2,
   ViewChild,
-  inject
+  inject,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatMenuTrigger } from '@angular/material/menu';
@@ -30,6 +31,7 @@ import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/a
   selector: 'action-menu',
   templateUrl: './action-menu.component.html',
   styleUrls: ['./action-menu.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 /**

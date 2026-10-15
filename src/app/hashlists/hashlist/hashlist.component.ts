@@ -1,7 +1,7 @@
 import { HashlistsTableComponent } from 'src/app/core/_components/tables/hashlists-table/hashlists-table.component';
 import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
 
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.service';
@@ -9,6 +9,7 @@ import { HashListRoleService } from '@services/roles/hashlists/hashlist-role.ser
 @Component({
   selector: 'app-hashlist',
   templateUrl: './hashlist.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class HashlistComponent {

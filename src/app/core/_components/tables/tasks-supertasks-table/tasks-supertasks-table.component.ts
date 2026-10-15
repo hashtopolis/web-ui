@@ -1,6 +1,6 @@
 import { catchError, forkJoin, of } from 'rxjs';
 
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
@@ -32,6 +32,7 @@ type Subtask = JTaskWith<'dispatched' | 'searched' | 'totalAssignedAgents' | 'st
 @Component({
   selector: 'app-tasks-supertasks-table',
   templateUrl: './tasks-supertasks-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class TasksSupertasksTableComponent extends BaseTableComponent implements OnInit {
