@@ -1,5 +1,5 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { FormComponent } from 'src/app/core/_components/forms/simple-forms/form.component';
+import { FormComponent } from '@src/app/core/_components/forms/simple-forms/form.component';
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';

@@ -1,7 +1,7 @@
 import { zHashlistResponse } from '@generated/api/zod';
 import { EMPTY, catchError, finalize } from 'rxjs';
-import { SERV } from 'src/app/core/_services/main.config';
-import { ReportBaseDataSource } from 'src/app/shared/report-builder/datasources/base.datasource';
+import { SERV } from '@src/app/core/_services/main.config';
+import { ReportBaseDataSource } from '@src/app/shared/report-builder/datasources/base.datasource';
 
 import { JHashlist } from '@models/hashlist.model';
 import { JTask } from '@models/task.model';

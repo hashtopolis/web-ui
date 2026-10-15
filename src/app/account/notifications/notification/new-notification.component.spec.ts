@@ -2,7 +2,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { zAgentListResponse, zHashlistListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { TJsonApiData } from 'jsona/lib/JsonaTypes';
 import { of } from 'rxjs';
-import { PipesModule } from 'src/app/shared/pipes.module';
+import { PipesModule } from '@src/app/shared/pipes.module';
 
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';

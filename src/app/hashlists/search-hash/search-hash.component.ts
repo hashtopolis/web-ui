@@ -1,5 +1,5 @@
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { PageTitle } from '@src/app/core/_decorators/autotitle';
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 
 import { ChangeDetectorRef, Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';

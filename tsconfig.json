@@ -1,7 +1,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "paths": {
       "@src/*": ["./src/*"],
       "@models/*": ["./src/app/core/_models/*"],
@@ -31,7 +30,7 @@
     "target": "ES2022",
     "module": "ES2022",
     "allowJs": true,
-    "typeRoots": ["node_modules/@types", "src/decs.d.ts"],
+    "types": ["jasmine", "node"],
     "useDefineForClassFields": false,
     "skipLibCheck": true
   },

@@ -1,5 +1,5 @@
-import { HashlistsTableComponent } from 'src/app/core/_components/tables/hashlists-table/hashlists-table.component';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
+import { HashlistsTableComponent } from '@src/app/core/_components/tables/hashlists-table/hashlists-table.component';
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 
 import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';

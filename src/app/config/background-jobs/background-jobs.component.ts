@@ -1,4 +1,4 @@
-import { PageTitle } from 'src/app/core/_decorators/autotitle';
+import { PageTitle } from '@src/app/core/_decorators/autotitle';
 
 import { Component, ChangeDetectionStrategy } from '@angular/core';
 

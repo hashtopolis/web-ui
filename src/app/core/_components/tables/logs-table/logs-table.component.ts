@@ -1,6 +1,6 @@
-import { LogsDataSource } from 'src/app/core/_datasources/logs.datasource';
-import { JLog } from 'src/app/core/_models/log.model';
-import { formatUnixTimestamp } from 'src/app/shared/utils/datetime';
+import { LogsDataSource } from '@src/app/core/_datasources/logs.datasource';
+import { JLog } from '@src/app/core/_models/log.model';
+import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 import { AfterViewInit, Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
