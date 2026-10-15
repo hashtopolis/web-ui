@@ -49,7 +49,7 @@ class HeatmapChartStubComponent {
 class DummyComponent {}
 
 /**
- * Stub routes used during test setup to initialize the RouterTestingModule.
+ * Stub routes used during test setup to initialize the router.
  */
 const routes = [{ path: '', component: DummyComponent }];
 
