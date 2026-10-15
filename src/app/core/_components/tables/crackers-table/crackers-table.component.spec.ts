@@ -1,6 +1,6 @@
 import { of } from 'rxjs';
 
-import { provideHttpClient, withXhr } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -61,7 +61,7 @@ describe('CrackersTableComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [TestCrackersTableComponent],
       providers: [
-        provideHttpClient(withXhr()),
+        provideHttpClient(),
         provideHttpClientTesting(),
         { provide: GlobalService, useValue: gs },
         { provide: CrackerBinaryTypesService, useValue: crackerBinaryTypes },

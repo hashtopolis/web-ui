@@ -1,6 +1,6 @@
 import { Subject, of } from 'rxjs';
 
-import { provideHttpClient, withXhr } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -97,7 +97,7 @@ describe('PretasksTableComponent', () => {
       declarations: [TestPretasksTableComponent],
       providers: [
         provideHttpClientTesting(),
-        provideHttpClient(withXhr()),
+        provideHttpClient(),
         { provide: MatDialog, useValue: mockDialog },
         { provide: Router, useValue: mockRouter },
         { provide: GlobalService, useValue: mockGlobalService },

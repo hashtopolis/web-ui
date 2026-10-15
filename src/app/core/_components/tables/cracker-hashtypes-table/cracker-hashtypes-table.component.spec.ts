@@ -1,6 +1,6 @@
 import { of, throwError } from 'rxjs';
 
-import { provideHttpClient, withXhr } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -53,7 +53,7 @@ describe('CrackerHashtypesTableComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [TestCrackerHashtypesTableComponent],
       providers: [
-        provideHttpClient(withXhr()),
+        provideHttpClient(),
         provideHttpClientTesting(),
         { provide: ExportService, useValue: jasmine.createSpyObj('ExportService', ['handleExportAction']) }
       ],

@@ -1,7 +1,7 @@
 import { zCrackerBinaryResponse, zGetAccessGroupsHelperApiResponse } from '@generated/api/zod';
 import { Subject, of, throwError } from 'rxjs';
 
-import { HttpErrorResponse, provideHttpClient, withXhr } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -76,7 +76,7 @@ describe('CrackerVersionFormComponent', () => {
         { provide: HashTypesRoleService, useValue: hashtypeRoles },
         { provide: ConfigService, useValue: { getEndpoint: () => 'http://localhost:8080/api/v2' } },
         { provide: ActivatedRoute, useValue: { snapshot: { data: routeData, params: routeParams } } },
-        provideHttpClient(withXhr())
+        provideHttpClient()
       ]
     })
       .overrideComponent(CrackerVersionFormComponent, {

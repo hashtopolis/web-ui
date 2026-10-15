@@ -1,4 +1,4 @@
-import { HttpHeaders, provideHttpClient, withXhr } from '@angular/common/http';
+import { HttpHeaders, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
@@ -18,7 +18,7 @@ describe('GlobalService downloads', () => {
         GlobalService,
         { provide: AuthService, useValue: { userId: 1 } },
         { provide: ConfigService, useValue: { getEndpoint: () => 'http://localhost:8080/api/v2' } },
-        provideHttpClient(withXhr()),
+        provideHttpClient(),
         provideHttpClientTesting()
       ]
     });
@@ -92,7 +92,7 @@ describe('GlobalService relationships', () => {
         GlobalService,
         { provide: AuthService, useValue: { userId: 1 } },
         { provide: ConfigService, useValue: { getEndpoint: () => 'http://localhost:8080/api/v2' } },
-        provideHttpClient(withXhr()),
+        provideHttpClient(),
         provideHttpClientTesting()
       ]
     });
