@@ -1,4 +1,4 @@
-<mat-card appearance="outlined" class="task-card" [class.task-card--cracked]="view.hasCracks">
+<mat-card appearance="outlined" class="task-card" [ngClass]="rowClass">
   <mat-card-content class="task-card__content">
     <!-- Status first: the badge carries what the table spreads over the status column and its icon. -->
     <div class="task-card__head">
@@ -102,7 +102,11 @@
           {{ view.cracked.count }}
         </a>
       } @else {
-        <span class="task-card__stat" [class.task-card__stat--cracked]="view.hasCracks" matTooltip="Hashes cracked">
+        <span
+          class="task-card__stat"
+          [class.task-card__stat--cracked]="view.cracked.count > 0"
+          matTooltip="Hashes cracked"
+        >
           <mat-icon class="task-card__stat-icon">lock_open</mat-icon>
           {{ view.cracked.count }}
         </span>

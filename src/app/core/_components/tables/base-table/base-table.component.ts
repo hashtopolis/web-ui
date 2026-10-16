@@ -43,6 +43,7 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
+import { taskCrackedLink } from '@components/tables/tasks-table/tasks-table.util';
 
 import { BaseDataSource } from '@datasources/base.datasource';
 
@@ -226,7 +227,7 @@ export class BaseTableComponent {
 
     const link: HTTableRouterLink = {
       label: cracked.toLocaleString(),
-      routerLink: isSupertask ? null : ['/hashlists', 'hashes', 'tasks', taskId],
+      routerLink: isSupertask ? null : taskCrackedLink(taskId),
       ...(isSupertask && {
         tooltip: 'Please access the cracked hashes via the row\'s context menu "show subtasks"'
       })

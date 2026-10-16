@@ -6,6 +6,12 @@ import { ContextMenuService } from '@services/context-menu/base/context-menu.ser
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { TaskStatusBadge, taskStatusBadge } from '@components/tables/task-status.util';
+import {
+  accessGroupLink,
+  hashlistLink,
+  taskCrackedLink,
+  taskDetailLink
+} from '@components/tables/tasks-table/tasks-table.util';
 
 import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 
@@ -41,8 +47,6 @@ interface TaskCardView {
    * would read as "this task finished the hashlist" even when other tasks did the work.
    */
   cracked: { count: number; routerLink: Array<string | number> | null };
-  /** Any hash cracked — mirrors the table's `row-cracked` row highlight. */
-  hasCracks: boolean;
   /** The hashlist has no uncracked hashes left — a hashlist fact, as in the table's hashlist column. */
   hashlistFullyCracked: boolean;
   speed: string | null;
@@ -82,6 +86,12 @@ export class TaskCardComponent {
     return this._task;
   }
 
+  /**
+   * Classes from the table's `rowClass` for this task (e.g. `row-cracked`), passed through the card
+   * context so the card highlights exactly the rows the table does.
+   */
+  @Input() rowClass = '';
+
   /** Whether to render the selection checkbox (mirrors the table's select column). */
   @Input() selectable = false;
 
@@ -114,7 +124,7 @@ export class TaskCardComponent {
       isSupertask,
       attackCmd: wrapper.attackCmd ?? '',
       status: taskStatusBadge(wrapper.status),
-      detailLink: isSupertask || taskId === null ? null : ['/tasks', 'show-tasks', taskId, 'edit'],
+      detailLink: isSupertask || taskId === null ? null : taskDetailLink(taskId),
       keyspace: isSupertask
         ? null
         : {
@@ -124,10 +134,8 @@ export class TaskCardComponent {
       cracked: {
         count: crackedCount,
         // Supertasks aggregate several tasks, so there is no single task's crack list to open.
-        routerLink:
-          !isSupertask && crackedCount > 0 && taskId !== null ? ['/hashlists', 'hashes', 'tasks', taskId] : null
+        routerLink: !isSupertask && crackedCount > 0 && taskId !== null ? taskCrackedLink(taskId) : null
       },
-      hasCracks: crackedCount > 0,
       hashlistFullyCracked: hashlistTotal > 0 && wrapper.hashlistCracked === hashlistTotal,
       speed: isSupertask ? null : convertCrackingSpeed(wrapper.currentSpeed ?? 0),
       agents: wrapper.totalAssignedAgents ?? 0,
@@ -141,12 +149,12 @@ export class TaskCardComponent {
         wrapper.hashlistId !== undefined
           ? {
               label: wrapper.hashlistName || String(wrapper.hashlistId),
-              routerLink: ['/hashlists', 'hashlist', wrapper.hashlistId, 'edit']
+              routerLink: hashlistLink(wrapper.hashlistId)
             }
           : null,
       accessGroup:
         wrapper.accessGroupId && wrapper.groupName
-          ? { label: wrapper.groupName, routerLink: ['/users', 'access-groups', wrapper.accessGroupId, 'edit'] }
+          ? { label: wrapper.groupName, routerLink: accessGroupLink(wrapper.accessGroupId) }
           : null,
       flags: this.buildFlags(wrapper, isSupertask)
     };

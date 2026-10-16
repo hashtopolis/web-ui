@@ -74,7 +74,7 @@ export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.dataSource.destroy();
+    this.dataSource.disconnect(null as never);
   }
 
   toggleSelectAll(checked: boolean): void {

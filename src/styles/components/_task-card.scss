@@ -15,8 +15,9 @@
     --mat-card-outlined-outline-color: var(--border-strong);
   }
 
-  /* Mirrors the table's `.row-cracked` highlight: a task that yielded every hash stands out. */
-  &.task-card--cracked {
+  /* The table's `rowClass` reaches the card via the card context, so the same `row-cracked`
+     class drives both highlights. */
+  &.row-cracked {
     --mat-card-outlined-container-color: var(--success-bg);
   }
 }

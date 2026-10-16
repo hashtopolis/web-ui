@@ -109,11 +109,6 @@ describe('TaskCardComponent', () => {
       expect(card.view.cracked.routerLink).toBeNull();
     });
 
-    it('should flag any crack for the row highlight', () => {
-      expect(cardFor({ cracked: 5 }).view.hasCracks).toBeTrue();
-      expect(cardFor({ cracked: 0 }).view.hasCracks).toBeFalse();
-    });
-
     it('should mark a fully cracked hashlist from the hashlist totals, not this task\u2019s cracks', () => {
       // One task cracking every hash it owns says nothing about the hashlist as a whole.
       expect(cardFor({ cracked: 10, hashCount: 1000, hashlistCracked: 10 }).view.hashlistFullyCracked).toBeFalse();

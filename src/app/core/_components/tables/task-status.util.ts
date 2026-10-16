@@ -2,34 +2,6 @@ import { TaskStatus } from '@models/task.model';
 
 import { HTTableIcon } from '@components/tables/ht-table/ht-table.models';
 
-export function taskStatusIcon(status: number | undefined): HTTableIcon {
-  switch (status) {
-    case TaskStatus.RUNNING:
-      return { name: 'radio_button_checked', cls: 'pulsing-progress', tooltip: 'In Progress' };
-    case TaskStatus.IDLE:
-      return { name: 'schedule', cls: 'text-warning', tooltip: 'Waiting' };
-    case TaskStatus.SKIPPED:
-      return { name: 'fast_forward', cls: 'text-warning', tooltip: 'Skipped' };
-    case TaskStatus.COMPLETED:
-      return { name: 'check_circle', cls: 'text-ok', tooltip: 'Completed' };
-    default:
-      return { name: '' };
-  }
-}
-
-export function taskStatusLabel(status: number | undefined): string {
-  switch (status) {
-    case TaskStatus.RUNNING:
-      return 'Running';
-    case TaskStatus.SKIPPED:
-      return 'Skipped';
-    case TaskStatus.COMPLETED:
-      return 'Completed';
-    default:
-      return '';
-  }
-}
-
 /** Visual tone a task status maps to; drives the colour of the card view's status badge. */
 export type TaskStatusTone = 'running' | 'waiting' | 'completed' | 'skipped' | 'unknown';
 
@@ -44,9 +16,9 @@ export interface TaskStatusBadge {
 }
 
 /**
- * Describes a task status for the card view. Unlike {@link taskStatusLabel}, every status —
- * including `IDLE` and unknown values — gets a human-readable label, since the badge is the
- * only place the status is shown on a card.
+ * Describes a task status for the card view. This is the single source of the status mapping:
+ * {@link taskStatusIcon} and {@link taskStatusLabel} are derived from it. Unknown values get an
+ * "Unknown" label here, since the badge is the only place the status is shown on a card.
  *
  * @param status - the task status as returned by the `status` aggregate
  */
@@ -63,4 +35,37 @@ export function taskStatusBadge(status: number | undefined): TaskStatusBadge {
     default:
       return { label: 'Unknown', icon: 'help_outline', tone: 'unknown' };
   }
+}
+
+/** Table-only styling of the status icon per tone; the icon name itself comes from the badge. */
+const STATUS_ICON_STYLE: Record<Exclude<TaskStatusTone, 'unknown'>, Pick<HTTableIcon, 'cls' | 'tooltip'>> = {
+  running: { cls: 'pulsing-progress', tooltip: 'In Progress' },
+  waiting: { cls: 'text-warning', tooltip: 'Waiting' },
+  skipped: { cls: 'text-warning', tooltip: 'Skipped' },
+  completed: { cls: 'text-ok', tooltip: 'Completed' }
+};
+
+/**
+ * Status icon for the table's status column, derived from {@link taskStatusBadge}. Unknown
+ * statuses render no icon.
+ *
+ * @param status - the task status as returned by the `status` aggregate
+ */
+export function taskStatusIcon(status: number | undefined): HTTableIcon {
+  const badge = taskStatusBadge(status);
+  if (badge.tone === 'unknown') {
+    return { name: '' };
+  }
+  return { name: badge.icon, ...STATUS_ICON_STYLE[badge.tone] };
+}
+
+/**
+ * Status as plain text (e.g. for exports), derived from {@link taskStatusBadge}. Unknown statuses
+ * yield an empty string, matching the table, which shows no icon for them.
+ *
+ * @param status - the task status as returned by the `status` aggregate
+ */
+export function taskStatusLabel(status: number | undefined): string {
+  const badge = taskStatusBadge(status);
+  return badge.tone === 'unknown' ? '' : badge.label;
 }

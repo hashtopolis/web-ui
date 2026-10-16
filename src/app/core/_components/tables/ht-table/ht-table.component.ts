@@ -392,9 +392,6 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   /** Cleanup on component destruction */
   ngOnDestroy(): void {
     this.tableResizeObserver?.disconnect();
-    // `mat-table`'s own `disconnect` is a no-op by design (it fires on every view switch), so the
-    // data source is disposed here — `ht-table` outlives both the table and the card view.
-    this.dataSource?.destroy();
   }
 
   /**
@@ -604,6 +601,26 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
     return !!this.cardTemplate;
   }
 
+  /**
+   * Builds the context for one card. Selection, the row menu and the highlight all route through
+   * the same members the table rows use, so the two views cannot drift apart.
+   *
+   * @param row - The row the card renders.
+   * @param index - Zero-based position of the row on the current page.
+   */
+  cardContext(row: T, index: number): HTTableCardContext<T> {
+    return {
+      $implicit: row,
+      index,
+      rowClass: this.rowClass ? this.rowClass(row) : '',
+      selectable: this.isSelectable && !this.isCmdTask && !this.isCmdPreproAttack,
+      selected: this.isSelected(row),
+      toggleSelect: () => this.toggleSelect(row),
+      rowMenu: this.contextMenuService?.getHasContextMenu() ? this.contextMenuService : undefined,
+      rowAction: (event) => this.rowAction(event as ActionMenuEvent<BaseModel>)
+    };
+  }
+
   /** True when rows are currently rendered as cards. */
   get isCardView(): boolean {
     return this.supportsCardView && this.viewMode === TableViewMode.CARDS;
@@ -611,8 +628,8 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
 
   /**
    * Switches between table rows and cards and remembers the choice. Both views read the same data
-   * source, so no reload is needed — only the sticky-column measurements have to be redone, since
-   * the scroll container they measure exists in the table view only.
+   * source, so no reload is needed. The table stays mounted (only hidden) while cards are shown, so
+   * the sticky-column ResizeObserver re-measures by itself when the table becomes visible again.
    *
    * @param mode - The view mode to switch to.
    */
@@ -624,10 +641,6 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
     if (!this.isDetailPage) {
       this.uiSettings.updateTableView(this.name, mode);
     }
-    this.tableResizeObserver?.disconnect();
-    this.tableResizeObserver = undefined;
-    this.cd.detectChanges();
-    this.setupHorizontalScroll();
   }
 
   /** True when leading-column freezing is active (drives the select column's [sticky]). */
