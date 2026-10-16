@@ -1,6 +1,6 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { LowerCasePipe } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,6 +21,7 @@ import { AgentTemperatureInformationDialogData } from '@src/app/shared/dialog/ag
     DragDropModule,
     ButtonsModule
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './agent-temperature-information-dialog.component.html'
 })
 export class AgentTemperatureInformationDialogComponent {

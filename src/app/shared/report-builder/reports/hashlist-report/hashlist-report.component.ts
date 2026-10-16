@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 
 import { HashlistReportDataSource } from '@src/app/shared/report-builder/datasources/hashlists.datasource';
 import { BaseReportComponent } from '@src/app/shared/report-builder/reports/base-report/base-report.component';
@@ -7,6 +7,7 @@ import { ReportSection } from '@src/app/shared/report-builder/reports/report-bui
 @Component({
   selector: 'hashlist-report',
   templateUrl: './hashlist-report.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class HashlistReportComponent extends BaseReportComponent implements OnInit {

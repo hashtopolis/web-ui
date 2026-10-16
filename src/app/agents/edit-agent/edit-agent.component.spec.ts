@@ -3,7 +3,7 @@ import { zAgentResponse, zGetBestTasksAgentResponse, zUserListResponse } from '@
 import { of, throwError } from 'rxjs';
 
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -12,7 +12,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatStepperModule } from '@angular/material/stepper';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { SERV } from '@services/main.config';
@@ -29,12 +28,14 @@ import { InputModule } from '@src/app/shared/input/input.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
 import { PipesModule } from '@src/app/shared/pipes.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 
 // Mock components - only for components not included in imported modules
 @Component({
   selector: 'app-agent-stats',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MockAgentStatsComponent {
@@ -44,6 +45,7 @@ export class MockAgentStatsComponent {
 @Component({
   selector: 'app-agent-environment',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MockAgentEnvironmentComponent {
@@ -53,6 +55,7 @@ export class MockAgentEnvironmentComponent {
 @Component({
   selector: 'app-chunks-table',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MockChunksTableComponent {
@@ -62,6 +65,7 @@ export class MockChunksTableComponent {
 @Component({
   selector: 'app-agent-stat-graph',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MockAgentStatGraphComponent {
@@ -72,6 +76,7 @@ export class MockAgentStatGraphComponent {
 @Component({
   selector: 'app-agent-error-table',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class MockAgentErrorTableComponent {
@@ -200,7 +205,6 @@ describe('EditAgentComponent', () => {
         FontAwesomeModule,
         ReactiveFormsModule,
         FormsModule,
-        NoopAnimationsModule,
         MatStepperModule,
         MatExpansionModule,
         MatProgressSpinnerModule,
@@ -216,6 +220,7 @@ describe('EditAgentComponent', () => {
         CoreFormsModule
       ],
       providers: [
+        provideDisabledMaterialAnimations(),
         { provide: AlertService, useValue: alertServiceSpy },
         { provide: GlobalService, useValue: globalServiceSpy },
         { provide: Router, useValue: routerSpy },

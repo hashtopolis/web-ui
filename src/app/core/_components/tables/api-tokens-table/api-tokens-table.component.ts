@@ -1,7 +1,7 @@
 import { Observable, catchError, firstValueFrom, of } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
@@ -37,6 +37,7 @@ import { formatUnixTimestamp, lastValidSecond } from '@src/app/shared/utils/date
 @Component({
   selector: 'app-api-tokens-table',
   templateUrl: './api-tokens-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class ApiTokensTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

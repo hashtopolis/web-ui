@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 
 import { UIConfigService } from '@services/shared/storage.service';
 
@@ -6,6 +6,7 @@ import { UIConfigService } from '@services/shared/storage.service';
   selector: 'blacklist-attack',
   templateUrl: './blacklisted-attack.component.html',
   styleUrls: ['./blacklisted-attack.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class BlacklistAttackComponent implements OnChanges {

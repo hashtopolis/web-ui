@@ -2,7 +2,7 @@ import { zGetCompletedCountHelperApiResponse, zGetCracksPerDayHelperApiResponse 
 import { Subject, of, throwError } from 'rxjs';
 
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { Component, DebugElement, Injector, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DebugElement, Injector, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { RouterLink, RouterLinkWithHref, provideRouter } from '@angular/router';
@@ -30,6 +30,7 @@ import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response'
  */
 @Component({
   selector: 'app-heatmap-chart',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<div>Heatmap Chart Stub</div>'
 })
 class HeatmapChartStubComponent {
@@ -44,11 +45,11 @@ class HeatmapChartStubComponent {
  * Dummy component used for routing configuration during tests.
  * Acts as a placeholder target for router navigation.
  */
-@Component({ template: '' })
+@Component({ changeDetection: ChangeDetectionStrategy.Eager, template: '' })
 class DummyComponent {}
 
 /**
- * Stub routes used during test setup to initialize the RouterTestingModule.
+ * Stub routes used during test setup to initialize the router.
  */
 const routes = [{ path: '', component: DummyComponent }];
 

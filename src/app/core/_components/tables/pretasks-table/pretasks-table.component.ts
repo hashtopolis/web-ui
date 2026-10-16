@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
@@ -36,6 +36,7 @@ import { formatFileSize } from '@src/app/shared/utils/util';
 @Component({
   selector: 'app-pretasks-table',
   templateUrl: './pretasks-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class PretasksTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

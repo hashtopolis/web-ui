@@ -1,7 +1,18 @@
 import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 
-import { Component, DestroyRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  inject
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PageEvent } from '@angular/material/paginator';
 
@@ -31,6 +42,7 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
   selector: 'app-hashlist-supertask-builder-table',
   templateUrl: './hashlist-supertask-builder-table.component.html',
   styleUrls: ['./hashlist-supertask-builder-table.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class HashlistSupertaskBuilderTableComponent implements OnInit, OnDestroy {

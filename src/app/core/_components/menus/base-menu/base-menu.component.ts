@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { BaseModel, DynamicModel } from '@models/base.model';
 
@@ -9,6 +9,7 @@ import { ActionMenuEvent, ActionMenuItem } from '@src/app/core/_components/menus
 @Component({
   selector: 'base-menu',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class BaseMenuComponent<T extends BaseModel = BaseModel> {

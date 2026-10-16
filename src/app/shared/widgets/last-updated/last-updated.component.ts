@@ -1,6 +1,7 @@
 import { Subscription, interval } from 'rxjs';
 
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   Input,
@@ -45,6 +46,7 @@ import { TimePrecision, formatDate } from '@src/app/shared/utils/datetime';
   styleUrls: ['./last-updated.component.scss'],
   host: { class: 'text-xs text-muted-foreground' },
   imports: [MatProgressSpinner],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [
     {
       provide: UISettingsUtilityClass,

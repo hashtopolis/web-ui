@@ -3,7 +3,7 @@ import { zApiTokenResponse } from '@generated/api/zod';
 import { lastValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ApiTokenStatus, JApiToken, computeApiTokenStatus } from '@models/api-token.model';
@@ -24,6 +24,7 @@ import { TimePrecision, formatUnixTimestamp, lastValidSecond } from '@src/app/sh
 @Component({
   selector: 'app-api-key-detail',
   templateUrl: './api-key-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class ApiKeyDetailComponent implements OnInit {

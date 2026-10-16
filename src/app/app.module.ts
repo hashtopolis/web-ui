@@ -2,7 +2,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
 
 import { CommonModule } from '@angular/common';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { Injector, NgModule, inject, provideAppInitializer } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -15,7 +15,6 @@ import { MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule } from '@angular/mater
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserModule, Title } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppInitService } from '@services/app-init.service';
 import { ConfigService } from '@services/shared/config.service';
@@ -41,7 +40,6 @@ import { PipesModule } from '@src/app/shared/pipes.module';
   declarations: [PageNotFoundComponent, ErrorPageComponent, FooterComponent, AppComponent],
   bootstrap: [AppComponent],
   imports: [
-    BrowserAnimationsModule,
     ReactiveFormsModule,
     FontAwesomeModule,
     ComponentsModule,
@@ -91,7 +89,7 @@ import { PipesModule } from '@src/app/shared/pipes.module';
       provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
       useValue: { duration: 2500, verticalPosition: 'top', horizontalPosition: 'end' }
     },
-    provideHttpClient(withInterceptorsFromDi())
+    provideHttpClient(withXhr(), withInterceptorsFromDi())
   ]
 })
 export class AppModule {

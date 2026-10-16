@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 
 import { environment } from '@src/environments/environment';
 
@@ -15,6 +15,7 @@ interface GitVersion {
 @Component({
   selector: 'app-footer',
   templateUrl: './footer.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class FooterComponent implements OnInit {

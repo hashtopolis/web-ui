@@ -1,6 +1,6 @@
 import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -51,6 +51,7 @@ export interface WrbulkForm {
 @Component({
   selector: 'app-wrbulk',
   templateUrl: './wrbulk.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class WrbulkComponent implements OnInit {

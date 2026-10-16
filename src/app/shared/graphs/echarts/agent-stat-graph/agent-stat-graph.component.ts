@@ -1,7 +1,16 @@
 import { EChartsCoreOption } from 'echarts/core';
 import { type EChartsType, init } from 'echarts/core';
 
-import { Component, ElementRef, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Input,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 
 import { JAgentStat } from '@models/agent-stats.model';
 
@@ -15,6 +24,7 @@ import { ASC } from '@src/app/core/_constants/agentsc.config';
   selector: 'app-agent-stat-graph',
   templateUrl: './agent-stat-graph.component.html',
   styleUrls: ['./agent-stat-graph.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: { class: 'block' }
 })
 export class AgentStatGraphComponent implements OnChanges, OnDestroy {
