@@ -166,6 +166,18 @@ export class BaseTableComponent {
   }
 
   /**
+   * Render link to the chunk detail page
+   * @param chunkId - ID of the chunk to link to, renders 'N/A' when there is none
+   * @return observable object containing a router link array
+   */
+  renderChunkDetailLink(chunkId: number | null | undefined): Observable<HTTableRouterLink[]> {
+    if (!chunkId) {
+      return of([{ routerLink: null, label: 'N/A', muted: true }]);
+    }
+    return of([{ routerLink: ['/tasks', 'chunks', chunkId, 'view'], label: chunkId.toString() }]);
+  }
+
+  /**
    * Render cracked link to be displayed in HTML code
    * @param chunk - chunk object to render router link for
    * @return observable object containing a router link array

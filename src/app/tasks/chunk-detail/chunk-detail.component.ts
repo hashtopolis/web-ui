@@ -1,0 +1,270 @@
+import { ChunkState, ChunkStateLabels, ChunkStatePillClass } from '@constants/chunks.config';
+import { zChunkResponse, zSpeedListResponse, zTaskResponse } from '@generated/api/zod';
+import { Observable, catchError, map, of, switchMap, tap } from 'rxjs';
+
+import { Clipboard } from '@angular/cdk/clipboard';
+import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+
+import { JChunk } from '@models/chunk.model';
+import { TableSortDirection } from '@models/config-ui.model';
+import { FilterType } from '@models/request-params.model';
+import { zIdRouteParams } from '@models/routes.schema';
+import { SpeedStat } from '@models/speed-stat.model';
+import { JTask } from '@models/task.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
+import { GlobalService } from '@services/main.service';
+import { RequestParamBuilder } from '@services/params/builder-implementation.service';
+import { AlertService } from '@services/shared/alert.service';
+import { AutoTitleService } from '@services/shared/autotitle.service';
+import { UIConfigService } from '@services/shared/storage.service';
+
+import { ComponentsModule } from '@src/app/shared/components.module';
+import { TaskSpeedGraphComponent } from '@src/app/shared/graphs/echarts/task-speed-graph/task-speed-graph.component';
+import { PipesModule } from '@src/app/shared/pipes.module';
+import { chunkProcessed, chunkProgressPercent, chunkTimeSpent } from '@src/app/shared/utils/chunk';
+import { buildChunkCommand } from '@src/app/tasks/chunk-detail/chunk-command';
+
+/** Speed samples are reported every few seconds; allow a little slack around the chunk's time window. */
+const SPEED_WINDOW_SLACK_SECONDS = 10;
+
+type CommandVariant = 'standalone' | 'agent';
+
+@Component({
+  selector: 'app-chunk-detail',
+  templateUrl: './chunk-detail.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    CommonModule,
+    RouterModule,
+    ComponentsModule,
+    PipesModule,
+    MatButtonModule,
+    MatButtonToggle,
+    MatButtonToggleGroup,
+    MatCardModule,
+    MatIconModule,
+    TaskSpeedGraphComponent
+  ]
+})
+export class ChunkDetailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private gs = inject(GlobalService);
+  private serializer = inject(JsonAPISerializer);
+  private clipboard = inject(Clipboard);
+  private alertService = inject(AlertService);
+  private uiService = inject(UIConfigService);
+  private titleService = inject(AutoTitleService);
+  private cdr = inject(ChangeDetectorRef);
+  private destroyRef = inject(DestroyRef);
+
+  chunkId: number;
+  chunk: JChunk | null = null;
+  task: JTask | null = null;
+  speeds: SpeedStat[] = [];
+  isLoading = true;
+  notFound = false;
+
+  commandVariant: CommandVariant = 'standalone';
+  command = '';
+
+  protected readonly ChunkState = ChunkState;
+
+  ngOnInit(): void {
+    // Subscribe to the params (not the snapshot): navigating from one chunk to another reuses this component.
+    this.route.params
+      .pipe(
+        map((params) => zIdRouteParams.parse(params).id),
+        tap((chunkId) => {
+          this.chunkId = chunkId;
+          this.chunk = null;
+          this.task = null;
+          this.speeds = [];
+          this.isLoading = true;
+          this.titleService.set([`Chunk #${chunkId}`]);
+          this.cdr.markForCheck();
+        }),
+        switchMap(() => this.loadAll()),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(({ chunk, task, speeds }) => {
+        this.chunk = chunk;
+        this.task = task;
+        this.speeds = speeds;
+        this.notFound = !chunk;
+        this.isLoading = false;
+        this.updateCommand();
+        this.cdr.markForCheck();
+      });
+  }
+
+  /* ---------- Derived values ---------- */
+
+  get stateLabel(): string {
+    return this.chunk ? (ChunkStateLabels[this.chunk.state] ?? String(this.chunk.state)) : '';
+  }
+
+  get stateClass(): string {
+    return this.chunk ? `pill ${ChunkStatePillClass[this.chunk.state] ?? ''}` : 'pill';
+  }
+
+  /** Progress through the chunk in percent, see chunkProgressPercent. */
+  get progressPercent(): number {
+    return this.chunk ? (chunkProgressPercent(this.chunk) ?? 0) : 0;
+  }
+
+  /** Keyspace positions covered so far, derived from the checkpoint. */
+  get processed(): number {
+    return this.chunk ? chunkProcessed(this.chunk) : 0;
+  }
+
+  get chunkEnd(): number {
+    return this.chunk ? this.chunk.skip + this.chunk.length : 0;
+  }
+
+  get timeSpent(): number {
+    return this.chunk ? chunkTimeSpent(this.chunk) : 0;
+  }
+
+  /** Average throughput over the chunk's lifetime (keyspace positions per second). */
+  get averageRate(): number {
+    return this.timeSpent > 0 ? this.processed / this.timeSpent : 0;
+  }
+
+  /** Total keyspace of the task, used to place the chunk on the task's keyspace bar. */
+  get taskKeyspace(): number {
+    return Math.max(this.task?.keyspace ?? 0, this.chunkEnd);
+  }
+
+  /** Offset/width (percent) of the chunk inside the task keyspace bar, kept wide enough to stay visible. */
+  get chunkSegment(): { left: number; width: number } {
+    if (!this.chunk || !this.taskKeyspace) return { left: 0, width: 0 };
+    const left = (this.chunk.skip / this.taskKeyspace) * 100;
+    const width = Math.max(0.6, (this.chunk.length / this.taskKeyspace) * 100);
+    return { left: Math.min(left, 100 - width), width };
+  }
+
+  get taskDispatchedPercent(): number {
+    if (!this.task || !this.taskKeyspace) return 0;
+    return Math.min(100, (this.task.keyspaceProgress / this.taskKeyspace) * 100);
+  }
+
+  get isActive(): boolean {
+    return this.chunk?.state === ChunkState.RUNNING || this.chunk?.state === ChunkState.INIT;
+  }
+
+  get usesPipe(): boolean {
+    return !!this.task?.forcePipe;
+  }
+
+  get usesPreprocessor(): boolean {
+    return !!this.task?.preprocessorId;
+  }
+
+  /* ---------- Actions ---------- */
+
+  setCommandVariant(variant: CommandVariant): void {
+    this.commandVariant = variant;
+    this.updateCommand();
+  }
+
+  copyCommand(): void {
+    if (this.clipboard.copy(this.command)) {
+      this.alertService.showSuccessMessage('Command copied to clipboard');
+    }
+  }
+
+  /* ---------- Loading ---------- */
+
+  private updateCommand(): void {
+    if (!this.chunk) {
+      this.command = '';
+      return;
+    }
+    this.command = buildChunkCommand({
+      skip: this.chunk.skip,
+      length: this.chunk.length,
+      attackCmd: this.task?.attackCmd ?? '',
+      hashlistAlias: this.uiService.getUISettings()?.hashlistAlias ?? '#HL#',
+      hashlistId: this.task?.hashlist?.id,
+      hashTypeId: this.task?.hashlist?.hashTypeId,
+      fileNames: (this.task?.files ?? []).map((file) => file.filename),
+      agentCmdPars: this.chunk.agent?.cmdPars,
+      usePipe: this.usesPipe,
+      agentFlags: this.commandVariant === 'agent',
+      statusTimer: this.task?.statusTimer
+    });
+  }
+
+  /** Loads the chunk, then its task and the agent's speed samples during the chunk. */
+  private loadAll(): Observable<{ chunk: JChunk | null; task: JTask | null; speeds: SpeedStat[] }> {
+    return this.loadChunk().pipe(
+      switchMap((chunk) =>
+        chunk
+          ? this.loadTask(chunk.taskId).pipe(
+              switchMap((task) => this.loadSpeeds(chunk).pipe(map((speeds) => ({ chunk, task, speeds }))))
+            )
+          : of({ chunk: null, task: null, speeds: [] })
+      )
+    );
+  }
+
+  private loadChunk(): Observable<JChunk | null> {
+    const params = new RequestParamBuilder().addInclude('task').addInclude('agent').create();
+    return this.gs.get(SERV.CHUNKS, this.chunkId, params).pipe(
+      map((response) => this.serializer.deserialize(response, zChunkResponse, params) as unknown as JChunk),
+      catchError(() => of(null))
+    );
+  }
+
+  private loadTask(taskId: number): Observable<JTask | null> {
+    const params = new RequestParamBuilder()
+      .addInclude('hashlist')
+      .addInclude('crackerBinary')
+      .addInclude('files')
+      .create();
+    // Cast: task relationship includes aren't schema-typed yet, JTask's hand-typed relationships are authoritative.
+    return this.gs.get(SERV.TASKS, taskId, params).pipe(
+      map((response) => this.serializer.deserialize(response, zTaskResponse, params) as unknown as JTask),
+      // A user without access to e.g. the hashlist would fail the includes; fall back to the bare task.
+      catchError(() =>
+        this.gs.get(SERV.TASKS, taskId).pipe(
+          map((response) => this.serializer.deserialize(response, zTaskResponse) as unknown as JTask),
+          catchError(() => of(null))
+        )
+      )
+    );
+  }
+
+  /** Speed samples the chunk's agent reported for this task while the chunk was being worked on. */
+  private loadSpeeds(chunk: JChunk): Observable<SpeedStat[]> {
+    if (chunk.agentId === null || !chunk.dispatchTime) {
+      return of([]);
+    }
+    const end = chunk.solveTime > 0 ? chunk.solveTime : Math.floor(Date.now() / 1000);
+    const params = new RequestParamBuilder()
+      .addFilter({ field: 'taskId', operator: FilterType.EQUAL, value: chunk.taskId })
+      .addFilter({ field: 'agentId', operator: FilterType.EQUAL, value: chunk.agentId })
+      .addFilter({
+        field: 'time',
+        operator: FilterType.GREATER,
+        value: chunk.dispatchTime - SPEED_WINDOW_SLACK_SECONDS
+      })
+      .addFilter({ field: 'time', operator: FilterType.LESSER, value: end + SPEED_WINDOW_SLACK_SECONDS })
+      .addSorting({ dataKey: 'time', direction: TableSortDirection.ASC, isSortable: true })
+      .setPageSize(2000)
+      .create();
+    return this.gs.getAll(SERV.SPEEDS, params).pipe(
+      map((response) => this.serializer.deserialize(response, zSpeedListResponse) as SpeedStat[]),
+      catchError(() => of([]))
+    );
+  }
+}

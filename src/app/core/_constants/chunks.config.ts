@@ -31,3 +31,18 @@ export const ChunkStateLabels: Record<ChunkState, string> = {
   [ChunkState.TRIMMED]: 'Trimmed',
   [ChunkState.ABORTING]: 'Aborting...'
 };
+
+/** Maps each `ChunkState` code to the state pill CSS class defined in `styles/components/_pill.scss`. */
+export const ChunkStatePillClass: Record<ChunkState, string> = {
+  [ChunkState.NEW]: 'pill-new',
+  [ChunkState.INIT]: 'pill-init',
+  [ChunkState.RUNNING]: 'pill-running',
+  [ChunkState.PAUSED]: 'pill-paused',
+  [ChunkState.EXHAUSTED]: 'pill-exhausted',
+  [ChunkState.CRACKED]: 'pill-cracked',
+  [ChunkState.ABORTED]: 'pill-aborted',
+  [ChunkState.QUIT]: 'pill-quit',
+  [ChunkState.BYPASS]: 'pill-bypass',
+  [ChunkState.TRIMMED]: 'pill-trimmed',
+  [ChunkState.ABORTING]: 'pill-aborting'
+};
