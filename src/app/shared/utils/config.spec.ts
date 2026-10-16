@@ -61,3 +61,58 @@ describe('UISettingsUtilityClass — tableSettings backfill via schema', () => {
     expect(utility.getTableSettings('usersTable')).toEqual(customColumns);
   });
 });
+
+/**
+ * Every holder of `UISettingsUtilityClass` (each `ht-table`, each data source, `AutoRefreshService`,
+ * ...) keeps its own snapshot of the whole UI config, and a write persists that entire snapshot.
+ * These cover the read-modify-write that stops the last writer from reverting everyone else.
+ */
+describe('UISettingsUtilityClass — concurrent holders', () => {
+  /** Mock storage backed by one shared object, so two utilities see each other's writes. */
+  function makeSharedStorage(): { service: LocalStorageService<UIConfig>; read: () => UIConfig } {
+    let stored: UIConfig = JSON.parse(JSON.stringify(uiConfigDefault));
+    const service = {
+      getItem: jasmine.createSpy('getItem').and.callFake(() => JSON.parse(JSON.stringify(stored))),
+      setItem: jasmine.createSpy('setItem').and.callFake((_key: string, value: UIConfig) => {
+        stored = JSON.parse(JSON.stringify(value));
+      })
+    } as unknown as LocalStorageService<UIConfig>;
+    return { service, read: () => stored };
+  }
+
+  it('does not revert another holder’s view mode when writing a top-level setting', () => {
+    const { service, read } = makeSharedStorage();
+    // Constructed first, so its snapshot predates every change below — this is `AutoRefreshService`.
+    const autoRefreshHolder = new UISettingsUtilityClass(service);
+    const tableHolder = new UISettingsUtilityClass(service);
+
+    tableHolder.updateTableView('tasksTable', 'cards');
+    autoRefreshHolder.updateSettings({ refreshPage: true });
+
+    expect((read().tableSettings['tasksTable'] as TableConfig).view).toBe('cards');
+    expect(read().refreshPage).toBeTrue();
+  });
+
+  it('does not revert another holder’s column selection', () => {
+    const { service, read } = makeSharedStorage();
+    const autoRefreshHolder = new UISettingsUtilityClass(service);
+    const tableHolder = new UISettingsUtilityClass(service);
+
+    tableHolder.updateTableSettings('tasksTable', { columns: [1, 2, 3], page: 25 });
+    autoRefreshHolder.updateSettings({ refreshPage: true });
+
+    expect((read().tableSettings['tasksTable'] as TableConfig).columns).toEqual([1, 2, 3]);
+  });
+
+  it('does not revert a top-level setting when another holder writes table settings', () => {
+    const { service, read } = makeSharedStorage();
+    const tableHolder = new UISettingsUtilityClass(service);
+    const settingsHolder = new UISettingsUtilityClass(service);
+
+    settingsHolder.updateSettings({ refreshInterval: 42 });
+    tableHolder.updateTableSettings('tasksTable', { page: 50 });
+
+    expect(read().refreshInterval).toBe(42);
+    expect((read().tableSettings['tasksTable'] as TableConfig).page).toBe(50);
+  });
+});

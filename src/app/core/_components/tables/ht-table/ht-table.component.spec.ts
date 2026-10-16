@@ -271,4 +271,64 @@ describe('HTTableComponent', () => {
       expect(event.menuItem).toBe(originalMenuItem);
     });
   });
+
+  describe('cardContext', () => {
+    const row: TestModel = { id: 7, type: 'task', name: 'Card Task' };
+
+    function makeCardComponent() {
+      const { component, mockSelection } = makeComponent();
+      component['dataSource'] = {
+        selection: mockSelection,
+        isSelected: (r: TestModel) => mockSelection.isSelected(r),
+        toggleRow: (r: TestModel) => mockSelection.toggle(r)
+      } as unknown as BaseDataSource<TestModel>;
+      component.isSelectable = true;
+      component['rowActionClicked'] = { emit: jasmine.createSpy('emit') } as never;
+      return { component, mockSelection };
+    }
+
+    it('should route toggleSelect through the table selection', () => {
+      const { component, mockSelection } = makeCardComponent();
+
+      component.cardContext(row, 0).toggleSelect();
+
+      expect(mockSelection.isSelected(row)).toBeTrue();
+      expect(component.cardContext(row, 0).selected).toBeTrue();
+    });
+
+    it('should route rowAction through rowAction() so rowActionClicked is emitted', () => {
+      const { component } = makeCardComponent();
+      const rowActionSpy = spyOn(component, 'rowAction').and.callThrough();
+      const event: ActionMenuEvent<TestModel> = { menuItem: { label: 'Edit', action: 'edit' }, data: row };
+
+      component.cardContext(row, 0).rowAction(event);
+
+      expect(rowActionSpy).toHaveBeenCalledWith(event);
+      expect(component['rowActionClicked'].emit).toHaveBeenCalledWith(event);
+    });
+
+    it('should not offer selection when the table is not selectable', () => {
+      const { component } = makeCardComponent();
+      component.isSelectable = false;
+
+      expect(component.cardContext(row, 0).selectable).toBeFalse();
+    });
+
+    it('should only hand out the row menu when it has entries', () => {
+      const { component } = makeCardComponent();
+      const menu = { getHasContextMenu: () => false } as unknown as HTTableComponent<TestModel>['contextMenuService'];
+      component.contextMenuService = menu;
+      expect(component.cardContext(row, 0).rowMenu).toBeUndefined();
+
+      (menu as unknown as { getHasContextMenu: () => boolean }).getHasContextMenu = () => true;
+      expect(component.cardContext(row, 0).rowMenu).toBe(menu);
+    });
+
+    it('should apply the table rowClass to the card', () => {
+      const { component } = makeCardComponent();
+      component.rowClass = (r) => (r.id === 7 ? 'row-cracked' : '');
+
+      expect(component.cardContext(row, 0).rowClass).toBe('row-cracked');
+    });
+  });
 });

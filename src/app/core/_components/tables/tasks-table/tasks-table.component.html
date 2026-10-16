@@ -10,6 +10,7 @@
   [contextMenuService]="contextMenuService"
   [isArchived]="isArchived"
   [isFilterable]="isFilterable"
+  [cardTemplate]="taskCard"
   (rowActionClicked)="rowActionClicked($event)"
   (bulkActionClicked)="bulkActionClicked($event)"
   (exportActionClicked)="exportActionClicked($event)"
@@ -22,3 +23,26 @@
 >
   <ng-content select="[extra-actions]" ngProjectAs="[extra-actions]"></ng-content>
 </ht-table>
+
+<!-- Card form of a task row, rendered by `ht-table` when the user picks the card view. -->
+<ng-template
+  #taskCard
+  let-wrapper
+  let-rowClass="rowClass"
+  let-selectable="selectable"
+  let-selected="selected"
+  let-toggleSelect="toggleSelect"
+  let-rowMenu="rowMenu"
+  let-rowAction="rowAction"
+>
+  <app-task-card
+    [task]="wrapper"
+    [rowClass]="rowClass"
+    [selectable]="selectable"
+    [selected]="selected"
+    [contextMenuService]="rowMenu"
+    (selectedToggled)="toggleSelect()"
+    (rowActionClicked)="rowAction($event)"
+    (supertaskClicked)="rowActionEditSubtasks($event)"
+  ></app-task-card>
+</ng-template>

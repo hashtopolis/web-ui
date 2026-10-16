@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -22,6 +23,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 
+import { TaskCardComponent } from '@components/cards/task-card/task-card.component';
 import { ConfirmDialogComponent } from '@components/confirm-dialog/confirm-dialog.component';
 import { ActionMenuComponent } from '@components/menus/action-menu/action-menu.component';
 import { BaseMenuComponent } from '@components/menus/base-menu/base-menu.component';
@@ -133,7 +135,8 @@ import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-
     TasksChunksTableComponent,
     TasksSupertasksTableComponent,
     CracksTableComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    TaskCardComponent
   ],
   imports: [
     ReactiveFormsModule,
@@ -156,6 +159,7 @@ import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-
     MatTooltipModule,
     MatDividerModule,
     MatSlideToggleModule,
+    MatCardModule,
     RouterModule,
     FormsModule,
     FontAwesomeModule,
@@ -216,7 +220,8 @@ import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-
     TasksChunksTableComponent,
     TasksSupertasksTableComponent,
     CracksTableComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    TaskCardComponent
   ],
   providers: [
     {

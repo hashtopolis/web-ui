@@ -1,0 +1,81 @@
+/* ==================================
+          SECTION CARD GRID
+   ==================================
+   Layout for `ht-table`'s card view: the responsive grid the row cards sit in, plus the
+   Table/Cards switch in the action bar. The cards themselves are styled per data type
+   (see `_task-card.scss`). */
+
+.ht-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: var(--space-sm);
+  /* Default `stretch`, paired with `height: 100%` on the card, evens out the rows: cards that
+     show fewer meters (supertasks have no keyspace) otherwise leave ragged gaps. */
+}
+
+.ht-card-grid__empty {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 120px;
+  color: var(--subtle-foreground);
+  font-size: var(--text-md);
+}
+
+/* Segmented control for the Table/Cards switch. Deliberately not a `mat-button-toggle-group`:
+   that is restyled app-wide into an underlined tab bar (see `_material.scss`), which reads as
+   page navigation rather than as one control in the action bar. */
+.ht-view-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: var(--space-xs);
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+/* The switch lives in the action bar's `.right-aligned` group, whose `div.table-actions
+   .right-aligned .mat-icon` rule paints every icon it contains in the subtle foreground — that
+   would flatten the active state. `.table-actions` is repeated here only to out-specify it. */
+.table-actions .ht-view-switch .ht-view-switch__option .mat-icon {
+  color: inherit;
+}
+
+.ht-view-switch__option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 var(--space-xs);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--subtle-foreground);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--easing-standard),
+    color var(--duration-fast) var(--easing-standard);
+
+  &:hover {
+    background: var(--surface-soft-hover);
+    color: var(--foreground);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ring);
+  }
+
+  .mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.ht-view-switch__option--active {
+  background: var(--primary-muted);
+  color: var(--primary);
+}

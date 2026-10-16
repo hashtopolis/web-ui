@@ -6,6 +6,10 @@ import { SafeHtml } from '@angular/platform-browser';
 import { BaseModel } from '@models/base.model';
 import { TableSortDirection } from '@models/config-ui.model';
 
+import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
+
+import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+
 export type DataType =
   | 'agents'
   | 'agents-errors'
@@ -43,6 +47,31 @@ export type DataType =
   | 'supertasks'
   | 'supertasks-pretasks'
   | 'superhashlists';
+
+/**
+ * Context handed to an `ht-table` card template, one instantiation per row. Everything a card
+ * needs from the table comes through here, so the card never reaches into `ht-table` itself and
+ * table rows and cards go through the same selection, row-menu and highlight logic.
+ *
+ * @prop $implicit    The row, so templates can declare it as `let-row`
+ * @prop index        Zero-based position of the row on the current page
+ * @prop rowClass     Result of the table's `rowClass` for this row
+ * @prop selectable   Whether the card should offer a selection checkbox
+ * @prop selected     Whether the row is part of the current bulk-action selection
+ * @prop toggleSelect Toggles the row's selection through the table
+ * @prop rowMenu      Context menu for the card's row-action menu; `undefined` when the table shows none
+ * @prop rowAction    Hands a row-menu pick to the table, which emits `rowActionClicked`
+ */
+export interface HTTableCardContext<T> {
+  $implicit: T;
+  index: number;
+  rowClass: string;
+  selectable: boolean;
+  selected: boolean;
+  toggleSelect: () => void;
+  rowMenu: ContextMenuService | undefined;
+  rowAction: (event: ActionMenuEvent<T>) => void;
+}
 
 export interface HTTableIcon {
   name: string;

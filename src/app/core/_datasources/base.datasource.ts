@@ -137,6 +137,15 @@ export abstract class BaseDataSource<
   }
 
   /**
+   * Gets the observable for the currently displayed rows. `connect()` hands the same stream to
+   * `mat-table`; this getter exists for views that render the rows themselves (e.g. a card grid).
+   * @return An observable that emits the rows of the current page.
+   */
+  get data$(): Observable<T[]> {
+    return this.dataSubject.asObservable();
+  }
+
+  /**
    * Sets the loading state and triggers change detection.
    * @param value - The boolean value representing the loading state to be set.
    */

@@ -10,6 +10,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  TemplateRef,
   ViewChild,
   inject
 } from '@angular/core';
@@ -21,7 +22,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, SortDirection } from '@angular/material/sort';
 
 import { BaseModel } from '@models/base.model';
-import { Sorting, TableSettingsKey, UIConfig } from '@models/config-ui.model';
+import { Sorting, TableSettingsKey, TableViewMode, UIConfig } from '@models/config-ui.model';
 import { JHash } from '@models/hash.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
@@ -38,6 +39,7 @@ import {
   CheckboxFiles,
   ColumnDefId,
   DataType,
+  HTTableCardContext,
   HTTableColumn,
   HTTableEditable,
   SortingColumn
@@ -205,6 +207,17 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   @Input() rowClass: ((row: T) => string) | undefined;
 
   /**
+   * Opt-in card view. When a template is supplied, a Table/Cards switch appears in the action bar
+   * and the template is rendered once per row in a responsive grid instead of the table. Receives
+   * the row as `$implicit`. Tables without a template keep rendering rows only.
+   *
+   * Cards carry no sort control: the ordering is whatever the table view's column headers last set
+   * (it persists on the data source), since a sort direction reads as noise without the headers
+   * that explain it.
+   */
+  @Input() cardTemplate?: TemplateRef<HTTableCardContext<T>>;
+
+  /**
    * Number of leading sticky columns, after that the content will be scrollable (apart from the last column which might be sticky again if row menu action)
    */
   @Input() stickyLeadingColumns = 2;
@@ -254,11 +267,15 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   atScrollEnd = false;
 
   /** Re-measures the synthetic scrollbar when the table or its container resize. */
-  private tableResizeObserver?: ResizeObserver;
+  private tableResizeObserver: ResizeObserver | undefined;
   filterQueryFormGroup = new FormGroup({
     textFilter: new FormControl('')
   });
   filterError: string | null = null;
+
+  /** Active row rendering mode; only switchable when {@link cardTemplate} is supplied. */
+  viewMode: TableViewMode = TableViewMode.TABLE;
+  viewModes = TableViewMode;
 
   ngOnInit(): void {
     this.uiSettings = new UISettingsUtilityClass(this.storage);
@@ -270,6 +287,9 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
       this.defaultStartPage = tableSettings.start;
       this.defaultBeforePage = tableSettings.before;
       this.defaultIndex = tableSettings.index ?? 0;
+      if (this.supportsCardView && tableSettings.view) {
+        this.viewMode = tableSettings.view;
+      }
     }
 
     if (Array.isArray(displayedColumns)) {
@@ -574,6 +594,53 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
       ...event,
       data: this.dataSource.selection.selected
     } as ActionMenuEvent<T[]>);
+  }
+
+  /** True when the parent supplied a card template, i.e. the Table/Cards switch is available. */
+  get supportsCardView(): boolean {
+    return !!this.cardTemplate;
+  }
+
+  /**
+   * Builds the context for one card. Selection, the row menu and the highlight all route through
+   * the same members the table rows use, so the two views cannot drift apart.
+   *
+   * @param row - The row the card renders.
+   * @param index - Zero-based position of the row on the current page.
+   */
+  cardContext(row: T, index: number): HTTableCardContext<T> {
+    return {
+      $implicit: row,
+      index,
+      rowClass: this.rowClass ? this.rowClass(row) : '',
+      selectable: this.isSelectable && !this.isCmdTask && !this.isCmdPreproAttack,
+      selected: this.isSelected(row),
+      toggleSelect: () => this.toggleSelect(row),
+      rowMenu: this.contextMenuService?.getHasContextMenu() ? this.contextMenuService : undefined,
+      rowAction: (event) => this.rowAction(event as ActionMenuEvent<BaseModel>)
+    };
+  }
+
+  /** True when rows are currently rendered as cards. */
+  get isCardView(): boolean {
+    return this.supportsCardView && this.viewMode === TableViewMode.CARDS;
+  }
+
+  /**
+   * Switches between table rows and cards and remembers the choice. Both views read the same data
+   * source, so no reload is needed. The table stays mounted (only hidden) while cards are shown, so
+   * the sticky-column ResizeObserver re-measures by itself when the table becomes visible again.
+   *
+   * @param mode - The view mode to switch to.
+   */
+  setViewMode(mode: TableViewMode): void {
+    if (!this.supportsCardView || mode === this.viewMode) {
+      return;
+    }
+    this.viewMode = mode;
+    if (!this.isDetailPage) {
+      this.uiSettings.updateTableView(this.name, mode);
+    }
   }
 
   /** True when leading-column freezing is active (drives the select column's [sticky]). */

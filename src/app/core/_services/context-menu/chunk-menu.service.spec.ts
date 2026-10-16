@@ -33,7 +33,7 @@ describe('ChunkContextMenuService', () => {
     const menu = new RowActionMenuComponent();
     menu.contextMenuService = contextMenuService;
     menu.data = chunk;
-    menu.ngOnInit();
+    menu.ngOnChanges();
     return menu.actionMenuItems.flat().map((item) => item.label);
   };
 

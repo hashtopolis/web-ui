@@ -28,6 +28,7 @@ import {
   TaskTableColumnLabel,
   TaskTableEditableAction
 } from '@components/tables/tasks-table/tasks-table.constants';
+import { accessGroupLink, hashlistLink, taskDetailLink } from '@components/tables/tasks-table/tasks-table.util';
 
 import { TasksDataSource } from '@datasources/tasks.datasource';
 
@@ -572,7 +573,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     }
   }
 
-  private rowActionEditSubtasks(taskWrapper: JTaskWrapperDisplayOverview): void {
+  protected rowActionEditSubtasks(taskWrapper: JTaskWrapperDisplayOverview): void {
     const dialogRef = this.dialog.open(ModalSubtasksComponent, {
       width: '80vw',
       maxWidth: '80vw',
@@ -890,7 +891,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       return of([
         {
           label: displayName,
-          routerLink: ['/tasks', 'show-tasks', taskId, 'edit'],
+          routerLink: taskDetailLink(taskId),
           tooltip: wrapper.attackCmd ?? '',
           visualGraph: {
             enabled: isRunning,
@@ -931,7 +932,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
         fullName.length > maxHashlistLabelLength ? `${fullName.substring(0, maxHashlistLabelLength)}...` : fullName;
 
       links.push({
-        routerLink: ['/hashlists', 'hashlist', id, 'edit'],
+        routerLink: hashlistLink(id),
         label: truncatedName,
         tooltip: fullName
       });
@@ -950,7 +951,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
     const links: HTTableRouterLink[] = [];
     if (accessGroupId && groupName) {
       links.push({
-        routerLink: ['/users', 'access-groups', accessGroupId, 'edit'],
+        routerLink: accessGroupLink(accessGroupId),
         label: groupName
       });
     }
