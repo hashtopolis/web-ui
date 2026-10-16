@@ -378,7 +378,7 @@ describe('ChunksTableComponent', () => {
       const chunk = { state: 10 } as JChunk;
       const result = component.renderState(chunk);
 
-      expect(result).toContain(ChunkStateLabels[ChunkState.ABORTING].toLowerCase());
+      expect(result).toContain('class="pill pill-aborting"');
       expect(result).toContain(ChunkStateLabels[ChunkState.ABORTING]);
     });
 
@@ -456,11 +456,11 @@ describe('ChunksTableComponent', () => {
       expect(result).toContain('0');
     });
 
-    it('should render 0% when progress is undefined', () => {
+    it('should derive the percentage from the checkpoint even when progress is undefined', () => {
       const chunk = { checkpoint: 100, skip: 0, length: 1000, progress: undefined } as unknown as JChunk;
       const result = component.renderCheckpoint(chunk);
 
-      expect(result).toContain('0');
+      expect(result).toContain('100 (10%)');
     });
 
     it('should calculate percentage correctly', () => {

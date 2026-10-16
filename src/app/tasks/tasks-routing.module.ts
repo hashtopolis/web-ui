@@ -13,6 +13,7 @@ import { NewSupertasksComponent } from '@components/forms/custom-forms/task/new-
 import { IsAuth } from '@src/app/core/_guards/auth.guard';
 import { PendingChangesGuard } from '@src/app/core/_guards/pendingchanges.guard';
 import { CheckRole } from '@src/app/core/_guards/permission.guard';
+import { ChunkDetailComponent } from '@src/app/tasks/chunk-detail/chunk-detail.component';
 import { ChunksComponent } from '@src/app/tasks/chunks/chunks.component';
 import { EditPreconfiguredTasksComponent } from '@src/app/tasks/edit-preconfigured-tasks/edit-preconfigured-tasks.component';
 import { EditSupertasksComponent } from '@src/app/tasks/edit-supertasks/edit-supertasks.component';
@@ -210,7 +211,7 @@ const routes: MyRoute[] = [
       },
       {
         path: 'chunks/:id/view',
-        component: ChunksComponent,
+        component: ChunkDetailComponent,
         data: {
           roleServiceClass: taskRoleServiceClass,
           roleName: 'read'
