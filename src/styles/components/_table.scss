@@ -407,7 +407,7 @@ table.hashtopolis-table {
   }
 
   .mat-mdc-cell:has(.editable-container--idle):hover {
-    background-color: color-mix(in oklch, var(--cell-hover) 50%, var(--success-bg));
+    background-color: color-mix(in oklab, var(--cell-hover) 50%, var(--success-bg));
   }
 }
 
