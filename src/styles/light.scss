@@ -39,9 +39,9 @@
 
   --destructive-ring: color-mix(in oklch, var(--destructive) 18%, transparent);
 
-  --success-bg: color-mix(in oklch, var(--success) 22%, var(--well));
-  --destructive-bg: color-mix(in oklch, var(--destructive) 18%, var(--well));
-  --info-bg: color-mix(in oklch, var(--info) 18%, var(--well));
+  --success-bg: color-mix(in oklab, var(--success) 22%, var(--well));
+  --destructive-bg: color-mix(in oklab, var(--destructive) 18%, var(--well));
+  --info-bg: color-mix(in oklab, var(--info) 18%, var(--well));
 
   --popover: #ffffff;
 

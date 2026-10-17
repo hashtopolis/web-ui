@@ -88,7 +88,7 @@
   --success-bg: color-mix(in oklch, var(--success) 22%, transparent);
   --destructive-bg: color-mix(in oklch, var(--destructive) 14%, transparent);
   --info-bg: color-mix(in oklch, var(--info) 14%, transparent);
-  --warning-soft: color-mix(in oklch, var(--warning) 65%, white 35%);
+  --warning-soft: color-mix(in oklab, var(--warning) 65%, white 35%);
 
   --popover: #1a1a1a;
   --popover-foreground: var(--foreground);
