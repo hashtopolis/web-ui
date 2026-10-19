@@ -622,7 +622,7 @@ describe('TasksTableComponent', () => {
     });
 
     it('should include PRIORITY and MAX_AGENTS columns without editable when user lacks edit role', () => {
-      mockTasksRoleService.hasRole.withArgs('edit').mockReturnValue(false);
+      vi.when(mockTasksRoleService.hasRole).calledWith('edit').thenReturn(false);
       component.ngOnInit();
       const columns = component.getColumns();
 
@@ -636,7 +636,7 @@ describe('TasksTableComponent', () => {
     });
 
     it('should include PRIORITY and MAX_AGENTS columns with editable when user has edit role', () => {
-      mockTasksRoleService.hasRole.withArgs('edit').mockReturnValue(true);
+      vi.when(mockTasksRoleService.hasRole).calledWith('edit').thenReturn(true);
       component.ngOnInit();
       const columns = component.getColumns();
 
