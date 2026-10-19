@@ -4,6 +4,8 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { runInThisContext } from 'node:vm';
 
+import { TestBed } from '@angular/core/testing';
+
 // The jsdom run does not load the global `scripts` from angular.json, but the keyspace calculation
 // relies on the globals they declare (`parser`, `options`, `defaultOptions`). Run them as classic
 // scripts, in the angular.json order, so their top-level bindings become globals. The tests share
@@ -23,6 +25,18 @@ if (!('parser' in globalThis)) {
 beforeEach(() => {
   onTestFinished(() => {
     vi.restoreAllMocks();
+  });
+});
+
+// Vitest stops running afterEach hooks at the first one that throws; Jasmine ran them all. A failing
+// `httpMock.verify()` then skips the spec's own `vi.useRealTimers()` and the builder's TestBed
+// teardown, and the leftover fake timers and instantiated TestBed fail every following test in the
+// worker, in other spec files too. onTestFinished callbacks run even when a hook threw, so undo both
+// here as well. After a passing test both are already undone and this changes nothing.
+beforeEach(() => {
+  onTestFinished(() => {
+    vi.useRealTimers();
+    TestBed.resetTestingModule();
   });
 });
 
