@@ -29,6 +29,7 @@ import { ExportService } from '@src/app/core/_services/export/export.service';
 import { SERV } from '@src/app/core/_services/main.config';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { AlertService } from '@src/app/core/_services/shared/alert.service';
+import { wait } from '@src/app/testing/wait';
 
 // Test double for AccessGroupsDataSource — avoids HTTP and injector setup
 class MockAccessGroupsDataSource {
@@ -412,7 +413,7 @@ describe('AccessGroupsTableComponent', () => {
         const group = { id: 2, groupName: 'EditGroup' } as JAccessGroup;
         component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.EDIT, label: '' } });
 
-        await new Promise((resolve) => setTimeout(resolve));
+        await wait();
         expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
         expect(mockRouter.navigate).toHaveBeenCalledWith(['/users', 'access-groups', 2, 'edit']);
       });

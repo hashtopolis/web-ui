@@ -283,7 +283,6 @@ describe('EditAgentComponent', () => {
   it('should populate form with agent data after loading', async () => {
     fixture.detectChanges();
     await vi.advanceTimersByTimeAsync(0);
-    await vi.advanceTimersByTimeAsync(0);
 
     expect(component.updateForm.controls.agentName.value).toBe('Test Agent');
     expect(component.updateForm.controls.isActive.value).toBe(true);
@@ -292,7 +291,6 @@ describe('EditAgentComponent', () => {
 
   it('should load users on ngOnInit', async () => {
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
     await vi.advanceTimersByTimeAsync(0);
 
     expect(globalServiceSpy.getAll).toHaveBeenCalledWith(SERV.USERS);
@@ -353,7 +351,6 @@ describe('EditAgentComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
     await vi.advanceTimersByTimeAsync(0);
-    await vi.advanceTimersByTimeAsync(0);
 
     component.updateForm.patchValue({
       agentName: 'Updated Agent',
@@ -385,7 +382,6 @@ describe('EditAgentComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
     await vi.advanceTimersByTimeAsync(0);
-    await vi.advanceTimersByTimeAsync(0);
 
     // Set agentName to empty string to trigger validation error
     component.updateForm.controls.agentName.setValue('');
@@ -407,7 +403,6 @@ describe('EditAgentComponent', () => {
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
     await vi.advanceTimersByTimeAsync(0);
 
     component.updateForm.patchValue({
@@ -510,7 +505,6 @@ describe('EditAgentComponent', () => {
       .mockReturnValueOnce(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
 
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
     await vi.advanceTimersByTimeAsync(0);
 
     expect(component.showagent).toBeDefined();

@@ -4,6 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { HttpCacheService } from '@services/shared/http-cache.service';
 import { SessionStorageService } from '@services/storage/session-storage.service';
 
+import { wait } from '@src/app/testing/wait';
+
 describe('HttpCacheService', () => {
   let service: HttpCacheService;
 
@@ -133,7 +135,7 @@ describe('HttpCacheService', () => {
     expect(fresh).toBeTruthy();
     expect(fresh?.isStale).toBe(false);
 
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await wait(150);
     const stale = service.get(req);
     expect(stale).toBeTruthy();
     expect(stale?.isStale).toBe(true);
@@ -150,7 +152,7 @@ describe('HttpCacheService', () => {
 
     service.set(req, res, 50, 50); // TTL 50ms, stale window 50ms → fully expired after 100ms
 
-    await new Promise((resolve) => setTimeout(resolve, 150));
+    await wait(150);
     const result = service.get(req);
     expect(result).toBeNull();
   });
