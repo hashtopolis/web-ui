@@ -22,6 +22,7 @@ import { ConfigService } from '@services/shared/config.service';
 import { StaticChunkingMode } from '@src/app/core/_constants/tasks.config';
 import { EditTasksComponent } from '@src/app/tasks/edit-tasks/edit-tasks.component';
 import { mockResponse } from '@src/app/testing/mock-response';
+import { wait } from '@src/app/testing/wait';
 
 const API_ENDPOINT = 'http://localhost:8080/api/v2';
 
@@ -66,12 +67,6 @@ const mockTaskResponse = (): ResponseWrapper =>
   }) as ResponseWrapper;
 
 describe('EditTasksComponent', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let component: EditTasksComponent;
   let fixture: ComponentFixture<EditTasksComponent>;
   let httpMock: HttpTestingController;
@@ -164,26 +159,23 @@ describe('EditTasksComponent', () => {
   }
 
   describe('Component initialization', () => {
-    it('should create', async () => {
+    it('should create', () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(component).toBeTruthy();
     });
 
-    it('should set page title to "Edit Task"', async () => {
+    it('should set page title to "Edit Task"', () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(titleServiceSpy.set).toHaveBeenCalledWith(['Edit Task']);
     });
 
-    it('should define updateForm with all expected controls', async () => {
+    it('should define updateForm with all expected controls', () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(component.updateForm.get('taskId')).toBeDefined();
       expect(component.updateForm.get('totalNumberOfChunks')).toBeDefined();
@@ -197,7 +189,7 @@ describe('EditTasksComponent', () => {
     it('should set isLoading to false after task loads successfully', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(component.isLoading).toBe(false);
     });
@@ -205,7 +197,7 @@ describe('EditTasksComponent', () => {
     it('should populate form with task data from response', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(component.updateForm.getRawValue()).toEqual(
         expect.objectContaining({
@@ -225,7 +217,7 @@ describe('EditTasksComponent', () => {
     it('should populate updateData sub-form from task attributes', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       const updateData = component.updateForm.getRawValue()['updateData'];
       expect(updateData).toEqual(
@@ -243,7 +235,7 @@ describe('EditTasksComponent', () => {
     it('should set component time/speed properties from task data', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(component.ctimespent).toBe(120);
       expect(component.currenspeed).toBe(500);
@@ -256,7 +248,7 @@ describe('EditTasksComponent', () => {
     it('should set chunkview to 0 for edit-task route', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(component.chunkview).toBe(0);
     });
@@ -274,7 +266,7 @@ describe('EditTasksComponent', () => {
 
       initComponent();
       respondToTaskRequest(response);
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(component.updateForm.getRawValue()['forcePipe']).toBe('Yes');
     });
@@ -292,7 +284,7 @@ describe('EditTasksComponent', () => {
 
       initComponent();
       respondToTaskRequest(response);
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(component.updateForm.getRawValue()['skipKeyspace']).toBe(500);
     });
@@ -310,7 +302,7 @@ describe('EditTasksComponent', () => {
 
       initComponent();
       respondToTaskRequest(response);
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       return component.updateForm.getRawValue()['staticChunks'];
     }
@@ -346,7 +338,7 @@ describe('EditTasksComponent', () => {
       initComponent();
       const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/'));
       req.flush('Not Found', { status: 404, statusText: 'Not Found' });
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/not-found');
     });
@@ -355,7 +347,7 @@ describe('EditTasksComponent', () => {
       initComponent();
       const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/'));
       req.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/forbidden');
     });
@@ -365,12 +357,12 @@ describe('EditTasksComponent', () => {
       const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && r.params.has('include'));
       expect(req.request.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
       req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       const retryReq = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && !r.params.has('include'));
       expect(retryReq.request.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
       retryReq.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
       expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith(expect.stringContaining('Error loading task'));
@@ -382,12 +374,12 @@ describe('EditTasksComponent', () => {
       const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && r.params.has('include'));
       expect(req.request.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
       req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       const retryReq = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && !r.params.has('include'));
       expect(retryReq.request.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
       retryReq.flush(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(component.isLoading).toBe(false);
       expect(component.tkeyspace).toBe(1000);
@@ -398,7 +390,7 @@ describe('EditTasksComponent', () => {
       const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/'));
       expect(req.request.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
       req.error(new ProgressEvent('error'));
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith('Error loading task.');
       expect(component.isLoading).toBe(false);
@@ -406,20 +398,18 @@ describe('EditTasksComponent', () => {
   });
 
   describe('isReadOnly', () => {
-    it('should be true when "edit" role is not present', async () => {
+    it('should be true when "edit" role is not present', () => {
       roleServiceSpy.hasRole.mockReturnValue(false);
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(component.isReadOnly).toBe(true);
     });
 
-    it('should be false when "edit" role is present', async () => {
+    it('should be false when "edit" role is present', () => {
       roleServiceSpy.hasRole.mockImplementation((role: string) => role === 'edit');
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(component.isReadOnly).toBe(false);
     });
@@ -434,10 +424,9 @@ describe('EditTasksComponent', () => {
       globalServiceSpy.update.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       component.onSubmit();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(globalServiceSpy.update).toHaveBeenCalledWith(
         SERV.TASKS,
@@ -451,10 +440,10 @@ describe('EditTasksComponent', () => {
       globalServiceSpy.update.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       component.onSubmit();
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('Task data has been updated successfully.');
     });
@@ -464,11 +453,10 @@ describe('EditTasksComponent', () => {
       globalServiceSpy.update.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       component.updateForm.get('updateData.attackCmd')?.setValue('-a 3 #HL#');
       component.onSubmit();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(confirmDialogSpy.confirmYesNo).toHaveBeenCalledWith('Update task data', expect.any(String));
     });
@@ -478,11 +466,10 @@ describe('EditTasksComponent', () => {
       globalServiceSpy.update.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       component.updateForm.get('updateData.attackCmd')?.setValue('-a 3 #HL#');
       component.onSubmit();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(globalServiceSpy.update).toHaveBeenCalled();
     });
@@ -491,11 +478,10 @@ describe('EditTasksComponent', () => {
       confirmDialogSpy.confirmYesNo.mockReturnValue(of(false));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       component.updateForm.get('updateData.attackCmd')?.setValue('-a 3 #HL#');
       component.onSubmit();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(globalServiceSpy.update).not.toHaveBeenCalled();
       expect(alertServiceSpy.showInfoMessage).toHaveBeenCalledWith('Task Information has not been updated');
@@ -504,7 +490,7 @@ describe('EditTasksComponent', () => {
     it('should mark form as touched when form is invalid', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       component.updateForm.get('updateData.attackCmd')?.setValue('');
       const markAllAsTouchedSpy = vi.spyOn(component.updateForm, 'markAllAsTouched').mockReturnValue(undefined);
@@ -521,25 +507,22 @@ describe('EditTasksComponent', () => {
   });
 
   describe('purgeTask', () => {
-    it('should call chelper and show success message on confirmation', async () => {
+    it('should call chelper and show success message on confirmation', () => {
       confirmDialogSpy.confirmYesNo.mockReturnValue(of(true));
       globalServiceSpy.chelper.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
 
       component.purgeTask();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(globalServiceSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'purgeTask', { taskId: 1 });
       expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('Purged task id 1');
     });
 
-    it('should show info message when purge is cancelled', async () => {
+    it('should show info message when purge is cancelled', () => {
       confirmDialogSpy.confirmYesNo.mockReturnValue(of(false));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
 
       component.purgeTask();
 
@@ -552,7 +535,7 @@ describe('EditTasksComponent', () => {
     it('should set chunkview to the event value', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       component.onChunkViewChange({ value: 1 } as MatButtonToggleChange);
 
@@ -562,7 +545,7 @@ describe('EditTasksComponent', () => {
     it('should switch chunkview back to 0', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       component.onChunkViewChange({ value: 1 } as MatButtonToggleChange);
       component.onChunkViewChange({ value: 0 } as MatButtonToggleChange);
@@ -572,10 +555,9 @@ describe('EditTasksComponent', () => {
   });
 
   describe('ngOnDestroy', () => {
-    it('should destroy without errors', async () => {
+    it('should destroy without errors', () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(() => fixture.destroy()).not.toThrow();
     });
@@ -583,12 +565,6 @@ describe('EditTasksComponent', () => {
 });
 
 describe('EditTasksComponent (edit-task-cAll route)', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let component: EditTasksComponent;
   let fixture: ComponentFixture<EditTasksComponent>;
   let httpMock: HttpTestingController;
@@ -675,7 +651,7 @@ describe('EditTasksComponent (edit-task-cAll route)', () => {
 
     const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && r.params.has('include'));
     req.flush(mockTaskResponse());
-    await vi.advanceTimersByTimeAsync(0);
+    await wait();
 
     expect(component.chunkview).toBe(1);
   });

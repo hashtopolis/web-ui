@@ -91,12 +91,6 @@ export class MockAgentErrorTableComponent {
 }
 
 describe('EditAgentComponent', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let component: EditAgentComponent;
   let fixture: ComponentFixture<EditAgentComponent>;
 
@@ -257,9 +251,8 @@ describe('EditAgentComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize forms on component creation', async () => {
+  it('should initialize forms on component creation', () => {
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
 
     expect(component.updateForm).toBeDefined();
     expect(component.updateAssignForm).toBeDefined();
@@ -267,7 +260,7 @@ describe('EditAgentComponent', () => {
 
   it('should load agent data on ngOnInit', async () => {
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
+    await fixture.whenStable();
 
     expect(vi.mocked(globalServiceSpy.get as Mock).mock.calls[0]).toEqual([
       SERV.AGENTS,
@@ -282,7 +275,7 @@ describe('EditAgentComponent', () => {
 
   it('should populate form with agent data after loading', async () => {
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
+    await fixture.whenStable();
 
     expect(component.updateForm.controls.agentName.value).toBe('Test Agent');
     expect(component.updateForm.controls.isActive.value).toBe(true);
@@ -291,7 +284,7 @@ describe('EditAgentComponent', () => {
 
   it('should load users on ngOnInit', async () => {
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
+    await fixture.whenStable();
 
     expect(globalServiceSpy.getAll).toHaveBeenCalledWith(SERV.USERS);
     expect(component.selectUsers).toBeDefined();
@@ -306,12 +299,12 @@ describe('EditAgentComponent', () => {
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
+    await fixture.whenStable();
 
     expect(globalServiceSpy.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getBestTasksAgent', { agent: 1 });
   });
 
-  it('should navigate to /not-found when agent ID is invalid', async () => {
+  it('should navigate to /not-found when agent ID is invalid', () => {
     // Reconfigure ActivatedRoute with invalid ID
     activatedRouteSpy.snapshot.params = {};
 
@@ -319,7 +312,6 @@ describe('EditAgentComponent', () => {
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
 
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/not-found']);
   });
@@ -329,7 +321,7 @@ describe('EditAgentComponent', () => {
     globalServiceSpy.get.mockReturnValue(throwError(() => error404));
 
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
+    await fixture.whenStable();
 
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/not-found']);
   });
@@ -339,7 +331,7 @@ describe('EditAgentComponent', () => {
     globalServiceSpy.get.mockReturnValue(throwError(() => error403));
 
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
+    await fixture.whenStable();
 
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/forbidden']);
   });
@@ -350,7 +342,7 @@ describe('EditAgentComponent', () => {
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
+    await fixture.whenStable();
 
     component.updateForm.patchValue({
       agentName: 'Updated Agent',
@@ -359,7 +351,6 @@ describe('EditAgentComponent', () => {
     });
 
     component.onSubmit();
-    await vi.advanceTimersByTimeAsync(0);
 
     expect(globalServiceSpy.update).toHaveBeenCalledWith(
       SERV.AGENTS,
@@ -381,7 +372,7 @@ describe('EditAgentComponent', () => {
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
+    await fixture.whenStable();
 
     // Set agentName to empty string to trigger validation error
     component.updateForm.controls.agentName.setValue('');
@@ -390,7 +381,6 @@ describe('EditAgentComponent', () => {
     expect(component.updateForm.invalid).toBe(true);
 
     component.onSubmit();
-    await vi.advanceTimersByTimeAsync(0);
 
     expect(globalServiceSpy.update).not.toHaveBeenCalled();
   });
@@ -403,7 +393,7 @@ describe('EditAgentComponent', () => {
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
+    await fixture.whenStable();
 
     component.updateForm.patchValue({
       agentName: 'Test',
@@ -416,18 +406,15 @@ describe('EditAgentComponent', () => {
     });
 
     component.onSubmit();
-    await vi.advanceTimersByTimeAsync(0);
 
     expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith('Error updating agent');
   });
 
-  it('should update assignment when task is changed', async () => {
+  it('should update assignment when task is changed', () => {
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
 
     component.updateAssignForm.patchValue({ taskId: 5 });
     component.onUpdateAssign(5);
-    await vi.advanceTimersByTimeAsync(0);
 
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'assignAgent', {
       taskId: 5,
@@ -435,13 +422,11 @@ describe('EditAgentComponent', () => {
     });
   });
 
-  it('should delete assignment when task is set to null', async () => {
+  it('should delete assignment when task is set to null', () => {
     component.assignId = 10;
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
 
     component.onUpdateAssign(null);
-    await vi.advanceTimersByTimeAsync(0);
 
     expect(globalServiceSpy.delete).toHaveBeenCalledWith(SERV.AGENT_ASSIGN, 10);
   });
@@ -505,7 +490,7 @@ describe('EditAgentComponent', () => {
       .mockReturnValueOnce(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
 
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
+    await fixture.whenStable();
 
     expect(component.showagent).toBeDefined();
     expect(component.selectUserAgps).toEqual([]);
@@ -513,7 +498,7 @@ describe('EditAgentComponent', () => {
 
   it('should not load tasks when readAssignment role is not enabled', async () => {
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
+    await fixture.whenStable();
 
     expect(globalServiceSpy.ghelper).not.toHaveBeenCalled();
   });
@@ -523,7 +508,7 @@ describe('EditAgentComponent', () => {
     globalServiceSpy.get.mockReturnValue(throwError(() => errorOther));
 
     fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
+    await fixture.whenStable();
 
     expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith('Error loading agent details');
   });

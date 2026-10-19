@@ -31,6 +31,7 @@ import { InputModule } from '@src/app/shared/input/input.module';
 import { InputTextComponent } from '@src/app/shared/input/text/text.component';
 import { PageSubTitleComponent } from '@src/app/shared/page-headers/page-subtitle/page-subtitle.component';
 import { mockValidResponse } from '@src/app/testing/mock-response';
+import { wait } from '@src/app/testing/wait';
 
 const mockHashlistResponse = (): ResponseWrapper =>
   mockValidResponse(zHashlistResponse, {
@@ -114,12 +115,6 @@ const mockAccessGroupsResponse: ResponseWrapper = mockValidResponse(zGetAccessGr
 }) as ResponseWrapper;
 
 describe('EditHashlistComponent', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let component: EditHashlistComponent;
   let fixture: ComponentFixture<EditHashlistComponent>;
   let httpMock: HttpTestingController;
@@ -242,7 +237,7 @@ describe('EditHashlistComponent', () => {
     it('should load hashlist and data successfully', async () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(component.isLoading).toBe(false);
       expect(component.editedHashlist).toBeDefined();
@@ -253,7 +248,7 @@ describe('EditHashlistComponent', () => {
       initComponent();
       const req = httpMock.expectOne((request) => request.url.includes('/hashlists/'));
       req.flush('error', { status: 403, statusText: 'Forbidden' });
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/forbidden');
       expect(component.isLoading).toBe(true);
@@ -263,7 +258,7 @@ describe('EditHashlistComponent', () => {
       initComponent();
       const req = httpMock.expectOne((request) => request.url.includes('/hashlists/'));
       req.flush('error', { status: 404, statusText: 'Not Found' });
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/not-found');
       expect(component.isLoading).toBe(true);
@@ -277,12 +272,12 @@ describe('EditHashlistComponent', () => {
       const allRequests = httpMock.match((req) => req.url.includes('/hashlists/'));
       allRequests[0].flush('error', { status: 500, statusText: 'Internal Server Error' });
 
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       const retryRequests = httpMock.match((req) => req.url.includes('/hashlists/'));
       retryRequests[0].flush('error', { status: 500, statusText: 'Internal Server Error' });
 
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith(expect.stringContaining('Error loading hashlist'));
@@ -293,7 +288,7 @@ describe('EditHashlistComponent', () => {
       initComponent();
       const req = httpMock.expectOne((request) => request.url.includes('/hashlists/'));
       req.error(new ProgressEvent('error'));
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('Error loading hashlist.');
       expect(component.isLoading).toBe(false);
@@ -307,12 +302,12 @@ describe('EditHashlistComponent', () => {
       const allRequests = httpMock.match((req) => req.url.includes('/hashlists/'));
       allRequests[0].flush('error', { status: 500, statusText: 'Internal Server Error' });
 
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       const retryRequests = httpMock.match((req) => req.url.includes('/hashlists/'));
       retryRequests[0].flush(mockHashlistResponse());
 
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(component.editedHashlist).toBeDefined();
       expect(component.isLoading).toBe(false);
@@ -322,7 +317,7 @@ describe('EditHashlistComponent', () => {
       initComponent();
       const req = httpMock.expectOne((request) => request.url.includes('/hashlists/'));
       req.flush('error', { status: 404, statusText: 'Not Found' });
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/not-found');
     });
@@ -332,7 +327,7 @@ describe('EditHashlistComponent', () => {
     it('should load access groups when user has groups role', async () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(gsSpy.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getAccessGroups');
       expect(component.selectAccessgroup.length).toBe(2);
@@ -343,7 +338,7 @@ describe('EditHashlistComponent', () => {
 
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(gsSpy.ghelper).not.toHaveBeenCalled();
       expect(component.selectAccessgroup).toEqual([]);
@@ -354,13 +349,12 @@ describe('EditHashlistComponent', () => {
     it('should update hashlist and navigate on valid form submission', async () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       component.updateForm.get('updateData.name')?.setValue('Updated Name');
       gsSpy.update.mockReturnValue(of({}));
 
       component.onSubmit();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(gsSpy.update).toHaveBeenCalledWith(SERV.HASHLISTS, 1, expect.objectContaining({ name: 'Updated Name' }));
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Hashlist saved');
@@ -370,13 +364,12 @@ describe('EditHashlistComponent', () => {
     it('should navigate to /hashlists/superhashlist when type is 3', async () => {
       initComponent();
       respondToHashlistRequest(mockSuperHashlistResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       component.updateForm.get('updateData.name')?.setValue('Updated Name');
       gsSpy.update.mockReturnValue(of({}));
 
       component.onSubmit();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(gsSpy.update).toHaveBeenCalledWith(SERV.HASHLISTS, 1, expect.objectContaining({ name: 'Updated Name' }));
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Hashlist saved');
@@ -415,14 +408,13 @@ describe('EditHashlistComponent', () => {
   });
 
   describe('exportLeftHashes', () => {
-    it('should call chelper and show success message', async () => {
+    it('should call chelper and show success message', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
       component.editedHashlistIndex = 42;
       gsSpy.chelper.mockReturnValue(of({}));
 
       component.exportLeftHashes();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(gsSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'exportLeftHashes', { hashlistId: 42 });
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Exported Left Hashes');
@@ -430,14 +422,13 @@ describe('EditHashlistComponent', () => {
   });
 
   describe('exortPreCrackedHashes', () => {
-    it('should call chelper and show success message', async () => {
+    it('should call chelper and show success message', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
       component.editedHashlistIndex = 42;
       gsSpy.chelper.mockReturnValue(of({}));
 
       component.exortPreCrackedHashes();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(gsSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'exportCrackedHashes', { hashlistId: 42 });
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Cracked hashes from hashlist exported');
@@ -445,14 +436,13 @@ describe('EditHashlistComponent', () => {
   });
 
   describe('exportWordlist', () => {
-    it('should call chelper and show success message', async () => {
+    it('should call chelper and show success message', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
       component.editedHashlistIndex = 42;
       gsSpy.chelper.mockReturnValue(of({}));
 
       component.exportWordlist();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(gsSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'exportWordlist', { hashlistId: 42 });
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Exported Wordlist');
@@ -470,7 +460,7 @@ describe('EditHashlistComponent', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
       component.editedHashlistIndex = 42;
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
       fixture.detectChanges();
 
       const linkByTitle = new Map(
@@ -504,7 +494,7 @@ describe('EditHashlistComponent', () => {
     it('should return false and set unsaved changes when form is dirty', async () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       component.updateForm.get('updateData.name')?.setValue('Changed');
       component.updateForm.markAsDirty();

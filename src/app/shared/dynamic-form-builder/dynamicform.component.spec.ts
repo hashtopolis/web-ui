@@ -12,12 +12,6 @@ import { InputModule } from '@src/app/shared/input/input.module';
 import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 describe('DynamicFormComponent validation state', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let fixture: ComponentFixture<DynamicFormComponent>;
   let component: DynamicFormComponent;
 
@@ -51,11 +45,9 @@ describe('DynamicFormComponent validation state', () => {
     fixture.detectChanges();
   });
 
-  it('does not mark sibling controls as touched when one field is blurred', async () => {
+  it('does not mark sibling controls as touched when one field is blurred', () => {
     const firstInput = fixture.debugElement.query(By.css('input#dynform-first')).nativeElement as HTMLInputElement;
     firstInput.dispatchEvent(new Event('blur'));
-    fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
     fixture.detectChanges();
 
     expect(component.form.controls['first'].touched).toBe(true);
@@ -65,10 +57,8 @@ describe('DynamicFormComponent validation state', () => {
     expect(fields[1].nativeElement.classList).not.toContain('is-invalid');
   });
 
-  it('marks every control as touched when the invalid form is submitted', async () => {
+  it('marks every control as touched when the invalid form is submitted', () => {
     component.onSubmit();
-    fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(0);
     fixture.detectChanges();
 
     expect(component.form.controls['first'].touched).toBe(true);

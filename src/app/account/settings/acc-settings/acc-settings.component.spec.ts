@@ -25,12 +25,6 @@ import { PipesModule } from '@src/app/shared/pipes.module';
 import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('AccountSettingsComponent', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let component: AccountSettingsComponent;
   let fixture: ComponentFixture<AccountSettingsComponent>;
 
@@ -259,7 +253,7 @@ describe('AccountSettingsComponent', () => {
       expect(confirmPasswordControl.hasError('required')).toBe(true);
     });
 
-    it('shows validation only for the password field that has been visited', async () => {
+    it('shows validation only for the password field that has been visited', () => {
       const form = component.changepasswordFormGroup;
       const oldPasswordHost = fixture.debugElement.query(By.css('[data-testid="input-oldPassword"]'));
       const newPasswordHost = fixture.debugElement.query(By.css('[data-testid="input-newPassword"]'));
@@ -269,8 +263,6 @@ describe('AccountSettingsComponent', () => {
       oldPasswordInput.value = 'oldpassword';
       oldPasswordInput.dispatchEvent(new Event('input'));
       oldPasswordInput.dispatchEvent(new Event('blur'));
-      fixture.detectChanges();
-      await vi.advanceTimersByTimeAsync(0);
       fixture.detectChanges();
 
       expect(form.controls.oldPassword.touched).toBe(true);
@@ -282,8 +274,6 @@ describe('AccountSettingsComponent', () => {
       const newPasswordInput = newPasswordHost.query(By.css('input')).nativeElement as HTMLInputElement;
       newPasswordInput.dispatchEvent(new Event('blur'));
       fixture.detectChanges();
-      await vi.advanceTimersByTimeAsync(0);
-      fixture.detectChanges();
 
       expect(form.controls.newPassword.touched).toBe(true);
       expect(form.controls.confirmNewPassword.touched).toBe(false);
@@ -291,10 +281,8 @@ describe('AccountSettingsComponent', () => {
       expect(confirmPasswordHost.query(By.css('.field-stack')).nativeElement.classList).not.toContain('is-invalid');
     });
 
-    it('shows every invalid password field after an invalid submission', async () => {
+    it('shows every invalid password field after an invalid submission', () => {
       component.onSubmitPass();
-      fixture.detectChanges();
-      await vi.advanceTimersByTimeAsync(0);
       fixture.detectChanges();
 
       expect(component.changepasswordFormGroup.controls.oldPassword.touched).toBe(true);
@@ -356,7 +344,7 @@ describe('AccountSettingsComponent', () => {
       expect(component.changepasswordFormGroup.hasError('passwordMismatch')).toBe(false);
     });
 
-    it('Submits password form and resets on success', async () => {
+    it('Submits password form and resets on success', () => {
       // Arrange
       const chelperSpy = vi
         .spyOn(component['gs'], 'chelper')
@@ -376,8 +364,6 @@ describe('AccountSettingsComponent', () => {
       const btn = fixture.debugElement.query(By.css('[data-testid="button-password-submit"]'));
       expect(btn).toBeTruthy();
       btn.nativeElement.click();
-
-      await vi.advanceTimersByTimeAsync(0); // flush observable
       fixture.detectChanges();
 
       // Assert

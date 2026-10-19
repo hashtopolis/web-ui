@@ -92,12 +92,6 @@ const mockConfigs: ResponseWrapper = mockValidResponse(zConfigResponse, {
 });
 
 describe('NewHashlistComponent', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let component: NewHashlistComponent;
   let fixture: ComponentFixture<NewHashlistComponent>;
 
@@ -224,7 +218,7 @@ describe('NewHashlistComponent', () => {
       expect(component.fileName).toBe('hashes.txt');
       expect(component.selectedFiles).toBe(fileList);
     });
-    it('should keep submit button enabled when form is invalid', async () => {
+    it('should keep submit button enabled when form is invalid', () => {
       expect(component.form.invalid).toBe(true);
 
       let buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
@@ -242,8 +236,6 @@ describe('NewHashlistComponent', () => {
 
       component.form.updateValueAndValidity();
       fixture.detectChanges();
-      await vi.advanceTimersByTimeAsync(0);
-      fixture.detectChanges();
 
       expect(component.form.valid).toBe(true);
 
@@ -255,7 +247,7 @@ describe('NewHashlistComponent', () => {
   });
 
   describe('Form submission', () => {
-    it('should call uploadFile and update progress', async () => {
+    it('should call uploadFile and update progress', () => {
       const file = new File(['file contents'], 'hashes.txt', { type: 'text/plain' });
 
       // Use DataTransfer to get real FileList
@@ -276,8 +268,6 @@ describe('NewHashlistComponent', () => {
 
       component.onSubmit();
 
-      await vi.advanceTimersByTimeAsync(0);
-
       const expectedPayload = {
         ...component.form.value,
         sourceType: 'import',
@@ -292,7 +282,7 @@ describe('NewHashlistComponent', () => {
       expect(component.isCreatingLoading).toBe(false);
     });
 
-    it('should show the backend error message when the upload/creation fails', async () => {
+    it('should show the backend error message when the upload/creation fails', () => {
       const file = new File(['file contents'], 'hashes.txt', { type: 'text/plain' });
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
@@ -311,7 +301,6 @@ describe('NewHashlistComponent', () => {
       );
 
       component.onSubmit();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith(
         'Failed to create Hashlist: The hashlist contains too many lines.'
@@ -330,8 +319,7 @@ describe('NewHashlistComponent', () => {
         sourceType: 'paste',
         sourceData: 'some data'
       });
-      component.onSubmit();
-      await vi.advanceTimersByTimeAsync(0);
+      await component.onSubmit();
 
       const expectedEncoded = btoa('some data');
       expect(gsSpy.create).toHaveBeenCalledWith(
@@ -357,8 +345,7 @@ describe('NewHashlistComponent', () => {
         sourceData: 'valid-1-line.txt'
       });
 
-      component.onSubmit();
-      await vi.advanceTimersByTimeAsync(0);
+      await component.onSubmit();
 
       // The component handles the error itself, so it tells the interceptor to skip the modal.
       const httpOptions = vi.mocked(gsSpy.create).mock.lastCall![2];
@@ -369,9 +356,8 @@ describe('NewHashlistComponent', () => {
       expect(component.isCreatingLoading).toBe(false);
     });
 
-    it('should skip the global error dialog when loading server import files', async () => {
+    it('should skip the global error dialog when loading server import files', () => {
       component.loadServerFiles();
-      await vi.advanceTimersByTimeAsync(0);
 
       // loadServerFiles shows its own toast on failure, so it tells the interceptor to skip the modal.
       const call = vi.mocked(gsSpy.chelper).mock.lastCall!;
@@ -434,7 +420,7 @@ describe('NewHashlistComponent', () => {
       expect(modeSelect).not.toBeNull();
     });
 
-    it('should NOT show brain section when brain is globally disabled', async () => {
+    it('should NOT show brain section when brain is globally disabled', () => {
       const disabledConfig: ResponseWrapper = mockValidResponse(zConfigResponse, {
         data: {
           id: 66,
@@ -448,8 +434,6 @@ describe('NewHashlistComponent', () => {
 
       fixture = TestBed.createComponent(NewHashlistComponent);
       component = fixture.componentInstance;
-      fixture.detectChanges();
-      await vi.advanceTimersByTimeAsync(0);
       fixture.detectChanges();
 
       expect(component.brainenabled).toBe(0);
@@ -478,7 +462,6 @@ describe('NewHashlistComponent', () => {
       gsSpy.chelper.mockReturnValue(concat(of(stale), of(fresh)));
 
       await component.loadServerFiles();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(component.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
       expect(component.serverFileOptions.map((o) => o.name)).toEqual(['cached.txt', 'added-after-login.txt']);
@@ -493,7 +476,7 @@ describe('NewHashlistComponent', () => {
       expect(component.isFormatDeprecated(3)).toBe(false);
     });
 
-    it('should disable submit button when deprecated format is selected', async () => {
+    it('should disable submit button when deprecated format is selected', () => {
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '2500',
@@ -503,15 +486,13 @@ describe('NewHashlistComponent', () => {
       });
       component.form.updateValueAndValidity();
       fixture.detectChanges();
-      await vi.advanceTimersByTimeAsync(0);
-      fixture.detectChanges();
 
       const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
       const button = buttonDebugEl.query(By.css('button'));
       expect(button.nativeElement.disabled).toBe(true);
     });
 
-    it('should enable submit button when non-deprecated format is selected', async () => {
+    it('should enable submit button when non-deprecated format is selected', () => {
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '0',
@@ -520,8 +501,6 @@ describe('NewHashlistComponent', () => {
         sourceType: 'upload'
       });
       component.form.updateValueAndValidity();
-      fixture.detectChanges();
-      await vi.advanceTimersByTimeAsync(0);
       fixture.detectChanges();
 
       const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));

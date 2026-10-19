@@ -49,12 +49,6 @@ class MockRouter {
 }
 
 describe('NewFilesComponent', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let component: NewFilesComponent;
   let fixture: ComponentFixture<NewFilesComponent>;
 
@@ -302,7 +296,6 @@ describe('NewFilesComponent', () => {
       (gs.chelper as Mock).mockReturnValue(concat(of(stale), of(fresh)));
 
       await comp.loadServerFiles();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(comp.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
     });
