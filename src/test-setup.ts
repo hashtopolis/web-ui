@@ -18,9 +18,12 @@ if (!('parser' in globalThis)) {
 
 // Jasmine removed every `spyOn` spy after each spec. Vitest keeps `vi.spyOn` spies until they are
 // restored, and the specs share one context per worker, so a spy on a prototype or on a shared
-// mock object would leak into the following tests. Restore them after each test, as Jasmine did.
-afterEach(() => {
-  vi.restoreAllMocks();
+// mock object would leak into the following tests. Restore them once the test is over, after all
+// afterEach hooks (including TestBed's teardown) have run, as Jasmine did.
+beforeEach(() => {
+  onTestFinished(() => {
+    vi.restoreAllMocks();
+  });
 });
 
 // jsdom's typed arrays come from its own realm, but its TextEncoder is Node's, so encoded bytes fail
