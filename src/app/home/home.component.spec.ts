@@ -466,7 +466,7 @@ describe('HomeComponent — updateHeatmapData$()', () => {
       of(mockValidResponse(zGetCracksPerDayHelperApiResponse, { meta: {}, data: [] }))
     );
 
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(2026, 6, 23)); // 2026-07-23
     try {
       fixture = TestBed.createComponent(HomeComponent);
@@ -485,7 +485,7 @@ describe('HomeComponent — updateHeatmapData$()', () => {
   it('should include crack days from the previous calendar year that fall within the trailing 12 months', () => {
     permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm === Perm.Hash.READ);
 
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(2026, 6, 23)); // 2026-07-23
     try {
       // A crack recorded in the previous calendar year, still inside the trailing 12-month window.

@@ -9,12 +9,6 @@ import '@services/storage/local-storage';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 describe('LocalStorageService', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let service: LocalStorageService<string | object>;
 
   beforeEach(() => {
@@ -40,16 +34,22 @@ describe('LocalStorageService', () => {
     expect(retrievedValue).toBe(value);
   });
 
-  it('should remove data from local storage after expiration', async () => {
-    const key = 'testKey';
-    const value = 'testValue';
+  it('should remove data from local storage after expiration', () => {
+    // Expiry is checked against Date.now(), so only the clock needs to be fake.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      const key = 'testKey';
+      const value = 'testValue';
 
-    service.setItem(key, value, 1); // Set with 1-millisecond expiration
+      service.setItem(key, value, 1); // Set with 1-millisecond expiration
 
-    await vi.advanceTimersByTimeAsync(2);
+      vi.setSystemTime(Date.now() + 2);
 
-    const retrievedValue = service.getItem(key);
-    expect(retrievedValue).toBeNull();
+      const retrievedValue = service.getItem(key);
+      expect(retrievedValue).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('should remove data from local storage when explicitly removed', () => {
@@ -226,15 +226,20 @@ describe('LocalStorageService', () => {
       expect(def.x).toBe(1); // original must not be mutated
     });
 
-    it('should not share the defaultValue reference when data has expired', async () => {
-      const def = { x: 1, y: 2 };
-      svc.setItem('__pt__', { x: 5, y: 6 }, 1);
-      await vi.advanceTimersByTimeAsync(2);
+    it('should not share the defaultValue reference when data has expired', () => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      try {
+        const def = { x: 1, y: 2 };
+        svc.setItem('__pt__', { x: 5, y: 6 }, 1);
+        vi.setSystemTime(Date.now() + 2);
 
-      const result = svc.getItem('__pt__', pointSchema, def);
-      result.x = 99;
+        const result = svc.getItem('__pt__', pointSchema, def);
+        result.x = 99;
 
-      expect(def.x).toBe(1); // original must not be mutated
+        expect(def.x).toBe(1); // original must not be mutated
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 });

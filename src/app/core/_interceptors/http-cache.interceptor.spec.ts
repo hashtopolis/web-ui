@@ -346,8 +346,9 @@ describe('HttpCacheInterceptor', () => {
       expect(() => httpMock.expectNone(testUrl)).not.toThrow();
     });
 
-    it('should serve stale data and refresh the cache end-to-end when TTL elapses within the stale window', async () => {
-      vi.useFakeTimers();
+    it('should serve stale data and refresh the cache end-to-end when TTL elapses within the stale window', () => {
+      // The cache compares Date.now() with the entry's expiry, so only the clock needs to be fake.
+      vi.useFakeTimers({ toFake: ['Date'] });
       vi.setSystemTime(new Date());
       try {
         const testUrl = 'https://api.test.com/data';
@@ -360,7 +361,7 @@ describe('HttpCacheInterceptor', () => {
         first.flush(staleData, { headers: { 'Cache-Control': 'max-age=1, stale-while-revalidate=60' } });
 
         // Advance past the TTL but stay inside the stale window
-        await vi.advanceTimersByTimeAsync(5000);
+        vi.setSystemTime(Date.now() + 5000);
 
         // Second GET: stale entry is served immediately, background revalidation fires
         let firstRead: unknown;
