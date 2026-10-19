@@ -706,8 +706,8 @@ per-table `tableSettings`.
   (`src/app/core/_services/shared/alert.service.ts`): `showSuccessMessage` /
   `showErrorMessage` / `showInfoMessage`, wrapping `MatSnackBar`. This is distinct
   from the in-app "notifications" feature under `src/app/account/notifications/`.
-- **Testing**: Karma + Jasmine with a custom `ChromeHeadlessNoKeychain` launcher
-  (puppeteer, keychain-free) in `karma.conf.js`; specs are colocated as `*.spec.ts`.
+- **Testing**: Vitest via `@angular/build:unit-test` with jsdom (`vitest-base.config.mts`,
+  `src/test-providers.ts`, `src/test-setup.ts`); specs are colocated as `*.spec.ts`.
   Be mindful of cross-spec state when a suite is flaky.
 - **i18n**: there is none today - UI strings are hardcoded English even though
   `@angular/localize` is present. Do not assume a translation pipeline exists.

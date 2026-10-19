@@ -65,7 +65,7 @@ git commit -m "Add the design and plan for the Karma to Vitest migration"
 
 **Files:**
 - Modify (by schematic, then by hand): `angular.json`, `package.json`, `package-lock.json`, `tsconfig.spec.json`
-- Create: `src/test-providers.ts`, `src/test-setup.ts`, `vitest-base.config.ts`
+- Create: `src/test-providers.ts`, `src/test-setup.ts`, `vitest-base.config.mts`
 - Delete: `src/test.ts`
 
 **Interfaces:**
@@ -73,7 +73,7 @@ git commit -m "Add the design and plan for the Karma to Vitest migration"
   - `angular.json` `test` target: `builder: @angular/build:unit-test`, `runner: vitest`, `buildTarget: ::build:testing` (the `testing` build configuration holds the test-only `polyfills`, `styles`, `scripts`, `stylePreprocessorOptions`, `inlineStyleLanguage`, `assets` the schematic moved), `providersFile: src/test-providers.ts`, `setupFiles: [src/test-setup.ts]`, `runnerConfig: true`.
   - `src/test-providers.ts`: `export default [provideZoneChangeDetection()]` (type `EnvironmentProviders | Provider` array as the builder documents).
   - `src/test-setup.ts`: global DOM stubs; starts empty except a header comment; Task 4 adds stubs.
-  - `vitest-base.config.ts`: `defineConfig({ test: { env: { TZ: 'Europe/Berlin' }, expect: { requireAssertions: true } } })`.
+  - `vitest-base.config.mts`: `defineConfig({ test: { env: { TZ: 'Europe/Berlin' }, expect: { requireAssertions: true } } })`.
 
 - [ ] **Step 1: Run the config migration**
 
@@ -89,7 +89,7 @@ Expected: `vitest`, `@vitest/coverage-v8`, `jsdom` in `devDependencies`; no `hap
 
 The schematic maps `main: src/test.ts` to `setupFiles`. Remove that mapping and delete `src/test.ts`: the builder initialises TestBed itself, and the zone opt-in moves to `src/test-providers.ts` (`providersFile`). `zone.js/testing` is no longer imported anywhere; the 18 `fakeAsync` files will fail until Task 5, which is expected.
 
-- [ ] **Step 4: Add `vitest-base.config.ts` and set `runnerConfig: true`**
+- [ ] **Step 4: Add `vitest-base.config.mts` and set `runnerConfig: true`**
 
 Contents as in Interfaces. If `expect.requireAssertions` is not available in the installed Vitest, leave it out and note it for the PR description (closest equivalent to Jasmine's `failSpecWithNoExpectations`).
 
@@ -224,7 +224,7 @@ Delete `karma.conf.js`, `jasmine.conf.json`. Root `tsconfig.json` `types`: `["ja
 
 - [ ] **Step 3: Docs**
 
-`STYLE_GUIDE.md` testing bullet: Vitest via `@angular/build:unit-test` with jsdom, `vitest-base.config.ts`, `src/test-providers.ts`, `src/test-setup.ts`; specs colocated as `*.spec.ts`. `docs/angular-22-notes.md`: tick `Karma to Vitest`; Zoneless item becomes `Zoneless (after OnPush)`; add to "Keep in mind": `Specs run on Vitest with jsdom: no layout, use vi.useFakeTimers instead of fakeAsync`.
+`STYLE_GUIDE.md` testing bullet: Vitest via `@angular/build:unit-test` with jsdom, `vitest-base.config.mts`, `src/test-providers.ts`, `src/test-setup.ts`; specs colocated as `*.spec.ts`. `docs/angular-22-notes.md`: tick `Karma to Vitest`; Zoneless item becomes `Zoneless (after OnPush)`; add to "Keep in mind": `Specs run on Vitest with jsdom: no layout, use vi.useFakeTimers instead of fakeAsync`.
 
 - [ ] **Step 4: Compare with the baseline**
 
