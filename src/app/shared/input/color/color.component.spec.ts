@@ -30,7 +30,7 @@ describe('InputColorComponent', () => {
 
   describe('initial state', () => {
     it('does not emit on registration when no defaultColor is configured', () => {
-      const onChange = jasmine.createSpy('onChange');
+      const onChange = vi.fn().mockName('onChange');
       component.registerOnChange(onChange);
       expect(component.value).toBeFalsy();
       expect(onChange).not.toHaveBeenCalled();
@@ -39,7 +39,7 @@ describe('InputColorComponent', () => {
 
   describe('clearColor', () => {
     it('sets value to empty string and emits empty string via onChange', () => {
-      const onChange = jasmine.createSpy('onChange');
+      const onChange = vi.fn().mockName('onChange');
       component.registerOnChange(onChange);
       component.value = '#FF0000';
 
@@ -52,7 +52,7 @@ describe('InputColorComponent', () => {
 
   describe('generateRandomColor', () => {
     it('emits a bare 6-character hex via onChange', () => {
-      const onChange = jasmine.createSpy('onChange');
+      const onChange = vi.fn().mockName('onChange');
       component.registerOnChange(onChange);
 
       component.generateRandomColor();
@@ -64,7 +64,7 @@ describe('InputColorComponent', () => {
 
   describe('onValueChange', () => {
     it('reads the native picker value and stores it as bare hex via onChange', () => {
-      const onChange = jasmine.createSpy('onChange');
+      const onChange = vi.fn().mockName('onChange');
       component.registerOnChange(onChange);
       const event = { target: { value: '#123456' } } as unknown as Event;
 
@@ -77,7 +77,7 @@ describe('InputColorComponent', () => {
 
   describe('onPickerOpen', () => {
     it('emits the fallback color as bare hex when opened from the unset state', () => {
-      const onChange = jasmine.createSpy('onChange');
+      const onChange = vi.fn().mockName('onChange');
       component.registerOnChange(onChange);
       component.writeValue(null);
 
@@ -88,7 +88,7 @@ describe('InputColorComponent', () => {
     });
 
     it('leaves an already selected color untouched', () => {
-      const onChange = jasmine.createSpy('onChange');
+      const onChange = vi.fn().mockName('onChange');
       component.registerOnChange(onChange);
       component.writeValue('#3366ff');
 
@@ -103,7 +103,7 @@ describe('InputColorComponent', () => {
     it('applies the default visually but does not emit when registerOnChange runs after a null writeValue', () => {
       component.defaultColor = 'random';
       component.writeValue(null);
-      const onChange = jasmine.createSpy('onChange');
+      const onChange = vi.fn().mockName('onChange');
       component.registerOnChange(onChange);
 
       expect(component.value).toMatch(BARE_HEX_PATTERN);
@@ -113,7 +113,7 @@ describe('InputColorComponent', () => {
     it('does not apply the default when the form provided a non-null value', () => {
       component.defaultColor = 'random';
       component.writeValue('#abc123');
-      const onChange = jasmine.createSpy('onChange');
+      const onChange = vi.fn().mockName('onChange');
       component.registerOnChange(onChange);
 
       expect(component.value).toBe('#abc123');
@@ -123,7 +123,7 @@ describe('InputColorComponent', () => {
     it('uses a literal hex string as the default, stored bare', () => {
       component.defaultColor = '#3366FF';
       component.writeValue(null);
-      component.registerOnChange(jasmine.createSpy('onChange'));
+      component.registerOnChange(vi.fn().mockName('onChange'));
 
       expect(component.value).toBe('3366FF');
     });
@@ -138,7 +138,7 @@ describe('InputColorComponent', () => {
     });
 
     it('commits the placeholder color when the native input is clicked while unset (regression: #2345)', () => {
-      component.registerOnChange(jasmine.createSpy('onChange'));
+      component.registerOnChange(vi.fn().mockName('onChange'));
       component.writeValue(null);
       fixture.detectChanges();
 

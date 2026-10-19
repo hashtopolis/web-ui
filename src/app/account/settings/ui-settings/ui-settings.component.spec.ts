@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { of } from 'rxjs';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -24,9 +25,9 @@ describe('UiSettingsComponent', () => {
   let component: UiSettingsComponent;
   let fixture: ComponentFixture<UiSettingsComponent>;
   let alertService: AlertService;
-  let mockReloadService: jasmine.SpyObj<ReloadService>;
-  let mockLocalStorageService: jasmine.SpyObj<LocalStorageService<UIConfig>>;
-  let mockThemeCatalogService: jasmine.SpyObj<ThemeCatalogService>;
+  let mockReloadService: MockedObject<ReloadService>;
+  let mockLocalStorageService: MockedObject<LocalStorageService<UIConfig>>;
+  let mockThemeCatalogService: MockedObject<ThemeCatalogService>;
 
   const mockThemes: RuntimeThemeOption[] = [
     { value: 'light', description: 'Light Mode', icon: 'light_mode', source: 'builtin', isDark: false },
@@ -43,12 +44,19 @@ describe('UiSettingsComponent', () => {
   } as UIConfig;
 
   beforeEach(async () => {
-    mockReloadService = jasmine.createSpyObj('ReloadService', ['reloadPage']);
-    mockLocalStorageService = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
+    mockReloadService = {
+      reloadPage: vi.fn().mockName('ReloadService.reloadPage')
+    };
+    mockLocalStorageService = {
+      getItem: vi.fn().mockName('LocalStorageService.getItem'),
+      setItem: vi.fn().mockName('LocalStorageService.setItem')
+    };
     // Clone like the real service does: onSubmit() mutates this object in place.
-    mockLocalStorageService.getItem.and.returnValue(structuredClone(uiConfigDefault));
-    mockThemeCatalogService = jasmine.createSpyObj('ThemeCatalogService', ['getThemes']);
-    mockThemeCatalogService.getThemes.and.returnValue(of(mockThemes));
+    mockLocalStorageService.getItem.mockReturnValue(structuredClone(uiConfigDefault));
+    mockThemeCatalogService = {
+      getThemes: vi.fn().mockName('ThemeCatalogService.getThemes')
+    };
+    mockThemeCatalogService.getThemes.mockReturnValue(of(mockThemes));
 
     await TestBed.configureTestingModule({
       declarations: [UiSettingsComponent],
@@ -110,24 +118,24 @@ describe('UiSettingsComponent', () => {
     component.form.controls.refreshPage.patchValue(mockModifiedUIConfig.refreshPage);
     component.form.controls.refreshInterval.patchValue(mockModifiedUIConfig.refreshInterval);
 
-    spyOn(alertService, 'showInfoMessage');
+    vi.spyOn(alertService, 'showInfoMessage').mockReturnValue(undefined);
 
     const button = fixture.nativeElement.querySelector('[data-testid="button-submit"]').querySelector('button');
     button.click();
 
     expect(mockLocalStorageService.setItem).toHaveBeenCalledWith(
       'ui-config',
-      jasmine.objectContaining(mockModifiedUIConfig),
+      expect.objectContaining(mockModifiedUIConfig),
       0,
-      jasmine.anything()
+      expect.anything()
     );
     expect(alertService.showInfoMessage).toHaveBeenCalledWith('Reloading settings ...');
     expect(mockReloadService.reloadPage).toHaveBeenCalled();
   });
 
   it('should show "No changes were saved", if nothing changed', () => {
-    spyOn(component.util, 'updateSettings').and.returnValue(0);
-    spyOn(alertService, 'showInfoMessage');
+    vi.spyOn(component.util, 'updateSettings').mockReturnValue(0);
+    vi.spyOn(alertService, 'showInfoMessage').mockReturnValue(undefined);
 
     const button = fixture.nativeElement.querySelector('[data-testid="button-submit"]').querySelector('button');
     button.click();

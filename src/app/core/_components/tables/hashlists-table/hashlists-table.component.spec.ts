@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { Subject, of } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -25,13 +26,13 @@ import { ExportService } from '@src/app/core/_services/export/export.service';
 import { GlobalService } from '@src/app/core/_services/main.service';
 
 class MockDataSource {
-  loadAll = jasmine.createSpy('loadAll');
-  setColumns = jasmine.createSpy('setColumns');
-  clearFilter = jasmine.createSpy('clearFilter');
-  reload = jasmine.createSpy('reload');
-  setIsArchived = jasmine.createSpy('setIsArchived');
-  reset = jasmine.createSpy('reset');
-  setSuperHashListID = jasmine.createSpy('setSuperHashListID');
+  loadAll = vi.fn().mockName('loadAll');
+  setColumns = vi.fn().mockName('setColumns');
+  clearFilter = vi.fn().mockName('clearFilter');
+  reload = vi.fn().mockName('reload');
+  setIsArchived = vi.fn().mockName('setIsArchived');
+  reset = vi.fn().mockName('reset');
+  setSuperHashListID = vi.fn().mockName('setSuperHashListID');
   filterError$ = new Subject<string>();
 }
 
@@ -58,25 +59,31 @@ class TestHashlistsTableComponent extends HashlistsTableComponent {
 describe('HashlistsTableComponent', () => {
   let component: TestHashlistsTableComponent;
   let fixture: ComponentFixture<TestHashlistsTableComponent>;
-  let mockDialog: jasmine.SpyObj<MatDialog>;
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockExportService: jasmine.SpyObj<ExportService>;
-  let mockRouter: jasmine.SpyObj<Router>;
+  let mockDialog: MockedObject<MatDialog>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockExportService: MockedObject<ExportService>;
+  let mockRouter: MockedObject<Router>;
 
   beforeEach(async () => {
-    mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
-    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-    mockRouter.navigate.and.returnValue(Promise.resolve(true));
-    mockGlobalService = jasmine.createSpyObj('GlobalService', [
-      'bulkUpdate',
-      'bulkDelete',
-      'delete',
-      'update',
-      'chelper'
-    ]);
-    mockGlobalService.update.and.returnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.update>);
-    mockGlobalService.chelper.and.returnValue(of({}).pipe() as unknown as ReturnType<typeof mockGlobalService.chelper>);
-    mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
+    mockDialog = {
+      open: vi.fn().mockName('MatDialog.open')
+    };
+    mockRouter = {
+      navigate: vi.fn().mockName('Router.navigate')
+    };
+    mockRouter.navigate.mockResolvedValue(true);
+    mockGlobalService = {
+      bulkUpdate: vi.fn().mockName('GlobalService.bulkUpdate'),
+      bulkDelete: vi.fn().mockName('GlobalService.bulkDelete'),
+      delete: vi.fn().mockName('GlobalService.delete'),
+      update: vi.fn().mockName('GlobalService.update'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    };
+    mockGlobalService.update.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.update>);
+    mockGlobalService.chelper.mockReturnValue(of({}).pipe() as unknown as ReturnType<typeof mockGlobalService.chelper>);
+    mockExportService = {
+      handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
+    };
 
     await TestBed.configureTestingModule({
       declarations: [TestHashlistsTableComponent],
@@ -96,9 +103,13 @@ describe('HashlistsTableComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
     component.table = { reload: () => {} } as HTTableComponent<BaseModel>;
-    (component as unknown as { table: unknown }).table = {
-      clearFilterError: jasmine.createSpy('clearFilterError'),
-      reload: jasmine.createSpy('reload')
+    (
+      component as unknown as {
+        table: unknown;
+      }
+    ).table = {
+      clearFilterError: vi.fn().mockName('clearFilterError'),
+      reload: vi.fn().mockName('reload')
     };
   });
 
@@ -165,7 +176,7 @@ describe('HashlistsTableComponent', () => {
 
     beforeEach(() => {
       component.shashlistId = 0;
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () => of(null)
       } as unknown as ReturnType<typeof mockDialog.open>);
     });
@@ -240,7 +251,7 @@ describe('HashlistsTableComponent', () => {
   describe('bulkActionClicked', () => {
     beforeEach(() => {
       component.shashlistId = 0;
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () => of(null)
       } as unknown as ReturnType<typeof mockDialog.open>);
     });
@@ -270,7 +281,7 @@ describe('HashlistsTableComponent', () => {
 
   describe('openDialog', () => {
     beforeEach(() => {
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () => of(null)
       } as unknown as ReturnType<typeof mockDialog.open>);
     });
@@ -285,8 +296,8 @@ describe('HashlistsTableComponent', () => {
         action: RowActionMenuAction.DELETE
       });
 
-      expect(mockDialog.open).toHaveBeenCalledWith(jasmine.anything(), {
-        data: jasmine.any(Object),
+      expect(mockDialog.open).toHaveBeenCalledWith(expect.anything(), {
+        data: expect.any(Object),
         width: '450px'
       });
     });
@@ -332,9 +343,9 @@ describe('HashlistsTableComponent', () => {
 
   describe('setIsArchived', () => {
     it('should call dataSource methods with correct parameters', () => {
-      component.mockDataSource.reset.calls.reset();
-      component.mockDataSource.setIsArchived.calls.reset();
-      component.mockDataSource.loadAll.calls.reset();
+      component.mockDataSource.reset.mockClear();
+      component.mockDataSource.setIsArchived.mockClear();
+      component.mockDataSource.loadAll.mockClear();
 
       component.setIsArchived(true);
 
@@ -361,7 +372,7 @@ describe('HashlistsTableComponent', () => {
       expect(component.mockDataSource.loadAll).toHaveBeenCalledWith({
         value: 'test',
         field: 'name',
-        operator: jasmine.anything(),
+        operator: expect.anything(),
         parent: undefined
       });
     });
@@ -382,7 +393,7 @@ describe('HashlistsTableComponent', () => {
       expect(component.mockDataSource.loadAll).toHaveBeenCalledWith({
         value: '   ',
         field: 'name',
-        operator: jasmine.anything(),
+        operator: expect.anything(),
         parent: undefined
       });
     });
@@ -391,7 +402,7 @@ describe('HashlistsTableComponent', () => {
   describe('handleBackendSqlFilter', () => {
     it('should call filter when event has value', () => {
       component.selectedFilterColumn = { dataKey: 'name' } as HTTableColumn;
-      const filterSpy = spyOn(component, 'filter');
+      const filterSpy = vi.spyOn(component, 'filter').mockReturnValue(undefined);
 
       component.handleBackendSqlFilter('search term');
 

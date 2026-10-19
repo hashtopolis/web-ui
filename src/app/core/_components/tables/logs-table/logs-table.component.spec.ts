@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -34,12 +35,16 @@ class TestLogsTableComponent extends LogsTableComponent {
 describe('LogsTableComponent', () => {
   let component: TestLogsTableComponent;
   let fixture: ComponentFixture<TestLogsTableComponent>;
-  let mockExportService: jasmine.SpyObj<ExportService>;
-  let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
+  let mockExportService: MockedObject<ExportService>;
+  let mockHTTable: MockedObject<HTTableComponent<BaseModel>>;
 
   beforeEach(async () => {
-    mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
-    mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
+    mockExportService = {
+      handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
+    };
+    mockHTTable = {
+      reload: vi.fn().mockName('HTTableComponent.reload')
+    };
 
     await TestBed.configureTestingModule({
       declarations: [TestLogsTableComponent],
@@ -77,7 +82,9 @@ describe('LogsTableComponent', () => {
 
       component.exportActionClicked(event);
 
-      expect(mockExportService.handleExportAction).toHaveBeenCalledOnceWith(
+      expect(mockExportService.handleExportAction).toHaveBeenCalledTimes(1);
+
+      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
         event,
         component.tableColumns,
         LogsTableColumnLabel,

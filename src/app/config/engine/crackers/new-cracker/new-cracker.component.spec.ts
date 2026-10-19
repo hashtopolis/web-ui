@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { of, throwError } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -18,18 +19,30 @@ describe('NewCrackerComponent', () => {
   let component: NewCrackerComponent;
   let fixture: ComponentFixture<NewCrackerComponent>;
 
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockRouter: jasmine.SpyObj<Router>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
-  let mockRoleService: jasmine.SpyObj<CrackerBinaryRoleService>;
-  let mockCrackerBinaryTypes: jasmine.SpyObj<CrackerBinaryTypesService>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockRouter: MockedObject<Router>;
+  let mockAlertService: MockedObject<AlertService>;
+  let mockRoleService: MockedObject<CrackerBinaryRoleService>;
+  let mockCrackerBinaryTypes: MockedObject<CrackerBinaryTypesService>;
 
   beforeEach(async () => {
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['getAll', 'create']);
-    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-    mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    mockRoleService = jasmine.createSpyObj('CrackerBinaryRoleService', ['hasRole']);
-    mockCrackerBinaryTypes = jasmine.createSpyObj('CrackerBinaryTypesService', ['invalidate']);
+    mockGlobalService = {
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      create: vi.fn().mockName('GlobalService.create')
+    };
+    mockRouter = {
+      navigate: vi.fn().mockName('Router.navigate')
+    };
+    mockAlertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    };
+    mockRoleService = {
+      hasRole: vi.fn().mockName('CrackerBinaryRoleService.hasRole')
+    };
+    mockCrackerBinaryTypes = {
+      invalidate: vi.fn().mockName('CrackerBinaryTypesService.invalidate')
+    };
 
     await TestBed.configureTestingModule({
       imports: [NewCrackerComponent],
@@ -68,18 +81,18 @@ describe('NewCrackerComponent', () => {
   });
 
   /* Only crackers with chunking are supported right now:
-  it('should have exactly two selectable options in input-select-chunkingAvailable', () => {
-    fixture.detectChanges();
-    const selectDebugEl = fixture.debugElement.query(By.css('[data-testid="input-select-chunkingAvailable"]'));
-    expect(selectDebugEl).toBeTruthy();
+    it('should have exactly two selectable options in input-select-chunkingAvailable', () => {
+      fixture.detectChanges();
+      const selectDebugEl = fixture.debugElement.query(By.css('[data-testid="input-select-chunkingAvailable"]'));
+      expect(selectDebugEl).toBeTruthy();
 
-    // Check property 'items' of InputSelectComponent
-    const inputSelectInstance = selectDebugEl.componentInstance;
-    expect(inputSelectInstance.items.length).toBe(2);
-    expect(inputSelectInstance.items[0].name).toBe('Yes');
-    expect(inputSelectInstance.items[1].name).toBe('No');
-  });
-  */
+      // Check property 'items' of InputSelectComponent
+      const inputSelectInstance = selectDebugEl.componentInstance;
+      expect(inputSelectInstance.items.length).toBe(2);
+      expect(inputSelectInstance.items[0].name).toBe('Yes');
+      expect(inputSelectInstance.items[1].name).toBe('No');
+    });
+    */
 
   it('should not submit if form is invalid', async () => {
     component.newCrackerForm.patchValue({ typeName: '' }); // invalid Add isChunkingAvailable: null once it's supported
@@ -96,7 +109,7 @@ describe('NewCrackerComponent', () => {
     component.newCrackerForm.updateValueAndValidity();
 
     // Simulate successful create
-    mockGlobalService.create.and.returnValue(of(mockResponse()));
+    mockGlobalService.create.mockReturnValue(of(mockResponse()));
 
     await component.onSubmit();
 
@@ -118,7 +131,7 @@ describe('NewCrackerComponent', () => {
     });
 
     // Simulate create failure
-    mockGlobalService.create.and.returnValue(
+    mockGlobalService.create.mockReturnValue(
       throwError(() => new Error('An error occurred while creating the Cracker type.'))
     );
 
@@ -149,7 +162,7 @@ describe('NewCrackerComponent', () => {
       typeName: ''
       // Only crackers with chunking are supported right now: isChunkingAvailable: null
     });
-    mockRoleService.hasRole.and.returnValue(true);
+    mockRoleService.hasRole.mockReturnValue(true);
     component.newCrackerForm.markAllAsTouched();
     fixture.detectChanges();
 
@@ -157,6 +170,6 @@ describe('NewCrackerComponent', () => {
     const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button-newCracker"]'));
     expect(buttonDebugEl).toBeTruthy();
     const buttonInstance = buttonDebugEl.componentInstance;
-    expect(buttonInstance.disabled).toBeFalse();
+    expect(buttonInstance.disabled).toBe(false);
   });
 });

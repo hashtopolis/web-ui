@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { Idle } from '@ng-idle/core';
 
 import { ReloadService } from '@services/reload.service';
@@ -5,14 +6,18 @@ import { ReloadService } from '@services/reload.service';
 import { AppComponent } from '@src/app/app.component';
 
 interface TestableAppComponent {
-  reloadService: jasmine.SpyObj<ReloadService>;
-  idle: jasmine.SpyObj<Idle>;
+  reloadService: MockedObject<ReloadService>;
+  idle: MockedObject<Idle>;
   checkLogin(): void;
 }
 
 function makeComponent() {
-  const mockReloadService = jasmine.createSpyObj('ReloadService', ['reloadPage']);
-  const mockIdle = jasmine.createSpyObj('Idle', ['stop']);
+  const mockReloadService = {
+    reloadPage: vi.fn().mockName('ReloadService.reloadPage')
+  };
+  const mockIdle = {
+    stop: vi.fn().mockName('Idle.stop')
+  };
 
   const component = Object.create(AppComponent.prototype) as TestableAppComponent;
   component.reloadService = mockReloadService;
@@ -33,12 +38,14 @@ describe('AppComponent.checkLogin', () => {
 
     component.checkLogin();
 
-    expect(mockReloadService.reloadPage).toHaveBeenCalledOnceWith();
+    expect(mockReloadService.reloadPage).toHaveBeenCalledTimes(1);
+
+    expect(mockReloadService.reloadPage).toHaveBeenCalledWith();
   });
 
   it('does not reload when the session is still valid', () => {
     const { component, mockReloadService } = makeComponent();
-    const future = new Date(Date.now() + 60_000).toISOString();
+    const future = new Date(Date.now() + 60000).toISOString();
     localStorage.setItem('userData', JSON.stringify({ _token: 'token', _expires: future }));
 
     component.checkLogin();

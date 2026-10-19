@@ -4,13 +4,13 @@ describe('HashRatePipe', () => {
   const pipe = new HashRatePipe();
 
   it('formats a hashrate as a human-readable string', () => {
-    expect(pipe.transform(5_000_000)).toBe('5 MH/s');
+    expect(pipe.transform(5000000)).toBe('5 MH/s');
   });
 });
 
 describe('getHashRateFormatComponents', () => {
   it('exposes value, unit and scale (divisor) in object form', () => {
-    expect(getHashRateFormatComponents(5_000_000)).toEqual({ value: 5, unit: 'MH/s', scale: 1_000_000 });
+    expect(getHashRateFormatComponents(5000000)).toEqual({ value: 5, unit: 'MH/s', scale: 1000000 });
   });
 
   it('returns scale 1 for non-positive values', () => {
@@ -26,7 +26,7 @@ describe('getHashRateFormatComponents', () => {
   });
 
   it('keeps scale = 1000 ** i in step with the chosen unit at higher tiers', () => {
-    expect(getHashRateFormatComponents(2_500_000_000)).toEqual({ value: 2.5, unit: 'GH/s', scale: 1_000_000_000 });
+    expect(getHashRateFormatComponents(2500000000)).toEqual({ value: 2.5, unit: 'GH/s', scale: 1000000000 });
   });
 
   it('clamps at the largest unit instead of running past the units array', () => {
@@ -35,7 +35,7 @@ describe('getHashRateFormatComponents', () => {
   });
 
   it('rounds the scaled value to the requested decimals', () => {
-    expect(getHashRateFormatComponents(1_234_567).value).toBe(1.23);
-    expect(getHashRateFormatComponents(1_234_567, 0).value).toBe(1);
+    expect(getHashRateFormatComponents(1234567).value).toBe(1.23);
+    expect(getHashRateFormatComponents(1234567, 0).value).toBe(1);
   });
 });

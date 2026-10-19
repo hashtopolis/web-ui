@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { of } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -41,12 +42,16 @@ class TestSuperTasksTableComponent extends SuperTasksTableComponent {
 describe('SuperTasksTableComponent', () => {
   let component: TestSuperTasksTableComponent;
   let fixture: ComponentFixture<TestSuperTasksTableComponent>;
-  let mockExportService: jasmine.SpyObj<ExportService>;
-  let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
+  let mockExportService: MockedObject<ExportService>;
+  let mockHTTable: MockedObject<HTTableComponent<BaseModel>>;
 
   beforeEach(async () => {
-    mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
-    mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
+    mockExportService = {
+      handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
+    };
+    mockHTTable = {
+      reload: vi.fn().mockName('HTTableComponent.reload')
+    };
 
     await TestBed.configureTestingModule({
       declarations: [TestSuperTasksTableComponent],
@@ -75,7 +80,7 @@ describe('SuperTasksTableComponent', () => {
   describe('table columns', () => {
     function column(id: SupertasksTableCol): HTTableColumn {
       const found = component.tableColumns.find((col) => col.id === id);
-      expect(found).withContext(`column ${id}`).toBeDefined();
+      expect(found, `column ${id}`).toBeDefined();
       return found as HTTableColumn;
     }
 
@@ -113,7 +118,9 @@ describe('SuperTasksTableComponent', () => {
 
       component.exportActionClicked(event);
 
-      expect(mockExportService.handleExportAction).toHaveBeenCalledOnceWith(
+      expect(mockExportService.handleExportAction).toHaveBeenCalledTimes(1);
+
+      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
         event,
         component.tableColumns,
         SupertasksTableColumnLabel,

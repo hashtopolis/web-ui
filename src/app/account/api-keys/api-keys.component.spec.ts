@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,17 +14,26 @@ describe('ApiKeysComponent', () => {
   let component: ApiKeysComponent;
   let fixture: ComponentFixture<ApiKeysComponent>;
 
-  let mockStore: jasmine.SpyObj<ApiKeyRevealStore>;
-  let mockDialog: jasmine.SpyObj<MatDialog>;
-  let mockRole: jasmine.SpyObj<ApiTokensRoleService>;
-  let mockTitle: jasmine.SpyObj<AutoTitleService>;
+  let mockStore: MockedObject<ApiKeyRevealStore>;
+  let mockDialog: MockedObject<MatDialog>;
+  let mockRole: MockedObject<ApiTokensRoleService>;
+  let mockTitle: MockedObject<AutoTitleService>;
 
   beforeEach(async () => {
-    mockStore = jasmine.createSpyObj('ApiKeyRevealStore', ['consume', 'set']);
-    mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
-    mockRole = jasmine.createSpyObj('ApiTokensRoleService', ['hasRole']);
-    mockRole.hasRole.and.returnValue(true);
-    mockTitle = jasmine.createSpyObj('AutoTitleService', ['set']);
+    mockStore = {
+      consume: vi.fn().mockName('ApiKeyRevealStore.consume'),
+      set: vi.fn().mockName('ApiKeyRevealStore.set')
+    };
+    mockDialog = {
+      open: vi.fn().mockName('MatDialog.open')
+    };
+    mockRole = {
+      hasRole: vi.fn().mockName('ApiTokensRoleService.hasRole')
+    };
+    mockRole.hasRole.mockReturnValue(true);
+    mockTitle = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    };
 
     await TestBed.configureTestingModule({
       declarations: [ApiKeysComponent],
@@ -41,18 +51,18 @@ describe('ApiKeysComponent', () => {
   });
 
   it('opens the reveal dialog with the consumed token on init', () => {
-    mockStore.consume.and.returnValue('jwt-abc');
+    mockStore.consume.mockReturnValue('jwt-abc');
 
     fixture.detectChanges();
 
     expect(mockDialog.open).toHaveBeenCalledWith(
       RevealApiKeyDialogComponent,
-      jasmine.objectContaining({ data: { token: 'jwt-abc' }, disableClose: true })
+      expect.objectContaining({ data: { token: 'jwt-abc' }, disableClose: true })
     );
   });
 
   it('does not open the reveal dialog when the store is empty', () => {
-    mockStore.consume.and.returnValue(null);
+    mockStore.consume.mockReturnValue(null);
 
     fixture.detectChanges();
 

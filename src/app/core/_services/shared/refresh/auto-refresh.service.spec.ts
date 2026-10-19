@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 
 import { AlertService } from '@services/shared/alert.service';
@@ -5,8 +6,8 @@ import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.servic
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 const mockLocalStorageService = {
-  getItem: jasmine.createSpy('getItem'),
-  setItem: jasmine.createSpy('setItem')
+  getItem: vi.fn().mockName('getItem'),
+  setItem: vi.fn().mockName('setItem')
 };
 
 /**
@@ -23,12 +24,12 @@ describe('AutoRefreshService', () => {
       providers: [
         AutoRefreshService,
         { provide: LocalStorageService, useValue: mockLocalStorageService },
-        { provide: AlertService, useValue: { showSuccessMessage: jasmine.createSpy() } }
+        { provide: AlertService, useValue: { showSuccessMessage: vi.fn() } }
       ]
     });
     service = TestBed.inject(AutoRefreshService);
 
-    spyOn(service.uiSettings, 'getSetting').and.callFake(<T>(key: string) => {
+    vi.spyOn(service.uiSettings, 'getSetting').mockImplementation(<T>(key: string) => {
       if (key === 'refreshInterval') return refreshIntervalSeconds as unknown as T;
       if (key === 'refreshPage') return true as unknown as T;
       return null as unknown as T;
@@ -84,8 +85,8 @@ describe('AutoRefreshService', () => {
 
   it('toggleAutoRefresh should update settings, call AlertService, and start/stop refresh timer', fakeAsync(() => {
     // Spy on methods
-    const updateSettings = spyOn(service.uiSettings, 'updateSettings');
-    const showSucessMessage = TestBed.inject(AlertService).showSuccessMessage as jasmine.Spy;
+    const updateSettings = vi.spyOn(service.uiSettings, 'updateSettings').mockReturnValue(undefined);
+    const showSucessMessage = TestBed.inject(AlertService).showSuccessMessage as Mock;
 
     let emittedCount = 0;
     service.refresh$.subscribe(() => emittedCount++);

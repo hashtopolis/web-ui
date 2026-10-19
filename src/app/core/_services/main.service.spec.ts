@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { HttpHeaders, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -10,7 +11,7 @@ import { ConfigService } from '@services/shared/config.service';
 describe('GlobalService downloads', () => {
   let service: GlobalService;
   let httpMock: HttpTestingController;
-  let anchor: jasmine.SpyObj<HTMLAnchorElement>;
+  let anchor: MockedObject<HTMLAnchorElement>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -25,10 +26,12 @@ describe('GlobalService downloads', () => {
     service = TestBed.inject(GlobalService);
     httpMock = TestBed.inject(HttpTestingController);
 
-    anchor = jasmine.createSpyObj<HTMLAnchorElement>('a', ['click']);
-    spyOn(document, 'createElement').and.returnValue(anchor);
-    spyOn(window.URL, 'createObjectURL').and.returnValue('blob:mock');
-    spyOn(window.URL, 'revokeObjectURL');
+    anchor = {
+      click: vi.fn().mockName('a.click')
+    };
+    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
+    vi.spyOn(window.URL, 'createObjectURL').mockReturnValue('blob:mock');
+    vi.spyOn(window.URL, 'revokeObjectURL').mockReturnValue(undefined);
   });
 
   afterEach(() => httpMock.verify());
@@ -48,7 +51,7 @@ describe('GlobalService downloads', () => {
     expect(anchor.href).toBe('blob:mock');
     expect(anchor.click).toHaveBeenCalled();
     expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock');
-    expect(done).toBeTrue();
+    expect(done).toBe(true);
   });
 
   it('downloadFromUrl bypasses the http cache so archives are not kept in memory', () => {

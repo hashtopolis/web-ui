@@ -1,3 +1,4 @@
+import type { Mock, MockedObject } from 'vitest';
 import { Subject, of } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -28,16 +29,19 @@ import {
 } from '@components/tables/tasks-table/tasks-table.constants';
 
 class MockDataSource {
-  loadAll = jasmine.createSpy('loadAll').and.callFake(() => {});
-  setColumns = jasmine.createSpy('setColumns');
-  clearFilter = jasmine.createSpy('clearFilter');
-  reload = jasmine.createSpy('reload');
-  setIsArchived = jasmine.createSpy('setIsArchived');
-  setHashlistID = jasmine.createSpy('setHashlistID');
-  setFilterQuery = jasmine.createSpy('setFilterQuery');
-  reset = jasmine.createSpy('reset');
-  stopAutoRefresh = jasmine.createSpy('stopAutoRefresh');
-  startAutoRefresh = jasmine.createSpy('startAutoRefresh');
+  loadAll = vi
+    .fn()
+    .mockName('loadAll')
+    .mockImplementation(() => {});
+  setColumns = vi.fn().mockName('setColumns');
+  clearFilter = vi.fn().mockName('clearFilter');
+  reload = vi.fn().mockName('reload');
+  setIsArchived = vi.fn().mockName('setIsArchived');
+  setHashlistID = vi.fn().mockName('setHashlistID');
+  setFilterQuery = vi.fn().mockName('setFilterQuery');
+  reset = vi.fn().mockName('reset');
+  stopAutoRefresh = vi.fn().mockName('stopAutoRefresh');
+  startAutoRefresh = vi.fn().mockName('startAutoRefresh');
   filterError$ = new Subject<string>();
 }
 
@@ -64,34 +68,49 @@ class TestTasksTableComponent extends TasksTableComponent {
 describe('TasksTableComponent', () => {
   let component: TestTasksTableComponent;
   let fixture: ComponentFixture<TestTasksTableComponent>;
-  let mockDialog: jasmine.SpyObj<MatDialog>;
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockExportService: jasmine.SpyObj<ExportService>;
-  let mockRouter: jasmine.SpyObj<Router>;
-  let mockTasksRoleService: jasmine.SpyObj<TasksRoleService>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
-  let mockConfigService: jasmine.SpyObj<ConfigService>;
+  let mockDialog: MockedObject<MatDialog>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockExportService: MockedObject<ExportService>;
+  let mockRouter: MockedObject<Router>;
+  let mockTasksRoleService: MockedObject<TasksRoleService>;
+  let mockAlertService: MockedObject<AlertService>;
+  let mockConfigService: MockedObject<ConfigService>;
 
   beforeEach(async () => {
-    mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
-    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-    mockRouter.navigate.and.returnValue(Promise.resolve(true));
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['bulkUpdate', 'bulkDelete', 'delete', 'update']);
-    mockGlobalService.update.and.returnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.update>);
-    mockGlobalService.bulkUpdate.and.returnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.bulkUpdate>);
-    mockGlobalService.bulkDelete.and.returnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.bulkDelete>);
-    mockGlobalService.delete.and.returnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.delete>);
-    mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
-    mockTasksRoleService = jasmine.createSpyObj('TasksRoleService', ['hasRole']);
-    mockAlertService = jasmine.createSpyObj('AlertService', [
-      'showSuccessMessage',
-      'showErrorMessage',
-      'showInfoMessage'
-    ]);
+    mockDialog = {
+      open: vi.fn().mockName('MatDialog.open')
+    };
+    mockRouter = {
+      navigate: vi.fn().mockName('Router.navigate')
+    };
+    mockRouter.navigate.mockResolvedValue(true);
+    mockGlobalService = {
+      bulkUpdate: vi.fn().mockName('GlobalService.bulkUpdate'),
+      bulkDelete: vi.fn().mockName('GlobalService.bulkDelete'),
+      delete: vi.fn().mockName('GlobalService.delete'),
+      update: vi.fn().mockName('GlobalService.update')
+    };
+    mockGlobalService.update.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.update>);
+    mockGlobalService.bulkUpdate.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.bulkUpdate>);
+    mockGlobalService.bulkDelete.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.bulkDelete>);
+    mockGlobalService.delete.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.delete>);
+    mockExportService = {
+      handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
+    };
+    mockTasksRoleService = {
+      hasRole: vi.fn().mockName('TasksRoleService.hasRole')
+    };
+    mockAlertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage'),
+      showInfoMessage: vi.fn().mockName('AlertService.showInfoMessage')
+    };
 
-    mockTasksRoleService.hasRole.and.returnValue(false);
-    mockConfigService = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
-    mockConfigService.getEndpoint.and.returnValue('http://localhost:4200');
+    mockTasksRoleService.hasRole.mockReturnValue(false);
+    mockConfigService = {
+      getEndpoint: vi.fn().mockName('ConfigService.getEndpoint')
+    };
+    mockConfigService.getEndpoint.mockReturnValue('http://localhost:4200');
 
     await TestBed.configureTestingModule({
       declarations: [TestTasksTableComponent],
@@ -113,9 +132,13 @@ describe('TasksTableComponent', () => {
     fixture = TestBed.createComponent(TestTasksTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    (component as unknown as { table: unknown }).table = {
-      clearFilterError: jasmine.createSpy('clearFilterError'),
-      reload: jasmine.createSpy('reload')
+    (
+      component as unknown as {
+        table: unknown;
+      }
+    ).table = {
+      clearFilterError: vi.fn().mockName('clearFilterError'),
+      reload: vi.fn().mockName('reload')
     };
   });
 
@@ -196,7 +219,7 @@ describe('TasksTableComponent', () => {
       expect(typeof nameColumn?.routerLink).toBe('function');
     });
 
-    it('should render NAME column routerLink correctly for TASK', (done) => {
+    it('should render NAME column routerLink correctly for TASK', async () => {
       const columns = component.getColumns();
       const nameColumn = columns.find((col) => col.id === TaskTableCol.NAME);
       const taskWrapper = {
@@ -208,11 +231,10 @@ describe('TasksTableComponent', () => {
       nameColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe('Test Task');
         expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
-        done();
       });
     });
 
-    it('should pass the full task name to the NAME column label (CSS handles truncation)', (done) => {
+    it('should pass the full task name to the NAME column label (CSS handles truncation)', async () => {
       const columns = component.getColumns();
       const nameColumn = columns.find((col) => col.id === TaskTableCol.NAME);
       const longName = 'A'.repeat(50);
@@ -225,11 +247,10 @@ describe('TasksTableComponent', () => {
       nameColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe(longName);
         expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
-        done();
       });
     });
 
-    it('should render NAME column for SUPERTASK with an onClick that opens the subtasks dialog', (done) => {
+    it('should render NAME column for SUPERTASK with an onClick that opens the subtasks dialog', async () => {
       const columns = component.getColumns();
       const nameColumn = columns.find((col) => col.id === TaskTableCol.NAME);
       const taskWrapper = {
@@ -238,7 +259,7 @@ describe('TasksTableComponent', () => {
         displayName: 'Test Supertask'
       } as JTaskWrapperDisplay;
 
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () => of(undefined)
       } as unknown as ReturnType<typeof mockDialog.open>);
 
@@ -249,12 +270,11 @@ describe('TasksTableComponent', () => {
 
         links[0].onClick!();
         expect(mockDialog.open).toHaveBeenCalledWith(
-          jasmine.anything(),
-          jasmine.objectContaining({
+          expect.anything(),
+          expect.objectContaining({
             data: { supertaskId: 42, supertaskName: 'Test Supertask' }
           })
         );
-        done();
       });
     });
 
@@ -450,7 +470,7 @@ describe('TasksTableComponent', () => {
       expect(icon?.name).toBe('');
     });
 
-    it('should render HASHLISTS column routerLink correctly', (done) => {
+    it('should render HASHLISTS column routerLink correctly', async () => {
       const columns = component.getColumns();
       const hashlistsColumn = columns.find((col) => col.id === TaskTableCol.HASHLISTS);
       const taskWrapper = {
@@ -461,11 +481,10 @@ describe('TasksTableComponent', () => {
       hashlistsColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe('Test Hashlist');
         expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 5, 'edit']);
-        done();
       });
     });
 
-    it('should truncate long HASHLISTS label and keep full name in tooltip', (done) => {
+    it('should truncate long HASHLISTS label and keep full name in tooltip', async () => {
       const columns = component.getColumns();
       const hashlistsColumn = columns.find((col) => col.id === TaskTableCol.HASHLISTS);
       const longName = 'This is a very long hashlist name that should be truncated';
@@ -478,11 +497,10 @@ describe('TasksTableComponent', () => {
         expect(links[0].label).toBe('This is a very long ...');
         expect(links[0].tooltip).toBe(longName);
         expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 11, 'edit']);
-        done();
       });
     });
 
-    it('should render HASHLISTS column routerLink with id as label when name is empty', (done) => {
+    it('should render HASHLISTS column routerLink with id as label when name is empty', async () => {
       const columns = component.getColumns();
       const hashlistsColumn = columns.find((col) => col.id === TaskTableCol.HASHLISTS);
       const taskWrapper = {
@@ -493,7 +511,6 @@ describe('TasksTableComponent', () => {
       hashlistsColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe('10');
         expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 10, 'edit']);
-        done();
       });
     });
 
@@ -590,7 +607,7 @@ describe('TasksTableComponent', () => {
       expect(accessGroupColumn?.isSortable).toBe(true);
     });
 
-    it('should render ACCESS_GROUP column routerLink correctly', (done) => {
+    it('should render ACCESS_GROUP column routerLink correctly', async () => {
       const columns = component.getColumns();
       const accessGroupColumn = columns.find((col) => col.id === TaskTableCol.ACCESS_GROUP);
       const taskWrapper = {
@@ -601,12 +618,11 @@ describe('TasksTableComponent', () => {
       accessGroupColumn?.routerLink!(taskWrapper).subscribe((links) => {
         expect(links[0].label).toBe('Test Group');
         expect(links[0].routerLink).toEqual(['/users', 'access-groups', 7, 'edit']);
-        done();
       });
     });
 
     it('should include PRIORITY and MAX_AGENTS columns without editable when user lacks edit role', () => {
-      mockTasksRoleService.hasRole.withArgs('edit').and.returnValue(false);
+      mockTasksRoleService.hasRole.withArgs('edit').mockReturnValue(false);
       component.ngOnInit();
       const columns = component.getColumns();
 
@@ -620,7 +636,7 @@ describe('TasksTableComponent', () => {
     });
 
     it('should include PRIORITY and MAX_AGENTS columns with editable when user has edit role', () => {
-      mockTasksRoleService.hasRole.withArgs('edit').and.returnValue(true);
+      mockTasksRoleService.hasRole.withArgs('edit').mockReturnValue(true);
       component.ngOnInit();
       const columns = component.getColumns();
 
@@ -695,7 +711,7 @@ describe('TasksTableComponent', () => {
 
   describe('rowActionClicked', () => {
     beforeEach(() => {
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () => of(null)
       } as unknown as ReturnType<typeof mockDialog.open>);
     });
@@ -760,7 +776,14 @@ describe('TasksTableComponent', () => {
         menuItem: { label: 'Archive', action: RowActionMenuAction.ARCHIVE },
         data: { taskType: TaskType.TASK, taskId: 123 } as JTaskWrapperDisplay
       };
-      const updateIsArchivedSpy = spyOn(component as unknown as { updateIsArchived: jasmine.Spy }, 'updateIsArchived');
+      const updateIsArchivedSpy = vi
+        .spyOn(
+          component as unknown as {
+            updateIsArchived: Mock;
+          },
+          'updateIsArchived'
+        )
+        .mockReturnValue(undefined);
 
       component.rowActionClicked(event);
 
@@ -772,7 +795,14 @@ describe('TasksTableComponent', () => {
         menuItem: { label: 'Unarchive', action: RowActionMenuAction.UNARCHIVE },
         data: { taskType: TaskType.TASK, taskId: 123 } as JTaskWrapperDisplay
       };
-      const updateIsArchivedSpy = spyOn(component as unknown as { updateIsArchived: jasmine.Spy }, 'updateIsArchived');
+      const updateIsArchivedSpy = vi
+        .spyOn(
+          component as unknown as {
+            updateIsArchived: Mock;
+          },
+          'updateIsArchived'
+        )
+        .mockReturnValue(undefined);
 
       component.rowActionClicked(event);
 
@@ -784,10 +814,14 @@ describe('TasksTableComponent', () => {
         menuItem: { label: 'Archive', action: RowActionMenuAction.ARCHIVE },
         data: { taskType: TaskType.SUPERTASK, taskWrapperId: 456 } as JTaskWrapperDisplay
       };
-      const updateTaskWrapperIsArchivedSpy = spyOn(
-        component as unknown as { updateTaskWrapperIsArchived: jasmine.Spy },
-        'updateTaskWrapperIsArchived'
-      );
+      const updateTaskWrapperIsArchivedSpy = vi
+        .spyOn(
+          component as unknown as {
+            updateTaskWrapperIsArchived: Mock;
+          },
+          'updateTaskWrapperIsArchived'
+        )
+        .mockReturnValue(undefined);
 
       component.rowActionClicked(event);
 
@@ -799,10 +833,14 @@ describe('TasksTableComponent', () => {
         menuItem: { label: 'Unarchive', action: RowActionMenuAction.UNARCHIVE },
         data: { taskType: TaskType.SUPERTASK, taskWrapperId: 456 } as JTaskWrapperDisplay
       };
-      const updateTaskWrapperIsArchivedSpy = spyOn(
-        component as unknown as { updateTaskWrapperIsArchived: jasmine.Spy },
-        'updateTaskWrapperIsArchived'
-      );
+      const updateTaskWrapperIsArchivedSpy = vi
+        .spyOn(
+          component as unknown as {
+            updateTaskWrapperIsArchived: Mock;
+          },
+          'updateTaskWrapperIsArchived'
+        )
+        .mockReturnValue(undefined);
 
       component.rowActionClicked(event);
 
@@ -847,7 +885,7 @@ describe('TasksTableComponent', () => {
 
   describe('bulkActionClicked', () => {
     beforeEach(() => {
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () => of(null)
       } as unknown as ReturnType<typeof mockDialog.open>);
     });
@@ -875,14 +913,18 @@ describe('TasksTableComponent', () => {
         ] as JTaskWrapperDisplay[]
       };
 
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () => of({ action: BulkActionMenuAction.ARCHIVE, data: event.data })
       } as unknown as ReturnType<typeof mockDialog.open>);
 
-      const bulkActionArchiveSpy = spyOn(
-        component as unknown as { bulkActionArchive: jasmine.Spy },
-        'bulkActionArchive'
-      );
+      const bulkActionArchiveSpy = vi
+        .spyOn(
+          component as unknown as {
+            bulkActionArchive: Mock;
+          },
+          'bulkActionArchive'
+        )
+        .mockReturnValue(undefined);
 
       component.bulkActionClicked(event);
 
@@ -895,11 +937,18 @@ describe('TasksTableComponent', () => {
         data: [{ taskWrapperId: 1, displayName: 'Task 1' }] as JTaskWrapperDisplay[]
       };
 
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () => of({ action: BulkActionMenuAction.DELETE, data: event.data })
       } as unknown as ReturnType<typeof mockDialog.open>);
 
-      const bulkActionDeleteSpy = spyOn(component as unknown as { bulkActionDelete: jasmine.Spy }, 'bulkActionDelete');
+      const bulkActionDeleteSpy = vi
+        .spyOn(
+          component as unknown as {
+            bulkActionDelete: Mock;
+          },
+          'bulkActionDelete'
+        )
+        .mockReturnValue(undefined);
 
       component.bulkActionClicked(event);
 
@@ -920,7 +969,7 @@ describe('TasksTableComponent', () => {
 
   describe('openDialog', () => {
     it('should open dialog with provided data', () => {
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () => of(null)
       } as unknown as ReturnType<typeof mockDialog.open>);
 
@@ -937,7 +986,7 @@ describe('TasksTableComponent', () => {
     });
 
     it('should subscribe to afterClosed and call rowActionDelete for DELETE action', () => {
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () => of({ action: RowActionMenuAction.DELETE, data: [{ id: 1 }] })
       } as unknown as ReturnType<typeof mockDialog.open>);
 
@@ -952,7 +1001,7 @@ describe('TasksTableComponent', () => {
     });
 
     it('should call bulkActionArchive for ARCHIVE action', () => {
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () =>
           of({
             action: BulkActionMenuAction.ARCHIVE,
@@ -971,7 +1020,7 @@ describe('TasksTableComponent', () => {
     });
 
     it('should call gs.bulkUpdate for TASKS_WRAPPER when archiving a SUPERTASK', () => {
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () =>
           of({
             action: BulkActionMenuAction.ARCHIVE,
@@ -985,14 +1034,14 @@ describe('TasksTableComponent', () => {
         action: BulkActionMenuAction.ARCHIVE
       });
 
-      expect(mockGlobalService.bulkUpdate).toHaveBeenCalledWith(SERV.TASKS_WRAPPER, jasmine.any(Array), {
+      expect(mockGlobalService.bulkUpdate).toHaveBeenCalledWith(SERV.TASKS_WRAPPER, expect.any(Array), {
         isArchived: true
       });
       expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('Successfully archived tasks!');
     });
 
     it('should call bulkActionDelete for bulk DELETE action', () => {
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () =>
           of({
             action: BulkActionMenuAction.DELETE,
@@ -1011,7 +1060,7 @@ describe('TasksTableComponent', () => {
     });
 
     it('should not call action if result is falsy', () => {
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () => of(null)
       } as unknown as ReturnType<typeof mockDialog.open>);
 
@@ -1028,7 +1077,9 @@ describe('TasksTableComponent', () => {
   describe('updateTaskWrapperIsArchived', () => {
     it('should call gs.update with TASKS_WRAPPER endpoint when archiving', () => {
       (
-        component as unknown as { updateTaskWrapperIsArchived: (id: number, b: boolean) => void }
+        component as unknown as {
+          updateTaskWrapperIsArchived: (id: number, b: boolean) => void;
+        }
       ).updateTaskWrapperIsArchived(456, true);
 
       expect(mockGlobalService.update).toHaveBeenCalledWith(SERV.TASKS_WRAPPER, 456, { isArchived: true });
@@ -1036,7 +1087,9 @@ describe('TasksTableComponent', () => {
 
     it('should call gs.update with TASKS_WRAPPER endpoint when unarchiving', () => {
       (
-        component as unknown as { updateTaskWrapperIsArchived: (id: number, b: boolean) => void }
+        component as unknown as {
+          updateTaskWrapperIsArchived: (id: number, b: boolean) => void;
+        }
       ).updateTaskWrapperIsArchived(456, false);
 
       expect(mockGlobalService.update).toHaveBeenCalledWith(SERV.TASKS_WRAPPER, 456, { isArchived: false });
@@ -1044,7 +1097,9 @@ describe('TasksTableComponent', () => {
 
     it('should show "Successfully archived supertask!" on archive success', () => {
       (
-        component as unknown as { updateTaskWrapperIsArchived: (id: number, b: boolean) => void }
+        component as unknown as {
+          updateTaskWrapperIsArchived: (id: number, b: boolean) => void;
+        }
       ).updateTaskWrapperIsArchived(456, true);
 
       expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('Successfully archived supertask!');
@@ -1052,7 +1107,9 @@ describe('TasksTableComponent', () => {
 
     it('should show "Successfully unarchived supertask!" on unarchive success', () => {
       (
-        component as unknown as { updateTaskWrapperIsArchived: (id: number, b: boolean) => void }
+        component as unknown as {
+          updateTaskWrapperIsArchived: (id: number, b: boolean) => void;
+        }
       ).updateTaskWrapperIsArchived(456, false);
 
       expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('Successfully unarchived supertask!');
@@ -1061,9 +1118,9 @@ describe('TasksTableComponent', () => {
 
   describe('setIsArchived', () => {
     it('should call dataSource methods with correct parameters', () => {
-      component.mockDataSource.reset.calls.reset();
-      component.mockDataSource.setIsArchived.calls.reset();
-      component.mockDataSource.loadAll.calls.reset();
+      component.mockDataSource.reset.mockClear();
+      component.mockDataSource.setIsArchived.mockClear();
+      component.mockDataSource.loadAll.mockClear();
 
       component.setIsArchived(true);
 
@@ -1095,7 +1152,7 @@ describe('TasksTableComponent', () => {
     });
 
     it('should pass null to dataSource when includeArchived is true', () => {
-      component.mockDataSource.setIsArchived.calls.reset();
+      component.mockDataSource.setIsArchived.mockClear();
       component.includeArchived = true;
       component.isArchived = false;
 
@@ -1105,7 +1162,7 @@ describe('TasksTableComponent', () => {
     });
 
     it('should pass false to dataSource when includeArchived is false', () => {
-      component.mockDataSource.setIsArchived.calls.reset();
+      component.mockDataSource.setIsArchived.mockClear();
       component.includeArchived = false;
       component.isArchived = false;
 
@@ -1115,7 +1172,7 @@ describe('TasksTableComponent', () => {
     });
 
     it('should pass true to dataSource when includeArchived is false and isArchived is true', () => {
-      component.mockDataSource.setIsArchived.calls.reset();
+      component.mockDataSource.setIsArchived.mockClear();
       component.includeArchived = false;
       component.isArchived = true;
 
@@ -1128,21 +1185,21 @@ describe('TasksTableComponent', () => {
   describe('filter', () => {
     it('should call dataSource.loadAll with filter when input has value', () => {
       component.selectedFilterColumn = { dataKey: 'name' } as unknown as HTTableColumn;
-      component.mockDataSource.loadAll.calls.reset();
+      component.mockDataSource.loadAll.mockClear();
 
       component.filter('test');
 
       expect(component.mockDataSource.loadAll).toHaveBeenCalledWith({
         value: 'test',
         field: 'name',
-        operator: jasmine.anything(),
+        operator: expect.anything(),
         parent: undefined
       });
     });
 
     it('should call dataSource.loadAll without filter when input is empty', () => {
       component.selectedFilterColumn = { dataKey: 'name' } as unknown as HTTableColumn;
-      component.mockDataSource.loadAll.calls.reset();
+      component.mockDataSource.loadAll.mockClear();
 
       component.filter('');
 
@@ -1151,14 +1208,14 @@ describe('TasksTableComponent', () => {
 
     it('should filter the ID column by taskId while it sorts by taskWrapperId', () => {
       component.selectedFilterColumn = { id: TaskTableCol.ID, dataKey: 'taskWrapperId' } as unknown as HTTableColumn;
-      component.mockDataSource.loadAll.calls.reset();
+      component.mockDataSource.loadAll.mockClear();
 
       component.filter('123');
 
       expect(component.mockDataSource.loadAll).toHaveBeenCalledWith({
         value: '123',
         field: 'taskId',
-        operator: jasmine.anything(),
+        operator: expect.anything(),
         parent: undefined
       });
     });
@@ -1168,14 +1225,14 @@ describe('TasksTableComponent', () => {
         id: TaskTableCol.HASHLISTS,
         dataKey: 'hashlistName'
       } as unknown as HTTableColumn;
-      component.mockDataSource.loadAll.calls.reset();
+      component.mockDataSource.loadAll.mockClear();
 
       component.filter('123');
 
       expect(component.mockDataSource.loadAll).toHaveBeenCalledWith({
         value: '123',
         field: 'hashlistName',
-        operator: jasmine.anything(),
+        operator: expect.anything(),
         parent: undefined
       });
     });
@@ -1185,7 +1242,7 @@ describe('TasksTableComponent', () => {
         dataKey: 'name',
         parent: 'accessGroup'
       } as unknown as HTTableColumn;
-      component.mockDataSource.loadAll.calls.reset();
+      component.mockDataSource.loadAll.mockClear();
 
       component.filter('search');
 
@@ -1196,8 +1253,8 @@ describe('TasksTableComponent', () => {
   describe('handleBackendSqlFilter', () => {
     it('should call filter and setFilterQuery when event has value', () => {
       component.selectedFilterColumn = { dataKey: 'name' } as unknown as HTTableColumn;
-      component.mockDataSource.setFilterQuery.calls.reset();
-      const filterSpy = spyOn(component, 'filter');
+      component.mockDataSource.setFilterQuery.mockClear();
+      const filterSpy = vi.spyOn(component, 'filter').mockReturnValue(undefined);
 
       component.handleBackendSqlFilter('search term');
 
@@ -1207,8 +1264,8 @@ describe('TasksTableComponent', () => {
 
     it('should call filter and setFilterQuery when event is empty', () => {
       component.selectedFilterColumn = { dataKey: 'name' } as unknown as HTTableColumn;
-      component.mockDataSource.setFilterQuery.calls.reset();
-      const filterSpy = spyOn(component, 'filter');
+      component.mockDataSource.setFilterQuery.mockClear();
+      const filterSpy = vi.spyOn(component, 'filter').mockReturnValue(undefined);
 
       component.handleBackendSqlFilter('');
 
@@ -1216,22 +1273,22 @@ describe('TasksTableComponent', () => {
       expect(component.mockDataSource.setFilterQuery).toHaveBeenCalledWith({
         value: '',
         field: 'name',
-        operator: jasmine.anything(),
+        operator: expect.anything(),
         parent: undefined
       });
     });
 
     it('should set the filter query to taskId for the ID column', () => {
       component.selectedFilterColumn = { id: TaskTableCol.ID, dataKey: 'taskWrapperId' } as unknown as HTTableColumn;
-      component.mockDataSource.setFilterQuery.calls.reset();
-      spyOn(component, 'filter');
+      component.mockDataSource.setFilterQuery.mockClear();
+      vi.spyOn(component, 'filter').mockReturnValue(undefined);
 
       component.handleBackendSqlFilter('123');
 
       expect(component.mockDataSource.setFilterQuery).toHaveBeenCalledWith({
         value: '123',
         field: 'taskId',
-        operator: jasmine.anything(),
+        operator: expect.anything(),
         parent: undefined
       });
     });
@@ -1294,7 +1351,14 @@ describe('TasksTableComponent', () => {
         value: '10',
         action: TaskTableEditableAction.CHANGE_PRIORITY
       };
-      const changePrioritySpy = spyOn(component as unknown as { changePriority: jasmine.Spy }, 'changePriority');
+      const changePrioritySpy = vi
+        .spyOn(
+          component as unknown as {
+            changePriority: Mock;
+          },
+          'changePriority'
+        )
+        .mockReturnValue(undefined);
 
       component.editableSaved(editable);
 
@@ -1307,7 +1371,14 @@ describe('TasksTableComponent', () => {
         value: '5',
         action: TaskTableEditableAction.CHANGE_MAX_AGENTS
       };
-      const changeMaxAgentsSpy = spyOn(component as unknown as { changeMaxAgents: jasmine.Spy }, 'changeMaxAgents');
+      const changeMaxAgentsSpy = vi
+        .spyOn(
+          component as unknown as {
+            changeMaxAgents: Mock;
+          },
+          'changeMaxAgents'
+        )
+        .mockReturnValue(undefined);
 
       component.editableSaved(editable);
 
@@ -1406,29 +1477,57 @@ describe('TasksTableComponent', () => {
 
   describe('hashlistId setter', () => {
     it('should set _hashlistId when different value provided', () => {
-      (component as unknown as { _hashlistId: number })._hashlistId = 0;
+      (
+        component as unknown as {
+          _hashlistId: number;
+        }
+      )._hashlistId = 0;
 
       component.hashlistId = 5;
 
-      expect((component as unknown as { _hashlistId: number })._hashlistId).toBe(5);
+      expect(
+        (
+          component as unknown as {
+            _hashlistId: number;
+          }
+        )._hashlistId
+      ).toBe(5);
     });
 
     it('should not set _hashlistId when same value provided', () => {
-      (component as unknown as { _hashlistId: number })._hashlistId = 5;
+      (
+        component as unknown as {
+          _hashlistId: number;
+        }
+      )._hashlistId = 5;
 
       component.hashlistId = 5;
 
-      expect((component as unknown as { _hashlistId: number })._hashlistId).toBe(5);
+      expect(
+        (
+          component as unknown as {
+            _hashlistId: number;
+          }
+        )._hashlistId
+      ).toBe(5);
     });
 
     it('should return 0 when _hashlistId is undefined', () => {
-      (component as unknown as { _hashlistId: number })._hashlistId = undefined as unknown as number;
+      (
+        component as unknown as {
+          _hashlistId: number;
+        }
+      )._hashlistId = undefined as unknown as number;
 
       expect(component.hashlistId).toBe(0);
     });
 
     it('should return _hashlistId value when set', () => {
-      (component as unknown as { _hashlistId: number })._hashlistId = 10;
+      (
+        component as unknown as {
+          _hashlistId: number;
+        }
+      )._hashlistId = 10;
 
       expect(component.hashlistId).toBe(10);
     });
@@ -1440,7 +1539,13 @@ describe('TasksTableComponent', () => {
 
       const icon = (
         component as unknown as {
-          renderBoolIcon: (w: JTaskWrapperDisplay, k: string) => { name: string; cls?: string };
+          renderBoolIcon: (
+            w: JTaskWrapperDisplay,
+            k: string
+          ) => {
+            name: string;
+            cls?: string;
+          };
         }
       ).renderBoolIcon(wrapper, 'isSmall');
 
@@ -1453,7 +1558,13 @@ describe('TasksTableComponent', () => {
 
       const icon = (
         component as unknown as {
-          renderBoolIcon: (w: JTaskWrapperDisplay, k: string) => { name: string; cls?: string };
+          renderBoolIcon: (
+            w: JTaskWrapperDisplay,
+            k: string
+          ) => {
+            name: string;
+            cls?: string;
+          };
         }
       ).renderBoolIcon(wrapper, 'isSmall');
 
@@ -1465,7 +1576,13 @@ describe('TasksTableComponent', () => {
 
       const icon = (
         component as unknown as {
-          renderBoolIcon: (w: JTaskWrapperDisplay, k: string) => { name: string; cls?: string };
+          renderBoolIcon: (
+            w: JTaskWrapperDisplay,
+            k: string
+          ) => {
+            name: string;
+            cls?: string;
+          };
         }
       ).renderBoolIcon(wrapper, 'isSmall');
 

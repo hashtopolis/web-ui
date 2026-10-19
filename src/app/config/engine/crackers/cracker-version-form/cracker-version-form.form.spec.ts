@@ -22,17 +22,17 @@ describe('cracker-version-form helpers', () => {
   it('starts with External link and only downloadUrl enabled', () => {
     const form = getCrackerVersionForm();
     expect(form.controls.source.value).toBe(CrackerSource.EXTERNAL_LINK);
-    expect(form.controls.downloadUrl.enabled).toBeTrue();
-    expect(form.controls.file.enabled).toBeFalse();
-    expect(form.controls.sourceUrl.enabled).toBeFalse();
-    expect(form.controls.importFile.enabled).toBeFalse();
+    expect(form.controls.downloadUrl.enabled).toBe(true);
+    expect(form.controls.file.enabled).toBe(false);
+    expect(form.controls.sourceUrl.enabled).toBe(false);
+    expect(form.controls.importFile.enabled).toBe(false);
   });
 
   it('applyCrackerSource enables exactly the control of the chosen source', () => {
     const form = getCrackerVersionForm();
     applyCrackerSource(form, CrackerSource.SERVER_IMPORT);
-    expect(form.controls.importFile.enabled).toBeTrue();
-    expect(form.controls.downloadUrl.enabled).toBeFalse();
+    expect(form.controls.importFile.enabled).toBe(true);
+    expect(form.controls.downloadUrl.enabled).toBe(false);
   });
 
   it('validates required fields and max lengths', () => {
@@ -43,33 +43,33 @@ describe('cracker-version-form helpers', () => {
       accessGroupId: 1,
       downloadUrl: 'https://e.com/a.7z'
     });
-    expect(form.controls.binaryName.hasError('maxlength')).toBeTrue();
-    expect(form.controls.version.hasError('maxlength')).toBeTrue();
+    expect(form.controls.binaryName.hasError('maxlength')).toBe(true);
+    expect(form.controls.version.hasError('maxlength')).toBe(true);
     form.patchValue({ binaryName: 'hashcat', version: '7.1.2' });
-    expect(form.valid).toBeTrue();
+    expect(form.valid).toBe(true);
   });
 
   it('rejects non http(s) urls for external link and server download', () => {
     const form = getCrackerVersionForm();
     form.controls.downloadUrl.setValue('ftp://e.com/a.7z');
-    expect(form.controls.downloadUrl.valid).toBeFalse();
+    expect(form.controls.downloadUrl.valid).toBe(false);
     applyCrackerSource(form, CrackerSource.SERVER_DOWNLOAD);
     form.controls.sourceUrl.setValue('file:///etc/passwd');
-    expect(form.controls.sourceUrl.valid).toBeFalse();
+    expect(form.controls.sourceUrl.valid).toBe(false);
   });
 
   it('rejects uploads that are not .7z', () => {
     const form = getCrackerVersionForm();
     applyCrackerSource(form, CrackerSource.UPLOAD);
     form.controls.file.setValue(fileList('hashcat.zip'));
-    expect(form.controls.file.hasError('sevenZip')).toBeTrue();
+    expect(form.controls.file.hasError('sevenZip')).toBe(true);
     form.controls.file.setValue(fileList('hashcat.7z'));
-    expect(form.controls.file.valid).toBeTrue();
+    expect(form.controls.file.valid).toBe(true);
   });
 
   it('isSevenZipFilename matches case insensitively', () => {
-    expect(isSevenZipFilename('a.7Z')).toBeTrue();
-    expect(isSevenZipFilename('a.7z.part')).toBeFalse();
+    expect(isSevenZipFilename('a.7Z')).toBe(true);
+    expect(isSevenZipFilename('a.7z.part')).toBe(false);
   });
 
   it('buildUploadFilename is safe for the backend import check and stable per file', () => {
@@ -115,7 +115,7 @@ describe('cracker-version-form helpers', () => {
       applyCrackerSource(form, CrackerSource.SERVER_DOWNLOAD);
       form.controls.sourceUrl.setValue('https://e.com/h.7z');
       expect(buildCreatePayload(form, 1)).toEqual(
-        jasmine.objectContaining({ sourceType: 'url', sourceData: 'https://e.com/h.7z' })
+        expect.objectContaining({ sourceType: 'url', sourceData: 'https://e.com/h.7z' })
       );
     });
 
@@ -124,7 +124,7 @@ describe('cracker-version-form helpers', () => {
       applyCrackerSource(form, CrackerSource.SERVER_IMPORT);
       form.controls.importFile.setValue('hashcat-7.1.2.7z');
       expect(buildCreatePayload(form, 1)).toEqual(
-        jasmine.objectContaining({ sourceType: 'import', sourceData: 'hashcat-7.1.2.7z' })
+        expect.objectContaining({ sourceType: 'import', sourceData: 'hashcat-7.1.2.7z' })
       );
     });
 

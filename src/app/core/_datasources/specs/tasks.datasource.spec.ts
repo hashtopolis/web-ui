@@ -1,3 +1,4 @@
+import type { Mock, MockedObject } from 'vitest';
 /// <reference types="jasmine" />
 import { of, throwError } from 'rxjs';
 
@@ -40,27 +41,40 @@ const MOCK_WRAPPER_NO_WRAPPER_ID: JTaskWrapperDisplay = {
 
 describe('TasksDataSource', () => {
   let dataSource: TasksDataSource;
-  let gsSpy: jasmine.SpyObj<GlobalService>;
-  let deserializeSpy: jasmine.Spy;
+  let gsSpy: MockedObject<GlobalService>;
+  let deserializeSpy: Mock;
 
   beforeEach(() => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll']);
+    gsSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    };
 
-    const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges']);
-    const uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    uiServiceSpy.getUISettings.and.returnValue({});
-    const autoRefreshSpy = jasmine.createSpyObj(
-      'AutoRefreshService',
-      ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'],
-      { refresh$: of() }
-    );
-    const cacheSpy = jasmine.createSpyObj('HttpCacheService', ['invalidate']);
-    const storageSpy = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
-    storageSpy.getItem.and.returnValue(null);
+    const cdrSpy = {
+      markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
+      detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges')
+    };
+    const uiServiceSpy = {
+      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+    };
+    uiServiceSpy.getUISettings.mockReturnValue({});
+    const autoRefreshSpy = {
+      toggleAutoRefresh: vi.fn().mockName('AutoRefreshService.toggleAutoRefresh'),
+      startAutoRefresh: vi.fn().mockName('AutoRefreshService.startAutoRefresh'),
+      stopAutoRefresh: vi.fn().mockName('AutoRefreshService.stopAutoRefresh'),
+      refresh$: of()
+    };
+    const cacheSpy = {
+      invalidate: vi.fn().mockName('HttpCacheService.invalidate')
+    };
+    const storageSpy = {
+      getItem: vi.fn().mockName('LocalStorageService.getItem'),
+      setItem: vi.fn().mockName('LocalStorageService.setItem')
+    };
+    storageSpy.getItem.mockReturnValue(null);
 
-    gsSpy.getAll.and.returnValue(of(mockResponse()));
+    gsSpy.getAll.mockReturnValue(of(mockResponse()));
 
-    deserializeSpy = spyOn(JsonAPISerializer.prototype, 'deserialize').and.returnValue([MOCK_WRAPPER]);
+    deserializeSpy = vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockReturnValue([MOCK_WRAPPER]);
 
     TestBed.configureTestingModule({
       providers: [
@@ -101,10 +115,10 @@ describe('TasksDataSource', () => {
   describe('setIsArchived()', () => {
     it('should set _isArchived to the provided value', () => {
       dataSource.setIsArchived(true);
-      expect(dataSource['_isArchived']).toBeTrue();
+      expect(dataSource['_isArchived']).toBe(true);
 
       dataSource.setIsArchived(false);
-      expect(dataSource['_isArchived']).toBeFalse();
+      expect(dataSource['_isArchived']).toBe(false);
     });
 
     it('should reset pageAfter, pageBefore and index', () => {
@@ -135,13 +149,13 @@ describe('TasksDataSource', () => {
   describe('loadAll()', () => {
     it('should call service.getAll with SERV.TASKS_WRAPPER_DISPLAYS', () => {
       dataSource.loadAll();
-      const [serviceConfig] = gsSpy.getAll.calls.mostRecent().args;
+      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall;
       expect(serviceConfig).toEqual(SERV.TASKS_WRAPPER_DISPLAYS);
     });
 
     it('should set loading to false after a successful response', () => {
       dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
 
     it('should populate the data with the deserialized items', () => {
@@ -152,40 +166,40 @@ describe('TasksDataSource', () => {
 
     it('should always include a taskWrapperIsArchived filter', () => {
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'taskWrapperIsArchived' }));
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'taskWrapperIsArchived' }));
     });
 
     it('should pass the current _isArchived value in the filter', () => {
       dataSource.setIsArchived(true);
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
       expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'taskWrapperIsArchived', value: true })
+        expect.objectContaining({ field: 'taskWrapperIsArchived', value: true })
       );
     });
 
     it('should add an extra filter when a query is provided', () => {
       const query: Filter = { field: 'taskWrapperName', operator: FilterType.EQUAL, value: 'bar' };
       dataSource.loadAll(query);
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
       expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'taskWrapperName', value: 'bar' })
+        expect.objectContaining({ field: 'taskWrapperName', value: 'bar' })
       );
     });
 
     it('should add a hashlistId filter when _hashlistID is set', () => {
       dataSource.setHashlistID(42);
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'hashlistId', value: 42 }));
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'hashlistId', value: 42 }));
     });
 
     it('should not add a hashlistId filter when _hashlistID is 0', () => {
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
       const filter = (params as RequestParams).filter ?? [];
-      expect(filter.some((f: Filter) => f.field === 'hashlistId')).toBeFalse();
+      expect(filter.some((f: Filter) => f.field === 'hashlistId')).toBe(false);
     });
 
     it('should derive taskWrapperId from the resource id', () => {
@@ -194,19 +208,19 @@ describe('TasksDataSource', () => {
     });
 
     it('should derive taskWrapperId from the resource id for every item', () => {
-      deserializeSpy.and.returnValue([MOCK_WRAPPER_NO_WRAPPER_ID]);
+      deserializeSpy.mockReturnValue([MOCK_WRAPPER_NO_WRAPPER_ID]);
       dataSource.loadAll();
       expect(dataSource.getOriginalData()[0].taskWrapperId).toBe(MOCK_WRAPPER_NO_WRAPPER_ID.id);
     });
 
     it('should set totalItems from meta.page.total_elements', () => {
-      gsSpy.getAll.and.returnValue(of(mockResponse({ meta: { page: { total_elements: 99 } } })));
+      gsSpy.getAll.mockReturnValue(of(mockResponse({ meta: { page: { total_elements: 99 } } })));
       dataSource.loadAll();
       expect(dataSource.totalItems).toBe(99);
     });
 
     it('should extract the page[after] cursor from links.next', () => {
-      gsSpy.getAll.and.returnValue(
+      gsSpy.getAll.mockReturnValue(
         of(
           mockResponse({
             meta: { page: { total_elements: 50 } },
@@ -219,7 +233,7 @@ describe('TasksDataSource', () => {
     });
 
     it('should extract the page[before] cursor from links.prev', () => {
-      gsSpy.getAll.and.returnValue(
+      gsSpy.getAll.mockReturnValue(
         of(
           mockResponse({
             meta: { page: { total_elements: 50 } },
@@ -232,19 +246,19 @@ describe('TasksDataSource', () => {
     });
 
     it('should set pageAfter to null when links.next is absent', () => {
-      gsSpy.getAll.and.returnValue(of(mockResponse({ meta: { page: { total_elements: 0 } } })));
+      gsSpy.getAll.mockReturnValue(of(mockResponse({ meta: { page: { total_elements: 0 } } })));
       dataSource.loadAll();
       expect(dataSource.pageAfter).toBeNull();
     });
 
     it('should call handleFilterError and stop loading when request fails', () => {
-      gsSpy.getAll.and.returnValue(throwError(() => new Error('backend failed')));
-      const handleFilterErrorSpy = spyOn(dataSource as never, 'handleFilterError').and.callThrough();
+      gsSpy.getAll.mockReturnValue(throwError(() => new Error('backend failed')));
+      const handleFilterErrorSpy = vi.spyOn(dataSource as never, 'handleFilterError');
 
       dataSource.loadAll();
 
       expect(handleFilterErrorSpy).toHaveBeenCalled();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
   });
 
@@ -253,7 +267,7 @@ describe('TasksDataSource', () => {
   describe('reload()', () => {
     it('should clear selected rows before reloading', () => {
       dataSource.selection.select(MOCK_WRAPPER);
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
 
       dataSource.reload();
 
@@ -264,30 +278,30 @@ describe('TasksDataSource', () => {
     it('should call loadAll() with filterQuery when filterQuery has a value', () => {
       const filter: Filter = { field: 'taskWrapperName', operator: FilterType.EQUAL, value: 'myTask' };
       dataSource.setFilterQuery(filter);
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
 
       dataSource.reload();
 
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
       expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'taskWrapperName', value: 'myTask' })
+        expect.objectContaining({ field: 'taskWrapperName', value: 'myTask' })
       );
     });
 
     it('should call loadAll() without the stored filter when filterQuery has no value', () => {
       dataSource.setFilterQuery({ field: 'taskWrapperName', operator: FilterType.EQUAL, value: '' });
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
 
       dataSource.reload();
 
       expect(gsSpy.getAll).toHaveBeenCalled();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
       const filter = (params as RequestParams).filter ?? [];
-      expect(filter.some((f: Filter) => f.field === 'taskWrapperName')).toBeFalse();
+      expect(filter.some((f: Filter) => f.field === 'taskWrapperName')).toBe(false);
     });
 
     it('should call loadAll() without filter args when no filterQuery is set', () => {
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       dataSource.reload();
       expect(gsSpy.getAll).toHaveBeenCalled();
     });

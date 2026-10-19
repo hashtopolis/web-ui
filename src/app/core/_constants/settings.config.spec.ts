@@ -4,7 +4,7 @@ describe('browserDateFormat', () => {
   /** Pins the locale Intl resolves to, which is otherwise whatever the test browser runs in. */
   function withLocale(locale: string): void {
     const real = Intl.DateTimeFormat;
-    spyOn(Intl, 'DateTimeFormat').and.callFake(function (
+    vi.spyOn(Intl, 'DateTimeFormat').mockImplementation(function (
       _locales?: Intl.LocalesArgument,
       options?: Intl.DateTimeFormatOptions
     ) {
@@ -45,7 +45,7 @@ describe('browserDateFormat', () => {
 describe('browserTimeFormat', () => {
   function withLocale(locale: string): void {
     const real = Intl.DateTimeFormat;
-    spyOn(Intl, 'DateTimeFormat').and.callFake(function (
+    vi.spyOn(Intl, 'DateTimeFormat').mockImplementation(function (
       _locales?: Intl.LocalesArgument,
       options?: Intl.DateTimeFormatOptions
     ) {

@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { zGetAccessGroupsHelperApiResponse, zHashlistResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
 
@@ -117,27 +118,47 @@ describe('EditHashlistComponent', () => {
   let fixture: ComponentFixture<EditHashlistComponent>;
   let httpMock: HttpTestingController;
 
-  let gsSpy: jasmine.SpyObj<GlobalService>;
-  let alertSpy: jasmine.SpyObj<AlertService>;
-  let titleSpy: jasmine.SpyObj<AutoTitleService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let configSpy: jasmine.SpyObj<ConfigService>;
-  let unsavedChangesSpy: jasmine.SpyObj<UnsavedChangesService>;
-  let roleServiceSpy: jasmine.SpyObj<HashListRoleService>;
+  let gsSpy: MockedObject<GlobalService>;
+  let alertSpy: MockedObject<AlertService>;
+  let titleSpy: MockedObject<AutoTitleService>;
+  let routerSpy: MockedObject<Router>;
+  let configSpy: MockedObject<ConfigService>;
+  let unsavedChangesSpy: MockedObject<UnsavedChangesService>;
+  let roleServiceSpy: MockedObject<HashListRoleService>;
 
   beforeEach(async () => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['get', 'ghelper', 'update', 'chelper']);
+    gsSpy = {
+      get: vi.fn().mockName('GlobalService.get'),
+      ghelper: vi.fn().mockName('GlobalService.ghelper'),
+      update: vi.fn().mockName('GlobalService.update'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    };
     Object.defineProperty(gsSpy, 'userId', { get: () => 1 });
-    alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    titleSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl', 'createUrlTree', 'serializeUrl'], {
+    alertSpy = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    };
+    titleSpy = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    };
+    routerSpy = {
+      navigate: vi.fn().mockName('Router.navigate'),
+      navigateByUrl: vi.fn().mockName('Router.navigateByUrl'),
+      createUrlTree: vi.fn().mockName('Router.createUrlTree'),
+      serializeUrl: vi.fn().mockName('Router.serializeUrl'),
       events: of()
-    });
-    configSpy = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
-    unsavedChangesSpy = jasmine.createSpyObj('UnsavedChangesService', ['setUnsavedChanges']);
-    roleServiceSpy = jasmine.createSpyObj('HashListRoleService', ['hasRole']);
+    };
+    configSpy = {
+      getEndpoint: vi.fn().mockName('ConfigService.getEndpoint')
+    };
+    unsavedChangesSpy = {
+      setUnsavedChanges: vi.fn().mockName('UnsavedChangesService.setUnsavedChanges')
+    };
+    roleServiceSpy = {
+      hasRole: vi.fn().mockName('HashListRoleService.hasRole')
+    };
 
-    configSpy.getEndpoint.and.returnValue('http://localhost:8080/api/v2');
+    configSpy.getEndpoint.mockReturnValue('http://localhost:8080/api/v2');
 
     await TestBed.configureTestingModule({
       declarations: [EditHashlistComponent, PageSubTitleComponent],
@@ -173,8 +194,8 @@ describe('EditHashlistComponent', () => {
   });
 
   beforeEach(() => {
-    roleServiceSpy.hasRole.and.returnValue(true);
-    gsSpy.ghelper.and.returnValue(of(mockAccessGroupsResponse));
+    roleServiceSpy.hasRole.mockReturnValue(true);
+    gsSpy.ghelper.mockReturnValue(of(mockAccessGroupsResponse));
   });
 
   afterEach(() => {
@@ -217,7 +238,7 @@ describe('EditHashlistComponent', () => {
       respondToHashlistRequest(mockHashlistResponse());
       tick();
 
-      expect(component.isLoading).toBeFalse();
+      expect(component.isLoading).toBe(false);
       expect(component.editedHashlist).toBeDefined();
       expect(component.hashtype).toBeDefined();
     }));
@@ -229,7 +250,7 @@ describe('EditHashlistComponent', () => {
       tick();
 
       expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/forbidden');
-      expect(component.isLoading).toBeTrue();
+      expect(component.isLoading).toBe(true);
     }));
 
     it('should navigate to /not-found on 404 error', fakeAsync(() => {
@@ -239,7 +260,7 @@ describe('EditHashlistComponent', () => {
       tick();
 
       expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/not-found');
-      expect(component.isLoading).toBeTrue();
+      expect(component.isLoading).toBe(true);
     }));
 
     it('should show error message on 500+ error without redirect', fakeAsync(() => {
@@ -258,8 +279,8 @@ describe('EditHashlistComponent', () => {
       tick();
 
       expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
-      expect(alertSpy.showErrorMessage).toHaveBeenCalledWith(jasmine.stringContaining('Error loading hashlist'));
-      expect(component.isLoading).toBeFalse();
+      expect(alertSpy.showErrorMessage).toHaveBeenCalledWith(expect.stringContaining('Error loading hashlist'));
+      expect(component.isLoading).toBe(false);
     }));
 
     it('should show generic error message on non-HttpError error', fakeAsync(() => {
@@ -269,7 +290,7 @@ describe('EditHashlistComponent', () => {
       tick();
 
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('Error loading hashlist.');
-      expect(component.isLoading).toBeFalse();
+      expect(component.isLoading).toBe(false);
     }));
 
     it('should retry without includes on 500 error from loadHashlist', fakeAsync(() => {
@@ -288,7 +309,7 @@ describe('EditHashlistComponent', () => {
       tick();
 
       expect(component.editedHashlist).toBeDefined();
-      expect(component.isLoading).toBeFalse();
+      expect(component.isLoading).toBe(false);
     }));
 
     it('should throw non-500 errors from loadHashlist and handle in ngOnInit', fakeAsync(() => {
@@ -312,7 +333,7 @@ describe('EditHashlistComponent', () => {
     }));
 
     it('should not load access groups when user lacks groups role', fakeAsync(() => {
-      roleServiceSpy.hasRole.withArgs('groups').and.returnValue(false);
+      roleServiceSpy.hasRole.withArgs('groups').mockReturnValue(false);
 
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
@@ -330,12 +351,12 @@ describe('EditHashlistComponent', () => {
       tick();
 
       component.updateForm.get('updateData.name')?.setValue('Updated Name');
-      gsSpy.update.and.returnValue(of({}));
+      gsSpy.update.mockReturnValue(of({}));
 
       component.onSubmit();
       tick();
 
-      expect(gsSpy.update).toHaveBeenCalledWith(SERV.HASHLISTS, 1, jasmine.objectContaining({ name: 'Updated Name' }));
+      expect(gsSpy.update).toHaveBeenCalledWith(SERV.HASHLISTS, 1, expect.objectContaining({ name: 'Updated Name' }));
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Hashlist saved');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/hashlist']);
     }));
@@ -346,12 +367,12 @@ describe('EditHashlistComponent', () => {
       tick();
 
       component.updateForm.get('updateData.name')?.setValue('Updated Name');
-      gsSpy.update.and.returnValue(of({}));
+      gsSpy.update.mockReturnValue(of({}));
 
       component.onSubmit();
       tick();
 
-      expect(gsSpy.update).toHaveBeenCalledWith(SERV.HASHLISTS, 1, jasmine.objectContaining({ name: 'Updated Name' }));
+      expect(gsSpy.update).toHaveBeenCalledWith(SERV.HASHLISTS, 1, expect.objectContaining({ name: 'Updated Name' }));
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Hashlist saved');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/superhashlist']);
     }));
@@ -360,8 +381,10 @@ describe('EditHashlistComponent', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
 
-      const markAllAsTouchedSpy = spyOn(component.updateForm, 'markAllAsTouched');
-      const updateValueAndValiditySpy = spyOn(component.updateForm, 'updateValueAndValidity');
+      const markAllAsTouchedSpy = vi.spyOn(component.updateForm, 'markAllAsTouched').mockReturnValue(undefined);
+      const updateValueAndValiditySpy = vi
+        .spyOn(component.updateForm, 'updateValueAndValidity')
+        .mockReturnValue(undefined);
 
       component.updateForm.get('updateData.name')?.setValue('');
       component.updateForm.markAsUntouched();
@@ -390,7 +413,7 @@ describe('EditHashlistComponent', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
       component.editedHashlistIndex = 42;
-      gsSpy.chelper.and.returnValue(of({}));
+      gsSpy.chelper.mockReturnValue(of({}));
 
       component.exportLeftHashes();
       tick();
@@ -405,7 +428,7 @@ describe('EditHashlistComponent', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
       component.editedHashlistIndex = 42;
-      gsSpy.chelper.and.returnValue(of({}));
+      gsSpy.chelper.mockReturnValue(of({}));
 
       component.exortPreCrackedHashes();
       tick();
@@ -420,7 +443,7 @@ describe('EditHashlistComponent', () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
       component.editedHashlistIndex = 42;
-      gsSpy.chelper.and.returnValue(of({}));
+      gsSpy.chelper.mockReturnValue(of({}));
 
       component.exportWordlist();
       tick();
@@ -434,10 +457,10 @@ describe('EditHashlistComponent', () => {
     it('should link the Hashes, Cracked and Remaining fields to the hashes page', fakeAsync(() => {
       // Suppress the role-gated tasks table and report-builder panel so the form
       // renders without their extra data requests; the link fields are not gated.
-      roleServiceSpy.hasRole.and.returnValue(false);
+      roleServiceSpy.hasRole.mockReturnValue(false);
       // RouterLink computes an href via the mocked Router; give serializeUrl a
       // string so MockLocationStrategy doesn't choke while rendering the anchors.
-      routerSpy.serializeUrl.and.returnValue('/');
+      routerSpy.serializeUrl.mockReturnValue('/');
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
       component.editedHashlistIndex = 42;
@@ -468,7 +491,7 @@ describe('EditHashlistComponent', () => {
 
       const result = component.canDeactivate();
 
-      expect(result).toBeTrue();
+      expect(result).toBe(true);
       expect(unsavedChangesSpy.setUnsavedChanges).not.toHaveBeenCalled();
     });
 
@@ -482,7 +505,7 @@ describe('EditHashlistComponent', () => {
 
       const result = component.canDeactivate();
 
-      expect(result).toBeFalse();
+      expect(result).toBe(false);
       expect(unsavedChangesSpy.setUnsavedChanges).toHaveBeenCalledWith(true);
     }));
   });

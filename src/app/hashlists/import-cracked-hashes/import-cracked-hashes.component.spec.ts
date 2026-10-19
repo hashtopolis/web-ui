@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { HttpHeaderName } from '@constants/http.config';
 import { concat, of, throwError } from 'rxjs';
 
@@ -33,18 +34,30 @@ describe('ImportCrackedHashesComponent', () => {
   let component: ImportCrackedHashesComponent;
   let fixture: ComponentFixture<ImportCrackedHashesComponent>;
 
-  let gsSpy: jasmine.SpyObj<GlobalService>;
-  let uploadSpy: jasmine.SpyObj<UploadTUSService>;
-  let alertSpy: jasmine.SpyObj<AlertService>;
-  let titleSpy: jasmine.SpyObj<AutoTitleService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let gsSpy: MockedObject<GlobalService>;
+  let uploadSpy: MockedObject<UploadTUSService>;
+  let alertSpy: MockedObject<AlertService>;
+  let titleSpy: MockedObject<AutoTitleService>;
+  let routerSpy: MockedObject<Router>;
 
   beforeEach(async () => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['get', 'chelper']);
-    uploadSpy = jasmine.createSpyObj('UploadTUSService', ['uploadFile']);
-    alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    titleSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    gsSpy = {
+      get: vi.fn().mockName('GlobalService.get'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    };
+    uploadSpy = {
+      uploadFile: vi.fn().mockName('UploadTUSService.uploadFile')
+    };
+    alertSpy = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    };
+    titleSpy = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    };
+    routerSpy = {
+      navigate: vi.fn().mockName('Router.navigate')
+    };
 
     await TestBed.configureTestingModule({
       declarations: [ImportCrackedHashesComponent],
@@ -73,7 +86,7 @@ describe('ImportCrackedHashesComponent', () => {
   });
 
   beforeEach(() => {
-    gsSpy.chelper.and.returnValue(of(mockServerImportFiles));
+    gsSpy.chelper.mockReturnValue(of(mockServerImportFiles));
     fixture = TestBed.createComponent(ImportCrackedHashesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -142,14 +155,14 @@ describe('ImportCrackedHashesComponent', () => {
     it('should set hashesAreRequired to true when sourceType is paste', fakeAsync(() => {
       component.form.controls.sourceType.setValue('paste');
       tick();
-      expect(component.hashesAreRequired).toBeTrue();
+      expect(component.hashesAreRequired).toBe(true);
     }));
 
     it('should set required validator on hashes control when sourceType is paste', fakeAsync(() => {
       component.form.controls.sourceType.setValue('paste');
       tick();
       const hashesCtrl = component.form.controls.hashes;
-      expect(hashesCtrl.hasError('required')).toBeTrue();
+      expect(hashesCtrl.hasError('required')).toBe(true);
     }));
 
     it('should reset hashes when sourceType is not paste', fakeAsync(() => {
@@ -178,16 +191,16 @@ describe('ImportCrackedHashesComponent', () => {
     }));
 
     it('should call loadServerFiles when sourceType is import and files not loaded', fakeAsync(() => {
-      gsSpy.chelper.and.returnValue(of(mockServerImportFiles));
-      const loadSpy = spyOn(component, 'loadServerFiles').and.callThrough();
+      gsSpy.chelper.mockReturnValue(of(mockServerImportFiles));
+      const loadSpy = vi.spyOn(component, 'loadServerFiles');
       component.form.controls.sourceType.setValue('import');
       tick();
       expect(loadSpy).toHaveBeenCalled();
     }));
 
     it('should call loadServerFiles every time sourceType becomes import (refresh, not cached)', fakeAsync(() => {
-      gsSpy.chelper.and.returnValue(of(mockServerImportFiles));
-      const loadSpy = spyOn(component, 'loadServerFiles').and.returnValue(Promise.resolve());
+      gsSpy.chelper.mockReturnValue(of(mockServerImportFiles));
+      const loadSpy = vi.spyOn(component, 'loadServerFiles').mockResolvedValue();
       component.form.controls.sourceType.setValue('import');
       tick();
       component.form.controls.sourceType.setValue('paste');
@@ -199,7 +212,7 @@ describe('ImportCrackedHashesComponent', () => {
 
     it('should NOT call loadServerFiles when sourceType is import but files already loading', fakeAsync(() => {
       component.isLoadingServerFiles = true;
-      const loadSpy = spyOn(component, 'loadServerFiles').and.returnValue(Promise.resolve());
+      const loadSpy = vi.spyOn(component, 'loadServerFiles').mockResolvedValue();
       component.form.controls.sourceType.setValue('import');
       tick();
       expect(loadSpy).not.toHaveBeenCalled();
@@ -208,74 +221,74 @@ describe('ImportCrackedHashesComponent', () => {
     it('should reset hashesAreRequired to false when switching from paste to upload', fakeAsync(() => {
       component.form.controls.sourceType.setValue('paste');
       tick();
-      expect(component.hashesAreRequired).toBeTrue();
+      expect(component.hashesAreRequired).toBe(true);
 
       component.form.controls.sourceType.setValue('upload');
       tick();
-      expect(component.hashesAreRequired).toBeFalse();
+      expect(component.hashesAreRequired).toBe(false);
     }));
 
     it('should reset hashesAreRequired to false when switching from paste to import', fakeAsync(() => {
       component.form.controls.sourceType.setValue('paste');
       tick();
-      expect(component.hashesAreRequired).toBeTrue();
+      expect(component.hashesAreRequired).toBe(true);
 
       component.form.controls.sourceType.setValue('import');
       tick();
-      expect(component.hashesAreRequired).toBeFalse();
+      expect(component.hashesAreRequired).toBe(false);
     }));
 
     it('should reset hashesAreRequired to false when switching from paste to url', fakeAsync(() => {
       component.form.controls.sourceType.setValue('paste');
       tick();
-      expect(component.hashesAreRequired).toBeTrue();
+      expect(component.hashesAreRequired).toBe(true);
 
       component.form.controls.sourceType.setValue('url');
       tick();
-      expect(component.hashesAreRequired).toBeFalse();
+      expect(component.hashesAreRequired).toBe(false);
     }));
   });
 
   describe('loadServerFiles', () => {
     it('should load server files and set options', fakeAsync(async () => {
-      gsSpy.chelper.and.returnValue(of(mockServerImportFiles));
+      gsSpy.chelper.mockReturnValue(of(mockServerImportFiles));
       await component.loadServerFiles();
       tick();
       expect(component.serverFiles.length).toBe(2);
       expect(component.serverFileOptions.length).toBe(2);
-      expect(component.isLoadingServerFiles).toBeFalse();
+      expect(component.isLoadingServerFiles).toBe(false);
     }));
 
     it('should handle empty meta array', fakeAsync(async () => {
       const emptyResponse: ResponseWrapper = mockResponse({ data: [], meta: [] });
-      gsSpy.chelper.and.returnValue(of(emptyResponse));
+      gsSpy.chelper.mockReturnValue(of(emptyResponse));
       await component.loadServerFiles();
       tick();
       expect(component.serverFiles.length).toBe(0);
       expect(component.serverFileOptions.length).toBe(0);
-      expect(component.isLoadingServerFiles).toBeFalse();
+      expect(component.isLoadingServerFiles).toBe(false);
     }));
 
     it('should handle error and show alert', fakeAsync(async () => {
       const error = new Error('Network error');
       error.stack = '';
-      gsSpy.chelper.and.returnValue(throwError(() => error));
-      const consoleSpy = spyOn(console, 'error');
+      gsSpy.chelper.mockReturnValue(throwError(() => error));
+      const consoleSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
       await component.loadServerFiles();
       tick();
       expect(consoleSpy).toHaveBeenCalled();
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('Could not load files from server import directory.');
-      expect(component.isLoadingServerFiles).toBeFalse();
+      expect(component.isLoadingServerFiles).toBe(false);
     }));
 
     it('should always set isLoadingServerFiles to false in finally block', fakeAsync(async () => {
       const error = new Error('Error');
       error.stack = '';
-      gsSpy.chelper.and.returnValue(throwError(() => error));
+      gsSpy.chelper.mockReturnValue(throwError(() => error));
       component.isLoadingServerFiles = false;
       await component.loadServerFiles();
       tick();
-      expect(component.isLoadingServerFiles).toBeFalse();
+      expect(component.isLoadingServerFiles).toBe(false);
     }));
 
     // Regression guard for the stale-while-revalidate bug: HttpCacheInterceptor serves a stale
@@ -288,7 +301,7 @@ describe('ImportCrackedHashesComponent', () => {
         data: [],
         meta: [{ file: 'cached.txt' }, { file: 'added-after-login.txt' }]
       });
-      gsSpy.chelper.and.returnValue(concat(of(stale), of(fresh)));
+      gsSpy.chelper.mockReturnValue(concat(of(stale), of(fresh)));
 
       await component.loadServerFiles();
       tick();
@@ -302,11 +315,11 @@ describe('ImportCrackedHashesComponent', () => {
     it('should mark form as touched when invalid', () => {
       component.form.reset();
       component.onSubmit();
-      expect(component.form.touched).toBeTrue();
+      expect(component.form.touched).toBe(true);
     });
 
     it('should call updateValueAndValidity when form is invalid', () => {
-      const updateSpy = spyOn(component.form, 'updateValueAndValidity');
+      const updateSpy = vi.spyOn(component.form, 'updateValueAndValidity').mockReturnValue(undefined);
       component.form.reset();
       component.onSubmit();
       expect(updateSpy).toHaveBeenCalled();
@@ -365,7 +378,7 @@ describe('ImportCrackedHashesComponent', () => {
 
   describe('submitImport error handling', () => {
     it('should surface the backend error, skip the global dialog and clear loading when the import fails', fakeAsync(() => {
-      gsSpy.chelper.and.returnValue(
+      gsSpy.chelper.mockReturnValue(
         throwError(() => ({ status: 400, error: { title: 'Cracked hash file has too many lines!' } }))
       );
       component.form.patchValue({
@@ -379,6 +392,7 @@ describe('ImportCrackedHashesComponent', () => {
       tick();
 
       // The component handles the error itself, so it tells the interceptor to skip the modal.
+      // TODO: vitest-migration: Direct usage of mostRecent() is not supported. Please refactor to access .args directly or use vi.mocked(spy).mock.lastCall. See: https://vitest.dev/api/mocked.html#mock-lastcall
       const call = gsSpy.chelper.calls.mostRecent();
       expect(call.args[1]).toBe('importCrackedHashes');
       const httpOptions = call.args[4];
@@ -476,11 +490,11 @@ describe('ImportCrackedHashesComponent', () => {
     });
 
     it('should have isLoadingServerFiles as false', () => {
-      expect(component.isLoadingServerFiles).toBeFalse();
+      expect(component.isLoadingServerFiles).toBe(false);
     });
 
     it('should have hashesAreRequired as false initially', () => {
-      expect(component.hashesAreRequired).toBeFalse();
+      expect(component.hashesAreRequired).toBe(false);
     });
 
     it('should have uploadProgress as 0', () => {

@@ -52,8 +52,8 @@ describe('DynamicFormComponent validation state', () => {
     tick();
     fixture.detectChanges();
 
-    expect(component.form.controls['first'].touched).toBeTrue();
-    expect(component.form.controls['second'].touched).toBeFalse();
+    expect(component.form.controls['first'].touched).toBe(true);
+    expect(component.form.controls['second'].touched).toBe(false);
     const fields = fixture.debugElement.queryAll(By.css('.field-stack'));
     expect(fields[0].nativeElement.classList).toContain('is-invalid');
     expect(fields[1].nativeElement.classList).not.toContain('is-invalid');
@@ -65,8 +65,8 @@ describe('DynamicFormComponent validation state', () => {
     tick();
     fixture.detectChanges();
 
-    expect(component.form.controls['first'].touched).toBeTrue();
-    expect(component.form.controls['second'].touched).toBeTrue();
+    expect(component.form.controls['first'].touched).toBe(true);
+    expect(component.form.controls['second'].touched).toBe(true);
     const fields = fixture.debugElement.queryAll(By.css('.field-stack'));
     expect(fields[0].nativeElement.classList).toContain('is-invalid');
     expect(fields[1].nativeElement.classList).toContain('is-invalid');

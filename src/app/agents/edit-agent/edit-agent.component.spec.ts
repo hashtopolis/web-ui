@@ -1,3 +1,4 @@
+import type { Mock, MockedObject } from 'vitest';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { zAgentResponse, zGetBestTasksAgentResponse, zUserListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
@@ -39,7 +40,8 @@ import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response'
   standalone: false
 })
 export class MockAgentStatsComponent {
-  @Input() agent: unknown;
+  @Input()
+  agent: unknown;
 }
 
 @Component({
@@ -49,7 +51,8 @@ export class MockAgentStatsComponent {
   standalone: false
 })
 export class MockAgentEnvironmentComponent {
-  @Input() agent: unknown;
+  @Input()
+  agent: unknown;
 }
 
 @Component({
@@ -59,7 +62,8 @@ export class MockAgentEnvironmentComponent {
   standalone: false
 })
 export class MockChunksTableComponent {
-  @Input() chunks: unknown[];
+  @Input()
+  chunks: unknown[];
 }
 
 @Component({
@@ -69,8 +73,10 @@ export class MockChunksTableComponent {
   standalone: false
 })
 export class MockAgentStatGraphComponent {
-  @Input() statType: unknown;
-  @Input() agentStats: unknown[];
+  @Input()
+  statType: unknown;
+  @Input()
+  agentStats: unknown[];
 }
 
 @Component({
@@ -80,7 +86,8 @@ export class MockAgentStatGraphComponent {
   standalone: false
 })
 export class MockAgentErrorTableComponent {
-  @Input() agentId: number;
+  @Input()
+  agentId: number;
 }
 
 describe('EditAgentComponent', () => {
@@ -88,11 +95,11 @@ describe('EditAgentComponent', () => {
   let fixture: ComponentFixture<EditAgentComponent>;
 
   // Mocks
-  let alertServiceSpy: jasmine.SpyObj<AlertService>;
-  let globalServiceSpy: jasmine.SpyObj<GlobalService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let activatedRouteSpy: jasmine.SpyObj<ActivatedRoute>;
-  let agentRoleServiceSpy: jasmine.SpyObj<AgentRoleService>;
+  let alertServiceSpy: MockedObject<AlertService>;
+  let globalServiceSpy: MockedObject<GlobalService>;
+  let routerSpy: MockedObject<Router>;
+  let activatedRouteSpy: MockedObject<ActivatedRoute>;
+  let agentRoleServiceSpy: MockedObject<AgentRoleService>;
 
   const mockAgent = {
     id: 1,
@@ -162,34 +169,41 @@ describe('EditAgentComponent', () => {
   };
 
   beforeEach(async () => {
-    alertServiceSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    globalServiceSpy = jasmine.createSpyObj('GlobalService', [
-      'get',
-      'getAll',
-      'update',
-      'create',
-      'delete',
-      'ghelper',
-      'chelper'
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    agentRoleServiceSpy = jasmine.createSpyObj('AgentRoleService', ['hasRole']);
-    activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', [], {
+    alertServiceSpy = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    };
+    globalServiceSpy = {
+      get: vi.fn().mockName('GlobalService.get'),
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      update: vi.fn().mockName('GlobalService.update'),
+      create: vi.fn().mockName('GlobalService.create'),
+      delete: vi.fn().mockName('GlobalService.delete'),
+      ghelper: vi.fn().mockName('GlobalService.ghelper'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    };
+    routerSpy = {
+      navigate: vi.fn().mockName('Router.navigate')
+    };
+    agentRoleServiceSpy = {
+      hasRole: vi.fn().mockName('AgentRoleService.hasRole')
+    };
+    activatedRouteSpy = {
       snapshot: {
         params: { id: '1' }
       }
-    });
+    };
 
     // Default role service behavior
-    agentRoleServiceSpy.hasRole.and.returnValue(false);
+    agentRoleServiceSpy.hasRole.mockReturnValue(false);
 
     // Default service responses
-    globalServiceSpy.get.and.returnValue(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
-    globalServiceSpy.getAll.and.returnValue(of(mockValidResponse(zUserListResponse, { data: [mockUser] })));
-    globalServiceSpy.ghelper.and.returnValue(of(mockValidResponse(zGetBestTasksAgentResponse, { data: [] })));
-    globalServiceSpy.chelper.and.returnValue(of(mockResponse()));
-    globalServiceSpy.update.and.returnValue(of(mockResponse()));
-    globalServiceSpy.create.and.returnValue(of(mockResponse()));
+    globalServiceSpy.get.mockReturnValue(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
+    globalServiceSpy.getAll.mockReturnValue(of(mockValidResponse(zUserListResponse, { data: [mockUser] })));
+    globalServiceSpy.ghelper.mockReturnValue(of(mockValidResponse(zGetBestTasksAgentResponse, { data: [] })));
+    globalServiceSpy.chelper.mockReturnValue(of(mockResponse()));
+    globalServiceSpy.update.mockReturnValue(of(mockResponse()));
+    globalServiceSpy.create.mockReturnValue(of(mockResponse()));
 
     await TestBed.configureTestingModule({
       declarations: [
@@ -249,7 +263,7 @@ describe('EditAgentComponent', () => {
     fixture.detectChanges();
     tick();
 
-    expect((globalServiceSpy.get as jasmine.Spy).calls.argsFor(0)).toEqual([
+    expect(vi.mocked(globalServiceSpy.get as Mock).mock.calls[0]).toEqual([
       SERV.AGENTS,
       1,
       {
@@ -281,9 +295,9 @@ describe('EditAgentComponent', () => {
 
   it('should load tasks when user has readAssignment role', fakeAsync(() => {
     // Create new fixture with updated role service
-    agentRoleServiceSpy.hasRole.and.callFake((role: string) => role === 'readAssignment');
-    globalServiceSpy.ghelper.and.returnValue(of(mockValidResponse(zGetBestTasksAgentResponse, { data: [mockTask] })));
-    globalServiceSpy.get.and.returnValue(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
+    agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'readAssignment');
+    globalServiceSpy.ghelper.mockReturnValue(of(mockValidResponse(zGetBestTasksAgentResponse, { data: [mockTask] })));
+    globalServiceSpy.get.mockReturnValue(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
 
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
@@ -308,7 +322,7 @@ describe('EditAgentComponent', () => {
 
   it('should handle 404 error when loading agent fails', fakeAsync(() => {
     const error404 = { status: 404 };
-    globalServiceSpy.get.and.returnValue(throwError(() => error404));
+    globalServiceSpy.get.mockReturnValue(throwError(() => error404));
 
     fixture.detectChanges();
     tick();
@@ -318,7 +332,7 @@ describe('EditAgentComponent', () => {
 
   it('should handle 403 error when loading agent fails', fakeAsync(() => {
     const error403 = { status: 403 };
-    globalServiceSpy.get.and.returnValue(throwError(() => error403));
+    globalServiceSpy.get.mockReturnValue(throwError(() => error403));
 
     fixture.detectChanges();
     tick();
@@ -327,7 +341,7 @@ describe('EditAgentComponent', () => {
   }));
 
   it('should submit form and update agent successfully', fakeAsync(() => {
-    agentRoleServiceSpy.hasRole.and.callFake((role: string) => role === 'update');
+    agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update');
 
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
@@ -347,7 +361,7 @@ describe('EditAgentComponent', () => {
     expect(globalServiceSpy.update).toHaveBeenCalledWith(
       SERV.AGENTS,
       1,
-      jasmine.objectContaining({
+      expect.objectContaining({
         agentName: 'Updated Agent',
         isActive: false,
         userId: 2
@@ -359,7 +373,7 @@ describe('EditAgentComponent', () => {
 
   it('should not submit form if it is invalid', fakeAsync(() => {
     // Create fixture with 'update' role enabled so form controls are enabled and validators work
-    agentRoleServiceSpy.hasRole.and.callFake((role: string) => role === 'update');
+    agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update');
 
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
@@ -381,8 +395,8 @@ describe('EditAgentComponent', () => {
 
   it('should show error message when form submission fails', fakeAsync(() => {
     // Enable 'update' role so form controls are enabled
-    agentRoleServiceSpy.hasRole.and.callFake((role: string) => role === 'update');
-    globalServiceSpy.update.and.returnValue(throwError(() => new Error('Update failed')));
+    agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update');
+    globalServiceSpy.update.mockReturnValue(throwError(() => new Error('Update failed')));
 
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
@@ -485,10 +499,9 @@ describe('EditAgentComponent', () => {
 
   it('should handle error when loading agent', fakeAsync(() => {
     const error = { status: 500 };
-    globalServiceSpy.get.and.returnValues(
-      throwError(() => error),
-      of(mockValidResponse(zAgentResponse, { data: mockAgent }))
-    );
+    globalServiceSpy.get
+      .mockReturnValueOnce(throwError(() => error))
+      .mockReturnValueOnce(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
 
     fixture.detectChanges();
     tick();
@@ -507,7 +520,7 @@ describe('EditAgentComponent', () => {
 
   it('should handle other errors when loading agent', fakeAsync(() => {
     const errorOther = { status: 400 };
-    globalServiceSpy.get.and.returnValue(throwError(() => errorOther));
+    globalServiceSpy.get.mockReturnValue(throwError(() => errorOther));
 
     fixture.detectChanges();
     tick();

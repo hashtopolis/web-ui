@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { zCrackerBinaryListResponse } from '@generated/api/zod';
 import { Observable, of } from 'rxjs';
 
@@ -65,10 +66,10 @@ function versionsByType(config: ServiceConfig, params?: RequestParams): Observab
 describe('HashlistSupertaskBuilderTableComponent', () => {
   let component: TestHashlistSupertaskBuilderTableComponent;
   let fixture: ComponentFixture<TestHashlistSupertaskBuilderTableComponent>;
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
-  let support: jasmine.SpyObj<CrackerHashtypeSupportService>;
-  let crackerBinaryTypes: jasmine.SpyObj<CrackerBinaryTypesService>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockAlertService: MockedObject<AlertService>;
+  let support: MockedObject<CrackerHashtypeSupportService>;
+  let crackerBinaryTypes: MockedObject<CrackerBinaryTypesService>;
 
   type Internals = {
     loadSupport(): Promise<void>;
@@ -81,17 +82,27 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
   }
 
   beforeEach(async () => {
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['chelper', 'getAll']);
-    mockGlobalService.chelper.and.returnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.chelper>);
-    mockGlobalService.getAll.and.returnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.getAll>);
+    mockGlobalService = {
+      chelper: vi.fn().mockName('GlobalService.chelper'),
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    };
+    mockGlobalService.chelper.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.chelper>);
+    mockGlobalService.getAll.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.getAll>);
 
-    mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+    mockAlertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    };
 
-    support = jasmine.createSpyObj('CrackerHashtypeSupportService', ['getSupportedCrackerBinaryIds']);
-    support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([11])));
+    support = {
+      getSupportedCrackerBinaryIds: vi.fn().mockName('CrackerHashtypeSupportService.getSupportedCrackerBinaryIds')
+    };
+    support.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([11])));
 
-    crackerBinaryTypes = jasmine.createSpyObj('CrackerBinaryTypesService', ['getTypeNames']);
-    crackerBinaryTypes.getTypeNames.and.returnValue(
+    crackerBinaryTypes = {
+      getTypeNames: vi.fn().mockName('CrackerBinaryTypesService.getTypeNames')
+    };
+    crackerBinaryTypes.getTypeNames.mockReturnValue(
       of(
         new Map<CrackerBinaryTypeId, string>([
           [1, 'hashcat'],
@@ -170,11 +181,11 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
       crackerVersionId: 77
     });
     expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('New Supertask created');
-    expect(component.rowLoading[10]).toBeFalse();
+    expect(component.rowLoading[10]).toBe(false);
   });
 
   it('initializes each row with the versions of its own type', async () => {
-    mockGlobalService.getAll.and.callFake(
+    mockGlobalService.getAll.mockImplementation(
       versionsByType as unknown as (...args: unknown[]) => ReturnType<typeof mockGlobalService.getAll>
     );
     component.supertasks = [supertask(10, 'BF set', 1), supertask(11, 'WL set', 2)];
@@ -186,7 +197,9 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
     expect(component.selectedVersionByRow[10]).toBe(11 as CrackerBinaryId);
     expect(component.rowVersions[11]?.map((option) => option.id)).toEqual([20]);
     expect(component.selectedVersionByRow[11]).toBe(20 as CrackerBinaryId);
-    expect(mockGlobalService.getAll.calls.allArgs().every(([config]) => config.URL === SERV.CRACKERS.URL)).toBeTrue();
+    expect(vi.mocked(mockGlobalService.getAll).mock.calls.every(([config]) => config.URL === SERV.CRACKERS.URL)).toBe(
+      true
+    );
   });
 
   it('shows the type name per row and falls back for unknown ids', async () => {
@@ -201,9 +214,13 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
   });
 
   it('should keep the after cursor when paging forward', () => {
-    const setPaginationConfig = jasmine.createSpy('setPaginationConfig');
-    const reload = jasmine.createSpy('reload');
-    (component as unknown as { dataSource: unknown }).dataSource = {
+    const setPaginationConfig = vi.fn().mockName('setPaginationConfig');
+    const reload = vi.fn().mockName('reload');
+    (
+      component as unknown as {
+        dataSource: unknown;
+      }
+    ).dataSource = {
       pageAfter: 'AFTER',
       pageBefore: 'BEFORE',
       index: 0,
@@ -220,9 +237,13 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
   });
 
   it('should reset cursors when the page size changes', () => {
-    const setPaginationConfig = jasmine.createSpy('setPaginationConfig');
-    const reload = jasmine.createSpy('reload');
-    (component as unknown as { dataSource: unknown }).dataSource = {
+    const setPaginationConfig = vi.fn().mockName('setPaginationConfig');
+    const reload = vi.fn().mockName('reload');
+    (
+      component as unknown as {
+        dataSource: unknown;
+      }
+    ).dataSource = {
       pageAfter: 'AFTER',
       pageBefore: 'BEFORE',
       index: 2,
@@ -240,7 +261,7 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
 
   describe('hashtype support', () => {
     beforeEach(() => {
-      mockGlobalService.getAll.and.callFake(
+      mockGlobalService.getAll.mockImplementation(
         versionsByType as unknown as (...args: unknown[]) => ReturnType<typeof mockGlobalService.getAll>
       );
     });
@@ -264,9 +285,9 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
       await internals().initializeRows();
       fixture.detectChanges();
 
-      expect(component.isRowBlocked(component.supertasks[0])).toBeFalse();
+      expect(component.isRowBlocked(component.supertasks[0])).toBe(false);
       expect(component.selectedVersionByRow[10]).toBe(11 as CrackerBinaryId);
-      expect(component.isRowBlocked(component.supertasks[1])).toBeTrue();
+      expect(component.isRowBlocked(component.supertasks[1])).toBe(true);
       expect(component.selectedVersionByRow[11]).toBeUndefined();
       expect(component.rowBlockedMessage(component.supertasks[1])).toBe(
         'No accessible generic version supports this hashtype.'
@@ -276,7 +297,7 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
     });
 
     it('shows the block message when no version supports the hashtype', async () => {
-      support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      support.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set<number>()));
       component.hashTypeId = 1000;
       component.hashtypeDescription = 'NTLM';
 
@@ -288,7 +309,7 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
     });
 
     it('says the check failed when the support lookup failed', async () => {
-      support.getSupportedCrackerBinaryIds.and.returnValue(of(SUPPORT_LOOKUP_FAILED));
+      support.getSupportedCrackerBinaryIds.mockReturnValue(of(SUPPORT_LOOKUP_FAILED));
       component.hashTypeId = 1000;
       component.hashtypeDescription = 'NTLM';
       component.supertasks = [supertask(11, 'WL set', 2)];
@@ -299,7 +320,7 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
       expect(component.unsupportedHashtypeMessage).toBe(
         'Could not check which cracker versions support hashtype 1000 (NTLM).'
       );
-      expect(component.isRowBlocked(component.supertasks[0])).toBeTrue();
+      expect(component.isRowBlocked(component.supertasks[0])).toBe(true);
       expect(component.rowBlockedMessage(component.supertasks[0])).toBe(
         'Could not check which generic versions support this hashtype.'
       );

@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -11,14 +12,21 @@ describe('RevealApiKeyDialogComponent', () => {
   let component: RevealApiKeyDialogComponent;
   let fixture: ComponentFixture<RevealApiKeyDialogComponent>;
 
-  let mockClipboard: jasmine.SpyObj<Clipboard>;
-  let mockAlert: jasmine.SpyObj<AlertService>;
-  let mockDialogRef: jasmine.SpyObj<MatDialogRef<RevealApiKeyDialogComponent>>;
+  let mockClipboard: MockedObject<Clipboard>;
+  let mockAlert: MockedObject<AlertService>;
+  let mockDialogRef: MockedObject<MatDialogRef<RevealApiKeyDialogComponent>>;
 
   beforeEach(async () => {
-    mockClipboard = jasmine.createSpyObj('Clipboard', ['copy']);
-    mockAlert = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    mockClipboard = {
+      copy: vi.fn().mockName('Clipboard.copy')
+    };
+    mockAlert = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    };
+    mockDialogRef = {
+      close: vi.fn().mockName('MatDialogRef.close')
+    };
 
     await TestBed.configureTestingModule({
       declarations: [RevealApiKeyDialogComponent],
@@ -40,7 +48,7 @@ describe('RevealApiKeyDialogComponent', () => {
   });
 
   it('shows a success message when the clipboard write succeeds', () => {
-    mockClipboard.copy.and.returnValue(true);
+    mockClipboard.copy.mockReturnValue(true);
 
     component.copy();
 
@@ -49,7 +57,7 @@ describe('RevealApiKeyDialogComponent', () => {
   });
 
   it('shows an error message when the clipboard write fails', () => {
-    mockClipboard.copy.and.returnValue(false);
+    mockClipboard.copy.mockReturnValue(false);
 
     component.copy();
 

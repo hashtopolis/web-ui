@@ -35,10 +35,12 @@ import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response'
 })
 class HeatmapChartStubComponent {
   /** Input for heatmap data */
-  @Input() data: unknown;
+  @Input()
+  data: unknown;
 
   /** Input for dark mode styling */
-  @Input() isDarkMode: boolean;
+  @Input()
+  isDarkMode: boolean;
 }
 
 /**
@@ -57,13 +59,16 @@ const routes = [{ path: '', component: DummyComponent }];
  * Mock implementation of GlobalService.
  * Simulates various backend service responses based on service type and filter params.
  */
-const globalServiceMock = jasmine.createSpyObj('GlobalService', ['getAll', 'ghelper']);
+const globalServiceMock = {
+  getAll: vi.fn().mockName('GlobalService.getAll'),
+  ghelper: vi.fn().mockName('GlobalService.ghelper')
+};
 
 /**
  * Conditional return logic for the mocked `getAll` method of GlobalService.
  * Returns different counts depending on the service and filter parameters.
  */
-globalServiceMock.getAll.and.callFake((service: ServiceConfig, params?: RequestParams) => {
+globalServiceMock.getAll.mockImplementation((service: ServiceConfig, params?: RequestParams) => {
   if (service === SERV.TASKS_WRAPPER_COUNT) {
     const isSuperTask = params?.filter?.some(
       (filter: Filter) => filter.field === 'taskType' && filter.value === TaskType.SUPERTASK
@@ -101,7 +106,7 @@ function ghelperDefaultFake(_service: ServiceConfig, option: string) {
   }
   return of(mockValidResponse(zGetCracksPerDayHelperApiResponse, { meta: {}, data: [] }));
 }
-globalServiceMock.ghelper.and.callFake(ghelperDefaultFake);
+globalServiceMock.ghelper.mockImplementation(ghelperDefaultFake);
 
 /**
  * Mock implementation of LocalStorageService for testing purposes.
@@ -109,38 +114,48 @@ globalServiceMock.ghelper.and.callFake(ghelperDefaultFake);
  */
 const mockLocalStorageService = {
   /** Simulates retrieving a value from localStorage. Returns uiConfigDefault so UISettingsUtilityClass has valid date and time formats. */
-  getItem: jasmine.createSpy('getItem').and.returnValue(uiConfigDefault),
+  getItem: vi.fn().mockName('getItem').mockReturnValue(uiConfigDefault),
 
   /** Simulates saving a value in localStorage. Does not persist anything. */
-  setItem: jasmine.createSpy('setItem')
+  setItem: vi.fn().mockName('setItem')
 };
 
 // Stub for PageTitle decorator behavior
 class PageTitleStub {
-  set = jasmine.createSpy('set');
+  set = vi.fn().mockName('set');
 }
 
 /**
  * Mock for the PermissionService.
  * All permissions return `true` by default unless explicitly overridden.
  */
-const permissionServiceMock = jasmine.createSpyObj('PermissionService', ['hasPermissionSync']);
-permissionServiceMock.hasPermissionSync.and.returnValue(true);
+const permissionServiceMock = {
+  hasPermissionSync: vi.fn().mockName('PermissionService.hasPermissionSync')
+};
+permissionServiceMock.hasPermissionSync.mockReturnValue(true);
 
 function createMockAutoRefreshService() {
   const service = {
     refreshPage: false,
     refresh$: new Subject<void>(),
-    toggleAutoRefresh: jasmine
-      .createSpy('toggleAutoRefresh')
-      .and.callFake((enabled: boolean, options?: { immediate: boolean }) => {
-        service.refreshPage = enabled;
-        if (options?.immediate) {
-          service.refresh$.next();
+    toggleAutoRefresh: vi
+      .fn()
+      .mockName('toggleAutoRefresh')
+      .mockImplementation(
+        (
+          enabled: boolean,
+          options?: {
+            immediate: boolean;
+          }
+        ) => {
+          service.refreshPage = enabled;
+          if (options?.immediate) {
+            service.refresh$.next();
+          }
         }
-      }),
-    startAutoRefresh: jasmine.createSpy('startAutoRefresh'),
-    stopAutoRefresh: jasmine.createSpy('stopAutoRefresh')
+      ),
+    startAutoRefresh: vi.fn().mockName('startAutoRefresh'),
+    stopAutoRefresh: vi.fn().mockName('stopAutoRefresh')
   };
   return service;
 }
@@ -188,17 +203,17 @@ describe('HomeComponent (template permissions and view)', () => {
     component.lastUpdated = new Date('2025-07-20T10:00:00');
     component.isDarkMode = false;
 
-    permissionServiceMock.hasPermissionSync.calls.reset();
-    globalServiceMock.getAll.calls.reset();
-    globalServiceMock.ghelper.and.callFake(ghelperDefaultFake);
+    permissionServiceMock.hasPermissionSync.mockClear();
+    globalServiceMock.getAll.mockClear();
+    globalServiceMock.ghelper.mockImplementation(ghelperDefaultFake);
 
     fixture.detectChanges();
-    mockAutoRefreshService.toggleAutoRefresh.calls.reset();
+    mockAutoRefreshService.toggleAutoRefresh.mockClear();
     mockAutoRefreshService.refreshPage = false;
   });
 
   it('should show agent count when permission is granted', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Agent.READ);
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm === Perm.Agent.READ);
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
     debugEl = fixture.debugElement;
@@ -211,7 +226,7 @@ describe('HomeComponent (template permissions and view)', () => {
   });
 
   it('should show "No permission" for agents when canReadAgents false', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm !== Perm.Agent.READ);
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm !== Perm.Agent.READ);
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
     debugEl = fixture.debugElement;
@@ -223,7 +238,7 @@ describe('HomeComponent (template permissions and view)', () => {
   });
 
   it('should show tasks stats and hide "no permission" when canReadTasks true', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Task.READ);
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm === Perm.Task.READ);
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
     debugEl = fixture.debugElement;
@@ -236,7 +251,7 @@ describe('HomeComponent (template permissions and view)', () => {
   });
 
   it('should show "No permission" for tasks when canReadTasks false', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm !== Perm.Task.READ);
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm !== Perm.Task.READ);
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
     debugEl = fixture.debugElement;
@@ -248,7 +263,7 @@ describe('HomeComponent (template permissions and view)', () => {
   });
 
   it('should show supertask count when permission is granted', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Task.READ);
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm === Perm.Task.READ);
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -260,7 +275,7 @@ describe('HomeComponent (template permissions and view)', () => {
   });
 
   it('should show "No permission" for supertasks when canReadTasks false', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm !== Perm.Task.READ);
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm !== Perm.Task.READ);
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
     debugEl = fixture.debugElement;
@@ -272,7 +287,7 @@ describe('HomeComponent (template permissions and view)', () => {
   });
 
   it('should show cracks count and hide "no permission" when canReadCracks true', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm === Perm.Hash.READ);
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
     debugEl = fixture.debugElement;
@@ -285,7 +300,7 @@ describe('HomeComponent (template permissions and view)', () => {
   });
 
   it('should show "No permission" for cracks when canReadCracks is false', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm !== Perm.Hash.READ);
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm !== Perm.Hash.READ);
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
     debugEl = fixture.debugElement;
@@ -301,7 +316,7 @@ describe('HomeComponent (template permissions and view)', () => {
   });
 
   it('should NOT show heatmap chart when canReadCracks false', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm !== Perm.Hash.READ);
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm !== Perm.Hash.READ);
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
     debugEl = fixture.debugElement;
@@ -317,7 +332,7 @@ describe('HomeComponent (template permissions and view)', () => {
   });
 
   it('should show "No permission to view chart data" when no permission for cracks', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm !== Perm.Hash.READ);
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm !== Perm.Hash.READ);
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
     debugEl = fixture.debugElement;
@@ -331,40 +346,40 @@ describe('HomeComponent (template permissions and view)', () => {
 
   /**TODO: Fix these tests - they currently do only run if executed isolated, but not in the suite */
   /*it('should show enable auto reload button when refreshPage false', () => {
-    mockAutoRefreshService.refreshPage = false;
-    fixture.detectChanges();
+      mockAutoRefreshService.refreshPage = false;
+      fixture.detectChanges();
 
-    const enableButton = debugEl.query(By.css('button[data-testid="enable-auto-reload"]'));
-    expect(enableButton).toBeTruthy();
-  });
+      const enableButton = debugEl.query(By.css('button[data-testid="enable-auto-reload"]'));
+      expect(enableButton).toBeTruthy();
+    });
 
-  it('should show pause auto reload button when refreshPage true', () => {
-    mockAutoRefreshService.refreshPage = true;
-    fixture.detectChanges();
+    it('should show pause auto reload button when refreshPage true', () => {
+      mockAutoRefreshService.refreshPage = true;
+      fixture.detectChanges();
 
-    const pauseButton = debugEl.query(By.css('button[data-testid="pause-auto-reload"]'));
-    expect(pauseButton).toBeTruthy();
-  });
+      const pauseButton = debugEl.query(By.css('button[data-testid="pause-auto-reload"]'));
+      expect(pauseButton).toBeTruthy();
+    });
 
-  it('should call toggleAutoRefresh(true) when enable button clicked', () => {
-    mockAutoRefreshService.refreshPage = false;
-    fixture.detectChanges();
+    it('should call toggleAutoRefresh(true) when enable button clicked', () => {
+      mockAutoRefreshService.refreshPage = false;
+      fixture.detectChanges();
 
-    const enableButton = debugEl.query(By.css('button[data-testid="enable-auto-reload"]'));
-    enableButton.nativeElement.click();
+      const enableButton = debugEl.query(By.css('button[data-testid="enable-auto-reload"]'));
+      enableButton.nativeElement.click();
 
-    expect(mockAutoRefreshService.toggleAutoRefresh).toHaveBeenCalledWith(true, { immediate: true });
-  });
+      expect(mockAutoRefreshService.toggleAutoRefresh).toHaveBeenCalledWith(true, { immediate: true });
+    });
 
-  it('should call toggleAutoRefresh(false) when pause button clicked', () => {
-    mockAutoRefreshService.refreshPage = true;
-    fixture.detectChanges();
+    it('should call toggleAutoRefresh(false) when pause button clicked', () => {
+      mockAutoRefreshService.refreshPage = true;
+      fixture.detectChanges();
 
-    const pauseButton = debugEl.query(By.css('button[data-testid="pause-auto-reload"]'));
-    pauseButton.nativeElement.click();
+      const pauseButton = debugEl.query(By.css('button[data-testid="pause-auto-reload"]'));
+      pauseButton.nativeElement.click();
 
-    expect(mockAutoRefreshService.toggleAutoRefresh).toHaveBeenCalledWith(false, { immediate: true });
-  });*/
+      expect(mockAutoRefreshService.toggleAutoRefresh).toHaveBeenCalledWith(false, { immediate: true });
+    });*/
 });
 
 describe('HomeComponent — updateHeatmapData$()', () => {
@@ -376,7 +391,7 @@ describe('HomeComponent — updateHeatmapData$()', () => {
     mockAutoRefreshService = createMockAutoRefreshService();
 
     // Reset ghelper to a clean state before each test
-    globalServiceMock.ghelper.and.returnValue(
+    globalServiceMock.ghelper.mockReturnValue(
       of(mockValidResponse(zGetCracksPerDayHelperApiResponse, { meta: {}, data: [] }))
     );
 
@@ -398,9 +413,9 @@ describe('HomeComponent — updateHeatmapData$()', () => {
   });
 
   it('should call ghelper with SERV.HELPER and getCracksPerDay when canReadCracks is true', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
-    globalServiceMock.getAll.calls.reset();
-    globalServiceMock.ghelper.calls.reset();
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm === Perm.Hash.READ);
+    globalServiceMock.getAll.mockClear();
+    globalServiceMock.ghelper.mockClear();
 
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
@@ -410,9 +425,9 @@ describe('HomeComponent — updateHeatmapData$()', () => {
   });
 
   it('should NOT call ghelper for getCracksPerDay when canReadCracks is false', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm !== Perm.Hash.READ);
-    globalServiceMock.ghelper.and.callFake(ghelperDefaultFake);
-    globalServiceMock.ghelper.calls.reset();
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm !== Perm.Hash.READ);
+    globalServiceMock.ghelper.mockImplementation(ghelperDefaultFake);
+    globalServiceMock.ghelper.mockClear();
 
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
@@ -422,12 +437,12 @@ describe('HomeComponent — updateHeatmapData$()', () => {
   });
 
   it('should populate heatmapData from ghelper response and fill missing days with 0', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm === Perm.Hash.READ);
 
     const today = new Date();
     const year = today.getFullYear();
     const jan2 = `${year}-01-02`;
-    globalServiceMock.ghelper.and.returnValue(
+    globalServiceMock.ghelper.mockReturnValue(
       of(mockValidResponse(zGetCracksPerDayHelperApiResponse, { meta: { [jan2]: 42 }, data: [] }))
     );
 
@@ -446,13 +461,13 @@ describe('HomeComponent — updateHeatmapData$()', () => {
   });
 
   it('should include all days across the trailing 12 months up to today', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
-    globalServiceMock.ghelper.and.returnValue(
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm === Perm.Hash.READ);
+    globalServiceMock.ghelper.mockReturnValue(
       of(mockValidResponse(zGetCracksPerDayHelperApiResponse, { meta: {}, data: [] }))
     );
 
-    jasmine.clock().install();
-    jasmine.clock().mockDate(new Date(2026, 6, 23)); // 2026-07-23
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 6, 23)); // 2026-07-23
     try {
       fixture = TestBed.createComponent(HomeComponent);
       component = fixture.componentInstance;
@@ -463,18 +478,18 @@ describe('HomeComponent — updateHeatmapData$()', () => {
       expect(component.heatmapData[0][0]).toBe('2025-07-23');
       expect(component.heatmapData[component.heatmapData.length - 1][0]).toBe('2026-07-23');
     } finally {
-      jasmine.clock().uninstall();
+      vi.useRealTimers();
     }
   });
 
   it('should include crack days from the previous calendar year that fall within the trailing 12 months', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm === Perm.Hash.READ);
 
-    jasmine.clock().install();
-    jasmine.clock().mockDate(new Date(2026, 6, 23)); // 2026-07-23
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 6, 23)); // 2026-07-23
     try {
       // A crack recorded in the previous calendar year, still inside the trailing 12-month window.
-      globalServiceMock.ghelper.and.returnValue(
+      globalServiceMock.ghelper.mockReturnValue(
         of(mockValidResponse(zGetCracksPerDayHelperApiResponse, { meta: { '2025-09-15': 7 }, data: [] }))
       );
 
@@ -486,13 +501,13 @@ describe('HomeComponent — updateHeatmapData$()', () => {
       expect(entry).toBeTruthy();
       expect(entry![1]).toBe(7);
     } finally {
-      jasmine.clock().uninstall();
+      vi.useRealTimers();
     }
   });
 
   it('should handle ghelper errors gracefully and keep heatmapData empty', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Hash.READ);
-    globalServiceMock.ghelper.and.returnValue(throwError(() => new Error('network error')));
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm === Perm.Hash.READ);
+    globalServiceMock.ghelper.mockReturnValue(throwError(() => new Error('network error')));
 
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
@@ -502,8 +517,8 @@ describe('HomeComponent — updateHeatmapData$()', () => {
   });
 
   it('should fetch completed counts via getCompletedCount when canReadTasks is true', () => {
-    permissionServiceMock.hasPermissionSync.and.callFake((perm: PermissionValues) => perm === Perm.Task.READ);
-    globalServiceMock.ghelper.and.callFake((service: ServiceConfig, option: string) =>
+    permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm === Perm.Task.READ);
+    globalServiceMock.ghelper.mockImplementation((service: ServiceConfig, option: string) =>
       option === 'getCompletedCount'
         ? of(
             mockValidResponse(zGetCompletedCountHelperApiResponse, {

@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -50,11 +51,17 @@ class TestAccessGroupsTableComponent extends AccessGroupsTableComponent {
 // Helper: make the dialog spy return a controllable Subject, trigger the
 // component action, then return the Subject so the test can emit a result
 function stubDialogAndTrigger(
-  mockDialog: jasmine.SpyObj<MatDialog>,
+  mockDialog: MockedObject<MatDialog>,
   triggerFn: () => void
-): Subject<{ action: string; data: JAccessGroup[] } | null> {
-  const afterClosedSubject = new Subject<{ action: string; data: JAccessGroup[] } | null>();
-  mockDialog.open.and.returnValue({
+): Subject<{
+  action: string;
+  data: JAccessGroup[];
+} | null> {
+  const afterClosedSubject = new Subject<{
+    action: string;
+    data: JAccessGroup[];
+  } | null>();
+  mockDialog.open.mockReturnValue({
     afterClosed: () => afterClosedSubject.asObservable()
   } as MatDialogRef<unknown>);
   triggerFn();
@@ -65,22 +72,36 @@ function stubDialogAndTrigger(
 describe('AccessGroupsTableComponent', () => {
   let component: TestAccessGroupsTableComponent;
   let fixture: ComponentFixture<TestAccessGroupsTableComponent>;
-  let mockDialog: jasmine.SpyObj<MatDialog>;
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
-  let mockExportService: jasmine.SpyObj<ExportService>;
-  let mockRouter: jasmine.SpyObj<Router>;
-  let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
+  let mockDialog: MockedObject<MatDialog>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockAlertService: MockedObject<AlertService>;
+  let mockExportService: MockedObject<ExportService>;
+  let mockRouter: MockedObject<Router>;
+  let mockHTTable: MockedObject<HTTableComponent<BaseModel>>;
 
   beforeEach(async () => {
-    mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['delete', 'bulkDelete']);
-    mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
-    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-    mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
+    mockDialog = {
+      open: vi.fn().mockName('MatDialog.open')
+    };
+    mockGlobalService = {
+      delete: vi.fn().mockName('GlobalService.delete'),
+      bulkDelete: vi.fn().mockName('GlobalService.bulkDelete')
+    };
+    mockAlertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    };
+    mockExportService = {
+      handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
+    };
+    mockRouter = {
+      navigate: vi.fn().mockName('Router.navigate')
+    };
+    mockHTTable = {
+      reload: vi.fn().mockName('HTTableComponent.reload')
+    };
 
-    mockRouter.navigate.and.returnValue(Promise.resolve(true));
+    mockRouter.navigate.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
       declarations: [TestAccessGroupsTableComponent],
@@ -107,9 +128,9 @@ describe('AccessGroupsTableComponent', () => {
 
     // Spies are set up AFTER detectChanges so that the initial loadAll() call
     // from ngAfterViewInit is not counted in assertion expectations.
-    spyOn(component.dataSource, 'loadAll');
-    spyOn(component.dataSource, 'clearFilter');
-    spyOn(component.dataSource, 'reload');
+    vi.spyOn(component.dataSource, 'loadAll').mockReturnValue(undefined);
+    vi.spyOn(component.dataSource, 'clearFilter').mockReturnValue(undefined);
+    vi.spyOn(component.dataSource, 'reload').mockReturnValue(undefined);
   });
 
   it('should create', () => {
@@ -131,37 +152,43 @@ describe('AccessGroupsTableComponent', () => {
 
     it('ID column should be sortable and searchable', () => {
       const col = component.tableColumns.find((c) => c.id === AccessGroupsTableCol.ID)!;
-      expect(col.isSortable).toBeTrue();
-      expect(col.isSearchable).toBeTrue();
+      expect(col.isSortable).toBe(true);
+      expect(col.isSearchable).toBe(true);
     });
 
     it('NAME column should be sortable and searchable', () => {
       const col = component.tableColumns.find((c) => c.id === AccessGroupsTableCol.NAME)!;
-      expect(col.isSortable).toBeTrue();
-      expect(col.isSearchable).toBeTrue();
+      expect(col.isSortable).toBe(true);
+      expect(col.isSearchable).toBe(true);
     });
 
     it('NUSERS column should NOT be sortable', () => {
       const col = component.tableColumns.find((c) => c.id === AccessGroupsTableCol.NUSERS)!;
-      expect(col.isSortable).toBeFalse();
+      expect(col.isSortable).toBe(false);
     });
 
     it('NAGENTS column should NOT be sortable', () => {
       const col = component.tableColumns.find((c) => c.id === AccessGroupsTableCol.NAGENTS)!;
-      expect(col.isSortable).toBeFalse();
+      expect(col.isSortable).toBe(false);
     });
   });
 
   // NAME column router link
 
   describe('NAME column routerLink', () => {
-    it('should link to the access group edit page', (done) => {
+    it('should link to the access group edit page', async () => {
       const group = { id: 3, groupName: 'TestGroup' } as JAccessGroup;
       const col = component.tableColumns.find((c) => c.id === AccessGroupsTableCol.NAME)!;
-      (col.routerLink!(group) as Observable<{ routerLink: unknown[]; label: string }[]>).subscribe((links) => {
+      (
+        col.routerLink!(group) as Observable<
+          {
+            routerLink: unknown[];
+            label: string;
+          }[]
+        >
+      ).subscribe((links) => {
         expect(links[0].routerLink).toEqual(['/users', 'access-groups', 3, 'edit']);
         expect(links[0].label).toBe('TestGroup');
-        done();
       });
     });
   });
@@ -255,8 +282,9 @@ describe('AccessGroupsTableComponent', () => {
 
     it('should call dataSource.loadAll with ICONTAINS filter when input is non-empty', () => {
       component.filter('mygroup');
-      expect(component.dataSource.loadAll).toHaveBeenCalledOnceWith(
-        jasmine.objectContaining({
+      expect(component.dataSource.loadAll).toHaveBeenCalledTimes(1);
+      expect(component.dataSource.loadAll).toHaveBeenCalledWith(
+        expect.objectContaining({
           value: 'mygroup',
           field: 'groupName',
           operator: FilterType.ICONTAINS
@@ -268,7 +296,7 @@ describe('AccessGroupsTableComponent', () => {
       component.filter('');
       expect(component.dataSource.loadAll).toHaveBeenCalledTimes(1);
       expect(component.dataSource.loadAll).not.toHaveBeenCalledWith(
-        jasmine.objectContaining({ value: jasmine.anything() })
+        expect.objectContaining({ value: expect.anything() })
       );
     });
   });
@@ -309,7 +337,8 @@ describe('AccessGroupsTableComponent', () => {
       };
       component.table.displayedColumns = ['0', '1', '2', '3'];
       component.exportActionClicked(event);
-      expect(mockExportService.handleExportAction).toHaveBeenCalledOnceWith(
+      expect(mockExportService.handleExportAction).toHaveBeenCalledTimes(1);
+      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
         event,
         component.tableColumns,
         AccessGroupsTableColumnLabel,
@@ -356,7 +385,13 @@ describe('AccessGroupsTableComponent', () => {
         const subject = stubDialogAndTrigger(mockDialog, () =>
           component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.DELETE, label: '' } })
         );
-        const dialogData = (mockDialog.open.calls.mostRecent().args[1] as { data: { title: string } }).data;
+        const dialogData = (
+          vi.mocked(mockDialog.open).mock.lastCall[1] as {
+            data: {
+              title: string;
+            };
+          }
+        ).data;
         expect(dialogData.title).toContain('TestGroup');
         subject.complete();
       });
@@ -366,20 +401,26 @@ describe('AccessGroupsTableComponent', () => {
         const subject = stubDialogAndTrigger(mockDialog, () =>
           component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.DELETE, label: '' } })
         );
-        const dialogData = (mockDialog.open.calls.mostRecent().args[1] as { data: { warn: boolean } }).data;
-        expect(dialogData.warn).toBeTrue();
+        const dialogData = (
+          vi.mocked(mockDialog.open).mock.lastCall[1] as {
+            data: {
+              warn: boolean;
+            };
+          }
+        ).data;
+        expect(dialogData.warn).toBe(true);
         subject.complete();
       });
     });
 
     describe('EDIT action', () => {
-      it('should navigate to the access group edit page', (done) => {
+      it('should navigate to the access group edit page', async () => {
         const group = { id: 2, groupName: 'EditGroup' } as JAccessGroup;
         component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.EDIT, label: '' } });
 
         setTimeout(() => {
-          expect(mockRouter.navigate).toHaveBeenCalledOnceWith(['/users', 'access-groups', 2, 'edit']);
-          done();
+          expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
+          expect(mockRouter.navigate).toHaveBeenCalledWith(['/users', 'access-groups', 2, 'edit']);
         });
       });
 
@@ -414,7 +455,13 @@ describe('AccessGroupsTableComponent', () => {
       const subject = stubDialogAndTrigger(mockDialog, () =>
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
-      const dialogData = (mockDialog.open.calls.mostRecent().args[1] as { data: { title: string } }).data;
+      const dialogData = (
+        vi.mocked(mockDialog.open).mock.lastCall[1] as {
+          data: {
+            title: string;
+          };
+        }
+      ).data;
       expect(dialogData.title).toContain('2');
       subject.complete();
     });
@@ -424,7 +471,13 @@ describe('AccessGroupsTableComponent', () => {
       const subject = stubDialogAndTrigger(mockDialog, () =>
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
-      const dialogData = (mockDialog.open.calls.mostRecent().args[1] as { data: { listAttribute: string } }).data;
+      const dialogData = (
+        vi.mocked(mockDialog.open).mock.lastCall[1] as {
+          data: {
+            listAttribute: string;
+          };
+        }
+      ).data;
       expect(dialogData.listAttribute).toBe('groupName');
       subject.complete();
     });
@@ -434,8 +487,14 @@ describe('AccessGroupsTableComponent', () => {
       const subject = stubDialogAndTrigger(mockDialog, () =>
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
-      const dialogData = (mockDialog.open.calls.mostRecent().args[1] as { data: { warn: boolean } }).data;
-      expect(dialogData.warn).toBeTrue();
+      const dialogData = (
+        vi.mocked(mockDialog.open).mock.lastCall[1] as {
+          data: {
+            warn: boolean;
+          };
+        }
+      ).data;
+      expect(dialogData.warn).toBe(true);
       subject.complete();
     });
   });
@@ -446,7 +505,7 @@ describe('AccessGroupsTableComponent', () => {
     const group = { id: 10, groupName: 'ToDelete' } as JAccessGroup;
 
     function triggerConfirmedRowDelete(apiResponse$: Observable<object>) {
-      mockGlobalService.delete.and.returnValue(apiResponse$);
+      mockGlobalService.delete.mockReturnValue(apiResponse$);
       const subject = stubDialogAndTrigger(mockDialog, () =>
         component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.DELETE, label: '' } })
       );
@@ -456,7 +515,8 @@ describe('AccessGroupsTableComponent', () => {
 
     it('should call gs.delete with the correct endpoint and group ID', () => {
       triggerConfirmedRowDelete(of({}));
-      expect(mockGlobalService.delete).toHaveBeenCalledOnceWith(SERV.ACCESS_GROUPS, group.id);
+      expect(mockGlobalService.delete).toHaveBeenCalledTimes(1);
+      expect(mockGlobalService.delete).toHaveBeenCalledWith(SERV.ACCESS_GROUPS, group.id);
     });
 
     it('should show a success alert after deletion', () => {
@@ -480,7 +540,7 @@ describe('AccessGroupsTableComponent', () => {
     });
 
     it('should NOT call the API when the dialog is dismissed', () => {
-      mockGlobalService.delete.and.returnValue(of({}));
+      mockGlobalService.delete.mockReturnValue(of({}));
       const subject = stubDialogAndTrigger(mockDialog, () =>
         component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.DELETE, label: '' } })
       );
@@ -498,7 +558,7 @@ describe('AccessGroupsTableComponent', () => {
     ] as JAccessGroup[];
 
     function triggerConfirmedBulkDelete(apiResponse$: Observable<object>) {
-      mockGlobalService.bulkDelete.and.returnValue(apiResponse$);
+      mockGlobalService.bulkDelete.mockReturnValue(apiResponse$);
       const subject = stubDialogAndTrigger(mockDialog, () =>
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
@@ -508,7 +568,8 @@ describe('AccessGroupsTableComponent', () => {
 
     it('should call gs.bulkDelete with the correct endpoint and groups', () => {
       triggerConfirmedBulkDelete(of({}));
-      expect(mockGlobalService.bulkDelete).toHaveBeenCalledOnceWith(SERV.ACCESS_GROUPS, groups);
+      expect(mockGlobalService.bulkDelete).toHaveBeenCalledTimes(1);
+      expect(mockGlobalService.bulkDelete).toHaveBeenCalledWith(SERV.ACCESS_GROUPS, groups);
     });
 
     it('should show a success alert after bulk deletion', () => {
@@ -532,7 +593,7 @@ describe('AccessGroupsTableComponent', () => {
     });
 
     it('should NOT call the API when the dialog is dismissed', () => {
-      mockGlobalService.bulkDelete.and.returnValue(of({}));
+      mockGlobalService.bulkDelete.mockReturnValue(of({}));
       const subject = stubDialogAndTrigger(mockDialog, () =>
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );

@@ -41,7 +41,7 @@ describe('AuthService', () => {
         AuthService,
         { provide: ConfigService, useValue: { getEndpoint: () => 'http://localhost' } },
         { provide: LocalStorageService, useValue: storageMock },
-        { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } },
+        { provide: Router, useValue: { navigate: vi.fn().mockName('navigate') } },
         { provide: PermissionService, useValue: { loadPermissions: () => of([]), clearPermissionCache: () => {} } }
       ]
     });
@@ -92,7 +92,7 @@ describe('AuthService.autoLogin', () => {
       _store: {
         userData: {
           _token: 'dummy-token',
-          _expires: new Date(Date.now() + 3_600_000),
+          _expires: new Date(Date.now() + 3600000),
           userId: 1,
           canonicalUsername: 'testuser'
         }
@@ -115,7 +115,7 @@ describe('AuthService.autoLogin', () => {
         AuthService,
         { provide: ConfigService, useValue: { getEndpoint: () => 'http://localhost' } },
         { provide: LocalStorageService, useValue: storageMock },
-        { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } },
+        { provide: Router, useValue: { navigate: vi.fn().mockName('navigate') } },
         {
           provide: PermissionService,
           useValue: {
@@ -156,7 +156,9 @@ describe('AuthService.autoLogin', () => {
   });
 
   it('completes synchronously when no userData is present', () => {
-    const storage = TestBed.inject(LocalStorageService) as unknown as { _store: Record<string, unknown> };
+    const storage = TestBed.inject(LocalStorageService) as unknown as {
+      _store: Record<string, unknown>;
+    };
     storage._store = {};
 
     let completed = false;
@@ -169,7 +171,9 @@ describe('AuthService.autoLogin', () => {
 describe('AuthService refresh token', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
-  let storage: { _store: Record<string, AuthData> };
+  let storage: {
+    _store: Record<string, AuthData>;
+  };
 
   const REFRESH_URL = 'http://localhost/auth/refresh';
 
@@ -202,8 +206,8 @@ describe('AuthService refresh token', () => {
 
   beforeEach(() => {
     /* A real Web Lock is shared by everything on the page, so one spec that leaves a request
-       unflushed would hold it and hang the next. Stub it with a pass-through that still runs the
-       callback, and record the names so the locking itself can be asserted. */
+           unflushed would hold it and hang the next. Stub it with a pass-through that still runs the
+           callback, and record the names so the locking itself can be asserted. */
     lockRequests = [];
     originalLocks = Object.getOwnPropertyDescriptor(navigator, 'locks');
     Object.defineProperty(navigator, 'locks', {
@@ -246,7 +250,7 @@ describe('AuthService refresh token', () => {
         AuthService,
         { provide: ConfigService, useValue: { getEndpoint: () => 'http://localhost' } },
         { provide: LocalStorageService, useValue: storageMock },
-        { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } },
+        { provide: Router, useValue: { navigate: vi.fn().mockName('navigate') } },
         { provide: PermissionService, useValue: { loadPermissions: () => of([]), clearPermissionCache: () => {} } }
       ]
     });
@@ -348,7 +352,7 @@ describe('AuthService refresh token', () => {
     // Stand in for a tab that held the lock first and wrote its result to the shared storage
     const fresh: AuthData = {
       _token: tokenForUser1(),
-      _expires: new Date(Date.now() + 3_600_000),
+      _expires: new Date(Date.now() + 3600000),
       userId: 1,
       canonicalUsername: 'testuser'
     };
@@ -377,11 +381,11 @@ describe('AuthService refresh token', () => {
     expect(service.isAccessTokenExpired()).toBe(true);
     expect(service.isAccessTokenExpiring()).toBe(true);
 
-    storage._store[AuthService.STORAGE_KEY] = storedSession(30_000);
+    storage._store[AuthService.STORAGE_KEY] = storedSession(30000);
     expect(service.isAccessTokenExpired()).toBe(false);
     expect(service.isAccessTokenExpiring()).toBe(true);
 
-    storage._store[AuthService.STORAGE_KEY] = storedSession(3_600_000);
+    storage._store[AuthService.STORAGE_KEY] = storedSession(3600000);
     expect(service.isAccessTokenExpired()).toBe(false);
     expect(service.isAccessTokenExpiring()).toBe(false);
   });

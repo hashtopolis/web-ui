@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { zPreprocessorResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
 
@@ -19,10 +20,10 @@ describe('NewEditPreprocessorComponent', () => {
   let component: NewEditPreprocessorComponent;
   let fixture: ComponentFixture<NewEditPreprocessorComponent>;
 
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockRouter: jasmine.SpyObj<Router>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
-  let mockRoleService: jasmine.SpyObj<PreprocessorRoleService>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockRouter: MockedObject<Router>;
+  let mockAlertService: MockedObject<AlertService>;
+  let mockRoleService: MockedObject<PreprocessorRoleService>;
   let httpMock: HttpTestingController;
 
   const preprocessorResponse = mockValidResponse(zPreprocessorResponse, {
@@ -41,10 +42,22 @@ describe('NewEditPreprocessorComponent', () => {
   });
 
   beforeEach(async () => {
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['getAll', 'create', 'get', 'update']);
-    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-    mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    mockRoleService = jasmine.createSpyObj('CrackerBinaryRoleService', ['hasRole']);
+    mockGlobalService = {
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      create: vi.fn().mockName('GlobalService.create'),
+      get: vi.fn().mockName('GlobalService.get'),
+      update: vi.fn().mockName('GlobalService.update')
+    };
+    mockRouter = {
+      navigate: vi.fn().mockName('Router.navigate')
+    };
+    mockAlertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    };
+    mockRoleService = {
+      hasRole: vi.fn().mockName('CrackerBinaryRoleService.hasRole')
+    };
 
     await TestBed.configureTestingModule({
       imports: [NewEditPreprocessorComponent],
@@ -104,7 +117,7 @@ describe('NewEditPreprocessorComponent', () => {
       buttonEl = hostElement.querySelector('button[type="submit"]') as HTMLElement | null;
     }
 
-    expect(buttonEl).withContext('Submit button not found').not.toBeNull();
+    expect(buttonEl, 'Submit button not found').not.toBeNull();
 
     if (buttonEl) {
       expect(buttonEl.textContent).toContain(buttonText);
@@ -112,7 +125,7 @@ describe('NewEditPreprocessorComponent', () => {
 
     const titleEl = hostElement.querySelector('.page__title') as HTMLElement | null;
 
-    expect(titleEl).withContext('Page title not found').not.toBeNull();
+    expect(titleEl, 'Page title not found').not.toBeNull();
 
     if (titleEl) {
       expect(titleEl.textContent).toContain(title);
@@ -162,7 +175,7 @@ describe('NewEditPreprocessorComponent', () => {
     });
 
     // Simulate create failure
-    mockGlobalService.create.and.returnValue(throwError(() => new Error('Create failed')));
+    mockGlobalService.create.mockReturnValue(throwError(() => new Error('Create failed')));
 
     await component.onSubmit();
     expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('Error creating preprocessor!');
@@ -203,7 +216,7 @@ describe('NewEditPreprocessorComponent', () => {
     const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button-newPreprocessor"]'));
     expect(buttonDebugEl).toBeTruthy();
     const buttonInstance = buttonDebugEl.componentInstance;
-    expect(buttonInstance.disabled).toBeFalse();
+    expect(buttonInstance.disabled).toBe(false);
   });
 
   it('should enable the submit button if form is valid', () => {
@@ -215,7 +228,7 @@ describe('NewEditPreprocessorComponent', () => {
       skipCommand: '--skip',
       limitCommand: '--limit'
     });
-    mockRoleService.hasRole.and.returnValue(true);
+    mockRoleService.hasRole.mockReturnValue(true);
     component.newEditPreprocessorForm.markAllAsTouched();
     fixture.detectChanges();
 
@@ -223,7 +236,7 @@ describe('NewEditPreprocessorComponent', () => {
     const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button-newPreprocessor"]'));
     expect(buttonDebugEl).toBeTruthy();
     const buttonInstance = buttonDebugEl.componentInstance;
-    expect(buttonInstance.disabled).toBeFalse();
+    expect(buttonInstance.disabled).toBe(false);
   });
 
   it('should call the urlValidator and return an error, if the url is invalid', () => {
@@ -281,7 +294,7 @@ describe('NewEditPreprocessorComponent', () => {
       limitCommand: '--limit'
     });
 
-    mockGlobalService.create.and.returnValue(of(mockResponse()));
+    mockGlobalService.create.mockReturnValue(of(mockResponse()));
 
     await component.onSubmit();
 
@@ -309,7 +322,7 @@ describe('NewEditPreprocessorComponent', () => {
       limitCommand: '--limit'
     });
 
-    mockGlobalService.update.and.returnValue(of({}));
+    mockGlobalService.update.mockReturnValue(of({}));
 
     await component.onSubmit();
 

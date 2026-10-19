@@ -21,7 +21,7 @@ describe('LastUpdatedComponent', () => {
             {
               provide: UISettingsUtilityClass,
               useValue: {
-                getDateTimeFormat: jasmine.createSpy('getDateTimeFormat').and.returnValue('dd/MM/yyyy HH:mm:ss')
+                getDateTimeFormat: vi.fn().mockName('getDateTimeFormat').mockReturnValue('dd/MM/yyyy HH:mm:ss')
               }
             }
           ]

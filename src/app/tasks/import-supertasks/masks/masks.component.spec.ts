@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { of, throwError } from 'rxjs';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -22,23 +23,36 @@ describe('MasksComponent', () => {
   let component: MasksComponent;
   let fixture: ComponentFixture<MasksComponent>;
 
-  let globalServiceSpy: jasmine.SpyObj<GlobalService>;
-  let alertServiceSpy: jasmine.SpyObj<AlertService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let globalServiceSpy: MockedObject<GlobalService>;
+  let alertServiceSpy: MockedObject<AlertService>;
+  let routerSpy: MockedObject<Router>;
 
   beforeEach(async () => {
-    globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'chelper']);
-    globalServiceSpy.getAll.and.returnValue(of(MOCK_CRACKER_TYPES_RESPONSE));
-    globalServiceSpy.chelper.and.returnValue(of({}));
+    globalServiceSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    };
+    globalServiceSpy.getAll.mockReturnValue(of(MOCK_CRACKER_TYPES_RESPONSE));
+    globalServiceSpy.chelper.mockReturnValue(of({}));
 
-    alertServiceSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    routerSpy.navigate.and.returnValue(Promise.resolve(true));
+    alertServiceSpy = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    };
+    routerSpy = {
+      navigate: vi.fn().mockName('Router.navigate')
+    };
+    routerSpy.navigate.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
       declarations: [MasksComponent],
       providers: [
-        { provide: AutoTitleService, useValue: jasmine.createSpyObj('AutoTitleService', ['set']) },
+        {
+          provide: AutoTitleService,
+          useValue: {
+            set: vi.fn().mockName('AutoTitleService.set')
+          }
+        },
         { provide: GlobalService, useValue: globalServiceSpy },
         { provide: AlertService, useValue: alertServiceSpy },
         { provide: Router, useValue: routerSpy }
@@ -108,7 +122,7 @@ describe('MasksComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'maskSupertaskBuilder',
-      jasmine.objectContaining({
+      expect.objectContaining({
         name: 'Simple',
         masks: '?a?a?a?a'
       })
@@ -127,7 +141,7 @@ describe('MasksComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'maskSupertaskBuilder',
-      jasmine.objectContaining({
+      expect.objectContaining({
         name: 'Custom Charset',
         masks: hcmask
       })
@@ -142,7 +156,7 @@ describe('MasksComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'maskSupertaskBuilder',
-      jasmine.objectContaining({ masks })
+      expect.objectContaining({ masks })
     );
   });
 
@@ -154,7 +168,7 @@ describe('MasksComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'maskSupertaskBuilder',
-      jasmine.objectContaining({ masks })
+      expect.objectContaining({ masks })
     );
   });
 
@@ -166,7 +180,7 @@ describe('MasksComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'maskSupertaskBuilder',
-      jasmine.objectContaining({ masks })
+      expect.objectContaining({ masks })
     );
   });
 
@@ -210,7 +224,7 @@ describe('MasksComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'maskSupertaskBuilder',
-      jasmine.objectContaining({ benchtype: 'runtime' })
+      expect.objectContaining({ benchtype: 'runtime' })
     );
   });
 
@@ -225,7 +239,7 @@ describe('MasksComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'maskSupertaskBuilder',
-      jasmine.objectContaining({ benchtype: 'speed' })
+      expect.objectContaining({ benchtype: 'speed' })
     );
   });
 
@@ -255,8 +269,8 @@ describe('MasksComponent', () => {
   // ──────────────────────────────────────────────
 
   it('should reset isLoading on chelper error', () => {
-    spyOn(console, 'error');
-    globalServiceSpy.chelper.and.returnValue(throwError(() => new Error('Server error')));
+    vi.spyOn(console, 'error').mockReturnValue(undefined);
+    globalServiceSpy.chelper.mockReturnValue(throwError(() => new Error('Server error')));
     component.createForm.patchValue({ name: 'Err', masks: '?a' });
     component.onSubmit();
 
@@ -264,8 +278,8 @@ describe('MasksComponent', () => {
   });
 
   it('should not navigate on chelper error', () => {
-    spyOn(console, 'error');
-    globalServiceSpy.chelper.and.returnValue(throwError(() => new Error('Server error')));
+    vi.spyOn(console, 'error').mockReturnValue(undefined);
+    globalServiceSpy.chelper.mockReturnValue(throwError(() => new Error('Server error')));
     component.createForm.patchValue({ name: 'Err', masks: '?a' });
     component.onSubmit();
 
@@ -285,7 +299,7 @@ describe('MasksComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'maskSupertaskBuilder',
-      jasmine.objectContaining({ masks })
+      expect.objectContaining({ masks })
     );
   });
 
@@ -297,7 +311,7 @@ describe('MasksComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'maskSupertaskBuilder',
-      jasmine.objectContaining({ masks })
+      expect.objectContaining({ masks })
     );
   });
 
@@ -309,7 +323,7 @@ describe('MasksComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'maskSupertaskBuilder',
-      jasmine.objectContaining({ masks })
+      expect.objectContaining({ masks })
     );
   });
 
@@ -321,7 +335,7 @@ describe('MasksComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'maskSupertaskBuilder',
-      jasmine.objectContaining({ masks })
+      expect.objectContaining({ masks })
     );
   });
 
@@ -333,7 +347,7 @@ describe('MasksComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'maskSupertaskBuilder',
-      jasmine.objectContaining({ masks })
+      expect.objectContaining({ masks })
     );
   });
 });

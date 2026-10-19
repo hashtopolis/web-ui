@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { fakeAsync, tick } from '@angular/core/testing';
 
@@ -14,22 +15,27 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 import { BaseDataSource } from '@datasources/base.datasource';
 
 class TestBaseDataSource extends BaseDataSource<BaseModel> {
-  public reload = jasmine.createSpy('reload');
+  public reload = vi.fn().mockName('reload');
 }
 
 describe('BaseDataSource Pagination', () => {
   let dataSource: TestBaseDataSource;
-  let mockInjector: jasmine.SpyObj<Injector>;
+  let mockInjector: MockedObject<Injector>;
 
   beforeEach(() => {
     // Create mocks
-    const mockUIConfigService = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    mockUIConfigService.getUISettings.and.returnValue({});
+    const mockUIConfigService = {
+      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+    };
+    mockUIConfigService.getUISettings.mockReturnValue({});
 
     const mockLocalStorageService = {
-      getItem: jasmine.createSpy('getItem').and.returnValue(null)
+      getItem: vi.fn().mockName('getItem').mockReturnValue(null)
     };
-    const mockCdr = jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges']);
+    const mockCdr = {
+      markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
+      detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges')
+    };
 
     // Use plain objects for services not explicitly used in the test
     const mockGlobalService = {};
@@ -38,17 +44,19 @@ describe('BaseDataSource Pagination', () => {
     const mockPermissionService = {};
 
     // Setup Injector mock
-    mockInjector = jasmine.createSpyObj('Injector', ['get']);
+    mockInjector = {
+      get: vi.fn().mockName('Injector.get')
+    };
 
     // Map dependencies to their mocks
-    mockInjector.get.withArgs(ChangeDetectorRef).and.returnValue(mockCdr);
-    mockInjector.get.withArgs(UIConfigService).and.returnValue(mockUIConfigService);
-    mockInjector.get.withArgs(GlobalService).and.returnValue(mockGlobalService);
-    mockInjector.get.withArgs(AutoRefreshService).and.returnValue(mockAutoRefreshService);
-    mockInjector.get.withArgs(HttpCacheService).and.returnValue(mockHttpCacheService);
-    mockInjector.get.withArgs(LocalStorageService).and.returnValue(mockLocalStorageService);
-    mockInjector.get.withArgs(PermissionService).and.returnValue(mockPermissionService);
-    mockInjector.get.withArgs(JsonAPISerializer).and.returnValue({});
+    mockInjector.get.withArgs(ChangeDetectorRef).mockReturnValue(mockCdr);
+    mockInjector.get.withArgs(UIConfigService).mockReturnValue(mockUIConfigService);
+    mockInjector.get.withArgs(GlobalService).mockReturnValue(mockGlobalService);
+    mockInjector.get.withArgs(AutoRefreshService).mockReturnValue(mockAutoRefreshService);
+    mockInjector.get.withArgs(HttpCacheService).mockReturnValue(mockHttpCacheService);
+    mockInjector.get.withArgs(LocalStorageService).mockReturnValue(mockLocalStorageService);
+    mockInjector.get.withArgs(PermissionService).mockReturnValue(mockPermissionService);
+    mockInjector.get.withArgs(JsonAPISerializer).mockReturnValue({});
 
     // Initialize the DataSource
     dataSource = new TestBaseDataSource(mockInjector);
