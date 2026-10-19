@@ -1,5 +1,5 @@
-import type { MockedObject } from 'vitest';
 import { Observable, Subject, of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -82,24 +82,24 @@ describe('AccessGroupsTableComponent', () => {
   beforeEach(async () => {
     mockDialog = {
       open: vi.fn().mockName('MatDialog.open')
-    };
+    } as MockedObject<MatDialog>;
     mockGlobalService = {
       delete: vi.fn().mockName('GlobalService.delete'),
       bulkDelete: vi.fn().mockName('GlobalService.bulkDelete')
-    };
+    } as MockedObject<GlobalService>;
     mockAlertService = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
     mockExportService = {
       handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
-    };
+    } as MockedObject<ExportService>;
     mockRouter = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
     mockHTTable = {
       reload: vi.fn().mockName('HTTableComponent.reload')
-    };
+    } as MockedObject<HTTableComponent<BaseModel>>;
 
     mockRouter.navigate.mockResolvedValue(true);
 
@@ -386,7 +386,7 @@ describe('AccessGroupsTableComponent', () => {
           component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.DELETE, label: '' } })
         );
         const dialogData = (
-          vi.mocked(mockDialog.open).mock.lastCall[1] as {
+          vi.mocked(mockDialog.open).mock.lastCall![1] as {
             data: {
               title: string;
             };
@@ -402,7 +402,7 @@ describe('AccessGroupsTableComponent', () => {
           component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.DELETE, label: '' } })
         );
         const dialogData = (
-          vi.mocked(mockDialog.open).mock.lastCall[1] as {
+          vi.mocked(mockDialog.open).mock.lastCall![1] as {
             data: {
               warn: boolean;
             };
@@ -456,7 +456,7 @@ describe('AccessGroupsTableComponent', () => {
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall[1] as {
+        vi.mocked(mockDialog.open).mock.lastCall![1] as {
           data: {
             title: string;
           };
@@ -472,7 +472,7 @@ describe('AccessGroupsTableComponent', () => {
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall[1] as {
+        vi.mocked(mockDialog.open).mock.lastCall![1] as {
           data: {
             listAttribute: string;
           };
@@ -488,7 +488,7 @@ describe('AccessGroupsTableComponent', () => {
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall[1] as {
+        vi.mocked(mockDialog.open).mock.lastCall![1] as {
           data: {
             warn: boolean;
           };

@@ -1,5 +1,5 @@
-import type { Mock } from 'vitest';
 import { of, throwError } from 'rxjs';
+import type { Mock } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -87,7 +87,7 @@ describe('CrackerHashtypesTableComponent', () => {
   describe('server side filter', () => {
     it('loads the matching hashtypes for a search', () => {
       const ds = component.dataSource as unknown as MockCrackerHashtypesDataSource;
-      vi.spyOn(ds, 'loadAll').mockReturnValue(undefined);
+      vi.spyOn(ds, 'loadAll').mockReturnValue(undefined as never);
       component.selectedFilterColumn = component.tableColumns[1];
 
       component.handleBackendSqlFilter('md5');
@@ -102,7 +102,7 @@ describe('CrackerHashtypesTableComponent', () => {
 
     it('clears the filter for an empty search', () => {
       const ds = component.dataSource as unknown as MockCrackerHashtypesDataSource;
-      vi.spyOn(ds, 'clearFilter').mockReturnValue(undefined);
+      vi.spyOn(ds, 'clearFilter').mockReturnValue(undefined as never);
 
       component.handleBackendSqlFilter('');
 
@@ -126,9 +126,9 @@ describe('CrackerHashtypesTableComponent', () => {
       removed = vi.fn().mockName('removed');
       component.hashtypesRemoved.subscribe(removed);
       deleteRelationships = vi.spyOn(component['gs'], 'deleteRelationships').mockReturnValue(of({}));
-      dialogOpen = vi.spyOn(component.dialog, 'open').mockReturnValue(undefined);
-      showSuccess = vi.spyOn(component['alertService'], 'showSuccessMessage').mockReturnValue(undefined);
-      reload = vi.spyOn(component, 'reload').mockReturnValue(undefined);
+      dialogOpen = vi.spyOn(component.dialog, 'open').mockReturnValue(undefined as never);
+      showSuccess = vi.spyOn(component['alertService'], 'showSuccessMessage').mockReturnValue(undefined as never);
+      reload = vi.spyOn(component, 'reload').mockReturnValue(undefined as never);
     });
 
     it('removes a hashtype after confirmation', () => {
@@ -161,7 +161,7 @@ describe('CrackerHashtypesTableComponent', () => {
     });
 
     it('reloads without success toast when removing fails', () => {
-      vi.spyOn(console, 'error').mockReturnValue(undefined);
+      vi.spyOn(console, 'error').mockReturnValue(undefined as never);
       const row = hashtype(1000, 'NTLM');
       confirmDialog(RowActionMenuAction.DELETE, [row]);
       deleteRelationships.mockReturnValue(throwError(() => ({ status: 403 })));

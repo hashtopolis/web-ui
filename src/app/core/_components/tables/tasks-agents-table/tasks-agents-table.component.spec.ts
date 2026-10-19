@@ -1,5 +1,5 @@
-import type { MockedObject } from 'vitest';
 import { Subject, of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -78,21 +78,21 @@ describe('TasksAgentsTableComponent', () => {
   beforeEach(async () => {
     mockExportService = {
       handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
-    };
+    } as MockedObject<ExportService>;
     mockHTTable = {
       reload: vi.fn().mockName('HTTableComponent.reload')
-    };
+    } as MockedObject<HTTableComponent<BaseModel>>;
     mockDialog = {
       open: vi.fn().mockName('MatDialog.open')
-    };
+    } as MockedObject<MatDialog>;
     mockGlobalService = {
       delete: vi.fn().mockName('GlobalService.delete'),
       bulkDelete: vi.fn().mockName('GlobalService.bulkDelete')
-    };
+    } as MockedObject<GlobalService>;
     mockAlertService = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
 
     await TestBed.configureTestingModule({
       declarations: [TestTasksAgentsTableComponent],

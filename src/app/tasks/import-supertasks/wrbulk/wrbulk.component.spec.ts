@@ -1,5 +1,5 @@
-import type { MockedObject } from 'vitest';
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -37,22 +37,22 @@ describe('WrbulkComponent', () => {
     globalServiceSpy = {
       getAll: vi.fn().mockName('GlobalService.getAll'),
       chelper: vi.fn().mockName('GlobalService.chelper')
-    };
+    } as MockedObject<GlobalService>;
     globalServiceSpy.getAll.mockReturnValue(of(MOCK_CRACKER_TYPES_RESPONSE));
     globalServiceSpy.chelper.mockReturnValue(of({}));
 
     alertServiceSpy = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
     routerSpy = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
     routerSpy.navigate.mockResolvedValue(true);
 
     uiServiceSpy = {
       getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
-    };
+    } as MockedObject<UIConfigService>;
     uiServiceSpy.getUISettings.mockReturnValue({
       hashlistAlias: '#HL#',
       chunktime: 600,

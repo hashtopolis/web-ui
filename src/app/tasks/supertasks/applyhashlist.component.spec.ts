@@ -1,6 +1,6 @@
-import type { MockedObject } from 'vitest';
 import { zCrackerBinaryListResponse, zHashlistListResponse, zSupertaskResponse } from '@generated/api/zod';
 import { Observable, Subject, of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -84,18 +84,18 @@ describe('ApplyHashlistComponent', () => {
       get: vi.fn().mockName('GlobalService.get'),
       getAll: vi.fn().mockName('GlobalService.getAll'),
       chelper: vi.fn().mockName('GlobalService.chelper')
-    };
+    } as MockedObject<GlobalService>;
     gs.get.mockImplementation((): Observable<ResponseWrapper> => of(SUPERTASK));
     gs.getAll.mockImplementation((config: ServiceConfig): Observable<ResponseWrapper> => of(responses[config.URL]));
 
     support = {
       getSupportedCrackerBinaryIds: vi.fn().mockName('CrackerHashtypeSupportService.getSupportedCrackerBinaryIds')
-    };
+    } as MockedObject<CrackerHashtypeSupportService>;
     support.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([10, 11])));
 
     crackerBinaryTypes = {
       getTypeName: vi.fn().mockName('CrackerBinaryTypesService.getTypeName')
-    };
+    } as MockedObject<CrackerBinaryTypesService>;
     crackerBinaryTypes.getTypeName.mockReturnValue(of('hashcat'));
 
     responses = {
@@ -141,23 +141,23 @@ describe('ApplyHashlistComponent', () => {
   }
 
   function versionsRequest(): RequestParams {
-    const call = vi.mocked(gs.getAll).mock.calls.find((c) => (c.args[0] as ServiceConfig).URL === SERV.CRACKERS.URL);
-    return call?.args[1] as RequestParams;
+    const call = vi.mocked(gs.getAll).mock.calls.find((c) => (c[0] as ServiceConfig).URL === SERV.CRACKERS.URL);
+    return call?.[1] as RequestParams;
   }
 
   it('shows the supertask and its type read-only and selects the newest version of the type', () => {
     create();
 
-    expect(vi.mocked(gs.get).mock.lastCall.slice(0, 2)).toEqual([SERV.SUPER_TASKS, 5]);
+    expect(vi.mocked(gs.get).mock.lastCall!.slice(0, 2)).toEqual([SERV.SUPER_TASKS, 5]);
     expect(crackerBinaryTypes.getTypeName).toHaveBeenCalledWith(1);
     expect(component.form.controls.supertaskName.value).toBe('BF set');
     expect(component.form.controls.supertaskName.disabled).toBe(true);
     expect(component.form.controls.crackerBinaryType.value).toBe('hashcat');
     expect(component.form.controls.crackerBinaryType.disabled).toBe(true);
     expect(versionsRequest().filter).toEqual([{ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: 1 }]);
-    expect(
-      vi.mocked(gs.getAll).mock.calls.some((c) => (c.args[0] as ServiceConfig).URL === SERV.CRACKERS_TYPES.URL)
-    ).toBe(false);
+    expect(vi.mocked(gs.getAll).mock.calls.some((c) => (c[0] as ServiceConfig).URL === SERV.CRACKERS_TYPES.URL)).toBe(
+      false
+    );
     expect(component.selectCrackerversions.map((o) => o.id)).toEqual([10, 11]);
     expect(component.form.controls.crackerBinaryId.value).toBe(11);
     expect(component.noCrackerVersionsAvailable).toBe(false);

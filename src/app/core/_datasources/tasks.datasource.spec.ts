@@ -1,8 +1,7 @@
-import type { MockedObject } from 'vitest';
-/// <reference types="jasmine" />
 import type { TaskWrapperDisplayListResponse } from '@generated/api/types';
 import { zTaskWrapperDisplayListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -83,7 +82,7 @@ describe('TasksDataSource', () => {
   beforeEach(() => {
     gsSpy = {
       getAll: vi.fn().mockName('GlobalService.getAll')
-    };
+    } as MockedObject<GlobalService>;
 
     const cdrSpy = {
       markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),

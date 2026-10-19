@@ -1,5 +1,5 @@
-import type { MockedObject } from 'vitest';
 import { Observable, Subject, of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -77,20 +77,20 @@ describe('AccessGroupsAgentsTableComponent', () => {
   beforeEach(async () => {
     mockDialog = {
       open: vi.fn().mockName('MatDialog.open')
-    };
+    } as MockedObject<MatDialog>;
     mockGlobalService = {
       deleteRelationships: vi.fn().mockName('GlobalService.deleteRelationships')
-    };
+    } as MockedObject<GlobalService>;
     mockAlertService = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
     mockExportService = {
       handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
-    };
+    } as MockedObject<ExportService>;
     mockHTTable = {
       reload: vi.fn().mockName('HTTableComponent.reload')
-    };
+    } as MockedObject<HTTableComponent<BaseModel>>;
 
     await TestBed.configureTestingModule({
       declarations: [TestAccessGroupsAgentsTableComponent],
@@ -217,7 +217,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
       component.rowActionClicked({ data: agent, menuItem: { action: RowActionMenuAction.DELETE, label: '' } });
 
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall[1] as {
+        vi.mocked(mockDialog.open).mock.lastCall![1] as {
           data: {
             body: string;
           };
@@ -247,7 +247,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
       );
 
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall[1] as {
+        vi.mocked(mockDialog.open).mock.lastCall![1] as {
           data: {
             title: string;
             body: string;
@@ -266,7 +266,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
       );
 
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall[1] as {
+        vi.mocked(mockDialog.open).mock.lastCall![1] as {
           data: {
             title: string;
           };
@@ -284,7 +284,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
       );
 
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall[1] as {
+        vi.mocked(mockDialog.open).mock.lastCall![1] as {
           data: {
             warn: boolean;
           };
@@ -434,7 +434,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
       );
 
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall[1] as {
+        vi.mocked(mockDialog.open).mock.lastCall![1] as {
           data: {
             listAttribute: string;
             rows: JAgent[];

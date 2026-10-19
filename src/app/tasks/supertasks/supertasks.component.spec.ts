@@ -1,4 +1,5 @@
 import type { MockedObject } from 'vitest';
+
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -17,10 +18,10 @@ describe('SupertasksComponent', () => {
   beforeEach(async () => {
     titleService = {
       set: vi.fn().mockName('AutoTitleService.set')
-    };
+    } as MockedObject<AutoTitleService>;
     roleService = {
       hasRole: vi.fn().mockName('SupertasksRoleService.hasRole')
-    };
+    } as MockedObject<SupertasksRoleService>;
 
     await TestBed.configureTestingModule({
       declarations: [SupertasksComponent],

@@ -1,7 +1,6 @@
-import type { MockedObject } from 'vitest';
-/// <reference types="jasmine" />
 import { zBackgroundJobListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -49,7 +48,7 @@ describe('BackgroundJobsDataSource', () => {
   beforeEach(() => {
     gsSpy = {
       getAll: vi.fn().mockName('GlobalService.getAll')
-    };
+    } as MockedObject<GlobalService>;
     gsSpy.getAll.mockReturnValue(of(RESPONSE));
 
     const uiServiceSpy = {
@@ -98,7 +97,7 @@ describe('BackgroundJobsDataSource', () => {
 
   it('requests SERV.BACKGROUND_JOBS with the user included', () => {
     dataSource.loadAll();
-    const [serviceConfig, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+    const [serviceConfig, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
     expect(serviceConfig).toEqual(SERV.BACKGROUND_JOBS);
     expect((params as RequestParams).include).toContain('user');
   });

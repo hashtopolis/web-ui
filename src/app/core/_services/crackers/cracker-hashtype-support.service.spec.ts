@@ -1,7 +1,7 @@
-import type { MockedObject } from 'vitest';
 import { HttpHeaderName } from '@constants/http.config';
 import { zGetHashtypesByIdRelationshipsCrackerBinariesResponse } from '@generated/api/zod';
 import { firstValueFrom, of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
@@ -85,7 +85,7 @@ describe('CrackerHashtypeSupportService', () => {
   beforeEach(() => {
     gs = {
       getRelationshipLink: vi.fn().mockName('GlobalService.getRelationshipLink')
-    };
+    } as MockedObject<GlobalService>;
     TestBed.configureTestingModule({ providers: [{ provide: GlobalService, useValue: gs }] });
     service = TestBed.inject(CrackerHashtypeSupportService);
   });
@@ -120,7 +120,7 @@ describe('CrackerHashtypeSupportService', () => {
 
     await firstValueFrom(service.getSupportedCrackerBinaryIds(1000));
 
-    const options = vi.mocked(gs.getRelationshipLink).mock.lastCall[3] as {
+    const options = vi.mocked(gs.getRelationshipLink).mock.lastCall![3] as {
       headers: HttpHeaders;
     };
     expect(options.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');

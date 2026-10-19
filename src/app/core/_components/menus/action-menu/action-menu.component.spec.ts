@@ -1,7 +1,6 @@
-import type { MockedObject } from 'vitest';
-/// <reference types="jasmine" />
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Subject } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,7 +13,7 @@ import { UIConfig } from '@models/config-ui.model';
 
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
-import { ActionMenuComponent } from './action-menu.component';
+import { ActionMenuComponent } from '@components/menus/action-menu/action-menu.component';
 
 import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
@@ -30,11 +29,11 @@ describe('ActionMenuComponent', () => {
     routerSpy = {
       navigate: vi.fn().mockName('Router.navigate'),
       events: routerEvents$.asObservable()
-    };
+    } as MockedObject<Router>;
     storageSpy = {
       getItem: vi.fn().mockName('LocalStorageService.getItem'),
       setItem: vi.fn().mockName('LocalStorageService.setItem')
-    };
+    } as MockedObject<LocalStorageService<UIConfig>>;
     storageSpy.getItem.mockReturnValue(null);
 
     await TestBed.configureTestingModule({

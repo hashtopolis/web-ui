@@ -1,4 +1,5 @@
 import type { MockedObject } from 'vitest';
+
 import { HttpHeaders, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -28,8 +29,8 @@ describe('GlobalService downloads', () => {
 
     anchor = {
       click: vi.fn().mockName('a.click')
-    };
-    vi.spyOn(document, 'createElement').mockReturnValue(anchor);
+    } as MockedObject<HTMLAnchorElement>;
+    vi.spyOn(document, 'createElement').mockReturnValue(anchor as HTMLAnchorElement);
     vi.spyOn(window.URL, 'createObjectURL').mockReturnValue('blob:mock');
     vi.spyOn(window.URL, 'revokeObjectURL').mockReturnValue(undefined);
   });

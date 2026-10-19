@@ -1,4 +1,5 @@
 import { Perm } from '@constants/userpermissions.config';
+import type { MockedObject } from 'vitest';
 
 import { PermissionService } from '@services/permission/permission.service';
 import { BackgroundJobRoleService } from '@services/roles/config/background-job-role.service';
@@ -7,7 +8,7 @@ describe('BackgroundJobRoleService', () => {
   function service(granted: string[]) {
     const permissionService = {
       hasPermissionSync: vi.fn().mockName('PermissionService.hasPermissionSync')
-    };
+    } as MockedObject<PermissionService>;
     permissionService.hasPermissionSync.mockImplementation((key) => granted.includes(key));
     return new BackgroundJobRoleService(permissionService);
   }

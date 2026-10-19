@@ -1,5 +1,6 @@
-import type { MockedObject } from 'vitest';
+import { AuthInterceptorService } from '@interceptors/auth-interceptor.service';
 import { BehaviorSubject, of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -7,7 +8,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { AuthData } from '@models/auth-user.model';
 
-import { AuthInterceptorService } from '@interceptors/auth-interceptor.service';
 import { AuthService } from '@services/access/auth.service';
 
 describe('AuthInterceptorService', () => {
@@ -36,7 +36,7 @@ describe('AuthInterceptorService', () => {
       isAccessTokenExpiring: vi.fn().mockName('AuthService.isAccessTokenExpiring'),
       isAccessTokenExpired: vi.fn().mockName('AuthService.isAccessTokenExpired'),
       user: currentUser
-    };
+    } as MockedObject<AuthService>;
     spy.isAccessTokenExpiring.mockReturnValue(isExpiring);
     spy.isAccessTokenExpired.mockReturnValue(isExpiring);
     spy.refreshToken.mockReturnValue(of(session('renewed-token')));

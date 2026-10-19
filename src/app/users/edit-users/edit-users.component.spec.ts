@@ -1,6 +1,6 @@
-import type { MockedObject } from 'vitest';
 import { zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { LOCALE_ID, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -62,33 +62,33 @@ describe('EditUsersComponent', () => {
       update: vi.fn().mockName('GlobalService.update'),
       delete: vi.fn().mockName('GlobalService.delete'),
       chelper: vi.fn().mockName('GlobalService.chelper')
-    };
+    } as MockedObject<GlobalService>;
     mockAlertService = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage')
-    };
+    } as MockedObject<AlertService>;
     mockAutoTitleService = {
       set: vi.fn().mockName('AutoTitleService.set')
-    };
+    } as MockedObject<AutoTitleService>;
     mockRouter = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
     mockConfirmDialogService = {
       confirmDeletion: vi.fn().mockName('ConfirmDialogService.confirmDeletion')
-    };
+    } as MockedObject<ConfirmDialogService>;
     mockUserRoleService = {
       canRead: vi.fn().mockName('UserRoleService.canRead'),
       canCreate: vi.fn().mockName('UserRoleService.canCreate'),
       canUpdate: vi.fn().mockName('UserRoleService.canUpdate'),
       canDelete: vi.fn().mockName('UserRoleService.canDelete'),
       hasRole: vi.fn().mockName('UserRoleService.hasRole')
-    };
+    } as unknown as MockedObject<UserRoleService>;
     mockPermissionRoleService = {
       canRead: vi.fn().mockName('PermissionRoleService.canRead'),
       canCreate: vi.fn().mockName('PermissionRoleService.canCreate'),
       canUpdate: vi.fn().mockName('PermissionRoleService.canUpdate'),
       canDelete: vi.fn().mockName('PermissionRoleService.canDelete'),
       hasRole: vi.fn().mockName('PermissionRoleService.hasRole')
-    };
+    } as unknown as MockedObject<PermissionRoleService>;
 
     mockRouter.navigate.mockResolvedValue(true);
     mockGlobalService.get.mockReturnValue(of(mockResponse()));

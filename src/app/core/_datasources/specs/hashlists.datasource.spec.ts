@@ -1,8 +1,7 @@
-import type { Mock, MockedObject } from 'vitest';
-/// <reference types="jasmine" />
 import { HashListFormat } from '@constants/hashlist.config';
 import { zHashlistListResponse, zHashlistResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -81,7 +80,7 @@ describe('HashlistsDataSource', () => {
     gsSpy = {
       get: vi.fn().mockName('GlobalService.get'),
       getAll: vi.fn().mockName('GlobalService.getAll')
-    };
+    } as MockedObject<GlobalService>;
 
     const cdrSpy = {
       markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
@@ -180,13 +179,13 @@ describe('HashlistsDataSource', () => {
   describe('loadAll() - normal mode', () => {
     it('should call service.getAll with SERV.HASHLISTS', () => {
       dataSource.loadAll();
-      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HASHLISTS);
     });
 
     it('should include hashType and accessGroup', () => {
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       const include = (params as RequestParams).include ?? [];
       expect(include).toContain('hashType');
       expect(include).toContain('accessGroup');
@@ -194,7 +193,7 @@ describe('HashlistsDataSource', () => {
 
     it('should always include isArchived and format filters', () => {
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
 
       expect(filter).toContain(expect.objectContaining({ field: 'isArchived', value: false }));
@@ -210,14 +209,14 @@ describe('HashlistsDataSource', () => {
     it('should pass isArchived=true after setIsArchived(true)', () => {
       dataSource.setIsArchived(true);
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'isArchived', value: true }));
     });
 
     it('should append the query filter when provided', () => {
       const query: Filter = { field: 'name', operator: FilterType.ICONTAINS, value: 'sha1' };
       dataSource.loadAll(query);
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'name', value: 'sha1' }));
     });
 
@@ -315,14 +314,14 @@ describe('HashlistsDataSource', () => {
       expect(gsSpy.get).toHaveBeenCalled();
       expect(gsSpy.getAll).not.toHaveBeenCalled();
 
-      const [serviceConfig, entityId] = vi.mocked(gsSpy.get).mock.lastCall;
+      const [serviceConfig, entityId] = vi.mocked(gsSpy.get).mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HASHLISTS);
       expect(entityId).toBe(77);
     });
 
     it('should include hashlists and hashType in params', () => {
       dataSource.loadAll();
-      const [, , params] = vi.mocked(gsSpy.get).mock.lastCall;
+      const [, , params] = vi.mocked(gsSpy.get).mock.lastCall!;
       const include = (params as RequestParams).include ?? [];
       expect(include).toContain('hashlists');
       expect(include).toContain('hashType');

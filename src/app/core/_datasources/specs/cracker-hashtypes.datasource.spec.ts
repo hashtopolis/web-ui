@@ -1,7 +1,6 @@
-import type { MockedObject } from 'vitest';
-/// <reference types="jasmine" />
 import { zHashTypeListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -40,7 +39,7 @@ describe('CrackerHashtypesDataSource', () => {
   beforeEach(() => {
     gsSpy = {
       getAll: vi.fn().mockName('GlobalService.getAll')
-    };
+    } as MockedObject<GlobalService>;
     gsSpy.getAll.mockReturnValue(of(RESPONSE));
 
     const uiServiceSpy = {
@@ -92,7 +91,7 @@ describe('CrackerHashtypesDataSource', () => {
     dataSource.pageSize = 25;
     dataSource.loadAll();
 
-    const [serviceConfig, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+    const [serviceConfig, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
     expect(serviceConfig.URL).toBe(`${SERV.CRACKERS.URL}/12/hashtypes`);
     expect((params as RequestParams).page?.size).toBe(25);
   });
@@ -110,7 +109,7 @@ describe('CrackerHashtypesDataSource', () => {
     dataSource.loadAll(filter);
     dataSource.reload();
 
-    const params = vi.mocked(gsSpy.getAll).mock.lastCall[1] as RequestParams;
+    const params = vi.mocked(gsSpy.getAll).mock.lastCall![1] as RequestParams;
     expect(params.filter).toEqual([filter]);
   });
 });

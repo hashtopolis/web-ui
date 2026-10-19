@@ -1,4 +1,3 @@
-import type { MockedObject } from 'vitest';
 import {
   zCrackerBinaryListResponse,
   zCrackerBinaryTypeListResponse,
@@ -8,6 +7,7 @@ import {
   zTaskResponse
 } from '@generated/api/zod';
 import { Observable, Subject, of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -385,15 +385,15 @@ describe('NewTasksComponent', () => {
   beforeEach(async () => {
     titleServiceSpy = {
       set: vi.fn().mockName('AutoTitleService.set')
-    };
+    } as MockedObject<AutoTitleService>;
     tooltipServiceSpy = {
       getTaskTooltips: vi.fn().mockName('TooltipService.getTaskTooltips')
-    };
+    } as MockedObject<TooltipService>;
     tooltipServiceSpy.getTaskTooltips.mockReturnValue({} as TaskTooltipsLevel);
 
     uiServiceMock = {
       getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
-    };
+    } as MockedObject<UIConfigService>;
     uiServiceMock.getUISettings.mockReturnValue({
       hashlistAlias: '#HL#',
       chunktime: 600,
@@ -404,21 +404,21 @@ describe('NewTasksComponent', () => {
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage'),
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showInfoMessage: vi.fn().mockName('AlertService.showInfoMessage')
-    };
+    } as MockedObject<AlertService>;
     globalServiceSpy = {
       getAll: vi.fn().mockName('GlobalService.getAll'),
       get: vi.fn().mockName('GlobalService.get'),
       create: vi.fn().mockName('GlobalService.create')
-    };
+    } as MockedObject<GlobalService>;
     globalServiceSpy.getAll.mockImplementation(buildGetAllCallFake());
     globalServiceSpy.create.mockReturnValue(of(mockResponse()));
 
     dialogSpy = {
       open: vi.fn().mockName('MatDialog.open')
-    };
+    } as MockedObject<MatDialog>;
     routerSpy = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
     routerSpy.navigate.mockResolvedValue(true);
 
     activatedRoute = {
@@ -429,7 +429,7 @@ describe('NewTasksComponent', () => {
 
     supportSpy = {
       getSupportedCrackerBinaryIds: vi.fn().mockName('CrackerHashtypeSupportService.getSupportedCrackerBinaryIds')
-    };
+    } as MockedObject<CrackerHashtypeSupportService>;
     supportSpy.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([10, 11, 30])));
 
     await TestBed.configureTestingModule({
@@ -560,7 +560,7 @@ describe('NewTasksComponent', () => {
 
       await component['onSubmit']();
 
-      const payload = vi.mocked(globalServiceSpy.create).mock.lastCall[1] as {
+      const payload = vi.mocked(globalServiceSpy.create).mock.lastCall![1] as {
         files: number[];
       };
       expect(payload.files).toEqual([10, 30]);
@@ -590,7 +590,7 @@ describe('NewTasksComponent', () => {
 
       await component['onSubmit']();
 
-      const payload = vi.mocked(globalServiceSpy.create).mock.lastCall[1] as {
+      const payload = vi.mocked(globalServiceSpy.create).mock.lastCall![1] as {
         files: number[];
       };
       expect(payload.files).toEqual([10]);
@@ -622,7 +622,7 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       expect(globalServiceSpy.get).toHaveBeenCalled();
-      const [endpoint, id] = vi.mocked(globalServiceSpy.get).mock.lastCall;
+      const [endpoint, id] = vi.mocked(globalServiceSpy.get).mock.lastCall!;
       expect(endpoint).toEqual(SERV.TASKS);
       expect(id).toBe(42);
     });
@@ -863,7 +863,7 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       expect(globalServiceSpy.get).toHaveBeenCalled();
-      const [endpoint, id] = vi.mocked(globalServiceSpy.get).mock.lastCall;
+      const [endpoint, id] = vi.mocked(globalServiceSpy.get).mock.lastCall!;
       expect(endpoint).toEqual(SERV.PRETASKS);
       expect(id).toBe(7);
     });
@@ -964,7 +964,7 @@ describe('NewTasksComponent', () => {
         'files'
       ];
       for (const ctrl of expectedControls) {
-        expect(component.form.get(ctrl)).toBeTruthy(`Missing control: ${ctrl}`);
+        expect(component.form.get(ctrl), `Missing control: ${ctrl}`).toBeTruthy();
       }
     });
 

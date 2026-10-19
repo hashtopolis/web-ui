@@ -1,5 +1,5 @@
-import type { MockedObject } from 'vitest';
 import { Observable } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -55,13 +55,13 @@ describe('BaseTableComponent', () => {
   beforeEach(() => {
     mockGlobalService = {
       foo: vi.fn().mockName('GlobalService.foo')
-    };
+    } as unknown as MockedObject<GlobalService>;
     mockConfigService = {
       foo: vi.fn().mockName('ConfigService.foo')
-    };
+    } as unknown as MockedObject<ConfigService>;
     mockHTTable = {
       reload: vi.fn().mockName('HTTableComponent.reload')
-    };
+    } as MockedObject<HTTableComponent<BaseModel>>;
 
     TestBed.configureTestingModule({
       imports: [TestTableComponent],

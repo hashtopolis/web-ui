@@ -1,5 +1,5 @@
-import type { MockedObject } from 'vitest';
 import { Subject, of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -76,20 +76,20 @@ describe('PretasksTableComponent', () => {
   beforeEach(async () => {
     mockDialog = {
       open: vi.fn().mockName('MatDialog.open')
-    };
+    } as MockedObject<MatDialog>;
     mockRouter = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
     mockRouter.navigate.mockResolvedValue(true);
     mockHTTable = {
       reload: vi.fn().mockName('HTTableComponent.reload')
-    };
+    } as MockedObject<HTTableComponent<BaseModel>>;
     mockGlobalService = {
       bulkDelete: vi.fn().mockName('GlobalService.bulkDelete'),
       delete: vi.fn().mockName('GlobalService.delete'),
       update: vi.fn().mockName('GlobalService.update'),
       deleteRelationships: vi.fn().mockName('GlobalService.deleteRelationships')
-    };
+    } as MockedObject<GlobalService>;
     mockGlobalService.update.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.update>);
     mockGlobalService.bulkDelete.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.bulkDelete>);
     mockGlobalService.delete.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.delete>);
@@ -98,10 +98,10 @@ describe('PretasksTableComponent', () => {
     );
     mockExportService = {
       handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
-    };
+    } as MockedObject<ExportService>;
     mockPreconfiguredTasksRoleService = {
       hasRole: vi.fn().mockName('PreconfiguredTasksRoleService.hasRole')
-    };
+    } as MockedObject<PreconfiguredTasksRoleService>;
     mockPermissionService = {
       hasPermission: vi.fn().mockName('PermissionService.hasPermission')
     };

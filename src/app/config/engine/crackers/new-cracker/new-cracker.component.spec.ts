@@ -1,5 +1,5 @@
-import type { MockedObject } from 'vitest';
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -29,20 +29,20 @@ describe('NewCrackerComponent', () => {
     mockGlobalService = {
       getAll: vi.fn().mockName('GlobalService.getAll'),
       create: vi.fn().mockName('GlobalService.create')
-    };
+    } as MockedObject<GlobalService>;
     mockRouter = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
     mockAlertService = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
     mockRoleService = {
       hasRole: vi.fn().mockName('CrackerBinaryRoleService.hasRole')
-    };
+    } as MockedObject<CrackerBinaryRoleService>;
     mockCrackerBinaryTypes = {
       invalidate: vi.fn().mockName('CrackerBinaryTypesService.invalidate')
-    };
+    } as MockedObject<CrackerBinaryTypesService>;
 
     await TestBed.configureTestingModule({
       imports: [NewCrackerComponent],

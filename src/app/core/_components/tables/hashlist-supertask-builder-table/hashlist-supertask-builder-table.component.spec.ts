@@ -1,6 +1,6 @@
-import type { MockedObject } from 'vitest';
 import { zCrackerBinaryListResponse } from '@generated/api/zod';
 import { Observable, of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { provideLocationMocks } from '@angular/common/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -85,23 +85,23 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
     mockGlobalService = {
       chelper: vi.fn().mockName('GlobalService.chelper'),
       getAll: vi.fn().mockName('GlobalService.getAll')
-    };
+    } as MockedObject<GlobalService>;
     mockGlobalService.chelper.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.chelper>);
     mockGlobalService.getAll.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.getAll>);
 
     mockAlertService = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
 
     support = {
       getSupportedCrackerBinaryIds: vi.fn().mockName('CrackerHashtypeSupportService.getSupportedCrackerBinaryIds')
-    };
+    } as MockedObject<CrackerHashtypeSupportService>;
     support.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([11])));
 
     crackerBinaryTypes = {
       getTypeNames: vi.fn().mockName('CrackerBinaryTypesService.getTypeNames')
-    };
+    } as MockedObject<CrackerBinaryTypesService>;
     crackerBinaryTypes.getTypeNames.mockReturnValue(
       of(
         new Map<CrackerBinaryTypeId, string>([

@@ -1,4 +1,5 @@
 import type { MockedObject } from 'vitest';
+
 import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
@@ -29,10 +30,10 @@ describe('HashlistComponent', () => {
   beforeEach(async () => {
     titleService = {
       set: vi.fn().mockName('AutoTitleService.set')
-    };
+    } as MockedObject<AutoTitleService>;
     roleService = {
       hasRole: vi.fn().mockName('HashListRoleService.hasRole')
-    };
+    } as MockedObject<HashListRoleService>;
 
     await TestBed.configureTestingModule({
       declarations: [HashlistComponent, MockHashlistsTableComponent],

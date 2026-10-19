@@ -1,4 +1,5 @@
 import type { MockedObject } from 'vitest';
+
 import { JChunk } from '@models/chunk.model';
 
 import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
@@ -41,7 +42,7 @@ describe('ChunkContextMenuService', () => {
   beforeEach(() => {
     permissionServiceSpy = {
       hasAllPermissionsSync: vi.fn().mockName('PermissionService.hasAllPermissionsSync')
-    };
+    } as MockedObject<PermissionService>;
     permissionServiceSpy.hasAllPermissionsSync.mockReturnValue(true);
     contextMenuService = new ChunkContextMenuService(permissionServiceSpy).addContextMenu();
   });

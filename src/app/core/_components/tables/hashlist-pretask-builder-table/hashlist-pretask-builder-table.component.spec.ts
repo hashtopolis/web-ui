@@ -1,6 +1,6 @@
-import type { MockedObject } from 'vitest';
 import { zCrackerBinaryListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { provideLocationMocks } from '@angular/common/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -55,18 +55,18 @@ describe('HashlistPretaskBuilderTableComponent', () => {
     mockGlobalService = {
       create: vi.fn().mockName('GlobalService.create'),
       getAll: vi.fn().mockName('GlobalService.getAll')
-    };
+    } as MockedObject<GlobalService>;
     mockGlobalService.create.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.create>);
     mockGlobalService.getAll.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.getAll>);
 
     mockAlertService = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
 
     support = {
       getSupportedCrackerBinaryIds: vi.fn().mockName('CrackerHashtypeSupportService.getSupportedCrackerBinaryIds')
-    };
+    } as MockedObject<CrackerHashtypeSupportService>;
     support.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([10])));
 
     await TestBed.configureTestingModule({
@@ -313,7 +313,7 @@ describe('HashlistPretaskBuilderTableComponent', () => {
       component.selectedPretaskIds = new Set([1]);
       await component.createTasksFromSelection();
 
-      expect(vi.mocked(mockAlertService.showErrorMessage).mock.lastCall[0]).toBe(
+      expect(vi.mocked(mockAlertService.showErrorMessage).mock.lastCall![0]).toBe(
         `Failed to create 1 task(s). ${buildUnsupportedHashtypeMessage(1000, 'NTLM')}`
       );
     });

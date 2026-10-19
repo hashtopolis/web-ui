@@ -1,6 +1,6 @@
-import type { MockedObject } from 'vitest';
 import { zHashTypeListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -79,17 +79,17 @@ describe('AddCrackerHashtypesDialogComponent', () => {
       getAll: vi.fn().mockName('GlobalService.getAll'),
       postRelationships: vi.fn().mockName('GlobalService.postRelationships'),
       create: vi.fn().mockName('GlobalService.create')
-    };
+    } as MockedObject<GlobalService>;
     gs.getAll.mockReturnValue(of(HASHTYPES));
     gs.postRelationships.mockReturnValue(of({}));
     gs.create.mockReturnValue(of({} as ResponseWrapper));
     alert = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
     dialogRef = {
       close: vi.fn().mockName('MatDialogRef.close')
-    };
+    } as MockedObject<MatDialogRef<AddCrackerHashtypesDialogComponent, boolean>>;
   });
 
   describe('tabs', () => {
@@ -138,7 +138,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     beforeEach(async () => await setup());
 
     it('offers the hashtypes which are not assigned yet', () => {
-      const [serviceConfig, params] = vi.mocked(gs.getAll).mock.lastCall;
+      const [serviceConfig, params] = vi.mocked(gs.getAll).mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HASHTYPES);
       expect((params as RequestParams).filter).toEqual([{ field: 'id', operator: FilterType.NOTIN, value: [1000] }]);
       expect(component.selectHashtypes.map((option) => option.id)).toEqual([0, 100]);
@@ -180,7 +180,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     beforeEach(async () => await setup({ assignedHashtypeIds: null }));
 
     it('offers all hashtypes', () => {
-      expect((vi.mocked(gs.getAll).mock.lastCall[1] as RequestParams).filter).toBeUndefined();
+      expect((vi.mocked(gs.getAll).mock.lastCall![1] as RequestParams).filter).toBeUndefined();
     });
   });
 

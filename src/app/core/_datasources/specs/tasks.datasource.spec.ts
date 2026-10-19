@@ -1,6 +1,5 @@
-import type { Mock, MockedObject } from 'vitest';
-/// <reference types="jasmine" />
 import { of, throwError } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -47,7 +46,7 @@ describe('TasksDataSource', () => {
   beforeEach(() => {
     gsSpy = {
       getAll: vi.fn().mockName('GlobalService.getAll')
-    };
+    } as MockedObject<GlobalService>;
 
     const cdrSpy = {
       markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
@@ -149,7 +148,7 @@ describe('TasksDataSource', () => {
   describe('loadAll()', () => {
     it('should call service.getAll with SERV.TASKS_WRAPPER_DISPLAYS', () => {
       dataSource.loadAll();
-      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.TASKS_WRAPPER_DISPLAYS);
     });
 
@@ -166,14 +165,14 @@ describe('TasksDataSource', () => {
 
     it('should always include a taskWrapperIsArchived filter', () => {
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'taskWrapperIsArchived' }));
     });
 
     it('should pass the current _isArchived value in the filter', () => {
       dataSource.setIsArchived(true);
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(
         expect.objectContaining({ field: 'taskWrapperIsArchived', value: true })
       );
@@ -182,7 +181,7 @@ describe('TasksDataSource', () => {
     it('should add an extra filter when a query is provided', () => {
       const query: Filter = { field: 'taskWrapperName', operator: FilterType.EQUAL, value: 'bar' };
       dataSource.loadAll(query);
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(
         expect.objectContaining({ field: 'taskWrapperName', value: 'bar' })
       );
@@ -191,13 +190,13 @@ describe('TasksDataSource', () => {
     it('should add a hashlistId filter when _hashlistID is set', () => {
       dataSource.setHashlistID(42);
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'hashlistId', value: 42 }));
     });
 
     it('should not add a hashlistId filter when _hashlistID is 0', () => {
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
       expect(filter.some((f: Filter) => f.field === 'hashlistId')).toBe(false);
     });
@@ -282,7 +281,7 @@ describe('TasksDataSource', () => {
 
       dataSource.reload();
 
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(
         expect.objectContaining({ field: 'taskWrapperName', value: 'myTask' })
       );
@@ -295,7 +294,7 @@ describe('TasksDataSource', () => {
       dataSource.reload();
 
       expect(gsSpy.getAll).toHaveBeenCalled();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
       expect(filter.some((f: Filter) => f.field === 'taskWrapperName')).toBe(false);
     });
