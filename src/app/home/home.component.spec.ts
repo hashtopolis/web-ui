@@ -439,25 +439,35 @@ describe('HomeComponent — updateHeatmapData$()', () => {
   it('should populate heatmapData from ghelper response and fill missing days with 0', () => {
     permissionServiceMock.hasPermissionSync.mockImplementation((perm: PermissionValues) => perm === Perm.Hash.READ);
 
-    const today = new Date();
-    const year = today.getFullYear();
-    const jan2 = `${year}-01-02`;
-    globalServiceMock.ghelper.mockReturnValue(
-      of(mockValidResponse(zGetCracksPerDayHelperApiResponse, { meta: { [jan2]: 42 }, data: [] }))
-    );
+    // The window ends today, so pin the date: on 1 January, 2 January of the current year
+    // would lie in the future. 2 January is the earliest day both days fall inside the window.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 0, 2)); // 2026-01-02
+    try {
+      const today = new Date();
+      const year = today.getFullYear();
+      const jan2 = `${year}-01-02`;
+      globalServiceMock.ghelper.mockReturnValue(
+        of(mockValidResponse(zGetCracksPerDayHelperApiResponse, { meta: { [jan2]: 42 }, data: [] }))
+      );
 
-    fixture = TestBed.createComponent(HomeComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+      fixture = TestBed.createComponent(HomeComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
 
-    const jan1 = `${year}-01-01`;
-    const jan1Entry = component.heatmapData.find(([d]) => d === jan1);
-    const jan2Entry = component.heatmapData.find(([d]) => d === jan2);
+      const jan1 = `${year}-01-01`;
+      const jan1Entry = component.heatmapData.find(([d]) => d === jan1);
+      const jan2Entry = component.heatmapData.find(([d]) => d === jan2);
 
-    expect(jan1Entry).toBeTruthy();
-    expect(jan1Entry![1]).toBe(0); // missing day filled with 0
-    expect(jan2Entry).toBeTruthy();
-    expect(jan2Entry![1]).toBe(42);
+      expect(jan1Entry).toBeTruthy();
+      expect(jan1Entry![1]).toBe(0); // missing day filled with 0
+      expect(jan2Entry).toBeTruthy();
+      expect(jan2Entry![1]).toBe(42);
+      // Edge: 2 January is today, the last day of the window
+      expect(component.heatmapData[component.heatmapData.length - 1][0]).toBe(jan2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('should include all days across the trailing 12 months up to today', () => {
