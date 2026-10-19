@@ -1,4 +1,4 @@
-import { Observable, Subject, of, throwError } from 'rxjs';
+import { Observable, Subject, firstValueFrom, of, throwError } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -147,16 +147,14 @@ describe('AccessGroupsAgentsTableComponent', () => {
 
     it('should link to the agent edit page', async () => {
       const agent = { id: 42, agentName: 'Agent42' } as JAgent;
-      idCol.routerLink!(agent).subscribe((links) => {
-        expect(links[0].routerLink).toEqual(['/agents', 42, 'edit']);
-      });
+      const links = await firstValueFrom(idCol.routerLink!(agent));
+      expect(links[0].routerLink).toEqual(['/agents', 42, 'edit']);
     });
 
     it('should use the agent numeric ID as the link label (as string)', async () => {
       const agent = { id: 42, agentName: 'Agent42' } as JAgent;
-      idCol.routerLink!(agent).subscribe((links) => {
-        expect(links[0].label).toBe('42');
-      });
+      const links = await firstValueFrom(idCol.routerLink!(agent));
+      expect(links[0].label).toBe('42');
     });
   });
 
@@ -170,25 +168,22 @@ describe('AccessGroupsAgentsTableComponent', () => {
 
     it('should link to the agent detail/edit page using the agent name as label', async () => {
       const agent = { id: 7, agentName: 'TestAgent', isTrusted: false } as JAgent;
-      nameCol.routerLink!(agent).subscribe((links) => {
-        expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 7, 'edit']);
-        expect(links[0].label).toBe('TestAgent');
-      });
+      const links = await firstValueFrom(nameCol.routerLink!(agent));
+      expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 7, 'edit']);
+      expect(links[0].label).toBe('TestAgent');
     });
 
     it('should show a trusted-agent icon when the agent is trusted', async () => {
       const trustedAgent = { id: 7, agentName: 'TrustedAgent', isTrusted: true } as JAgent;
-      nameCol.routerLink!(trustedAgent).subscribe((links) => {
-        expect(links[0].icon?.faIcon).toBeTruthy();
-        expect(links[0].icon?.tooltip).toBe('Trusted Agent');
-      });
+      const links = await firstValueFrom(nameCol.routerLink!(trustedAgent));
+      expect(links[0].icon?.faIcon).toBeTruthy();
+      expect(links[0].icon?.tooltip).toBe('Trusted Agent');
     });
 
     it('should NOT show a trusted-agent icon when the agent is not trusted', async () => {
       const agent = { id: 8, agentName: 'RegularAgent', isTrusted: false } as JAgent;
-      nameCol.routerLink!(agent).subscribe((links) => {
-        expect(links[0].icon?.faIcon).toBeUndefined();
-      });
+      const links = await firstValueFrom(nameCol.routerLink!(agent));
+      expect(links[0].icon?.faIcon).toBeUndefined();
     });
   });
 

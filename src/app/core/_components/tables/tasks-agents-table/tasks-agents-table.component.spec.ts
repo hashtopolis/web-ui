@@ -1,4 +1,4 @@
-import { Subject, of } from 'rxjs';
+import { Subject, firstValueFrom, of } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -154,15 +154,13 @@ describe('TasksAgentsTableComponent', () => {
     });
 
     it('should link to the current chunk', async () => {
-      column(TasksAgentsTableCol.CURRENT_CHUNK).routerLink!(working).subscribe((links) => {
-        expect(links).toEqual([{ routerLink: ['/tasks', 'chunks', 289, 'view'], label: 289 }]);
-      });
+      const links = await firstValueFrom(column(TasksAgentsTableCol.CURRENT_CHUNK).routerLink!(working));
+      expect(links).toEqual([{ routerLink: ['/tasks', 'chunks', 289, 'view'], label: 289 }]);
     });
 
     it('should render no chunk link when the agent has no chunk', async () => {
-      column(TasksAgentsTableCol.CURRENT_CHUNK).routerLink!(idle).subscribe((links) => {
-        expect(links).toEqual([]);
-      });
+      const links = await firstValueFrom(column(TasksAgentsTableCol.CURRENT_CHUNK).routerLink!(idle));
+      expect(links).toEqual([]);
     });
 
     it('should render the time spent on the task', () => {

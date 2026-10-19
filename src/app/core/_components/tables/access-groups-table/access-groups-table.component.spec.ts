@@ -1,4 +1,4 @@
-import { Observable, Subject, of, throwError } from 'rxjs';
+import { Observable, Subject, firstValueFrom, of, throwError } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -179,17 +179,11 @@ describe('AccessGroupsTableComponent', () => {
     it('should link to the access group edit page', async () => {
       const group = { id: 3, groupName: 'TestGroup' } as JAccessGroup;
       const col = component.tableColumns.find((c) => c.id === AccessGroupsTableCol.NAME)!;
-      (
-        col.routerLink!(group) as Observable<
-          {
-            routerLink: unknown[];
-            label: string;
-          }[]
-        >
-      ).subscribe((links) => {
-        expect(links[0].routerLink).toEqual(['/users', 'access-groups', 3, 'edit']);
-        expect(links[0].label).toBe('TestGroup');
-      });
+      const links = await firstValueFrom(
+        col.routerLink!(group) as Observable<{ routerLink: unknown[]; label: string }[]>
+      );
+      expect(links[0].routerLink).toEqual(['/users', 'access-groups', 3, 'edit']);
+      expect(links[0].label).toBe('TestGroup');
     });
   });
 
@@ -418,10 +412,9 @@ describe('AccessGroupsTableComponent', () => {
         const group = { id: 2, groupName: 'EditGroup' } as JAccessGroup;
         component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.EDIT, label: '' } });
 
-        setTimeout(() => {
-          expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-          expect(mockRouter.navigate).toHaveBeenCalledWith(['/users', 'access-groups', 2, 'edit']);
-        });
+        await new Promise((resolve) => setTimeout(resolve));
+        expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
+        expect(mockRouter.navigate).toHaveBeenCalledWith(['/users', 'access-groups', 2, 'edit']);
       });
 
       it('should NOT open a dialog', () => {

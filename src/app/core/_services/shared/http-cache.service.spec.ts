@@ -133,12 +133,11 @@ describe('HttpCacheService', () => {
     expect(fresh).toBeTruthy();
     expect(fresh?.isStale).toBe(false);
 
-    setTimeout(() => {
-      const stale = service.get(req);
-      expect(stale).toBeTruthy();
-      expect(stale?.isStale).toBe(true);
-      expect(stale?.response.body).toEqual({ id: 1, name: 'Test' });
-    }, 150);
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    const stale = service.get(req);
+    expect(stale).toBeTruthy();
+    expect(stale?.isStale).toBe(true);
+    expect(stale?.response.body).toEqual({ id: 1, name: 'Test' });
   });
 
   it('should return null once the stale window has also elapsed', async () => {
@@ -151,10 +150,9 @@ describe('HttpCacheService', () => {
 
     service.set(req, res, 50, 50); // TTL 50ms, stale window 50ms → fully expired after 100ms
 
-    setTimeout(() => {
-      const result = service.get(req);
-      expect(result).toBeNull();
-    }, 150);
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    const result = service.get(req);
+    expect(result).toBeNull();
   });
 
   it('should skip caching when TTL is 0 or negative', () => {
