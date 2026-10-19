@@ -1,4 +1,5 @@
 import type { Mock, MockedObject } from 'vitest';
+
 import { BaseModel } from '@models/base.model';
 
 import { AuthService } from '@services/access/auth.service';
@@ -18,7 +19,7 @@ interface TestableHeader {
 function makeComponent() {
   const mockAuthService = {
     logOut: vi.fn().mockName('AuthService.logOut')
-  };
+  } as MockedObject<AuthService>;
 
   const component = Object.create(HeaderComponent.prototype) as TestableHeader;
   component['authService'] = mockAuthService;
@@ -73,7 +74,7 @@ describe('HeaderComponent config menu', () => {
       hasLogRole: vi.fn().mockName('ConfigRoleWrapperService.hasLogRole'),
       hasNotificationRole: vi.fn().mockName('ConfigRoleWrapperService.hasNotificationRole'),
       hasBackgroundJobRole: vi.fn().mockName('ConfigRoleWrapperService.hasBackgroundJobRole')
-    };
+    } as MockedObject<ConfigRoleWrapperService>;
     wrapper.hasLogRole.mockReturnValue(true);
     wrapper.hasHashTypesRole.mockImplementation((role: string) => hashtypeRoles.includes(role));
     wrapper.hasBackgroundJobRole.mockImplementation((role: string) => role === 'read' && backgroundJobRead);

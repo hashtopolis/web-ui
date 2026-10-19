@@ -1,5 +1,5 @@
-import type { MockedObject } from 'vitest';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -50,12 +50,12 @@ describe('UiSettingsComponent', () => {
     mockLocalStorageService = {
       getItem: vi.fn().mockName('LocalStorageService.getItem'),
       setItem: vi.fn().mockName('LocalStorageService.setItem')
-    };
+    } as MockedObject<LocalStorageService<UIConfig>>;
     // Clone like the real service does: onSubmit() mutates this object in place.
     mockLocalStorageService.getItem.mockReturnValue(structuredClone(uiConfigDefault));
     mockThemeCatalogService = {
       getThemes: vi.fn().mockName('ThemeCatalogService.getThemes')
-    };
+    } as MockedObject<ThemeCatalogService>;
     mockThemeCatalogService.getThemes.mockReturnValue(of(mockThemes));
 
     await TestBed.configureTestingModule({

@@ -1,4 +1,5 @@
 import type { MockedObject } from 'vitest';
+
 import { Clipboard } from '@angular/cdk/clipboard';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -19,14 +20,14 @@ describe('RevealApiKeyDialogComponent', () => {
   beforeEach(async () => {
     mockClipboard = {
       copy: vi.fn().mockName('Clipboard.copy')
-    };
+    } as MockedObject<Clipboard>;
     mockAlert = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
     mockDialogRef = {
       close: vi.fn().mockName('MatDialogRef.close')
-    };
+    } as MockedObject<MatDialogRef<RevealApiKeyDialogComponent>>;
 
     await TestBed.configureTestingModule({
       declarations: [RevealApiKeyDialogComponent],

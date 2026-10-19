@@ -1,8 +1,8 @@
-import type { MockedObject } from 'vitest';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { zAgentListResponse, zHashlistListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { TJsonApiData } from 'jsona/lib/JsonaTypes';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
@@ -231,7 +231,7 @@ describe('NewNotificationComponent', () => {
   beforeEach(async () => {
     mockRoleService = {
       hasRole: vi.fn().mockName('NotificationsRoleService.hasRole')
-    };
+    } as MockedObject<NotificationsRoleService>;
 
     await TestBed.configureTestingModule({
       declarations: [NewNotificationComponent],

@@ -1,7 +1,7 @@
-import type { MockedObject } from 'vitest';
 import { Perm } from '@constants/userpermissions.config';
 import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 import { firstValueFrom, of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { TestBed } from '@angular/core/testing';
 
@@ -27,7 +27,7 @@ describe('CrackerBinaryTypesService', () => {
   beforeEach(() => {
     gs = {
       getAll: vi.fn().mockName('GlobalService.getAll')
-    };
+    } as MockedObject<GlobalService>;
     gs.getAll.mockReturnValue(of(TYPES));
     granted = new Set<string>([Perm.CrackerBinaryType.READ]);
     const permissionService = {

@@ -1,6 +1,6 @@
-import type { MockedObject } from 'vitest';
 import { zConfigListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -38,16 +38,16 @@ describe('FormConfigComponent', () => {
     alertService = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
     const autoTitleServiceSpy = {
       set: vi.fn().mockName('AutoTitleService.set')
     };
     uiConfigService = {
       onUpdatingCheck: vi.fn().mockName('UIConfigService.onUpdatingCheck')
-    };
+    } as MockedObject<UIConfigService>;
     notificationRoleService = {
       hasRole: vi.fn().mockName('NotificationsRoleService.hasRole')
-    };
+    } as MockedObject<NotificationsRoleService>;
     const cookieServiceSpy = {
       getCookie: vi.fn().mockName('CookieService.getCookie')
     };

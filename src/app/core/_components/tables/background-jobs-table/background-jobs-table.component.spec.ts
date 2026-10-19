@@ -1,6 +1,6 @@
-import type { Mock, MockedObject } from 'vitest';
 import { BackgroundJobStatus } from '@constants/background-jobs.config';
 import { of, throwError } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -72,7 +72,7 @@ describe('BackgroundJobsTableComponent', () => {
   beforeEach(async () => {
     mockExportService = {
       handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
-    };
+    } as MockedObject<ExportService>;
 
     await TestBed.configureTestingModule({
       declarations: [TestBackgroundJobsTableComponent],
@@ -171,10 +171,10 @@ describe('BackgroundJobsTableComponent', () => {
       gs = component['gs'] as unknown as typeof gs;
       vi.spyOn(gs, 'delete').mockReturnValue(of({}));
       vi.spyOn(gs, 'bulkDelete').mockReturnValue(of({}));
-      dialogOpen = vi.spyOn(component.dialog, 'open').mockReturnValue(undefined);
-      showSuccess = vi.spyOn(component['alertService'], 'showSuccessMessage').mockReturnValue(undefined);
-      showInfo = vi.spyOn(component['alertService'], 'showInfoMessage').mockReturnValue(undefined);
-      reload = vi.spyOn(component, 'reload').mockReturnValue(undefined);
+      dialogOpen = vi.spyOn(component.dialog, 'open').mockReturnValue(undefined as never);
+      showSuccess = vi.spyOn(component['alertService'], 'showSuccessMessage').mockReturnValue(undefined as never);
+      showInfo = vi.spyOn(component['alertService'], 'showInfoMessage').mockReturnValue(undefined as never);
+      reload = vi.spyOn(component, 'reload').mockReturnValue(undefined as never);
     });
 
     it('deletes a finished job after confirmation', () => {
@@ -220,7 +220,7 @@ describe('BackgroundJobsTableComponent', () => {
         menuItem: { action: BulkActionMenuAction.DELETE, label: '' }
       });
 
-      const dialogData = vi.mocked(dialogOpen).mock.lastCall[1].data;
+      const dialogData = vi.mocked(dialogOpen).mock.lastCall![1].data;
       expect(dialogData.rows).toEqual([done, pending]);
       expect(gs.bulkDelete).toHaveBeenCalledWith(SERV.BACKGROUND_JOBS, [done, pending]);
       expect(showSuccess).toHaveBeenCalledWith('Deleted 2 background jobs. 1 running jobs were skipped.');
@@ -266,7 +266,7 @@ describe('BackgroundJobsTableComponent', () => {
     it('resumes auto-refresh on init when it is enabled in the settings', () => {
       const ds = mockDataSource();
       ds.autoRefreshService.refreshPage = true;
-      vi.spyOn(ds, 'startAutoRefresh').mockReturnValue(undefined);
+      vi.spyOn(ds, 'startAutoRefresh').mockReturnValue(undefined as never);
 
       component.ngAfterViewInit();
 
@@ -275,7 +275,7 @@ describe('BackgroundJobsTableComponent', () => {
 
     it('does not start auto-refresh on init when it is disabled in the settings', () => {
       const ds = mockDataSource();
-      vi.spyOn(ds, 'startAutoRefresh').mockReturnValue(undefined);
+      vi.spyOn(ds, 'startAutoRefresh').mockReturnValue(undefined as never);
 
       component.ngAfterViewInit();
 
@@ -284,7 +284,7 @@ describe('BackgroundJobsTableComponent', () => {
 
     it('stops auto-refresh when the table is destroyed', () => {
       const ds = mockDataSource();
-      vi.spyOn(ds, 'stopAutoRefresh').mockReturnValue(undefined);
+      vi.spyOn(ds, 'stopAutoRefresh').mockReturnValue(undefined as never);
 
       fixture.destroy();
 

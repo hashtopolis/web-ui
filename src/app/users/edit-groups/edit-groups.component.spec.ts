@@ -1,6 +1,6 @@
-import type { MockedObject } from 'vitest';
 import { zAccessGroupListResponse, zAccessGroupResponse, zUserListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -119,11 +119,11 @@ describe('EditGroupsComponent', () => {
       update: vi.fn().mockName('GlobalService.update'),
       delete: vi.fn().mockName('GlobalService.delete'),
       postRelationships: vi.fn().mockName('GlobalService.postRelationships')
-    };
+    } as MockedObject<GlobalService>;
     mockAlertService = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
 
     mockGlobalService.get.mockReturnValue(of(mockAccessGroupResponse));
     mockGlobalService.getAll.mockReturnValue(of(mockResponse()));
@@ -167,10 +167,10 @@ describe('EditGroupsComponent', () => {
 
     mockUserTable = {
       reload: vi.fn().mockName('AccessGroupsUserTableComponent.reload')
-    };
+    } as MockedObject<AccessGroupsUserTableComponent>;
     mockAgentTable = {
       reload: vi.fn().mockName('AccessGroupsAgentsTableComponent.reload')
-    };
+    } as MockedObject<AccessGroupsAgentsTableComponent>;
     component.userTable = mockUserTable;
     component.agentTable = mockAgentTable;
   });

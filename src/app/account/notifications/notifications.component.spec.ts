@@ -1,4 +1,5 @@
 import type { MockedObject } from 'vitest';
+
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
@@ -57,7 +58,7 @@ describe('NotificationsComponent', () => {
     };
     mockRoleService = {
       hasRole: vi.fn().mockName('NotificationsRoleService.hasRole')
-    };
+    } as MockedObject<NotificationsRoleService>;
 
     TestBed.configureTestingModule({
       declarations: [NotificationsComponent],

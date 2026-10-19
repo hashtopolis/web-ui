@@ -1,5 +1,5 @@
-import type { MockedObject } from 'vitest';
 import { Subject, of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -67,10 +67,10 @@ describe('HashlistsTableComponent', () => {
   beforeEach(async () => {
     mockDialog = {
       open: vi.fn().mockName('MatDialog.open')
-    };
+    } as MockedObject<MatDialog>;
     mockRouter = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
     mockRouter.navigate.mockResolvedValue(true);
     mockGlobalService = {
       bulkUpdate: vi.fn().mockName('GlobalService.bulkUpdate'),
@@ -78,12 +78,12 @@ describe('HashlistsTableComponent', () => {
       delete: vi.fn().mockName('GlobalService.delete'),
       update: vi.fn().mockName('GlobalService.update'),
       chelper: vi.fn().mockName('GlobalService.chelper')
-    };
+    } as MockedObject<GlobalService>;
     mockGlobalService.update.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.update>);
     mockGlobalService.chelper.mockReturnValue(of({}).pipe() as unknown as ReturnType<typeof mockGlobalService.chelper>);
     mockExportService = {
       handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
-    };
+    } as MockedObject<ExportService>;
 
     await TestBed.configureTestingModule({
       declarations: [TestHashlistsTableComponent],

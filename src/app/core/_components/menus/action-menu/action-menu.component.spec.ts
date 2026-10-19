@@ -1,7 +1,6 @@
-import type { MockedObject } from 'vitest';
-/// <reference types="jasmine" />
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Subject } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -13,10 +12,9 @@ import { NavigationEnd, Router } from '@angular/router';
 
 import { UIConfig } from '@models/config-ui.model';
 
-import { AutoTitleService } from '@services/shared/autotitle.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
-import { ActionMenuComponent } from './action-menu.component';
+import { ActionMenuComponent } from '@components/menus/action-menu/action-menu.component';
 
 import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
@@ -25,6 +23,7 @@ import { provideDisabledMaterialAnimations } from '@src/app/testing/material-ani
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- pre-existing unused test host
 class TestHostComponent {}
 
 describe('ActionMenuComponent', () => {
@@ -39,11 +38,11 @@ describe('ActionMenuComponent', () => {
     routerSpy = {
       navigate: vi.fn().mockName('Router.navigate'),
       events: routerEvents$.asObservable()
-    };
+    } as MockedObject<Router>;
     storageSpy = {
       getItem: vi.fn().mockName('LocalStorageService.getItem'),
       setItem: vi.fn().mockName('LocalStorageService.setItem')
-    };
+    } as MockedObject<LocalStorageService<UIConfig>>;
     storageSpy.getItem.mockReturnValue(null);
 
     await TestBed.configureTestingModule({

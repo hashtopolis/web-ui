@@ -1,5 +1,5 @@
-import type { MockedObject } from 'vitest';
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -54,23 +54,23 @@ describe('ApiKeyDetailComponent', () => {
   beforeEach(async () => {
     mockGlobalService = {
       get: vi.fn().mockName('GlobalService.get')
-    };
+    } as MockedObject<GlobalService>;
     mockRouter = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
     mockRouter.navigate.mockResolvedValue(true);
     mockAlert = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
     mockTitle = {
       set: vi.fn().mockName('AutoTitleService.set')
-    };
+    } as MockedObject<AutoTitleService>;
     mockStorage = {
       getItem: vi.fn().mockName('LocalStorageService.getItem'),
       setItem: vi.fn().mockName('LocalStorageService.setItem'),
       removeItem: vi.fn().mockName('LocalStorageService.removeItem')
-    };
+    } as MockedObject<LocalStorageService<UIConfig>>;
     mockStorage.getItem.mockReturnValue(uiConfigDefault);
     mockRoute = { snapshot: { params: {} } };
 

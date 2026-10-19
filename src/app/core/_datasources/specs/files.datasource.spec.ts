@@ -1,7 +1,6 @@
-import type { Mock, MockedObject } from 'vitest';
-/// <reference types="jasmine" />
 import { zFileListResponse, zPreTaskResponse, zTaskResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -61,7 +60,7 @@ describe('FilesDataSource', () => {
     gsSpy = {
       get: vi.fn().mockName('GlobalService.get'),
       getAll: vi.fn().mockName('GlobalService.getAll')
-    };
+    } as MockedObject<GlobalService>;
 
     const cdrSpy = {
       markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
@@ -143,20 +142,20 @@ describe('FilesDataSource', () => {
   describe('loadAll() — list mode', () => {
     it('should call service.getAll with SERV.FILES', () => {
       dataSource.loadAll();
-      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.FILES);
     });
 
     it('should include accessGroup in the request params', () => {
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).include).toContain('accessGroup');
     });
 
     it('should filter by the stored fileType', () => {
       dataSource.setFileType(FileType.RULES);
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(
         expect.objectContaining({ field: 'fileType', value: FileType.RULES })
       );
@@ -165,7 +164,7 @@ describe('FilesDataSource', () => {
     it('should apply the provided query filter', () => {
       const query: Filter = { field: 'filename', operator: FilterType.ICONTAINS, value: 'rockyou' };
       dataSource.loadAll(query);
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(
         expect.objectContaining({ field: 'filename', value: 'rockyou' })
       );
@@ -182,7 +181,7 @@ describe('FilesDataSource', () => {
       dataSource.loadAll(query);
       gsSpy.getAll.mockClear();
       dataSource.loadAll(); // no query — should reuse stored filter
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(
         expect.objectContaining({ field: 'filename', value: 'cyclone' })
       );
@@ -256,19 +255,19 @@ describe('FilesDataSource', () => {
       dataSource.loadAll();
       expect(gsSpy.get).toHaveBeenCalled();
       expect(gsSpy.getAll).not.toHaveBeenCalled();
-      const [serviceConfig] = vi.mocked(gsSpy.get).mock.lastCall;
+      const [serviceConfig] = vi.mocked(gsSpy.get).mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.TASKS);
     });
 
     it('should include files in the request params', () => {
       dataSource.loadAll();
-      const [, , params] = vi.mocked(gsSpy.get).mock.lastCall;
+      const [, , params] = vi.mocked(gsSpy.get).mock.lastCall!;
       expect((params as RequestParams).include).toContain('files');
     });
 
     it('should use the editIndex as the entity ID', () => {
       dataSource.loadAll();
-      const [, entityId] = vi.mocked(gsSpy.get).mock.lastCall;
+      const [, entityId] = vi.mocked(gsSpy.get).mock.lastCall!;
       expect(entityId).toBe(100);
     });
 
@@ -295,19 +294,19 @@ describe('FilesDataSource', () => {
       dataSource.loadAll();
       expect(gsSpy.get).toHaveBeenCalled();
       expect(gsSpy.getAll).not.toHaveBeenCalled();
-      const [serviceConfig] = vi.mocked(gsSpy.get).mock.lastCall;
+      const [serviceConfig] = vi.mocked(gsSpy.get).mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.PRETASKS);
     });
 
     it('should include pretaskFiles in the request params', () => {
       dataSource.loadAll();
-      const [, , params] = vi.mocked(gsSpy.get).mock.lastCall;
+      const [, , params] = vi.mocked(gsSpy.get).mock.lastCall!;
       expect((params as RequestParams).include).toContain('pretaskFiles');
     });
 
     it('should use the editIndex as the entity ID', () => {
       dataSource.loadAll();
-      const [, entityId] = vi.mocked(gsSpy.get).mock.lastCall;
+      const [, entityId] = vi.mocked(gsSpy.get).mock.lastCall!;
       expect(entityId).toBe(200);
     });
 
@@ -369,7 +368,7 @@ describe('FilesDataSource', () => {
       dataSource.loadAll(query);
       gsSpy.getAll.mockClear();
       dataSource.clearFilter(); // resets _currentFilter and calls loadAll() internally
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
       expect(filter.some((f: Filter) => f.field === 'filename')).toBe(false);
     });

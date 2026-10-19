@@ -1,5 +1,5 @@
-import type { Mock, MockedObject } from 'vitest';
 import { of, throwError } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -48,27 +48,27 @@ describe('NewApiKeyComponent', () => {
   beforeEach(async () => {
     mockGlobalService = {
       create: vi.fn().mockName('GlobalService.create')
-    };
+    } as MockedObject<GlobalService>;
     Object.defineProperty(mockGlobalService, 'userId', { value: 42, configurable: true });
     mockRouter = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
     mockRouter.navigate.mockResolvedValue(true);
     mockAlert = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
     mockPermission = {
       loadPermissions: vi.fn().mockName('PermissionService.loadPermissions')
-    };
+    } as MockedObject<PermissionService>;
     mockPermission.loadPermissions.mockReturnValue(of<Permission>({ permJwtApiKeyRead: true }));
     mockStore = {
       set: vi.fn().mockName('ApiKeyRevealStore.set'),
       consume: vi.fn().mockName('ApiKeyRevealStore.consume')
-    };
+    } as MockedObject<ApiKeyRevealStore>;
     mockTitle = {
       set: vi.fn().mockName('AutoTitleService.set')
-    };
+    } as MockedObject<AutoTitleService>;
 
     deserializeSpy = vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockReturnValue(createdToken);
 

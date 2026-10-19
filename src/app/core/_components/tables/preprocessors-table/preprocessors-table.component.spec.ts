@@ -1,4 +1,5 @@
 import type { MockedObject } from 'vitest';
+
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -39,10 +40,10 @@ describe('PreprocessorsTableComponent', () => {
   beforeEach(async () => {
     mockExportService = {
       handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
-    };
+    } as MockedObject<ExportService>;
     mockHTTable = {
       reload: vi.fn().mockName('HTTableComponent.reload')
-    };
+    } as MockedObject<HTTableComponent<BaseModel>>;
 
     await TestBed.configureTestingModule({
       declarations: [TestPreprocessorsTableComponent],

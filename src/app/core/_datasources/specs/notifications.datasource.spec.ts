@@ -1,7 +1,6 @@
-import type { Mock, MockedObject } from 'vitest';
-/// <reference types="jasmine" />
 import { zNotificationSettingListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -54,7 +53,7 @@ describe('NotificationsDataSource', () => {
   beforeEach(() => {
     gsSpy = {
       getAll: vi.fn().mockName('GlobalService.getAll')
-    };
+    } as MockedObject<GlobalService>;
 
     const cdrSpy = {
       markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
@@ -107,7 +106,7 @@ describe('NotificationsDataSource', () => {
   describe('loadAll()', () => {
     it('should call service.getAll with SERV.NOTIFICATIONS', () => {
       dataSource.loadAll();
-      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.NOTIFICATIONS);
     });
 
@@ -157,7 +156,7 @@ describe('NotificationsDataSource', () => {
     it('should append a query filter when provided', () => {
       const query: Filter = { field: 'action', operator: FilterType.ICONTAINS, value: 'error' };
       dataSource.loadAll(query);
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'action', value: 'error' }));
     });
 
@@ -172,7 +171,7 @@ describe('NotificationsDataSource', () => {
       dataSource.loadAll(query);
       gsSpy.getAll.mockClear();
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(
         expect.objectContaining({ field: 'receiver', value: 'example.org' })
       );
@@ -253,7 +252,7 @@ describe('NotificationsDataSource', () => {
       gsSpy.getAll.mockClear();
       dataSource.clearFilter();
 
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
       expect(filter.some((f: Filter) => f.field === 'action')).toBe(false);
     });

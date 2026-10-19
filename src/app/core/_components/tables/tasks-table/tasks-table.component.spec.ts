@@ -1,5 +1,5 @@
-import type { Mock, MockedObject } from 'vitest';
 import { Subject, of } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -79,37 +79,37 @@ describe('TasksTableComponent', () => {
   beforeEach(async () => {
     mockDialog = {
       open: vi.fn().mockName('MatDialog.open')
-    };
+    } as MockedObject<MatDialog>;
     mockRouter = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
     mockRouter.navigate.mockResolvedValue(true);
     mockGlobalService = {
       bulkUpdate: vi.fn().mockName('GlobalService.bulkUpdate'),
       bulkDelete: vi.fn().mockName('GlobalService.bulkDelete'),
       delete: vi.fn().mockName('GlobalService.delete'),
       update: vi.fn().mockName('GlobalService.update')
-    };
+    } as MockedObject<GlobalService>;
     mockGlobalService.update.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.update>);
     mockGlobalService.bulkUpdate.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.bulkUpdate>);
     mockGlobalService.bulkDelete.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.bulkDelete>);
     mockGlobalService.delete.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.delete>);
     mockExportService = {
       handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
-    };
+    } as MockedObject<ExportService>;
     mockTasksRoleService = {
       hasRole: vi.fn().mockName('TasksRoleService.hasRole')
-    };
+    } as MockedObject<TasksRoleService>;
     mockAlertService = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage'),
       showInfoMessage: vi.fn().mockName('AlertService.showInfoMessage')
-    };
+    } as MockedObject<AlertService>;
 
     mockTasksRoleService.hasRole.mockReturnValue(false);
     mockConfigService = {
       getEndpoint: vi.fn().mockName('ConfigService.getEndpoint')
-    };
+    } as MockedObject<ConfigService>;
     mockConfigService.getEndpoint.mockReturnValue('http://localhost:4200');
 
     await TestBed.configureTestingModule({

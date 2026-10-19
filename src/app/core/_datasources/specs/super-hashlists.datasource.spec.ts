@@ -1,8 +1,7 @@
-import type { Mock, MockedObject } from 'vitest';
-/// <reference types="jasmine" />
 import { HashListFormat } from '@constants/hashlist.config';
 import { zHashlistListResponse } from '@generated/api/zod';
-import { EMPTY, of, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -101,7 +100,7 @@ describe('SuperHashlistsDataSource', () => {
   beforeEach(() => {
     gsSpy = {
       getAll: vi.fn().mockName('GlobalService.getAll')
-    };
+    } as MockedObject<GlobalService>;
 
     const cdrSpy = {
       markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
@@ -154,20 +153,20 @@ describe('SuperHashlistsDataSource', () => {
   describe('loadAll()', () => {
     it('should call service.getAll with SERV.HASHLISTS', () => {
       dataSource.loadAll();
-      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HASHLISTS);
     });
 
     it('should include hashType and hashlists in request params', () => {
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).include).toContain('hashType');
       expect((params as RequestParams).include).toContain('hashlists');
     });
 
     it('should filter by format === SUPERHASHLIST (3)', () => {
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(
         expect.objectContaining({ field: 'format', operator: FilterType.EQUAL, value: HashListFormat.SUPERHASHLIST })
       );
@@ -238,7 +237,7 @@ describe('SuperHashlistsDataSource', () => {
     it('should append a query filter when provided', () => {
       const query: Filter = { field: 'name', operator: FilterType.ICONTAINS, value: 'sha1' };
       dataSource.loadAll(query);
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'name', value: 'sha1' }));
     });
 
@@ -253,7 +252,7 @@ describe('SuperHashlistsDataSource', () => {
       dataSource.loadAll(query);
       gsSpy.getAll.mockClear();
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'name', value: 'sha1' }));
     });
 
@@ -336,7 +335,7 @@ describe('SuperHashlistsDataSource', () => {
       gsSpy.getAll.mockClear();
       dataSource.clearFilter();
 
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
       expect(filter.some((f: Filter) => f.field === 'name')).toBe(false);
     });

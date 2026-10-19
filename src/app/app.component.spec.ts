@@ -1,5 +1,5 @@
-import type { MockedObject } from 'vitest';
 import { Idle } from '@ng-idle/core';
+import type { MockedObject } from 'vitest';
 
 import { ReloadService } from '@services/reload.service';
 
@@ -17,7 +17,7 @@ function makeComponent() {
   };
   const mockIdle = {
     stop: vi.fn().mockName('Idle.stop')
-  };
+  } as unknown as MockedObject<Idle>;
 
   const component = Object.create(AppComponent.prototype) as TestableAppComponent;
   component.reloadService = mockReloadService;

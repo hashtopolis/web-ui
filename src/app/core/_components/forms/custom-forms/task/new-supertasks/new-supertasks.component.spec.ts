@@ -1,6 +1,6 @@
-import type { MockedObject } from 'vitest';
 import { zPreTaskListResponse } from '@generated/api/zod';
 import { Subject, of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -54,15 +54,15 @@ describe('NewSupertasksComponent', () => {
     gs = {
       getAll: vi.fn().mockName('GlobalService.getAll'),
       create: vi.fn().mockName('GlobalService.create')
-    };
+    } as MockedObject<GlobalService>;
     gs.getAll.mockReturnValue(of(PRETASKS));
     gs.create.mockReturnValue(of({} as ResponseWrapper));
     router = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
     crackerBinaryTypes = {
       getTypes: vi.fn().mockName('CrackerBinaryTypesService.getTypes')
-    };
+    } as MockedObject<CrackerBinaryTypesService>;
     crackerBinaryTypes.getTypes.mockReturnValue(
       of([
         { id: 2, typeName: 'generic' },

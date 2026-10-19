@@ -1,6 +1,6 @@
-import type { MockedObject } from 'vitest';
 import { zGlobalPermissionGroupResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -35,13 +35,13 @@ describe('EditGlobalpermissionsgroupsComponent', () => {
     mockGlobalService = {
       get: vi.fn().mockName('GlobalService.get'),
       update: vi.fn().mockName('GlobalService.update')
-    };
+    } as MockedObject<GlobalService>;
     mockAlertService = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage')
-    };
+    } as MockedObject<AlertService>;
     mockAutoTitleService = {
       set: vi.fn().mockName('AutoTitleService.set')
-    };
+    } as MockedObject<AutoTitleService>;
 
     mockGlobalService.get.mockReturnValue(of(mockResponse()));
     mockGlobalService.update.mockReturnValue(of({}));
@@ -94,7 +94,7 @@ describe('EditGlobalpermissionsgroupsComponent', () => {
   describe('loadData()', () => {
     it('should call gs.get with the correct endpoint and ID', () => {
       expect(mockGlobalService.get).toHaveBeenCalled();
-      const [config, id, params] = vi.mocked(mockGlobalService.get).mock.lastCall;
+      const [config, id, params] = vi.mocked(mockGlobalService.get).mock.lastCall!;
       expect(config).toEqual(SERV.ACCESS_PERMISSIONS_GROUPS);
       expect(id).toBe(1);
       expect(params).toEqual(expect.objectContaining({ include: ['userMembers'] }));

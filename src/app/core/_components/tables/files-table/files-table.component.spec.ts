@@ -1,5 +1,5 @@
-import type { Mock, MockedObject } from 'vitest';
 import { of } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -49,10 +49,10 @@ describe('FilesTableComponent', () => {
   beforeEach(async () => {
     mockExportService = {
       handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
-    };
+    } as MockedObject<ExportService>;
     mockHTTable = {
       reload: vi.fn().mockName('HTTableComponent.reload')
-    };
+    } as MockedObject<HTTableComponent<BaseModel>>;
 
     await TestBed.configureTestingModule({
       declarations: [TestFilesTableComponent],

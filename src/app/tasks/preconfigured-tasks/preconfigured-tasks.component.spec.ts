@@ -1,4 +1,5 @@
 import type { MockedObject } from 'vitest';
+
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -17,10 +18,10 @@ describe('PreconfiguredTasksComponent', () => {
     beforeEach(async () => {
       mockTitleService = {
         set: vi.fn().mockName('AutoTitleService.set')
-      };
+      } as MockedObject<AutoTitleService>;
       mockRoleService = {
         hasRole: vi.fn().mockName('PreconfiguredTasksRoleService.hasRole')
-      };
+      } as MockedObject<PreconfiguredTasksRoleService>;
 
       mockRoleService.hasRole.mockReturnValue(true);
 
@@ -56,10 +57,10 @@ describe('PreconfiguredTasksComponent', () => {
     beforeEach(async () => {
       mockTitleService = {
         set: vi.fn().mockName('AutoTitleService.set')
-      };
+      } as MockedObject<AutoTitleService>;
       mockRoleService = {
         hasRole: vi.fn().mockName('PreconfiguredTasksRoleService.hasRole')
-      };
+      } as MockedObject<PreconfiguredTasksRoleService>;
 
       mockRoleService.hasRole.mockReturnValue(false);
 

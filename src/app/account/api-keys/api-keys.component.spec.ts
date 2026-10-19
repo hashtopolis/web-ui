@@ -1,4 +1,5 @@
 import type { MockedObject } from 'vitest';
+
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
@@ -23,17 +24,17 @@ describe('ApiKeysComponent', () => {
     mockStore = {
       consume: vi.fn().mockName('ApiKeyRevealStore.consume'),
       set: vi.fn().mockName('ApiKeyRevealStore.set')
-    };
+    } as MockedObject<ApiKeyRevealStore>;
     mockDialog = {
       open: vi.fn().mockName('MatDialog.open')
-    };
+    } as MockedObject<MatDialog>;
     mockRole = {
       hasRole: vi.fn().mockName('ApiTokensRoleService.hasRole')
-    };
+    } as MockedObject<ApiTokensRoleService>;
     mockRole.hasRole.mockReturnValue(true);
     mockTitle = {
       set: vi.fn().mockName('AutoTitleService.set')
-    };
+    } as MockedObject<AutoTitleService>;
 
     await TestBed.configureTestingModule({
       declarations: [ApiKeysComponent],

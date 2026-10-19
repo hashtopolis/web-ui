@@ -1,6 +1,6 @@
-import type { MockedObject } from 'vitest';
 import { zPreprocessorResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -47,17 +47,17 @@ describe('NewEditPreprocessorComponent', () => {
       create: vi.fn().mockName('GlobalService.create'),
       get: vi.fn().mockName('GlobalService.get'),
       update: vi.fn().mockName('GlobalService.update')
-    };
+    } as MockedObject<GlobalService>;
     mockRouter = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
     mockAlertService = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
     mockRoleService = {
       hasRole: vi.fn().mockName('CrackerBinaryRoleService.hasRole')
-    };
+    } as MockedObject<PreprocessorRoleService>;
 
     await TestBed.configureTestingModule({
       imports: [NewEditPreprocessorComponent],
@@ -108,6 +108,7 @@ describe('NewEditPreprocessorComponent', () => {
    * @param title Title text
    * @param buttonText Button text
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- pre-existing unused helper
   function expectPageTitleAndButton(title: string, buttonText: string) {
     const hostElement: HTMLElement = fixture.nativeElement;
 

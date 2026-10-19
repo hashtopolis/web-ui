@@ -1,4 +1,5 @@
 import type { MockedObject } from 'vitest';
+
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
@@ -21,13 +22,13 @@ describe('ShowTasksComponent', () => {
     beforeEach(async () => {
       mockTitleService = {
         set: vi.fn().mockName('AutoTitleService.set')
-      };
+      } as MockedObject<AutoTitleService>;
       mockRoleService = {
         hasRole: vi.fn().mockName('TasksRoleService.hasRole')
-      };
+      } as MockedObject<TasksRoleService>;
       mockTable = {
         setIsArchived: vi.fn().mockName('TasksTableComponent.setIsArchived')
-      };
+      } as MockedObject<TasksTableComponent>;
 
       mockRoleService.hasRole.mockReturnValue(true);
 
@@ -96,13 +97,13 @@ describe('ShowTasksComponent', () => {
     beforeEach(async () => {
       mockTitleService = {
         set: vi.fn().mockName('AutoTitleService.set')
-      };
+      } as MockedObject<AutoTitleService>;
       mockRoleService = {
         hasRole: vi.fn().mockName('TasksRoleService.hasRole')
-      };
+      } as MockedObject<TasksRoleService>;
       mockTable = {
         setIsArchived: vi.fn().mockName('TasksTableComponent.setIsArchived')
-      };
+      } as MockedObject<TasksTableComponent>;
 
       mockRoleService.hasRole.mockReturnValue(false);
 

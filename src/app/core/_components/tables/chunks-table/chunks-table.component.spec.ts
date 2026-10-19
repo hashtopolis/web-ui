@@ -1,6 +1,6 @@
-import type { Mock, MockedObject } from 'vitest';
 import { ChunkState, ChunkStateLabels } from '@constants/chunks.config';
 import { Subject, of } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -60,12 +60,12 @@ describe('ChunksTableComponent', () => {
   beforeEach(async () => {
     mockChunkActionsService = {
       resetChunk: vi.fn().mockName('ChunkActionsService.resetChunk')
-    };
+    } as MockedObject<ChunkActionsService>;
     mockChunkActionsService.resetChunk.mockReturnValue(of(undefined));
     mockAlertService = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
 
     await TestBed.configureTestingModule({
       declarations: [TestChunksTableComponent],

@@ -1,6 +1,6 @@
-import type { MockedObject } from 'vitest';
 import { zCrackerBinaryRelationHashtypesGetResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -82,12 +82,12 @@ describe('CrackerHashtypesComponent', () => {
   beforeEach(() => {
     gs = {
       getRelationshipLink: vi.fn().mockName('GlobalService.getRelationshipLink')
-    };
+    } as MockedObject<GlobalService>;
     gs.getRelationshipLink.mockReturnValue(of(assignedResponse([1000])));
     dialogResult = true;
     dialog = {
       open: vi.fn().mockName('MatDialog.open')
-    };
+    } as MockedObject<MatDialog>;
     dialog.open.mockImplementation(
       () => ({ afterClosed: () => of(dialogResult) }) as MatDialogRef<AddCrackerHashtypesDialogComponent, boolean>
     );
@@ -135,14 +135,14 @@ describe('CrackerHashtypesComponent', () => {
     it('opens the add dialog with the version, the assigned ids and the create permission', () => {
       openButton()?.click();
 
-      const [dialogComponent, config] = vi.mocked(dialog.open).mock.lastCall;
+      const [dialogComponent, config] = vi.mocked(dialog.open).mock.lastCall!;
       expect(dialogComponent).toBe(AddCrackerHashtypesDialogComponent);
       expect(config?.data).toEqual({ crackerBinaryId: 12, assignedHashtypeIds: [1000], canCreate: false });
     });
 
     it('focuses the dialog itself, so the hashtype search does not open its options over the actions', () => {
       component.openAddDialog();
-      expect(vi.mocked(dialog.open).mock.lastCall[1]?.autoFocus).toBe('dialog');
+      expect(vi.mocked(dialog.open).mock.lastCall![1]?.autoFocus).toBe('dialog');
     });
 
     it('reloads the table and the assigned ids after hashtypes were added', async () => {
@@ -180,7 +180,7 @@ describe('CrackerHashtypesComponent', () => {
 
     it('lets the dialog create hashtypes', () => {
       component.openAddDialog();
-      expect((vi.mocked(dialog.open).mock.lastCall[1]?.data as AddCrackerHashtypesDialogData).canCreate).toBe(true);
+      expect((vi.mocked(dialog.open).mock.lastCall![1]?.data as AddCrackerHashtypesDialogData).canCreate).toBe(true);
     });
   });
 

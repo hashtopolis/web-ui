@@ -1,4 +1,5 @@
 import type { MockedObject } from 'vitest';
+
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -14,7 +15,7 @@ describe('ChunksComponent', () => {
   beforeEach(async () => {
     mockTitleService = {
       set: vi.fn().mockName('AutoTitleService.set')
-    };
+    } as MockedObject<AutoTitleService>;
 
     await TestBed.configureTestingModule({
       declarations: [ChunksComponent],

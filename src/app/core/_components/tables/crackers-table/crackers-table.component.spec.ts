@@ -1,5 +1,5 @@
-import type { MockedObject } from 'vitest';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -57,12 +57,12 @@ describe('CrackersTableComponent', () => {
     gs = {
       delete: vi.fn().mockName('GlobalService.delete'),
       bulkDelete: vi.fn().mockName('GlobalService.bulkDelete')
-    };
+    } as MockedObject<GlobalService>;
     gs.delete.mockReturnValue(of({}));
     gs.bulkDelete.mockReturnValue(of({}));
     crackerBinaryTypes = {
       invalidate: vi.fn().mockName('CrackerBinaryTypesService.invalidate')
-    };
+    } as MockedObject<CrackerBinaryTypesService>;
 
     await TestBed.configureTestingModule({
       declarations: [TestCrackersTableComponent],
