@@ -170,6 +170,25 @@ export default defineConfig([
       '@angular-eslint/prefer-inject': 'off'
     }
   },
+  // === Specs: advance fake timers only with the async variants ===
+  {
+    files: ['**/*.spec.ts'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "MemberExpression[object.property.name='location'][property.name='reload']",
+          message: 'Use ReloadService.reloadPage() instead of window.location.reload().'
+        },
+        {
+          selector:
+            "CallExpression[callee.object.name='vi'][callee.property.name=/^(advanceTimersByTime|advanceTimersToNextTimer|runAllTimers|runOnlyPendingTimers)$/]",
+          message:
+            'Use the ...Async variant (e.g. await vi.advanceTimersByTimeAsync(ms)): the sync one does not flush promise and RxJS microtasks between timers, so assertions can run before the work they check.'
+        }
+      ]
+    }
+  },
   // === Allow window.location.reload() only in ReloadService ===
   {
     files: ['**/reload.service.ts'],

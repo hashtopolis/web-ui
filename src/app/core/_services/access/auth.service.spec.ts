@@ -15,6 +15,8 @@ import { PermissionService } from '@services/permission/permission.service';
 import { ConfigService } from '@services/shared/config.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
+import { wait } from '@src/app/testing/wait';
+
 describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
@@ -197,10 +199,8 @@ describe('AuthService refresh token', () => {
 
   /**
    * The renewal now runs inside a Web Lock, so the request leaves on a microtask rather than on the
-   * call itself. Specs have to let that turn happen before asserting on the mock backend.
+   * call itself. Specs `await wait()` to let that turn happen before asserting on the mock backend.
    */
-  const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
-
   let originalLocks: PropertyDescriptor | undefined;
   let lockRequests: string[];
 
@@ -268,7 +268,7 @@ describe('AuthService refresh token', () => {
 
   it('sends the refresh request with credentials so the browser attaches the cookie', async () => {
     service.refreshToken().subscribe();
-    await settle();
+    await wait();
 
     const req = httpMock.expectOne(REFRESH_URL);
     expect(req.request.method).toBe('POST');
@@ -282,7 +282,7 @@ describe('AuthService refresh token', () => {
     const token = tokenForUser1();
 
     service.refreshToken().subscribe();
-    await settle();
+    await wait();
     httpMock.expectOne(REFRESH_URL).flush({ token, expires });
 
     const stored = storage._store[AuthService.STORAGE_KEY];
@@ -292,7 +292,7 @@ describe('AuthService refresh token', () => {
 
   it('keeps the username, which a refreshed token does not carry', async () => {
     service.refreshToken().subscribe();
-    await settle();
+    await wait();
     httpMock.expectOne(REFRESH_URL).flush({ token: tokenForUser1(), expires: Math.floor(Date.now() / 1000) + 3600 });
 
     expect(storage._store[AuthService.STORAGE_KEY].canonicalUsername).toBe('testuser');
@@ -304,7 +304,7 @@ describe('AuthService refresh token', () => {
     service.refreshToken().subscribe();
     service.refreshToken().subscribe();
     service.refreshToken().subscribe();
-    await settle();
+    await wait();
 
     const requests = httpMock.match(REFRESH_URL);
     expect(requests.length).toBe(1);
@@ -314,15 +314,15 @@ describe('AuthService refresh token', () => {
 
   it('allows a new request once the previous one settled', async () => {
     service.refreshToken().subscribe();
-    await settle();
+    await wait();
     httpMock.expectOne(REFRESH_URL).flush({ token: tokenForUser1(), expires: Math.floor(Date.now() / 1000) + 3600 });
-    await settle();
+    await wait();
 
     // The stored token is fresh now, so age it back out to force a second exchange
     storage._store[AuthService.STORAGE_KEY] = storedSession(-1000);
 
     service.refreshToken().subscribe();
-    await settle();
+    await wait();
     expect(() =>
       httpMock.expectOne(REFRESH_URL).flush({ token: tokenForUser1(), expires: Math.floor(Date.now() / 1000) + 3600 })
     ).not.toThrow();
@@ -331,19 +331,19 @@ describe('AuthService refresh token', () => {
   it('reports a failed refresh to the caller', async () => {
     let failed = false;
     service.refreshToken().subscribe({ error: () => (failed = true) });
-    await settle();
+    await wait();
 
     httpMock
       .expectOne(REFRESH_URL)
       .flush({ title: 'Refresh token has expired' }, { status: 401, statusText: 'Unauthorized' });
-    await settle();
+    await wait();
 
     expect(failed).toBe(true);
   });
 
   it('renews under a lock, so two tabs cannot spend the same single-use cookie', async () => {
     service.refreshToken().subscribe();
-    await settle();
+    await wait();
 
     expect(lockRequests).toEqual(['hashtopolis-refresh-token']);
 
@@ -362,7 +362,7 @@ describe('AuthService refresh token', () => {
 
     let received: AuthData | null = null;
     service.refreshToken().subscribe((data) => (received = data));
-    await settle();
+    await wait();
 
     httpMock.expectNone(REFRESH_URL);
     expect(received!._token).toBe(fresh._token);
@@ -373,7 +373,7 @@ describe('AuthService refresh token', () => {
     Object.defineProperty(navigator, 'locks', { configurable: true, value: undefined });
 
     service.refreshToken().subscribe();
-    await settle();
+    await wait();
 
     expect(() =>
       httpMock.expectOne(REFRESH_URL).flush({ token: tokenForUser1(), expires: Math.floor(Date.now() / 1000) + 3600 })

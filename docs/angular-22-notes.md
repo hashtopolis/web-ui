@@ -15,6 +15,7 @@ Checklist from #842. The upgrade pinned old behaviour wherever a default changed
 - Specs: `provideDisabledMaterialAnimations()`, `provideRouter([])` + `RouterLink` + `provideLocationMocks()`, no `withXhr()`
 - CI lints whole changed files: old lint debt comes along
 - Specs run on Vitest with jsdom: no layout, use vi.useFakeTimers instead of fakeAsync
+- Fake timers: `await vi.advanceTimersByTimeAsync(ms)`, not the sync variant (it skips promise / RxJS microtasks); real waits: `wait()` from `@src/app/testing/wait`
 - `.npmrc` 14-day `min-release-age`: versions trail latest
 - CLI 22: chunk merging on (`NG_BUILD_OPTIMIZE_CHUNKS=false`), `PORT` env wins in `ng serve`
 
