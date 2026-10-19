@@ -265,7 +265,8 @@ describe('InputMultiSelectComponent chip removal interaction', () => {
     await TestBed.configureTestingModule({
       declarations: [InputMultiSelectComponent],
       imports: [MatFormFieldModule, MatChipsModule, MatInputModule, MatTooltipModule, MatAutocompleteModule],
-      providers: [provideDisabledMaterialAnimations()]
+      providers: [provideDisabledMaterialAnimations()],
+      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(InputMultiSelectComponent);

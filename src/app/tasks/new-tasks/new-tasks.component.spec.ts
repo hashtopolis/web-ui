@@ -9,7 +9,7 @@ import {
 import { Observable, Subject, of, throwError } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -445,7 +445,7 @@ describe('NewTasksComponent', () => {
         { provide: Router, useValue: routerSpy },
         { provide: CrackerHashtypeSupportService, useValue: supportSpy }
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA]
+      schemas: [NO_ERRORS_SCHEMA]
       // Angular 21 made TestBed rethrow application errors by default. Keep v20
       // behavior here — these specs predate the upgrade and rely on errors
       // flowing through Angular's own handling rather than the test runner.
