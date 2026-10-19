@@ -22,3 +22,80 @@ if (!('parser' in globalThis)) {
 afterEach(() => {
   vi.restoreAllMocks();
 });
+
+// jsdom's typed arrays come from its own realm, but its TextEncoder is Node's, so encoded bytes fail
+// `instanceof Uint8Array` / `instanceof ArrayBuffer` checks (for example when HttpTestingController
+// flushes an 'arraybuffer' response). Copy the result into this realm's Uint8Array, as in a browser.
+const nodeEncode = TextEncoder.prototype.encode;
+if (!(nodeEncode.call(new TextEncoder(), '') instanceof Uint8Array)) {
+  TextEncoder.prototype.encode = function encode(this: TextEncoder, input?: string) {
+    return new Uint8Array(nodeEncode.call(this, input));
+  };
+}
+
+// jsdom has no canvas: getContext() returns null and the ECharts canvas renderer then throws while it
+// draws. The specs assert on chart options, not on pixels, so a 2D context that draws nothing is enough.
+function createCanvasContextStub(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+  const noop = (): void => undefined;
+  const gradient = { addColorStop: noop };
+  const methods = [
+    'arc',
+    'arcTo',
+    'beginPath',
+    'bezierCurveTo',
+    'clearRect',
+    'clip',
+    'closePath',
+    'drawImage',
+    'ellipse',
+    'fill',
+    'fillRect',
+    'fillText',
+    'lineTo',
+    'moveTo',
+    'putImageData',
+    'quadraticCurveTo',
+    'rect',
+    'resetTransform',
+    'restore',
+    'rotate',
+    'save',
+    'scale',
+    'setLineDash',
+    'setTransform',
+    'stroke',
+    'strokeRect',
+    'strokeText',
+    'transform',
+    'translate'
+  ];
+  const imageData = (width: number, height: number) => ({
+    width,
+    height,
+    data: new Uint8ClampedArray(width * height * 4)
+  });
+  return {
+    ...Object.fromEntries(methods.map((name) => [name, noop])),
+    canvas,
+    createLinearGradient: () => gradient,
+    createRadialGradient: () => gradient,
+    createPattern: () => ({}),
+    createImageData: imageData,
+    getImageData: (_x: number, _y: number, width: number, height: number) => imageData(width, height),
+    getLineDash: () => [],
+    isPointInPath: () => false,
+    measureText: (text: string) => ({ width: text.length * 6 })
+  } as unknown as CanvasRenderingContext2D;
+}
+const canvasContexts = new WeakMap<HTMLCanvasElement, CanvasRenderingContext2D>();
+HTMLCanvasElement.prototype.getContext = function getContext(this: HTMLCanvasElement, contextId: string) {
+  if (contextId !== '2d') {
+    return null;
+  }
+  let context = canvasContexts.get(this);
+  if (!context) {
+    context = createCanvasContextStub(this);
+    canvasContexts.set(this, context);
+  }
+  return context;
+} as typeof HTMLCanvasElement.prototype.getContext;
