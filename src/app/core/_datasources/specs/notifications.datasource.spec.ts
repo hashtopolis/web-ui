@@ -1,3 +1,4 @@
+import type { Mock, MockedObject } from 'vitest';
 /// <reference types="jasmine" />
 import { zNotificationSettingListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
@@ -47,29 +48,42 @@ const MOCK_NOTIFICATION_WITH_OBJECT: JNotification = {
 
 describe('NotificationsDataSource', () => {
   let dataSource: NotificationsDataSource;
-  let gsSpy: jasmine.SpyObj<GlobalService>;
-  let _deserializeSpy: jasmine.Spy;
+  let gsSpy: MockedObject<GlobalService>;
+  let _deserializeSpy: Mock;
 
   beforeEach(() => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll']);
+    gsSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    };
 
-    const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges']);
-    const uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    uiServiceSpy.getUISettings.and.returnValue({});
-    const autoRefreshSpy = jasmine.createSpyObj(
-      'AutoRefreshService',
-      ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'],
-      { refresh$: of() }
-    );
-    const cacheSpy = jasmine.createSpyObj('HttpCacheService', ['invalidate']);
-    const storageSpy = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
-    storageSpy.getItem.and.returnValue(null);
+    const cdrSpy = {
+      markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
+      detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges')
+    };
+    const uiServiceSpy = {
+      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+    };
+    uiServiceSpy.getUISettings.mockReturnValue({});
+    const autoRefreshSpy = {
+      toggleAutoRefresh: vi.fn().mockName('AutoRefreshService.toggleAutoRefresh'),
+      startAutoRefresh: vi.fn().mockName('AutoRefreshService.startAutoRefresh'),
+      stopAutoRefresh: vi.fn().mockName('AutoRefreshService.stopAutoRefresh'),
+      refresh$: of()
+    };
+    const cacheSpy = {
+      invalidate: vi.fn().mockName('HttpCacheService.invalidate')
+    };
+    const storageSpy = {
+      getItem: vi.fn().mockName('LocalStorageService.getItem'),
+      setItem: vi.fn().mockName('LocalStorageService.setItem')
+    };
+    storageSpy.getItem.mockReturnValue(null);
 
-    gsSpy.getAll.and.returnValue(of(mockResponse()));
+    gsSpy.getAll.mockReturnValue(of(mockResponse()));
 
-    _deserializeSpy = spyOn(JsonAPISerializer.prototype, 'deserialize').and.callFake(
-      (_body: unknown, _schema?: unknown) => [MOCK_NOTIFICATION]
-    );
+    _deserializeSpy = vi
+      .spyOn(JsonAPISerializer.prototype, 'deserialize')
+      .mockImplementation((_body: unknown, _schema?: unknown) => [MOCK_NOTIFICATION]);
 
     TestBed.configureTestingModule({
       providers: [
@@ -93,13 +107,13 @@ describe('NotificationsDataSource', () => {
   describe('loadAll()', () => {
     it('should call service.getAll with SERV.NOTIFICATIONS', () => {
       dataSource.loadAll();
-      const [serviceConfig] = gsSpy.getAll.calls.mostRecent().args;
+      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall;
       expect(serviceConfig).toEqual(SERV.NOTIFICATIONS);
     });
 
     it('should deserialize the response with zNotificationSettingListResponse', () => {
       dataSource.loadAll();
-      expect(_deserializeSpy).toHaveBeenCalledWith(jasmine.anything(), zNotificationSettingListResponse);
+      expect(_deserializeSpy).toHaveBeenCalledWith(expect.anything(), zNotificationSettingListResponse);
     });
 
     it('should populate data with the deserialized notifications', () => {
@@ -109,13 +123,13 @@ describe('NotificationsDataSource', () => {
     });
 
     it('should set totalItems from meta.page.total_elements', () => {
-      gsSpy.getAll.and.returnValue(of(mockResponse({ meta: { page: { total_elements: 3 } } })));
+      gsSpy.getAll.mockReturnValue(of(mockResponse({ meta: { page: { total_elements: 3 } } })));
       dataSource.loadAll();
       expect(dataSource.totalItems).toBe(3);
     });
 
     it('should extract the page[after] cursor from links.next', () => {
-      gsSpy.getAll.and.returnValue(
+      gsSpy.getAll.mockReturnValue(
         of(
           mockResponse({
             meta: { page: { total_elements: 10 } },
@@ -143,8 +157,8 @@ describe('NotificationsDataSource', () => {
     it('should append a query filter when provided', () => {
       const query: Filter = { field: 'action', operator: FilterType.ICONTAINS, value: 'error' };
       dataSource.loadAll(query);
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'action', value: 'error' }));
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'action', value: 'error' }));
     });
 
     it('should persist the query as _currentFilter', () => {
@@ -156,22 +170,22 @@ describe('NotificationsDataSource', () => {
     it('should reuse _currentFilter on a subsequent call without query', () => {
       const query: Filter = { field: 'receiver', operator: FilterType.ICONTAINS, value: 'example.org' };
       dataSource.loadAll(query);
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
       expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'receiver', value: 'example.org' })
+        expect.objectContaining({ field: 'receiver', value: 'example.org' })
       );
     });
 
     it('should set loading to false after a successful response', () => {
       dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
 
     it('should call handleFilterError and return empty data when request fails', () => {
-      gsSpy.getAll.and.returnValue(throwError(() => new Error('backend error')));
-      const handleFilterErrorSpy = spyOn(dataSource as never, 'handleFilterError').and.callThrough();
+      gsSpy.getAll.mockReturnValue(throwError(() => new Error('backend error')));
+      const handleFilterErrorSpy = vi.spyOn(dataSource as never, 'handleFilterError');
 
       dataSource.loadAll();
 
@@ -180,13 +194,13 @@ describe('NotificationsDataSource', () => {
     });
 
     it('should set loading to false even when request fails', () => {
-      gsSpy.getAll.and.returnValue(throwError(() => new Error('backend error')));
+      gsSpy.getAll.mockReturnValue(throwError(() => new Error('backend error')));
       dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
 
     it('should handle notifications with objectId', () => {
-      _deserializeSpy.and.returnValue([MOCK_NOTIFICATION_WITH_OBJECT]);
+      _deserializeSpy.mockReturnValue([MOCK_NOTIFICATION_WITH_OBJECT]);
       dataSource.loadAll();
       const data = dataSource.getOriginalData();
       expect(data[0].objectId).toBe(4);
@@ -204,7 +218,7 @@ describe('NotificationsDataSource', () => {
     });
 
     it('should call loadAll()', () => {
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       dataSource.reload();
       expect(gsSpy.getAll).toHaveBeenCalled();
     });
@@ -224,7 +238,7 @@ describe('NotificationsDataSource', () => {
 
     it('should reset index to 0 and reload data', () => {
       dataSource.index = 5;
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
 
       dataSource.clearFilter();
 
@@ -236,12 +250,12 @@ describe('NotificationsDataSource', () => {
       const query: Filter = { field: 'action', operator: FilterType.ICONTAINS, value: 'error' };
       dataSource.loadAll(query);
 
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       dataSource.clearFilter();
 
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
       const filter = (params as RequestParams).filter ?? [];
-      expect(filter.some((f: Filter) => f.field === 'action')).toBeFalse();
+      expect(filter.some((f: Filter) => f.field === 'action')).toBe(false);
     });
   });
 });
@@ -270,18 +284,18 @@ describe('zNotificationSettingListResponse objectId nullability', () => {
     });
 
   it('accepts a numeric objectId', () => {
-    expect(zNotificationSettingListResponse.safeParse(bodyWith({ objectId: 42 })).success).toBeTrue();
+    expect(zNotificationSettingListResponse.safeParse(bodyWith({ objectId: 42 })).success).toBe(true);
   });
 
   it('accepts a null objectId (notification not tied to an object)', () => {
-    expect(zNotificationSettingListResponse.safeParse(bodyWith({ objectId: null })).success).toBeTrue();
+    expect(zNotificationSettingListResponse.safeParse(bodyWith({ objectId: null })).success).toBe(true);
   });
 
   it('rejects an absent objectId (the API always sends it, null when not tied to an object)', () => {
-    expect(zNotificationSettingListResponse.safeParse(bodyWith({})).success).toBeFalse();
+    expect(zNotificationSettingListResponse.safeParse(bodyWith({})).success).toBe(false);
   });
 
   it('still rejects a non-integer objectId', () => {
-    expect(zNotificationSettingListResponse.safeParse(bodyWith({ objectId: 'not-a-number' })).success).toBeFalse();
+    expect(zNotificationSettingListResponse.safeParse(bodyWith({ objectId: 'not-a-number' })).success).toBe(false);
   });
 });

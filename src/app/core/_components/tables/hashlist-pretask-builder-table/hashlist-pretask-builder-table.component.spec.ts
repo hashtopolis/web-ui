@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { zCrackerBinaryListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
 
@@ -46,19 +47,27 @@ const VERSIONS = mockValidResponse(zCrackerBinaryListResponse, { data: [crackerV
 describe('HashlistPretaskBuilderTableComponent', () => {
   let component: TestHashlistPretaskBuilderTableComponent;
   let fixture: ComponentFixture<TestHashlistPretaskBuilderTableComponent>;
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
-  let support: jasmine.SpyObj<CrackerHashtypeSupportService>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockAlertService: MockedObject<AlertService>;
+  let support: MockedObject<CrackerHashtypeSupportService>;
 
   beforeEach(async () => {
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['create', 'getAll']);
-    mockGlobalService.create.and.returnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.create>);
-    mockGlobalService.getAll.and.returnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.getAll>);
+    mockGlobalService = {
+      create: vi.fn().mockName('GlobalService.create'),
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    };
+    mockGlobalService.create.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.create>);
+    mockGlobalService.getAll.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.getAll>);
 
-    mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+    mockAlertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    };
 
-    support = jasmine.createSpyObj('CrackerHashtypeSupportService', ['getSupportedCrackerBinaryIds']);
-    support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10])));
+    support = {
+      getSupportedCrackerBinaryIds: vi.fn().mockName('CrackerHashtypeSupportService.getSupportedCrackerBinaryIds')
+    };
+    support.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([10])));
 
     await TestBed.configureTestingModule({
       declarations: [TestHashlistPretaskBuilderTableComponent],
@@ -149,7 +158,9 @@ describe('HashlistPretaskBuilderTableComponent', () => {
     component.pretasks = rows;
     component.selectedPretaskIds = new Set([1, 2]);
 
-    const privateComponent = component as unknown as { retainSelection(rows: JPretask[]): void };
+    const privateComponent = component as unknown as {
+      retainSelection(rows: JPretask[]): void;
+    };
 
     privateComponent.retainSelection(rows);
     expect(Array.from(component.selectedPretaskIds)).toEqual([1, 2]);
@@ -185,10 +196,14 @@ describe('HashlistPretaskBuilderTableComponent', () => {
   });
 
   it('should keep the after cursor and clear selection when paging forward', () => {
-    const setPaginationConfig = jasmine.createSpy('setPaginationConfig');
-    const reload = jasmine.createSpy('reload');
+    const setPaginationConfig = vi.fn().mockName('setPaginationConfig');
+    const reload = vi.fn().mockName('reload');
     component.selectedPretaskIds = new Set([1, 2]);
-    (component as unknown as { dataSource: unknown }).dataSource = {
+    (
+      component as unknown as {
+        dataSource: unknown;
+      }
+    ).dataSource = {
       pageAfter: 'AFTER',
       pageBefore: 'BEFORE',
       index: 0,
@@ -206,9 +221,13 @@ describe('HashlistPretaskBuilderTableComponent', () => {
   });
 
   it('should reset cursors when jumping to the first page', () => {
-    const setPaginationConfig = jasmine.createSpy('setPaginationConfig');
-    const reload = jasmine.createSpy('reload');
-    (component as unknown as { dataSource: unknown }).dataSource = {
+    const setPaginationConfig = vi.fn().mockName('setPaginationConfig');
+    const reload = vi.fn().mockName('reload');
+    (
+      component as unknown as {
+        dataSource: unknown;
+      }
+    ).dataSource = {
       pageAfter: 'AFTER',
       pageBefore: 'BEFORE',
       index: 2,
@@ -237,7 +256,7 @@ describe('HashlistPretaskBuilderTableComponent', () => {
     }
 
     beforeEach(() => {
-      mockGlobalService.getAll.and.returnValue(of(VERSIONS) as unknown as ReturnType<typeof mockGlobalService.getAll>);
+      mockGlobalService.getAll.mockReturnValue(of(VERSIONS) as unknown as ReturnType<typeof mockGlobalService.getAll>);
       component.hashTypeId = 1000;
       component.hashtypeDescription = 'NTLM';
     });
@@ -251,13 +270,13 @@ describe('HashlistPretaskBuilderTableComponent', () => {
       expect(support.getSupportedCrackerBinaryIds).toHaveBeenCalledWith(1000);
       expect(mockGlobalService.create).toHaveBeenCalledWith(
         SERV.TASKS,
-        jasmine.objectContaining({ crackerBinaryId: 10, hashlistId: 4 }),
-        jasmine.anything()
+        expect.objectContaining({ crackerBinaryId: 10, hashlistId: 4 }),
+        expect.anything()
       );
     });
 
     it('shows the block message once for several pretasks of one type', async () => {
-      support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      support.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set<number>()));
       component.pretasks = [pretask(1), pretask(2)];
       component.selectedPretaskIds = new Set([1, 2]);
 
@@ -273,7 +292,7 @@ describe('HashlistPretaskBuilderTableComponent', () => {
     });
 
     it('says the check failed when the support lookup failed', async () => {
-      support.getSupportedCrackerBinaryIds.and.returnValue(of(SUPPORT_LOOKUP_FAILED));
+      support.getSupportedCrackerBinaryIds.mockReturnValue(of(SUPPORT_LOOKUP_FAILED));
       component.pretasks = [pretask(1)];
       component.selectedPretaskIds = new Set([1]);
 
@@ -286,7 +305,7 @@ describe('HashlistPretaskBuilderTableComponent', () => {
     });
 
     it('explains the block again on a later create', async () => {
-      support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      support.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set<number>()));
       component.pretasks = [pretask(1)];
       component.selectedPretaskIds = new Set([1]);
       await component.createTasksFromSelection();
@@ -294,7 +313,7 @@ describe('HashlistPretaskBuilderTableComponent', () => {
       component.selectedPretaskIds = new Set([1]);
       await component.createTasksFromSelection();
 
-      expect(mockAlertService.showErrorMessage.calls.mostRecent().args[0]).toBe(
+      expect(vi.mocked(mockAlertService.showErrorMessage).mock.lastCall[0]).toBe(
         `Failed to create 1 task(s). ${buildUnsupportedHashtypeMessage(1000, 'NTLM')}`
       );
     });

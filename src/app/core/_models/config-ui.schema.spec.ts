@@ -12,7 +12,7 @@ describe('uiConfigSchema', () => {
 
   it('should parse valid uiConfigDefault successfully', () => {
     const result = uiConfigSchema.safeParse(defaults);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.layout).toBeDefined();
       expect(result.data.theme).toBeDefined();
@@ -30,7 +30,7 @@ describe('uiConfigSchema', () => {
     };
 
     const result = uiConfigSchema.safeParse(partial);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.layout).toBe('full');
       expect(result.data.theme).toBe('dark');
@@ -45,37 +45,37 @@ describe('uiConfigSchema', () => {
   it('should fail on invalid layout value', () => {
     const invalid = { ...defaults, layout: 'wide' };
     const result = uiConfigSchema.safeParse(invalid);
-    expect(result.success).toBeFalse();
+    expect(result.success).toBe(false);
   });
 
   it('should allow custom theme values', () => {
     const custom = { ...defaults, theme: 'my-custom-theme' };
     const result = uiConfigSchema.safeParse(custom);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.theme).toBe('my-custom-theme');
     }
   });
 
   it('should fail on garbled data (string)', () => {
-    expect(uiConfigSchema.safeParse('not an object').success).toBeFalse();
+    expect(uiConfigSchema.safeParse('not an object').success).toBe(false);
   });
 
   it('should fail on garbled data (number)', () => {
-    expect(uiConfigSchema.safeParse(42).success).toBeFalse();
+    expect(uiConfigSchema.safeParse(42).success).toBe(false);
   });
 
   it('should fail on garbled data (null)', () => {
-    expect(uiConfigSchema.safeParse(null).success).toBeFalse();
+    expect(uiConfigSchema.safeParse(null).success).toBe(false);
   });
 
   it('should strip extra unknown top-level keys (forward compat)', () => {
     const withExtra = { ...defaults, unknownFeatureFlag: true, beta: 'yes' };
     const result = uiConfigSchema.safeParse(withExtra);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
-      expect('unknownFeatureFlag' in result.data).toBeFalse();
-      expect('beta' in result.data).toBeFalse();
+      expect('unknownFeatureFlag' in result.data).toBe(false);
+      expect('beta' in result.data).toBe(false);
     }
   });
 
@@ -94,7 +94,7 @@ describe('uiConfigSchema', () => {
     };
 
     const result = uiConfigSchema.safeParse(config);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.tableSettings['brandNewTable']).toBeDefined();
     }
@@ -115,7 +115,7 @@ describe('uiConfigSchema', () => {
     };
 
     const result = uiConfigSchema.safeParse(config);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       // stored entry wins
       expect((result.data.tableSettings['usersTable'] as TableConfig).columns).toEqual(customColumns);
@@ -134,7 +134,7 @@ describe('uiConfigSchema', () => {
     };
 
     const result = uiConfigSchema.safeParse(config);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       const expected = uiConfigDefault.tableSettings['usersTable'] as TableConfig;
       const repaired = result.data.tableSettings['usersTable'] as TableConfig;
@@ -153,7 +153,7 @@ describe('uiConfigSchema', () => {
     };
 
     const result = uiConfigSchema.safeParse(config);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.tableSettings['legacyDeadTable']).toBeUndefined();
     }
@@ -175,7 +175,7 @@ describe('uiConfigSchema', () => {
     };
 
     const result = uiConfigSchema.safeParse(config);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       // bad entry repaired from default
       const repaired = result.data.tableSettings['usersTable'] as TableConfig;
@@ -190,12 +190,12 @@ describe('uiConfigSchema', () => {
   it('should still fail when tableSettings itself is non-object garbage', () => {
     const config = { ...defaults, tableSettings: 'string' };
     const result = uiConfigSchema.safeParse(config);
-    expect(result.success).toBeFalse();
+    expect(result.success).toBe(false);
   });
 
   it('should accept an empty object and fill all defaults', () => {
     const result = uiConfigSchema.safeParse({});
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect(['full', 'fixed']).toContain(result.data.layout);
       expect(['light', 'dark']).toContain(result.data.theme);
@@ -222,7 +222,7 @@ describe('uiConfigSchema', () => {
     };
 
     const result = uiConfigSchema.safeParse(config);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       const table = result.data.tableSettings['myTable'] as TableConfig;
       expect(table.before).toBe(5);
@@ -244,11 +244,17 @@ describe('uiConfigSchema', () => {
     };
 
     const result = uiConfigSchema.safeParse(config);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       const table = result.data.tableSettings['tasksTable'] as TableConfig;
       expect(table.order).toBeDefined();
-      expect((table.order as { parent?: string }).parent).toBe('task');
+      expect(
+        (
+          table.order as {
+            parent?: string;
+          }
+        ).parent
+      ).toBe('task');
     }
   });
 
@@ -270,7 +276,7 @@ describe('uiConfigSchema', () => {
     };
 
     const result = uiConfigSchema.safeParse(config);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       const table = result.data.tableSettings['tasksTable'] as TableConfig;
       expect(table.start).toBe(cursor);
@@ -292,7 +298,7 @@ describe('uiConfigSchema', () => {
     };
 
     const result = uiConfigSchema.safeParse(config);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       const table = result.data.tableSettings['testTable'] as TableConfig;
       expect(table.columns).toEqual([1, 2, 3]);
@@ -303,7 +309,7 @@ describe('uiConfigSchema', () => {
   it('should coerce refreshInterval from string to number', () => {
     const config = { ...defaults, refreshInterval: '30' };
     const result = uiConfigSchema.safeParse(config);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.refreshInterval).toBe(30);
     }
@@ -332,7 +338,7 @@ describe('uisSettingsSchema', () => {
 
   it('should parse a valid complete object unchanged', () => {
     const result = uisSettingsSchema.safeParse(validSettings);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.chunktime).toBe(600);
       expect(result.data.hashlistAlias).toBe('#HL#');
@@ -362,7 +368,7 @@ describe('uisSettingsSchema', () => {
     ];
 
     const result = uisSettingsSchema.safeParse(oldFormat);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.chunktime).toBe(600);
       expect(result.data.hashlistAlias).toBe('#HL#');
@@ -377,7 +383,7 @@ describe('uisSettingsSchema', () => {
     ];
 
     const result = uisSettingsSchema.safeParse(partialOld);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.chunktime).toBe(600);
       expect(result.data.statustimer).toBe(5);
@@ -401,7 +407,7 @@ describe('uisSettingsSchema', () => {
     ];
 
     const result = uisSettingsSchema.safeParse(malformed);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.chunktime).toBe(600);
       expect(result.data.agenttimeout).toBe(10);
@@ -413,7 +419,7 @@ describe('uisSettingsSchema', () => {
 
   it('should fill all defaults for empty array', () => {
     const result = uisSettingsSchema.safeParse([]);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.chunktime).toBe(0);
       expect(result.data.hashlistAlias).toBe('#HL#');
@@ -424,9 +430,9 @@ describe('uisSettingsSchema', () => {
   });
 
   it('should fail validation for non-array non-object input', () => {
-    expect(uisSettingsSchema.safeParse('garbage').success).toBeFalse();
-    expect(uisSettingsSchema.safeParse(42).success).toBeFalse();
-    expect(uisSettingsSchema.safeParse(null).success).toBeFalse();
+    expect(uisSettingsSchema.safeParse('garbage').success).toBe(false);
+    expect(uisSettingsSchema.safeParse(42).success).toBe(false);
+    expect(uisSettingsSchema.safeParse(null).success).toBe(false);
   });
 
   it('should preserve _timestamp and _expiresin metadata through migration', () => {
@@ -436,7 +442,7 @@ describe('uisSettingsSchema', () => {
     ];
 
     const result = uisSettingsSchema.safeParse(oldFormat);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data._timestamp).toBe(1700000000000);
       expect(result.data._expiresin).toBe(86400000);
@@ -452,7 +458,7 @@ describe('uisSettingsSchema', () => {
     };
 
     const result = uisSettingsSchema.safeParse(withStrings);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.chunktime).toBe(600);
       expect(result.data.statustimer).toBe(5);
@@ -477,7 +483,12 @@ describe('sortingSchema – sort parameter round-trip', () => {
    * produce a relationship sort like "task.taskName"; the rest produce a
    * simple sort like "priority".
    */
-  const sortableColumns: { table: string; dataKey: string; id: number; parent?: string }[] = [
+  const sortableColumns: {
+    table: string;
+    dataKey: string;
+    id: number;
+    parent?: string;
+  }[] = [
     // tasks-table (the only table with parent-based sort columns)
     { table: 'tasks', dataKey: 'taskWrapperId', id: 0 },
     { table: 'tasks', dataKey: 'taskType', id: 1 },
@@ -514,7 +525,7 @@ describe('sortingSchema – sort parameter round-trip', () => {
 
         // 2. Round-trip through sortingSchema (simulates localStorage save + restore)
         const result = sortingSchema.safeParse(initial);
-        expect(result.success).toBeTrue();
+        expect(result.success).toBe(true);
 
         // 3. The sort parameter sent to the API must be identical
         const expected = buildSortParam(initial);
@@ -536,7 +547,7 @@ describe('sortingSchema – sort parameter round-trip', () => {
     };
 
     const result = sortingSchema.safeParse(withExtra);
-    expect(result.success).toBeTrue();
+    expect(result.success).toBe(true);
     if (result.success) {
       expect((result.data as Record<string, unknown>)['render']).toBeUndefined();
       expect((result.data as Record<string, unknown>)['routerLink']).toBeUndefined();

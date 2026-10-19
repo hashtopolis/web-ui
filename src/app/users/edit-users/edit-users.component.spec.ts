@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
 
@@ -46,45 +47,59 @@ const MOCK_PERMISSION_GROUPS: JGlobalPermissionGroup[] = [MOCK_PERMISSION_GROUP]
 describe('EditUsersComponent', () => {
   let component: EditUsersComponent;
   let fixture: ComponentFixture<EditUsersComponent>;
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
-  let mockAutoTitleService: jasmine.SpyObj<AutoTitleService>;
-  let mockRouter: jasmine.SpyObj<Router>;
-  let mockConfirmDialogService: jasmine.SpyObj<ConfirmDialogService>;
-  let mockUserRoleService: jasmine.SpyObj<UserRoleService>;
-  let mockPermissionRoleService: jasmine.SpyObj<PermissionRoleService>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockAlertService: MockedObject<AlertService>;
+  let mockAutoTitleService: MockedObject<AutoTitleService>;
+  let mockRouter: MockedObject<Router>;
+  let mockConfirmDialogService: MockedObject<ConfirmDialogService>;
+  let mockUserRoleService: MockedObject<UserRoleService>;
+  let mockPermissionRoleService: MockedObject<PermissionRoleService>;
 
   beforeEach(async () => {
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['get', 'getAll', 'update', 'delete', 'chelper']);
-    mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage']);
-    mockAutoTitleService = jasmine.createSpyObj('AutoTitleService', ['set']);
-    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-    mockConfirmDialogService = jasmine.createSpyObj('ConfirmDialogService', ['confirmDeletion']);
-    mockUserRoleService = jasmine.createSpyObj('UserRoleService', [
-      'canRead',
-      'canCreate',
-      'canUpdate',
-      'canDelete',
-      'hasRole'
-    ]);
-    mockPermissionRoleService = jasmine.createSpyObj('PermissionRoleService', [
-      'canRead',
-      'canCreate',
-      'canUpdate',
-      'canDelete',
-      'hasRole'
-    ]);
+    mockGlobalService = {
+      get: vi.fn().mockName('GlobalService.get'),
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      update: vi.fn().mockName('GlobalService.update'),
+      delete: vi.fn().mockName('GlobalService.delete'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    };
+    mockAlertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage')
+    };
+    mockAutoTitleService = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    };
+    mockRouter = {
+      navigate: vi.fn().mockName('Router.navigate')
+    };
+    mockConfirmDialogService = {
+      confirmDeletion: vi.fn().mockName('ConfirmDialogService.confirmDeletion')
+    };
+    mockUserRoleService = {
+      canRead: vi.fn().mockName('UserRoleService.canRead'),
+      canCreate: vi.fn().mockName('UserRoleService.canCreate'),
+      canUpdate: vi.fn().mockName('UserRoleService.canUpdate'),
+      canDelete: vi.fn().mockName('UserRoleService.canDelete'),
+      hasRole: vi.fn().mockName('UserRoleService.hasRole')
+    };
+    mockPermissionRoleService = {
+      canRead: vi.fn().mockName('PermissionRoleService.canRead'),
+      canCreate: vi.fn().mockName('PermissionRoleService.canCreate'),
+      canUpdate: vi.fn().mockName('PermissionRoleService.canUpdate'),
+      canDelete: vi.fn().mockName('PermissionRoleService.canDelete'),
+      hasRole: vi.fn().mockName('PermissionRoleService.hasRole')
+    };
 
-    mockRouter.navigate.and.returnValue(Promise.resolve(true));
-    mockGlobalService.get.and.returnValue(of(mockResponse()));
-    mockGlobalService.getAll.and.returnValue(of(mockResponse()));
-    mockGlobalService.update.and.returnValue(of({}));
-    mockGlobalService.delete.and.returnValue(of({}));
-    mockGlobalService.chelper.and.returnValue(of({}));
+    mockRouter.navigate.mockResolvedValue(true);
+    mockGlobalService.get.mockReturnValue(of(mockResponse()));
+    mockGlobalService.getAll.mockReturnValue(of(mockResponse()));
+    mockGlobalService.update.mockReturnValue(of({}));
+    mockGlobalService.delete.mockReturnValue(of({}));
+    mockGlobalService.chelper.mockReturnValue(of({}));
 
     // JsonAPISerializer is used with `new` inside the component — spy on the
     // prototype to avoid coupling tests to the real JSON:API parsing logic.
-    spyOn(JsonAPISerializer.prototype, 'deserialize').and.callFake((_body: unknown, schema?: unknown) => {
+    vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockImplementation((_body: unknown, schema?: unknown) => {
       if (schema === zGlobalPermissionGroupListResponse) return MOCK_PERMISSION_GROUPS;
       return MOCK_USER; // covers zUserResponse (loadData + initForm)
     });
@@ -152,7 +167,7 @@ describe('EditUsersComponent', () => {
     });
 
     it('should set isLoading to false after the permission groups are fetched', () => {
-      expect(component.isLoading).toBeFalse();
+      expect(component.isLoading).toBe(false);
     });
   });
 
@@ -187,10 +202,11 @@ describe('EditUsersComponent', () => {
 
       it('should call gs.update with the correct endpoint and user ID', () => {
         component.onSubmit();
-        expect(mockGlobalService.update).toHaveBeenCalledOnceWith(
+        expect(mockGlobalService.update).toHaveBeenCalledTimes(1);
+        expect(mockGlobalService.update).toHaveBeenCalledWith(
           SERV.USERS,
           component.editedUserIndex,
-          jasmine.objectContaining({
+          expect.objectContaining({
             globalPermissionGroupId: MOCK_USER.globalPermissionGroupId,
             isValid: MOCK_USER.isValid
           })
@@ -205,12 +221,12 @@ describe('EditUsersComponent', () => {
       it('should show a success message containing the user name', async () => {
         component.onSubmit();
         await Promise.resolve(); // wait for router.navigate().then()
-        expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith(jasmine.stringContaining(MOCK_USER.name));
+        expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith(expect.stringContaining(MOCK_USER.name));
       });
 
       it('should reset isUpdatingLoading to false after the update completes', () => {
         component.onSubmit();
-        expect(component.isUpdatingLoading).toBeFalse();
+        expect(component.isUpdatingLoading).toBe(false);
       });
     });
 
@@ -226,7 +242,7 @@ describe('EditUsersComponent', () => {
 
       it('should mark all form controls as touched so validation messages become visible', () => {
         component.onSubmit();
-        expect(component.updateForm.touched).toBeTrue();
+        expect(component.updateForm.touched).toBe(true);
       });
     });
   });
@@ -236,12 +252,13 @@ describe('EditUsersComponent', () => {
   describe('onDelete()', () => {
     describe('when the user confirms deletion', () => {
       beforeEach(() => {
-        mockConfirmDialogService.confirmDeletion.and.returnValue(of(true));
+        mockConfirmDialogService.confirmDeletion.mockReturnValue(of(true));
       });
 
       it('should call gs.delete with the correct endpoint and user ID', () => {
         component.onDelete();
-        expect(mockGlobalService.delete).toHaveBeenCalledOnceWith(SERV.USERS, component.editedUserIndex);
+        expect(mockGlobalService.delete).toHaveBeenCalledTimes(1);
+        expect(mockGlobalService.delete).toHaveBeenCalledWith(SERV.USERS, component.editedUserIndex);
       });
 
       it('should navigate to the users list after deletion', () => {
@@ -253,14 +270,14 @@ describe('EditUsersComponent', () => {
         component.onDelete();
         await Promise.resolve(); // wait for router.navigate().then()
         expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith(
-          jasmine.stringContaining(component.editedUserName)
+          expect.stringContaining(component.editedUserName)
         );
       });
     });
 
     describe('when the user cancels deletion', () => {
       beforeEach(() => {
-        mockConfirmDialogService.confirmDeletion.and.returnValue(of(false));
+        mockConfirmDialogService.confirmDeletion.mockReturnValue(of(false));
       });
 
       it('should NOT call gs.delete', () => {
@@ -280,10 +297,11 @@ describe('EditUsersComponent', () => {
   describe('onUpdatePass()', () => {
     it('should call gs.chelper with the password and the current user ID when a password is provided', () => {
       component.onUpdatePass({ password: 'newpassword123' });
-      expect(mockGlobalService.chelper).toHaveBeenCalledOnceWith(
+      expect(mockGlobalService.chelper).toHaveBeenCalledTimes(1);
+      expect(mockGlobalService.chelper).toHaveBeenCalledWith(
         SERV.HELPER,
         'setUserPassword',
-        jasmine.objectContaining({
+        expect.objectContaining({
           password: 'newpassword123',
           userId: component.editedUserIndex
         })

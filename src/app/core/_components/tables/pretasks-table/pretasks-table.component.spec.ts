@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { Subject, of } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -28,14 +29,14 @@ import { GlobalService } from '@src/app/core/_services/main.service';
 import { PreconfiguredTasksRoleService } from '@src/app/core/_services/roles/tasks/preconfiguredTasks-role.service';
 
 class MockDataSource {
-  loadAll = jasmine.createSpy('loadAll');
-  setColumns = jasmine.createSpy('setColumns');
-  clearFilter = jasmine.createSpy('clearFilter');
-  reload = jasmine.createSpy('reload');
-  setSuperTaskId = jasmine.createSpy('setSuperTaskId');
-  setReverseQuery = jasmine.createSpy('setReverseQuery');
-  setCrackerBinaryTypeId = jasmine.createSpy('setCrackerBinaryTypeId');
-  reset = jasmine.createSpy('reset');
+  loadAll = vi.fn().mockName('loadAll');
+  setColumns = vi.fn().mockName('setColumns');
+  clearFilter = vi.fn().mockName('clearFilter');
+  reload = vi.fn().mockName('reload');
+  setSuperTaskId = vi.fn().mockName('setSuperTaskId');
+  setReverseQuery = vi.fn().mockName('setReverseQuery');
+  setCrackerBinaryTypeId = vi.fn().mockName('setCrackerBinaryTypeId');
+  reset = vi.fn().mockName('reset');
   filterError$ = new Subject<string>();
 }
 
@@ -64,34 +65,46 @@ class TestPretasksTableComponent extends PretasksTableComponent {
 describe('PretasksTableComponent', () => {
   let component: TestPretasksTableComponent;
   let fixture: ComponentFixture<TestPretasksTableComponent>;
-  let mockDialog: jasmine.SpyObj<MatDialog>;
-  let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockExportService: jasmine.SpyObj<ExportService>;
-  let mockRouter: jasmine.SpyObj<Router>;
-  let mockPreconfiguredTasksRoleService: jasmine.SpyObj<PreconfiguredTasksRoleService>;
-  let mockPermissionService: jasmine.SpyObj<unknown>;
+  let mockDialog: MockedObject<MatDialog>;
+  let mockHTTable: MockedObject<HTTableComponent<BaseModel>>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockExportService: MockedObject<ExportService>;
+  let mockRouter: MockedObject<Router>;
+  let mockPreconfiguredTasksRoleService: MockedObject<PreconfiguredTasksRoleService>;
+  let mockPermissionService: MockedObject<unknown>;
 
   beforeEach(async () => {
-    mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
-    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-    mockRouter.navigate.and.returnValue(Promise.resolve(true));
-    mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
-    mockGlobalService = jasmine.createSpyObj('GlobalService', [
-      'bulkDelete',
-      'delete',
-      'update',
-      'deleteRelationships'
-    ]);
-    mockGlobalService.update.and.returnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.update>);
-    mockGlobalService.bulkDelete.and.returnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.bulkDelete>);
-    mockGlobalService.delete.and.returnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.delete>);
-    mockGlobalService.deleteRelationships.and.returnValue(
+    mockDialog = {
+      open: vi.fn().mockName('MatDialog.open')
+    };
+    mockRouter = {
+      navigate: vi.fn().mockName('Router.navigate')
+    };
+    mockRouter.navigate.mockResolvedValue(true);
+    mockHTTable = {
+      reload: vi.fn().mockName('HTTableComponent.reload')
+    };
+    mockGlobalService = {
+      bulkDelete: vi.fn().mockName('GlobalService.bulkDelete'),
+      delete: vi.fn().mockName('GlobalService.delete'),
+      update: vi.fn().mockName('GlobalService.update'),
+      deleteRelationships: vi.fn().mockName('GlobalService.deleteRelationships')
+    };
+    mockGlobalService.update.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.update>);
+    mockGlobalService.bulkDelete.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.bulkDelete>);
+    mockGlobalService.delete.mockReturnValue(of({}) as unknown as ReturnType<typeof mockGlobalService.delete>);
+    mockGlobalService.deleteRelationships.mockReturnValue(
       of({}) as unknown as ReturnType<typeof mockGlobalService.deleteRelationships>
     );
-    mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
-    mockPreconfiguredTasksRoleService = jasmine.createSpyObj('PreconfiguredTasksRoleService', ['hasRole']);
-    mockPermissionService = jasmine.createSpyObj('PermissionService', ['hasPermission']);
+    mockExportService = {
+      handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
+    };
+    mockPreconfiguredTasksRoleService = {
+      hasRole: vi.fn().mockName('PreconfiguredTasksRoleService.hasRole')
+    };
+    mockPermissionService = {
+      hasPermission: vi.fn().mockName('PermissionService.hasPermission')
+    };
 
     await TestBed.configureTestingModule({
       declarations: [TestPretasksTableComponent],
@@ -113,11 +126,15 @@ describe('PretasksTableComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
     component.table = mockHTTable as HTTableComponent<BaseModel>;
-    (component as unknown as { table: unknown }).table = {
-      clearFilterError: jasmine.createSpy('clearFilterError'),
-      reload: jasmine.createSpy('reload')
+    (
+      component as unknown as {
+        table: unknown;
+      }
+    ).table = {
+      clearFilterError: vi.fn().mockName('clearFilterError'),
+      reload: vi.fn().mockName('reload')
     };
-    mockPreconfiguredTasksRoleService.hasRole.and.returnValue(false);
+    mockPreconfiguredTasksRoleService.hasRole.mockReturnValue(false);
   });
 
   it('should create', () => {
@@ -148,7 +165,7 @@ describe('PretasksTableComponent', () => {
       expect(typeof idColumn?.export).toBe('function');
     });
 
-    it('should include NAME column with routerLink function that returns correct URL', (done) => {
+    it('should include NAME column with routerLink function that returns correct URL', async () => {
       const columns = component.getColumns();
       const nameColumn = columns.find((col) => col.id === PretasksTableCol.NAME);
       const pretask = { id: 5, taskName: 'Test Pretask' } as JPretask;
@@ -161,7 +178,6 @@ describe('PretasksTableComponent', () => {
         expect(links).toBeDefined();
         expect(links.length).toBe(1);
         expect(links[0].routerLink).toEqual(['/tasks/preconfigured-tasks', 5, 'edit']);
-        done();
       });
     });
 
@@ -208,7 +224,7 @@ describe('PretasksTableComponent', () => {
     });
 
     it('should include PRIORITY column when user has update role', () => {
-      mockPreconfiguredTasksRoleService.hasRole.and.returnValue(true);
+      mockPreconfiguredTasksRoleService.hasRole.mockReturnValue(true);
       component.ngOnInit();
       const columns = component.getColumns();
       const priorityColumn = columns.find((col) => col.id === PretasksTableCol.PRIORITY);
@@ -218,7 +234,7 @@ describe('PretasksTableComponent', () => {
     });
 
     it('should include MAX_AGENTS column when user has update role', () => {
-      mockPreconfiguredTasksRoleService.hasRole.and.returnValue(true);
+      mockPreconfiguredTasksRoleService.hasRole.mockReturnValue(true);
       component.ngOnInit();
       const columns = component.getColumns();
       const maxAgentsColumn = columns.find((col) => col.id === PretasksTableCol.MAX_AGENTS);
@@ -228,7 +244,7 @@ describe('PretasksTableComponent', () => {
     });
 
     it('should not include editable for PRIORITY column when user lacks update role', () => {
-      mockPreconfiguredTasksRoleService.hasRole.and.returnValue(false);
+      mockPreconfiguredTasksRoleService.hasRole.mockReturnValue(false);
       component.ngOnInit();
       const columns = component.getColumns();
       const priorityColumn = columns.find((col) => col.id === PretasksTableCol.PRIORITY);
@@ -238,7 +254,7 @@ describe('PretasksTableComponent', () => {
     });
 
     it('should not include editable for MAX_AGENTS column when user lacks update role', () => {
-      mockPreconfiguredTasksRoleService.hasRole.and.returnValue(false);
+      mockPreconfiguredTasksRoleService.hasRole.mockReturnValue(false);
       component.ngOnInit();
       const columns = component.getColumns();
       const maxAgentsColumn = columns.find((col) => col.id === PretasksTableCol.MAX_AGENTS);
@@ -332,7 +348,7 @@ describe('PretasksTableComponent', () => {
     const testPretask = { id: 5, taskName: 'Test Pretask' } as JPretask;
 
     beforeEach(() => {
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () => of(null)
       } as unknown as ReturnType<typeof mockDialog.open>);
     });
@@ -342,7 +358,7 @@ describe('PretasksTableComponent', () => {
         menuItem: { label: 'Add', action: RowActionMenuAction.ADD },
         data: testPretask
       };
-      spyOn(component.pretaskAdd, 'emit');
+      vi.spyOn(component.pretaskAdd, 'emit').mockReturnValue(undefined);
 
       component.rowActionClicked(event);
 
@@ -409,7 +425,7 @@ describe('PretasksTableComponent', () => {
 
   describe('bulkActionClicked', () => {
     beforeEach(() => {
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () => of(null)
       } as unknown as ReturnType<typeof mockDialog.open>);
     });
@@ -423,7 +439,7 @@ describe('PretasksTableComponent', () => {
         menuItem: { label: 'Add', action: BulkActionMenuAction.ADD },
         data: pretasks
       };
-      spyOn(component.pretaskAdd, 'emit');
+      vi.spyOn(component.pretaskAdd, 'emit').mockReturnValue(undefined);
 
       component.bulkActionClicked(event);
 
@@ -466,7 +482,7 @@ describe('PretasksTableComponent', () => {
       expect(component.mockDataSource.loadAll).toHaveBeenCalledWith({
         value: 'test',
         field: 'taskName',
-        operator: jasmine.anything(),
+        operator: expect.anything(),
         parent: undefined
       });
     });
@@ -480,7 +496,7 @@ describe('PretasksTableComponent', () => {
   describe('handleBackendSqlFilter', () => {
     it('should call filter when event has value', () => {
       component.selectedFilterColumn = { dataKey: 'taskName' } as unknown as HTTableColumn;
-      const filterSpy = spyOn(component, 'filter');
+      const filterSpy = vi.spyOn(component, 'filter').mockReturnValue(undefined);
 
       component.handleBackendSqlFilter('search term');
 
@@ -540,7 +556,7 @@ describe('PretasksTableComponent', () => {
 
   describe('openDialog', () => {
     beforeEach(() => {
-      mockDialog.open.and.returnValue({
+      mockDialog.open.mockReturnValue({
         afterClosed: () => of(null)
       } as unknown as ReturnType<typeof mockDialog.open>);
     });
@@ -555,8 +571,8 @@ describe('PretasksTableComponent', () => {
         action: RowActionMenuAction.DELETE
       });
 
-      expect(mockDialog.open).toHaveBeenCalledWith(jasmine.anything(), {
-        data: jasmine.any(Object),
+      expect(mockDialog.open).toHaveBeenCalledWith(expect.anything(), {
+        data: expect.any(Object),
         width: '450px'
       });
     });
@@ -565,7 +581,7 @@ describe('PretasksTableComponent', () => {
       const dialogRefMock = {
         afterClosed: () => of({ action: RowActionMenuAction.DELETE, data: [{ id: 1, taskName: 'Test' }] })
       };
-      mockDialog.open.and.returnValue(dialogRefMock as unknown as ReturnType<typeof mockDialog.open>);
+      mockDialog.open.mockReturnValue(dialogRefMock as unknown as ReturnType<typeof mockDialog.open>);
 
       component.openDialog({
         rows: [{ id: 1, taskName: 'Test' }] as JPretask[],
@@ -590,7 +606,7 @@ describe('PretasksTableComponent', () => {
 
       component.editableSaved(editable);
 
-      expect(mockGlobalService.update).toHaveBeenCalledWith(jasmine.anything(), 1, { priority: 10 });
+      expect(mockGlobalService.update).toHaveBeenCalledWith(expect.anything(), 1, { priority: 10 });
     });
 
     it('should call globalService.update for CHANGE_MAX_AGENTS action', () => {
@@ -602,7 +618,7 @@ describe('PretasksTableComponent', () => {
 
       component.editableSaved(editable);
 
-      expect(mockGlobalService.update).toHaveBeenCalledWith(jasmine.anything(), 1, { maxAgents: 10 });
+      expect(mockGlobalService.update).toHaveBeenCalledWith(expect.anything(), 1, { maxAgents: 10 });
     });
   });
 
@@ -641,12 +657,14 @@ describe('PretasksTableComponent', () => {
 
   describe('rowActionAddToSupertask', () => {
     it('should emit pretaskAdd with single pretask', () => {
-      spyOn(component.pretaskAdd, 'emit');
+      vi.spyOn(component.pretaskAdd, 'emit').mockReturnValue(undefined);
       const pretask = { id: 1, taskName: 'Test' } as JPretask;
 
-      (component as unknown as { rowActionAddToSupertask: (pretask: JPretask) => void }).rowActionAddToSupertask(
-        pretask
-      );
+      (
+        component as unknown as {
+          rowActionAddToSupertask: (pretask: JPretask) => void;
+        }
+      ).rowActionAddToSupertask(pretask);
 
       expect(component.pretaskAdd.emit).toHaveBeenCalledWith([pretask]);
     });

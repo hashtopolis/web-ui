@@ -140,7 +140,7 @@ describe('LocalStorageService', () => {
 
     it('setItem should refuse to write and log error when value fails schema', () => {
       const key = 'schemaWriteInvalid';
-      spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockReturnValue(undefined);
 
       service.setItem(key, { name: 999, count: 'bad' }, 1000, testSchema);
 
@@ -180,10 +180,16 @@ describe('LocalStorageService', () => {
 
   describe('defaultValue reference isolation', () => {
     const pointSchema = z.object({ x: z.number(), y: z.number() });
-    let svc: LocalStorageService<{ x: number; y: number }>;
+    let svc: LocalStorageService<{
+      x: number;
+      y: number;
+    }>;
 
     beforeEach(() => {
-      svc = TestBed.inject(LocalStorageService) as unknown as LocalStorageService<{ x: number; y: number }>;
+      svc = TestBed.inject(LocalStorageService) as unknown as LocalStorageService<{
+        x: number;
+        y: number;
+      }>;
     });
 
     afterEach(() => svc.removeItem('__pt__'));
@@ -199,7 +205,14 @@ describe('LocalStorageService', () => {
 
     it('should not share the defaultValue reference when schema validation fails', () => {
       const def = { x: 1, y: 2 };
-      svc.setItem('__pt__', { x: 'bad', y: 'bad' } as unknown as { x: number; y: number }, 1000);
+      svc.setItem(
+        '__pt__',
+        { x: 'bad', y: 'bad' } as unknown as {
+          x: number;
+          y: number;
+        },
+        1000
+      );
 
       const result = svc.getItem('__pt__', pointSchema, def);
       result.x = 99;

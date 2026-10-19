@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -9,15 +10,19 @@ import { PreconfiguredTasksComponent } from '@src/app/tasks/preconfigured-tasks/
 describe('PreconfiguredTasksComponent', () => {
   let component: PreconfiguredTasksComponent;
   let fixture: ComponentFixture<PreconfiguredTasksComponent>;
-  let mockTitleService: jasmine.SpyObj<AutoTitleService>;
-  let mockRoleService: jasmine.SpyObj<PreconfiguredTasksRoleService>;
+  let mockTitleService: MockedObject<AutoTitleService>;
+  let mockRoleService: MockedObject<PreconfiguredTasksRoleService>;
 
   describe('with create role', () => {
     beforeEach(async () => {
-      mockTitleService = jasmine.createSpyObj('AutoTitleService', ['set']);
-      mockRoleService = jasmine.createSpyObj('PreconfiguredTasksRoleService', ['hasRole']);
+      mockTitleService = {
+        set: vi.fn().mockName('AutoTitleService.set')
+      };
+      mockRoleService = {
+        hasRole: vi.fn().mockName('PreconfiguredTasksRoleService.hasRole')
+      };
 
-      mockRoleService.hasRole.and.returnValue(true);
+      mockRoleService.hasRole.mockReturnValue(true);
 
       await TestBed.configureTestingModule({
         declarations: [PreconfiguredTasksComponent],
@@ -42,17 +47,21 @@ describe('PreconfiguredTasksComponent', () => {
     });
 
     it('should set showCreateButton to true when user has create role', () => {
-      expect(component.showCreateButton).toBeTrue();
+      expect(component.showCreateButton).toBe(true);
       expect(mockRoleService.hasRole).toHaveBeenCalledWith('create');
     });
   });
 
   describe('without create role', () => {
     beforeEach(async () => {
-      mockTitleService = jasmine.createSpyObj('AutoTitleService', ['set']);
-      mockRoleService = jasmine.createSpyObj('PreconfiguredTasksRoleService', ['hasRole']);
+      mockTitleService = {
+        set: vi.fn().mockName('AutoTitleService.set')
+      };
+      mockRoleService = {
+        hasRole: vi.fn().mockName('PreconfiguredTasksRoleService.hasRole')
+      };
 
-      mockRoleService.hasRole.and.returnValue(false);
+      mockRoleService.hasRole.mockReturnValue(false);
 
       await TestBed.configureTestingModule({
         declarations: [PreconfiguredTasksComponent],
@@ -69,7 +78,7 @@ describe('PreconfiguredTasksComponent', () => {
     });
 
     it('should set showCreateButton to false when user lacks create role', () => {
-      expect(component.showCreateButton).toBeFalse();
+      expect(component.showCreateButton).toBe(false);
       expect(mockRoleService.hasRole).toHaveBeenCalledWith('create');
     });
   });

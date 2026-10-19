@@ -6,11 +6,11 @@ function type(typeName: string): JCrackerBinaryType {
 
 describe('isHashcatCrackerBinary', () => {
   it('is true for versions of the hashcat type', () => {
-    expect(isHashcatCrackerBinary({ crackerBinaryType: type('hashcat') })).toBeTrue();
+    expect(isHashcatCrackerBinary({ crackerBinaryType: type('hashcat') })).toBe(true);
   });
 
   it('is false for other types and when the type is not included', () => {
-    expect(isHashcatCrackerBinary({ crackerBinaryType: type('generic') })).toBeFalse();
-    expect(isHashcatCrackerBinary({})).toBeFalse();
+    expect(isHashcatCrackerBinary({ crackerBinaryType: type('generic') })).toBe(false);
+    expect(isHashcatCrackerBinary({})).toBe(false);
   });
 });

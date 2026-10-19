@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { zHashTypeListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
 
@@ -38,12 +39,14 @@ function linkBody(id: number) {
 describe('AddCrackerHashtypesDialogComponent', () => {
   let fixture: ComponentFixture<AddCrackerHashtypesDialogComponent>;
   let component: AddCrackerHashtypesDialogComponent;
-  let gs: jasmine.SpyObj<GlobalService>;
-  let alert: jasmine.SpyObj<AlertService>;
-  let dialogRef: jasmine.SpyObj<MatDialogRef<AddCrackerHashtypesDialogComponent, boolean>>;
+  let gs: MockedObject<GlobalService>;
+  let alert: MockedObject<AlertService>;
+  let dialogRef: MockedObject<MatDialogRef<AddCrackerHashtypesDialogComponent, boolean>>;
 
   async function setup(
-    data: Partial<AddCrackerHashtypesDialogData> & { assignedHashtypeIds?: HashTypeId[] | null } = {}
+    data: Partial<AddCrackerHashtypesDialogData> & {
+      assignedHashtypeIds?: HashTypeId[] | null;
+    } = {}
   ): Promise<void> {
     const dialogData: AddCrackerHashtypesDialogData = {
       crackerBinaryId: 12,
@@ -72,12 +75,21 @@ describe('AddCrackerHashtypesDialogComponent', () => {
   }
 
   beforeEach(() => {
-    gs = jasmine.createSpyObj('GlobalService', ['getAll', 'postRelationships', 'create']);
-    gs.getAll.and.returnValue(of(HASHTYPES));
-    gs.postRelationships.and.returnValue(of({}));
-    gs.create.and.returnValue(of({} as ResponseWrapper));
-    alert = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    dialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    gs = {
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      postRelationships: vi.fn().mockName('GlobalService.postRelationships'),
+      create: vi.fn().mockName('GlobalService.create')
+    };
+    gs.getAll.mockReturnValue(of(HASHTYPES));
+    gs.postRelationships.mockReturnValue(of({}));
+    gs.create.mockReturnValue(of({} as ResponseWrapper));
+    alert = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    };
+    dialogRef = {
+      close: vi.fn().mockName('MatDialogRef.close')
+    };
   });
 
   describe('tabs', () => {
@@ -126,7 +138,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     beforeEach(async () => await setup());
 
     it('offers the hashtypes which are not assigned yet', () => {
-      const [serviceConfig, params] = gs.getAll.calls.mostRecent().args;
+      const [serviceConfig, params] = vi.mocked(gs.getAll).mock.lastCall;
       expect(serviceConfig).toEqual(SERV.HASHTYPES);
       expect((params as RequestParams).filter).toEqual([{ field: 'id', operator: FilterType.NOTIN, value: [1000] }]);
       expect(component.selectHashtypes.map((option) => option.id)).toEqual([0, 100]);
@@ -148,14 +160,14 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     });
 
     it('stays open when adding fails', async () => {
-      gs.postRelationships.and.returnValue(httpError(500));
+      gs.postRelationships.mockReturnValue(httpError(500));
       component.addForm.controls.hashtypeIds.setValue([0]);
 
       await component.onAdd();
 
       expect(dialogRef.close).not.toHaveBeenCalled();
       expect(component.addForm.controls.hashtypeIds.value).toEqual([0]);
-      expect(component.isAdding).toBeFalse();
+      expect(component.isAdding).toBe(false);
     });
 
     it('sends nothing without a selection', async () => {
@@ -168,7 +180,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     beforeEach(async () => await setup({ assignedHashtypeIds: null }));
 
     it('offers all hashtypes', () => {
-      expect((gs.getAll.calls.mostRecent().args[1] as RequestParams).filter).toBeUndefined();
+      expect((vi.mocked(gs.getAll).mock.lastCall[1] as RequestParams).filter).toBeUndefined();
     });
   });
 
@@ -189,7 +201,13 @@ describe('AddCrackerHashtypesDialogComponent', () => {
       });
     }
 
-    function skipsErrorDialog(options: { headers?: HttpHeaders } | undefined): boolean {
+    function skipsErrorDialog(
+      options:
+        | {
+            headers?: HttpHeaders;
+          }
+        | undefined
+    ): boolean {
       return options?.headers?.get('X-Skip-Error-Dialog') === 'true';
     }
 
@@ -197,7 +215,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
       fill({ hashTypeId: null, description: 'Custom' });
       await component.onCreate();
       expect(gs.postRelationships).not.toHaveBeenCalled();
-      expect(component.createForm.controls.hashTypeId.touched).toBeTrue();
+      expect(component.createForm.controls.hashTypeId.touched).toBe(true);
     });
 
     it('rejects a negative mode', async () => {
@@ -230,12 +248,12 @@ describe('AddCrackerHashtypesDialogComponent', () => {
       fill({ hashTypeId: 100, description: 'My SHA1' });
       await component.onCreate();
 
-      const [serviceConfig, id, relType, body, options] = gs.postRelationships.calls.argsFor(0);
+      const [serviceConfig, id, relType, body, options] = vi.mocked(gs.postRelationships).mock.calls[0];
       expect(serviceConfig).toEqual(SERV.CRACKERS);
       expect(id).toBe(12);
       expect(relType).toBe(RelationshipType.HASHTYPES);
       expect(body).toEqual(linkBody(100));
-      expect(skipsErrorDialog(options)).toBeTrue();
+      expect(skipsErrorDialog(options)).toBe(true);
       expect(gs.create).not.toHaveBeenCalled();
       expect(alert.showSuccessMessage).toHaveBeenCalledWith(
         'Hashtype 100 already existed and was added to this version. Its existing description was kept.'
@@ -246,24 +264,24 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     it('links mode 0', async () => {
       fill({ hashTypeId: 0, description: 'MD5' });
       await component.onCreate();
-      expect(gs.postRelationships.calls.argsFor(0)[3]).toEqual(linkBody(0));
+      expect(vi.mocked(gs.postRelationships).mock.calls[0][3]).toEqual(linkBody(0));
       expect(alert.showSuccessMessage).toHaveBeenCalledWith(
         'Hashtype 0 already existed and was added to this version. Its existing description was kept.'
       );
     });
 
     it('creates a missing mode and adds it', async () => {
-      gs.postRelationships.and.returnValues(httpError(404), of({}));
+      gs.postRelationships.mockReturnValueOnce(httpError(404)).mockReturnValueOnce(of({}));
       fill({ hashTypeId: 99000, description: 'My custom hash', isSalted: true });
       await component.onCreate();
 
-      const [serviceConfig, item, options] = gs.create.calls.argsFor(0);
+      const [serviceConfig, item, options] = vi.mocked(gs.create).mock.calls[0];
       expect(serviceConfig).toEqual(SERV.HASHTYPES);
       expect(item).toEqual({ hashTypeId: 99000, description: 'My custom hash', isSalted: true, isSlowHash: false });
-      expect(skipsErrorDialog(options)).toBeTrue();
+      expect(skipsErrorDialog(options)).toBe(true);
       expect(gs.postRelationships).toHaveBeenCalledTimes(2);
-      expect(gs.postRelationships.calls.argsFor(1)[3]).toEqual(linkBody(99000));
-      expect(skipsErrorDialog(gs.postRelationships.calls.argsFor(1)[4])).toBeTrue();
+      expect(vi.mocked(gs.postRelationships).mock.calls[1][3]).toEqual(linkBody(99000));
+      expect(skipsErrorDialog(vi.mocked(gs.postRelationships).mock.calls[1][4])).toBe(true);
       expect(alert.showSuccessMessage).toHaveBeenCalledWith(
         'Created hashtype 99000 (My custom hash) and added it to this version.'
       );
@@ -272,14 +290,20 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     });
 
     it('sends the description trimmed', async () => {
-      gs.postRelationships.and.returnValues(httpError(404), of({}));
+      gs.postRelationships.mockReturnValueOnce(httpError(404)).mockReturnValueOnce(of({}));
       fill({ hashTypeId: 99000, description: '  My custom hash  ' });
       await component.onCreate();
-      expect((gs.create.calls.argsFor(0)[1] as { description: string }).description).toBe('My custom hash');
+      expect(
+        (
+          vi.mocked(gs.create).mock.calls[0][1] as {
+            description: string;
+          }
+        ).description
+      ).toBe('My custom hash');
     });
 
     it('reports a mode which was assigned in between and closes with a change', async () => {
-      gs.postRelationships.and.returnValue(httpError(409, 'Relation already exists'));
+      gs.postRelationships.mockReturnValue(httpError(409, 'Relation already exists'));
       fill({ hashTypeId: 99000, description: 'My custom hash' });
       await component.onCreate();
       expect(gs.create).not.toHaveBeenCalled();
@@ -288,7 +312,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     });
 
     it('stops when the first link fails otherwise', async () => {
-      gs.postRelationships.and.returnValue(httpError(403, 'No access to this object!'));
+      gs.postRelationships.mockReturnValue(httpError(403, 'No access to this object!'));
       fill({ hashTypeId: 99000, description: 'My custom hash' });
       await component.onCreate();
       expect(gs.create).not.toHaveBeenCalled();
@@ -298,22 +322,22 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     });
 
     it('falls back without a backend title', async () => {
-      gs.postRelationships.and.returnValue(httpError(500));
+      gs.postRelationships.mockReturnValue(httpError(500));
       fill({ hashTypeId: 99000, description: 'My custom hash' });
       await component.onCreate();
       expect(alert.showErrorMessage).toHaveBeenCalledWith('Failed to add hashtype 99000.');
     });
 
     it('falls back for a non-HTTP error', async () => {
-      gs.postRelationships.and.returnValue(throwError(() => new TypeError('boom')));
+      gs.postRelationships.mockReturnValue(throwError(() => new TypeError('boom')));
       fill({ hashTypeId: 99000, description: 'My custom hash' });
       await component.onCreate();
       expect(alert.showErrorMessage).toHaveBeenCalledWith('Failed to add hashtype 99000.');
     });
 
     it('stops when the create fails', async () => {
-      gs.postRelationships.and.returnValue(httpError(404));
-      gs.create.and.returnValue(httpError(400, 'This hash number is already used!'));
+      gs.postRelationships.mockReturnValue(httpError(404));
+      gs.create.mockReturnValue(httpError(400, 'This hash number is already used!'));
       fill({ hashTypeId: 99000, description: 'My custom hash' });
       await component.onCreate();
       expect(gs.postRelationships).toHaveBeenCalledTimes(1);
@@ -323,15 +347,18 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     });
 
     it('falls back without a title when the create fails', async () => {
-      gs.postRelationships.and.returnValue(httpError(404));
-      gs.create.and.returnValue(httpError(500));
+      gs.postRelationships.mockReturnValue(httpError(404));
+      gs.create.mockReturnValue(httpError(500));
       fill({ hashTypeId: 99000, description: 'My custom hash' });
       await component.onCreate();
       expect(alert.showErrorMessage).toHaveBeenCalledWith('Failed to create hashtype 99000.');
     });
 
     it('reports a created hashtype which could not be added, and adds it on the next submit', async () => {
-      gs.postRelationships.and.returnValues(httpError(404), httpError(500, 'Database error'), of({}));
+      gs.postRelationships
+        .mockReturnValueOnce(httpError(404))
+        .mockReturnValueOnce(httpError(500, 'Database error'))
+        .mockReturnValueOnce(of({}));
       fill({ hashTypeId: 99000, description: 'My custom hash' });
       await component.onCreate();
 
@@ -349,7 +376,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     });
 
     it('uses "unknown error" when the second link has no title', async () => {
-      gs.postRelationships.and.returnValues(httpError(404), httpError(500));
+      gs.postRelationships.mockReturnValueOnce(httpError(404)).mockReturnValueOnce(httpError(500));
       fill({ hashTypeId: 99000, description: 'My custom hash' });
       await component.onCreate();
       expect(alert.showErrorMessage).toHaveBeenCalledWith(
@@ -361,7 +388,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
       fill({ hashTypeId: 100, description: 'My SHA1' });
       await Promise.all([component.onCreate(), component.onCreate()]);
       expect(gs.postRelationships).toHaveBeenCalledTimes(1);
-      expect(component.isCreating).toBeFalse();
+      expect(component.isCreating).toBe(false);
     });
   });
 
@@ -369,7 +396,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     beforeEach(async () => await setup({ canCreate: true, assignedHashtypeIds: null }));
 
     it('relies on the backend', async () => {
-      gs.postRelationships.and.returnValue(httpError(409));
+      gs.postRelationships.mockReturnValue(httpError(409));
       component.createForm.setValue({ hashTypeId: 1000, description: 'Custom', isSalted: false, isSlowHash: false });
       await component.onCreate();
       expect(gs.postRelationships).toHaveBeenCalledTimes(1);

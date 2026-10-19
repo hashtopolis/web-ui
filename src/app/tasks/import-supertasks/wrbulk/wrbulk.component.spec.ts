@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { of, throwError } from 'rxjs';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -27,22 +28,32 @@ describe('WrbulkComponent', () => {
   let component: WrbulkComponent;
   let fixture: ComponentFixture<WrbulkComponent>;
 
-  let globalServiceSpy: jasmine.SpyObj<GlobalService>;
-  let alertServiceSpy: jasmine.SpyObj<AlertService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let uiServiceSpy: jasmine.SpyObj<UIConfigService>;
+  let globalServiceSpy: MockedObject<GlobalService>;
+  let alertServiceSpy: MockedObject<AlertService>;
+  let routerSpy: MockedObject<Router>;
+  let uiServiceSpy: MockedObject<UIConfigService>;
 
   beforeEach(async () => {
-    globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'chelper']);
-    globalServiceSpy.getAll.and.returnValue(of(MOCK_CRACKER_TYPES_RESPONSE));
-    globalServiceSpy.chelper.and.returnValue(of({}));
+    globalServiceSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    };
+    globalServiceSpy.getAll.mockReturnValue(of(MOCK_CRACKER_TYPES_RESPONSE));
+    globalServiceSpy.chelper.mockReturnValue(of({}));
 
-    alertServiceSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    routerSpy.navigate.and.returnValue(Promise.resolve(true));
+    alertServiceSpy = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    };
+    routerSpy = {
+      navigate: vi.fn().mockName('Router.navigate')
+    };
+    routerSpy.navigate.mockResolvedValue(true);
 
-    uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    uiServiceSpy.getUISettings.and.returnValue({
+    uiServiceSpy = {
+      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+    };
+    uiServiceSpy.getUISettings.mockReturnValue({
       hashlistAlias: '#HL#',
       chunktime: 600,
       statustimer: 5
@@ -51,7 +62,12 @@ describe('WrbulkComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [WrbulkComponent],
       providers: [
-        { provide: AutoTitleService, useValue: jasmine.createSpyObj('AutoTitleService', ['set']) },
+        {
+          provide: AutoTitleService,
+          useValue: {
+            set: vi.fn().mockName('AutoTitleService.set')
+          }
+        },
         { provide: UIConfigService, useValue: uiServiceSpy },
         { provide: GlobalService, useValue: globalServiceSpy },
         { provide: AlertService, useValue: alertServiceSpy },
@@ -194,7 +210,7 @@ describe('WrbulkComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'bulkSupertaskBuilder',
-      jasmine.objectContaining({
+      expect.objectContaining({
         name: 'Bulk Test',
         command: '#HL# -a 0 FILE',
         basefiles: [1, 2],
@@ -242,7 +258,7 @@ describe('WrbulkComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'bulkSupertaskBuilder',
-      jasmine.objectContaining({ benchtype: 'runtime' })
+      expect.objectContaining({ benchtype: 'runtime' })
     );
   });
 
@@ -258,7 +274,7 @@ describe('WrbulkComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(
       SERV.HELPER,
       'bulkSupertaskBuilder',
-      jasmine.objectContaining({ benchtype: 'speed' })
+      expect.objectContaining({ benchtype: 'speed' })
     );
   });
 
@@ -283,7 +299,7 @@ describe('WrbulkComponent', () => {
   // ──────────────────────────────────────────────
 
   it('should reset isLoading on chelper error', async () => {
-    globalServiceSpy.chelper.and.returnValue(throwError(() => new Error('Server error')));
+    globalServiceSpy.chelper.mockReturnValue(throwError(() => new Error('Server error')));
     component.createForm.patchValue({
       name: 'Err',
       attackCmd: '#HL# FILE',
@@ -295,7 +311,7 @@ describe('WrbulkComponent', () => {
   });
 
   it('should not navigate on chelper error', async () => {
-    globalServiceSpy.chelper.and.returnValue(throwError(() => new Error('Server error')));
+    globalServiceSpy.chelper.mockReturnValue(throwError(() => new Error('Server error')));
     component.createForm.patchValue({
       name: 'Err',
       attackCmd: '#HL# FILE',

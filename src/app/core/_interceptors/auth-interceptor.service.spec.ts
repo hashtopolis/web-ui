@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
 import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
@@ -12,14 +13,14 @@ import { AuthService } from '@services/access/auth.service';
 describe('AuthInterceptorService', () => {
   let http: HttpClient;
   let httpMock: HttpTestingController;
-  let authService: jasmine.SpyObj<AuthService>;
+  let authService: MockedObject<AuthService>;
   let currentUser: BehaviorSubject<AuthData | null>;
 
   const RESOURCE_URL = 'http://localhost/ui/agents';
 
   const session = (token: string): AuthData => ({
     _token: token,
-    _expires: new Date(Date.now() + 3_600_000),
+    _expires: new Date(Date.now() + 3600000),
     userId: 1,
     canonicalUsername: 'testuser'
   });
@@ -29,14 +30,16 @@ describe('AuthInterceptorService', () => {
    */
   const configure = (isExpiring: boolean) => {
     currentUser = new BehaviorSubject<AuthData | null>(session('current-token'));
-    const spy = jasmine.createSpyObj<AuthService>(
-      'AuthService',
-      ['refreshToken', 'logOut', 'isAccessTokenExpiring', 'isAccessTokenExpired'],
-      { user: currentUser }
-    );
-    spy.isAccessTokenExpiring.and.returnValue(isExpiring);
-    spy.isAccessTokenExpired.and.returnValue(isExpiring);
-    spy.refreshToken.and.returnValue(of(session('renewed-token')));
+    const spy = {
+      refreshToken: vi.fn().mockName('AuthService.refreshToken'),
+      logOut: vi.fn().mockName('AuthService.logOut'),
+      isAccessTokenExpiring: vi.fn().mockName('AuthService.isAccessTokenExpiring'),
+      isAccessTokenExpired: vi.fn().mockName('AuthService.isAccessTokenExpired'),
+      user: currentUser
+    };
+    spy.isAccessTokenExpiring.mockReturnValue(isExpiring);
+    spy.isAccessTokenExpired.mockReturnValue(isExpiring);
+    spy.refreshToken.mockReturnValue(of(session('renewed-token')));
 
     TestBed.configureTestingModule({
       providers: [
@@ -85,7 +88,7 @@ describe('AuthInterceptorService', () => {
   it('renews and resends once when the backend rejects the token anyway', () => {
     configure(false);
     // The backend rejected it even though the token looked valid here, as happens on clock skew
-    authService.isAccessTokenExpired.and.returnValue(true);
+    authService.isAccessTokenExpired.mockReturnValue(true);
 
     let body: unknown = null;
     http.get(RESOURCE_URL).subscribe((res) => (body = res));
@@ -114,7 +117,7 @@ describe('AuthInterceptorService', () => {
 
   it('logs out when the session can no longer be renewed', () => {
     configure(true);
-    authService.refreshToken.and.returnValue(throwError(() => new Error('refresh cookie gone')));
+    authService.refreshToken.mockReturnValue(throwError(() => new Error('refresh cookie gone')));
 
     http.get(RESOURCE_URL).subscribe({ error: () => undefined });
 
@@ -124,7 +127,7 @@ describe('AuthInterceptorService', () => {
 
   it('does not retry the retried request a second time', () => {
     configure(false);
-    authService.isAccessTokenExpired.and.returnValue(true);
+    authService.isAccessTokenExpired.mockReturnValue(true);
 
     let status = 0;
     http.get(RESOURCE_URL).subscribe({ error: (err) => (status = err.status) });

@@ -74,7 +74,7 @@ describe('InputMultiSelectComponent', () => {
     it('should filter by id when mergeIdAndName is true', () => {
       component.mergeIdAndName = true;
       component.onSearchInputChange({ target: { value: '2' } } as unknown as Event);
-      expect(component.filteredItems.some((i) => i.id === 2)).toBeTrue();
+      expect(component.filteredItems.some((i) => i.id === 2)).toBe(true);
     });
   });
 
@@ -98,7 +98,9 @@ describe('InputMultiSelectComponent', () => {
     it('should prefer the first filtered item when submitting typed input', () => {
       component.onSearchInputChange({ target: { value: 'ga' } } as unknown as Event);
 
-      const chipInput = jasmine.createSpyObj('chipInput', ['clear']);
+      const chipInput = {
+        clear: vi.fn().mockName('chipInput.clear')
+      };
       component.onInputChipAdd({
         value: 'ga',
         chipInput
@@ -110,18 +112,20 @@ describe('InputMultiSelectComponent', () => {
 
     it('should set an invalidSelection error instead of creating a NaN chip when no match exists', () => {
       const control = new FormControl<number[] | null>(null);
-      spyOnProperty(component, 'ngControl', 'get').and.returnValue({ control } as unknown as NgControl);
+      vi.spyOn(component, 'ngControl', 'get').mockReturnValue({ control } as unknown as NgControl);
 
       component.onSearchInputChange({ target: { value: 'zzz' } } as unknown as Event);
 
-      const chipInput = jasmine.createSpyObj('chipInput', ['clear']);
+      const chipInput = {
+        clear: vi.fn().mockName('chipInput.clear')
+      };
       component.onInputChipAdd({
         value: 'zzz',
         chipInput
       } as unknown as import('@angular/material/chips').MatChipInputEvent);
 
       expect(component.selectedItems).toEqual([]);
-      expect(control.hasError('invalidSelection')).toBeTrue();
+      expect(control.hasError('invalidSelection')).toBe(true);
       expect(chipInput.clear).not.toHaveBeenCalled();
     });
   });

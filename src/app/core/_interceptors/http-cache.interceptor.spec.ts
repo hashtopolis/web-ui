@@ -157,7 +157,7 @@ describe('HttpCacheInterceptor', () => {
     secondReq.flush(testData);
   });
 
-  it('should return cached response synchronously', (done) => {
+  it('should return cached response synchronously', async () => {
     const testUrl = 'https://api.test.com/data';
     const testData = { id: 1, name: 'Test Data' };
 
@@ -180,8 +180,6 @@ describe('HttpCacheInterceptor', () => {
       // could have fired a background revalidation request. Flush it so
       // that httpMock.verify() in afterEach does not fail.
       httpMock.match(testUrl).forEach((req) => req.flush(testData));
-
-      done();
     });
 
     const firstReq = httpMock.expectOne(testUrl);
@@ -197,36 +195,31 @@ describe('HttpCacheInterceptor', () => {
 
     it('should use max-age and stale-while-revalidate from response headers', () => {
       const testUrl = 'https://api.test.com/data';
-      const setSpy = spyOn(cacheService, 'set').and.callThrough();
+      const setSpy = vi.spyOn(cacheService, 'set');
 
       httpClient.get(testUrl).subscribe();
 
       const req = httpMock.expectOne(testUrl);
       req.flush({ ok: true }, { headers: { 'Cache-Control': 'max-age=10, stale-while-revalidate=20' } });
 
-      expect(setSpy).toHaveBeenCalledWith(jasmine.anything(), jasmine.anything(), 10_000, 20_000);
+      expect(setSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), 10000, 20000);
     });
 
     it('should fall back to defaults when Cache-Control header is absent', () => {
       const testUrl = 'https://api.test.com/data';
-      const setSpy = spyOn(cacheService, 'set').and.callThrough();
+      const setSpy = vi.spyOn(cacheService, 'set');
 
       httpClient.get(testUrl).subscribe();
 
       const req = httpMock.expectOne(testUrl);
       req.flush({ ok: true });
 
-      expect(setSpy).toHaveBeenCalledWith(
-        jasmine.anything(),
-        jasmine.anything(),
-        DEFAULT_TTL_MS,
-        DEFAULT_STALE_TIME_MS
-      );
+      expect(setSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), DEFAULT_TTL_MS, DEFAULT_STALE_TIME_MS);
     });
 
     it('should not cache when Cache-Control: no-store is present', () => {
       const testUrl = 'https://api.test.com/data';
-      const setSpy = spyOn(cacheService, 'set');
+      const setSpy = vi.spyOn(cacheService, 'set').mockReturnValue(undefined);
 
       httpClient.get(testUrl).subscribe();
 
@@ -238,7 +231,7 @@ describe('HttpCacheInterceptor', () => {
 
     it('should not cache when Cache-Control: no-cache is present', () => {
       const testUrl = 'https://api.test.com/data';
-      const setSpy = spyOn(cacheService, 'set');
+      const setSpy = vi.spyOn(cacheService, 'set').mockReturnValue(undefined);
 
       httpClient.get(testUrl).subscribe();
 
@@ -250,7 +243,7 @@ describe('HttpCacheInterceptor', () => {
 
     it('should not cache when Cache-Control: private is present', () => {
       const testUrl = 'https://api.test.com/data';
-      const setSpy = spyOn(cacheService, 'set');
+      const setSpy = vi.spyOn(cacheService, 'set').mockReturnValue(undefined);
 
       httpClient.get(testUrl).subscribe();
 
@@ -262,14 +255,14 @@ describe('HttpCacheInterceptor', () => {
 
     it('should fall back to default stale window when only max-age is present', () => {
       const testUrl = 'https://api.test.com/data';
-      const setSpy = spyOn(cacheService, 'set').and.callThrough();
+      const setSpy = vi.spyOn(cacheService, 'set');
 
       httpClient.get(testUrl).subscribe();
 
       const req = httpMock.expectOne(testUrl);
       req.flush({ ok: true }, { headers: { 'Cache-Control': 'max-age=5' } });
 
-      expect(setSpy).toHaveBeenCalledWith(jasmine.anything(), jasmine.anything(), 5_000, DEFAULT_STALE_TIME_MS);
+      expect(setSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), 5000, DEFAULT_STALE_TIME_MS);
     });
   });
 
@@ -294,8 +287,8 @@ describe('HttpCacheInterceptor', () => {
         }),
         isStale: true
       };
-      spyOn(cacheService, 'get').and.returnValue(staleResult);
-      const setSpy = spyOn(cacheService, 'set').and.callThrough();
+      vi.spyOn(cacheService, 'get').mockReturnValue(staleResult);
+      const setSpy = vi.spyOn(cacheService, 'set');
 
       let receivedData: unknown;
       httpClient.get(testUrl).subscribe((data) => {
@@ -321,7 +314,7 @@ describe('HttpCacheInterceptor', () => {
       const staleData = { id: 1, name: 'Stale' };
       const freshData = { id: 1, name: 'Fresh' };
 
-      spyOn(cacheService, 'get').and.returnValue({
+      vi.spyOn(cacheService, 'get').mockReturnValue({
         response: new HttpResponse({ body: staleData, status: 200, statusText: 'OK' }),
         isStale: true
       } as CacheGetResult);
@@ -331,7 +324,7 @@ describe('HttpCacheInterceptor', () => {
       // Stale is served synchronously; the background revalidation fires — answer it with fresh data.
       httpMock.expectOne(testUrl).flush(freshData);
 
-      await expectAsync(result).toBeResolvedTo(freshData);
+      await expect(result).resolves.toEqual(freshData);
     });
 
     it('should not trigger a background revalidation for a fresh cache hit', () => {
@@ -346,7 +339,7 @@ describe('HttpCacheInterceptor', () => {
         }),
         isStale: false
       };
-      spyOn(cacheService, 'get').and.returnValue(freshResult);
+      vi.spyOn(cacheService, 'get').mockReturnValue(freshResult);
 
       httpClient.get(testUrl).subscribe();
 
@@ -355,8 +348,8 @@ describe('HttpCacheInterceptor', () => {
     });
 
     it('should serve stale data and refresh the cache end-to-end when TTL elapses within the stale window', () => {
-      jasmine.clock().install();
-      jasmine.clock().mockDate(new Date());
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date());
       try {
         const testUrl = 'https://api.test.com/data';
         const staleData = { id: 1, name: 'v1' };
@@ -368,7 +361,7 @@ describe('HttpCacheInterceptor', () => {
         first.flush(staleData, { headers: { 'Cache-Control': 'max-age=1, stale-while-revalidate=60' } });
 
         // Advance past the TTL but stay inside the stale window
-        jasmine.clock().tick(5_000);
+        vi.advanceTimersByTime(5000);
 
         // Second GET: stale entry is served immediately, background revalidation fires
         let firstRead: unknown;
@@ -388,7 +381,7 @@ describe('HttpCacheInterceptor', () => {
         expect(secondRead).toEqual(freshData);
         httpMock.expectNone(testUrl);
       } finally {
-        jasmine.clock().uninstall();
+        vi.useRealTimers();
       }
     });
   });

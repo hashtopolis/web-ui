@@ -1,3 +1,4 @@
+import type { Mock, MockedObject } from 'vitest';
 /// <reference types="jasmine" />
 import { HashListFormat } from '@constants/hashlist.config';
 import { zHashlistListResponse, zHashlistResponse } from '@generated/api/zod';
@@ -73,34 +74,48 @@ const MOCK_SUPER_HASHLIST: JHashlist = {
 
 describe('HashlistsDataSource', () => {
   let dataSource: HashlistsDataSource;
-  let gsSpy: jasmine.SpyObj<GlobalService>;
-  let deserializeSpy: jasmine.Spy;
+  let gsSpy: MockedObject<GlobalService>;
+  let deserializeSpy: Mock;
 
   beforeEach(() => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['get', 'getAll']);
+    gsSpy = {
+      get: vi.fn().mockName('GlobalService.get'),
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    };
 
-    const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges']);
-    const uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    uiServiceSpy.getUISettings.and.returnValue({});
-    const autoRefreshSpy = jasmine.createSpyObj(
-      'AutoRefreshService',
-      ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'],
-      { refresh$: of() }
-    );
-    const cacheSpy = jasmine.createSpyObj('HttpCacheService', ['invalidate']);
-    const storageSpy = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
-    storageSpy.getItem.and.returnValue(null);
+    const cdrSpy = {
+      markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
+      detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges')
+    };
+    const uiServiceSpy = {
+      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+    };
+    uiServiceSpy.getUISettings.mockReturnValue({});
+    const autoRefreshSpy = {
+      toggleAutoRefresh: vi.fn().mockName('AutoRefreshService.toggleAutoRefresh'),
+      startAutoRefresh: vi.fn().mockName('AutoRefreshService.startAutoRefresh'),
+      stopAutoRefresh: vi.fn().mockName('AutoRefreshService.stopAutoRefresh'),
+      refresh$: of()
+    };
+    const cacheSpy = {
+      invalidate: vi.fn().mockName('HttpCacheService.invalidate')
+    };
+    const storageSpy = {
+      getItem: vi.fn().mockName('LocalStorageService.getItem'),
+      setItem: vi.fn().mockName('LocalStorageService.setItem')
+    };
+    storageSpy.getItem.mockReturnValue(null);
 
-    gsSpy.getAll.and.returnValue(of(mockResponse()));
-    gsSpy.get.and.returnValue(of(mockResponse()));
+    gsSpy.getAll.mockReturnValue(of(mockResponse()));
+    gsSpy.get.mockReturnValue(of(mockResponse()));
 
-    deserializeSpy = spyOn(JsonAPISerializer.prototype, 'deserialize').and.callFake(
-      (_body: unknown, schema?: unknown) => {
+    deserializeSpy = vi
+      .spyOn(JsonAPISerializer.prototype, 'deserialize')
+      .mockImplementation((_body: unknown, schema?: unknown) => {
         if (schema === zHashlistResponse) return MOCK_SUPER_HASHLIST;
         if (schema === zHashlistListResponse) return [MOCK_HASHLIST];
         return [];
-      }
-    );
+      });
 
     TestBed.configureTestingModule({
       providers: [
@@ -122,10 +137,10 @@ describe('HashlistsDataSource', () => {
   describe('setIsArchived()', () => {
     it('should store the provided archived value', () => {
       dataSource.setIsArchived(true);
-      expect(dataSource['isArchived']).toBeTrue();
+      expect(dataSource['isArchived']).toBe(true);
 
       dataSource.setIsArchived(false);
-      expect(dataSource['isArchived']).toBeFalse();
+      expect(dataSource['isArchived']).toBe(false);
     });
 
     it('should reset pageAfter, pageBefore and index', () => {
@@ -165,13 +180,13 @@ describe('HashlistsDataSource', () => {
   describe('loadAll() - normal mode', () => {
     it('should call service.getAll with SERV.HASHLISTS', () => {
       dataSource.loadAll();
-      const [serviceConfig] = gsSpy.getAll.calls.mostRecent().args;
+      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall;
       expect(serviceConfig).toEqual(SERV.HASHLISTS);
     });
 
     it('should include hashType and accessGroup', () => {
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
       const include = (params as RequestParams).include ?? [];
       expect(include).toContain('hashType');
       expect(include).toContain('accessGroup');
@@ -179,12 +194,12 @@ describe('HashlistsDataSource', () => {
 
     it('should always include isArchived and format filters', () => {
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
       const filter = (params as RequestParams).filter ?? [];
 
-      expect(filter).toContain(jasmine.objectContaining({ field: 'isArchived', value: false }));
+      expect(filter).toContain(expect.objectContaining({ field: 'isArchived', value: false }));
       expect(filter).toContain(
-        jasmine.objectContaining({
+        expect.objectContaining({
           field: 'format',
           operator: FilterType.NOTIN,
           value: [HashListFormat.SUPERHASHLIST]
@@ -195,17 +210,15 @@ describe('HashlistsDataSource', () => {
     it('should pass isArchived=true after setIsArchived(true)', () => {
       dataSource.setIsArchived(true);
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'isArchived', value: true })
-      );
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'isArchived', value: true }));
     });
 
     it('should append the query filter when provided', () => {
       const query: Filter = { field: 'name', operator: FilterType.ICONTAINS, value: 'sha1' };
       dataSource.loadAll(query);
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'name', value: 'sha1' }));
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'name', value: 'sha1' }));
     });
 
     it('should map hashTypeDescription and hashTypeId from hashType relation', () => {
@@ -216,7 +229,7 @@ describe('HashlistsDataSource', () => {
     });
 
     it('should set hashTypeDescription to empty string when hashType is missing', () => {
-      deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {
+      deserializeSpy.mockImplementation((_body: unknown, schema?: unknown) => {
         if (schema === zHashlistListResponse) return [MOCK_HASHLIST_WITHOUT_HASHTYPE];
         return MOCK_SUPER_HASHLIST;
       });
@@ -228,13 +241,13 @@ describe('HashlistsDataSource', () => {
     });
 
     it('should set totalItems from meta.page.total_elements', () => {
-      gsSpy.getAll.and.returnValue(of(mockResponse({ meta: { page: { total_elements: 264 } } })));
+      gsSpy.getAll.mockReturnValue(of(mockResponse({ meta: { page: { total_elements: 264 } } })));
       dataSource.loadAll();
       expect(dataSource.totalItems).toBe(264);
     });
 
     it('should extract page[after] cursor from links.next', () => {
-      gsSpy.getAll.and.returnValue(
+      gsSpy.getAll.mockReturnValue(
         of(
           mockResponse({
             meta: { page: { total_elements: 264 } },
@@ -251,7 +264,7 @@ describe('HashlistsDataSource', () => {
     });
 
     it('should set pageBefore to null when links.prev is null', () => {
-      gsSpy.getAll.and.returnValue(
+      gsSpy.getAll.mockReturnValue(
         of(
           mockResponse({
             meta: { page: { total_elements: 264 } },
@@ -266,21 +279,21 @@ describe('HashlistsDataSource', () => {
 
     it('should stop loading when request succeeds', () => {
       dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
 
     it('should call handleFilterError and stop loading when request fails', () => {
-      gsSpy.getAll.and.returnValue(throwError(() => new Error('backend error')));
-      const handleFilterErrorSpy = spyOn(dataSource as never, 'handleFilterError').and.callThrough();
+      gsSpy.getAll.mockReturnValue(throwError(() => new Error('backend error')));
+      const handleFilterErrorSpy = vi.spyOn(dataSource as never, 'handleFilterError');
 
       dataSource.loadAll();
 
       expect(handleFilterErrorSpy).toHaveBeenCalled();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
 
     it('should keep data untouched when deserialize returns null', () => {
-      deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {
+      deserializeSpy.mockImplementation((_body: unknown, schema?: unknown) => {
         if (schema === zHashlistListResponse) return null;
         return MOCK_SUPER_HASHLIST;
       });
@@ -302,14 +315,14 @@ describe('HashlistsDataSource', () => {
       expect(gsSpy.get).toHaveBeenCalled();
       expect(gsSpy.getAll).not.toHaveBeenCalled();
 
-      const [serviceConfig, entityId] = gsSpy.get.calls.mostRecent().args;
+      const [serviceConfig, entityId] = vi.mocked(gsSpy.get).mock.lastCall;
       expect(serviceConfig).toEqual(SERV.HASHLISTS);
       expect(entityId).toBe(77);
     });
 
     it('should include hashlists and hashType in params', () => {
       dataSource.loadAll();
-      const [, , params] = gsSpy.get.calls.mostRecent().args;
+      const [, , params] = vi.mocked(gsSpy.get).mock.lastCall;
       const include = (params as RequestParams).include ?? [];
       expect(include).toContain('hashlists');
       expect(include).toContain('hashType');
@@ -330,7 +343,7 @@ describe('HashlistsDataSource', () => {
     });
 
     it('should use empty list when superHashList.hashlists is undefined', () => {
-      deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {
+      deserializeSpy.mockImplementation((_body: unknown, schema?: unknown) => {
         if (schema === zHashlistResponse) {
           return { ...MOCK_SUPER_HASHLIST, hashlists: undefined };
         }
@@ -343,13 +356,13 @@ describe('HashlistsDataSource', () => {
     });
 
     it('should call handleFilterError and stop loading when request fails', () => {
-      gsSpy.get.and.returnValue(throwError(() => new Error('backend error')));
-      const handleFilterErrorSpy = spyOn(dataSource as never, 'handleFilterError').and.callThrough();
+      gsSpy.get.mockReturnValue(throwError(() => new Error('backend error')));
+      const handleFilterErrorSpy = vi.spyOn(dataSource as never, 'handleFilterError');
 
       dataSource.loadAll();
 
       expect(handleFilterErrorSpy).toHaveBeenCalled();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
   });
 
@@ -363,7 +376,7 @@ describe('HashlistsDataSource', () => {
     });
 
     it('should call loadAll()', () => {
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       dataSource.reload();
       expect(gsSpy.getAll).toHaveBeenCalled();
     });
@@ -374,7 +387,7 @@ describe('HashlistsDataSource', () => {
   describe('clearFilter()', () => {
     it('should reset index to 0 and reload data', () => {
       dataSource.index = 5;
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
 
       dataSource.clearFilter();
 

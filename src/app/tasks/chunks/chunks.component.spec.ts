@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
@@ -8,10 +9,12 @@ import { ChunksComponent } from '@src/app/tasks/chunks/chunks.component';
 describe('ChunksComponent', () => {
   let component: ChunksComponent;
   let fixture: ComponentFixture<ChunksComponent>;
-  let mockTitleService: jasmine.SpyObj<AutoTitleService>;
+  let mockTitleService: MockedObject<AutoTitleService>;
 
   beforeEach(async () => {
-    mockTitleService = jasmine.createSpyObj('AutoTitleService', ['set']);
+    mockTitleService = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    };
 
     await TestBed.configureTestingModule({
       declarations: [ChunksComponent],

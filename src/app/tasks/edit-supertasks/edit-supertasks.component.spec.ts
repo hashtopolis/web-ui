@@ -49,28 +49,57 @@ describe('EditSupertasksComponent', () => {
   let component: EditSupertasksComponent;
 
   beforeEach(async () => {
-    const gs = jasmine.createSpyObj('GlobalService', ['get', 'getAll', 'update', 'delete', 'postRelationships']);
-    gs.get.and.returnValue(of(SUPERTASK));
-    gs.getAll.and.returnValue(of(PRETASKS));
-    const roles = jasmine.createSpyObj('SupertasksRoleService', ['hasRole']);
-    roles.hasRole.and.returnValue(true);
-    const crackerBinaryTypes = jasmine.createSpyObj('CrackerBinaryTypesService', ['getTypeName']);
-    crackerBinaryTypes.getTypeName.and.returnValue(of('generic'));
+    const gs = {
+      get: vi.fn().mockName('GlobalService.get'),
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      update: vi.fn().mockName('GlobalService.update'),
+      delete: vi.fn().mockName('GlobalService.delete'),
+      postRelationships: vi.fn().mockName('GlobalService.postRelationships')
+    };
+    gs.get.mockReturnValue(of(SUPERTASK));
+    gs.getAll.mockReturnValue(of(PRETASKS));
+    const roles = {
+      hasRole: vi.fn().mockName('SupertasksRoleService.hasRole')
+    };
+    roles.hasRole.mockReturnValue(true);
+    const crackerBinaryTypes = {
+      getTypeName: vi.fn().mockName('CrackerBinaryTypesService.getTypeName')
+    };
+    crackerBinaryTypes.getTypeName.mockReturnValue(of('generic'));
 
     await TestBed.configureTestingModule({
       declarations: [EditSupertasksComponent],
       providers: [
         { provide: GlobalService, useValue: gs },
         { provide: ActivatedRoute, useValue: { snapshot: { params: { id: '5' } } } },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']) },
+        {
+          provide: Router,
+          useValue: {
+            navigate: vi.fn().mockName('Router.navigate'),
+            navigateByUrl: vi.fn().mockName('Router.navigateByUrl')
+          }
+        },
         { provide: SupertasksRoleService, useValue: roles },
         { provide: CrackerBinaryTypesService, useValue: crackerBinaryTypes },
-        { provide: ConfirmDialogService, useValue: jasmine.createSpyObj('ConfirmDialogService', ['confirmDeletion']) },
+        {
+          provide: ConfirmDialogService,
+          useValue: {
+            confirmDeletion: vi.fn().mockName('ConfirmDialogService.confirmDeletion')
+          }
+        },
         {
           provide: AlertService,
-          useValue: jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage'])
+          useValue: {
+            showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+            showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+          }
         },
-        { provide: AutoTitleService, useValue: jasmine.createSpyObj('AutoTitleService', ['set']) }
+        {
+          provide: AutoTitleService,
+          useValue: {
+            set: vi.fn().mockName('AutoTitleService.set')
+          }
+        }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
@@ -83,13 +112,16 @@ describe('EditSupertasksComponent', () => {
   it('shows the cracker type read-only', () => {
     const control = component.viewForm.get('crackerBinaryType');
     expect(control?.value).toBe('generic');
-    expect(control?.disabled).toBeTrue();
+    expect(control?.disabled).toBe(true);
     expect(component.crackerBinaryTypeId).toBe(2);
   });
 
   it('limits the pretasks not part of the supertask to its type', () => {
     const tables = fixture.nativeElement.querySelectorAll('app-pretasks-table') as NodeListOf<
-      HTMLElement & { reverseQuery?: boolean; crackerBinaryTypeId?: number | null }
+      HTMLElement & {
+        reverseQuery?: boolean;
+        crackerBinaryTypeId?: number | null;
+      }
     >;
     const notContained = Array.from(tables).find((table) => table.reverseQuery === true);
     expect(notContained?.crackerBinaryTypeId).toBe(2);

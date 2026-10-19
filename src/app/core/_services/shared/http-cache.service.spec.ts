@@ -37,7 +37,7 @@ describe('HttpCacheService', () => {
 
     expect(cached).toBeTruthy();
     expect(cached?.response.body).toEqual({ id: 1, name: 'Test' });
-    expect(cached?.isStale).toBeFalse();
+    expect(cached?.isStale).toBe(false);
   });
 
   it('should return null for uncached requests', () => {
@@ -119,7 +119,7 @@ describe('HttpCacheService', () => {
     expect(cached).toBeNull();
   });
 
-  it('should mark entries as stale after TTL but keep serving them within the stale window', (done) => {
+  it('should mark entries as stale after TTL but keep serving them within the stale window', async () => {
     const req = new HttpRequest('GET', 'https://api.test.com/data');
     const res = new HttpResponse({
       body: { id: 1, name: 'Test' },
@@ -127,22 +127,21 @@ describe('HttpCacheService', () => {
       statusText: 'OK'
     });
 
-    service.set(req, res, 100, 5_000); // TTL 100ms, stale window 5s
+    service.set(req, res, 100, 5000); // TTL 100ms, stale window 5s
 
     const fresh = service.get(req);
     expect(fresh).toBeTruthy();
-    expect(fresh?.isStale).toBeFalse();
+    expect(fresh?.isStale).toBe(false);
 
     setTimeout(() => {
       const stale = service.get(req);
       expect(stale).toBeTruthy();
-      expect(stale?.isStale).toBeTrue();
+      expect(stale?.isStale).toBe(true);
       expect(stale?.response.body).toEqual({ id: 1, name: 'Test' });
-      done();
     }, 150);
   });
 
-  it('should return null once the stale window has also elapsed', (done) => {
+  it('should return null once the stale window has also elapsed', async () => {
     const req = new HttpRequest('GET', 'https://api.test.com/data');
     const res = new HttpResponse({
       body: { id: 1, name: 'Test' },
@@ -155,7 +154,6 @@ describe('HttpCacheService', () => {
     setTimeout(() => {
       const result = service.get(req);
       expect(result).toBeNull();
-      done();
     }, 150);
   });
 
@@ -199,9 +197,9 @@ describe('HttpCacheService', () => {
       statusText: 'OK'
     });
 
-    service.set(req, res, 30_000, 60_000);
+    service.set(req, res, 30000, 60000);
     const result = service.get(req);
 
-    expect(result?.isStale).toBeFalse();
+    expect(result?.isStale).toBe(false);
   });
 });

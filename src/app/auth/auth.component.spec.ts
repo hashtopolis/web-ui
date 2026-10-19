@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { asyncScheduler, observeOn, of, throwError } from 'rxjs';
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
@@ -23,12 +24,16 @@ describe('AuthComponent', () => {
   let fixture: ComponentFixture<AuthComponent>;
 
   // Mocks
-  let mockAuthService: jasmine.SpyObj<AuthService>;
-  let mockConfigService: jasmine.SpyObj<ConfigService>;
+  let mockAuthService: MockedObject<AuthService>;
+  let mockConfigService: MockedObject<ConfigService>;
 
   beforeEach(async () => {
-    mockAuthService = jasmine.createSpyObj('AuthService', ['logIn']);
-    mockConfigService = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
+    mockAuthService = {
+      logIn: vi.fn().mockName('AuthService.logIn')
+    };
+    mockConfigService = {
+      getEndpoint: vi.fn().mockName('ConfigService.getEndpoint')
+    };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -64,58 +69,58 @@ describe('AuthComponent', () => {
 
   it('should mark form invalid if empty', () => {
     component.loginForm.setValue({ username: '', password: '' });
-    expect(component.loginForm.invalid).toBeTrue();
+    expect(component.loginForm.invalid).toBe(true);
   });
 
   it('should call authService.logIn on valid form submission via button click', fakeAsync(() => {
     const fakeResponse = of(void 0).pipe(observeOn(asyncScheduler));
-    mockAuthService.logIn.and.returnValue(fakeResponse);
+    mockAuthService.logIn.mockReturnValue(fakeResponse);
     component.loginForm.setValue({ username: 'user', password: 'pass' });
 
     const submitButtonDebugEl = fixture.debugElement.query(By.css('button-submit button'));
     submitButtonDebugEl.nativeElement.click();
 
-    expect(component.isLoading).toBeTrue();
+    expect(component.isLoading).toBe(true);
     expect(mockAuthService.logIn).toHaveBeenCalledWith('user', 'pass');
 
     tick();
 
-    expect(component.isLoading).toBeFalse();
+    expect(component.isLoading).toBe(false);
     expect(component.loginForm.value.username).toBeNull();
     expect(component.loginForm.value.password).toBeNull();
   }));
 
   it('should stop loading when login fails on submit button click', fakeAsync(() => {
     const errorResponse = throwError(() => new Error('Login failed')).pipe(observeOn(asyncScheduler));
-    mockAuthService.logIn.and.returnValue(errorResponse);
+    mockAuthService.logIn.mockReturnValue(errorResponse);
 
     component.loginForm.setValue({ username: 'user', password: 'wrong' });
 
     const submitButtonDebugEl = fixture.debugElement.query(By.css('button-submit button'));
     submitButtonDebugEl.nativeElement.click();
 
-    expect(component.isLoading).toBeTrue();
+    expect(component.isLoading).toBe(true);
     expect(mockAuthService.logIn).toHaveBeenCalledWith('user', 'wrong');
 
     tick();
 
-    expect(component.isLoading).toBeFalse();
+    expect(component.isLoading).toBe(false);
   }));
 
   it('should stop loading when login fails without a specific error message', fakeAsync(() => {
     const errorResponse = throwError(() => ({})).pipe(observeOn(asyncScheduler));
-    mockAuthService.logIn.and.returnValue(errorResponse);
+    mockAuthService.logIn.mockReturnValue(errorResponse);
 
     component.loginForm.setValue({ username: 'user', password: 'wrong' });
 
     const submitButtonDebugEl = fixture.debugElement.query(By.css('button-submit button'));
     submitButtonDebugEl.nativeElement.click();
 
-    expect(component.isLoading).toBeTrue();
+    expect(component.isLoading).toBe(true);
     expect(mockAuthService.logIn).toHaveBeenCalledWith('user', 'wrong');
 
     tick();
 
-    expect(component.isLoading).toBeFalse();
+    expect(component.isLoading).toBe(false);
   }));
 });

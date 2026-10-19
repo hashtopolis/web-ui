@@ -80,9 +80,15 @@ describe('TypedStorage', () => {
     });
 
     it('should refuse to write on setItem when per-call schema fails', () => {
-      spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockReturnValue(undefined);
       const schema = z.object({ n: z.number() });
-      storage.setItem('k', { n: 'bad' } as unknown as { n: number }, schema);
+      storage.setItem(
+        'k',
+        { n: 'bad' } as unknown as {
+          n: number;
+        },
+        schema
+      );
       expect(native.getItem('k')).toBeNull();
       expect(console.error).toHaveBeenCalled();
     });
@@ -127,7 +133,7 @@ describe('TypedStorage', () => {
     });
 
     it('setItem should refuse invalid data via constructor schema', () => {
-      spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockReturnValue(undefined);
       storage.setItem('p', { x: 'nope', y: 2 } as unknown as Point);
       expect(native.getItem('p')).toBeNull();
       expect(console.error).toHaveBeenCalled();
@@ -173,8 +179,10 @@ describe('TypedStorage', () => {
       const schema = z.object({ v: z.number() });
       const typed = base.typed(schema);
 
-      spyOn(console, 'error');
-      typed.setItem('key', { v: 'bad' } as unknown as { v: number });
+      vi.spyOn(console, 'error').mockReturnValue(undefined);
+      typed.setItem('key', { v: 'bad' } as unknown as {
+        v: number;
+      });
       expect(native.getItem('key')).toBeNull();
       expect(console.error).toHaveBeenCalled();
     });

@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 /// <reference types="jasmine" />
 import { zHashTypeListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
@@ -34,34 +35,50 @@ const RESPONSE = mockValidResponse(zHashTypeListResponse, {
 
 describe('CrackerHashtypesDataSource', () => {
   let dataSource: CrackerHashtypesDataSource;
-  let gsSpy: jasmine.SpyObj<GlobalService>;
+  let gsSpy: MockedObject<GlobalService>;
 
   beforeEach(() => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll']);
-    gsSpy.getAll.and.returnValue(of(RESPONSE));
+    gsSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    };
+    gsSpy.getAll.mockReturnValue(of(RESPONSE));
 
-    const uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    uiServiceSpy.getUISettings.and.returnValue({});
-    const storageSpy = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
-    storageSpy.getItem.and.returnValue(null);
+    const uiServiceSpy = {
+      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+    };
+    uiServiceSpy.getUISettings.mockReturnValue({});
+    const storageSpy = {
+      getItem: vi.fn().mockName('LocalStorageService.getItem'),
+      setItem: vi.fn().mockName('LocalStorageService.setItem')
+    };
+    storageSpy.getItem.mockReturnValue(null);
 
     TestBed.configureTestingModule({
       providers: [
         { provide: GlobalService, useValue: gsSpy },
         {
           provide: ChangeDetectorRef,
-          useValue: jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges'])
+          useValue: {
+            markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
+            detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges')
+          }
         },
         { provide: UIConfigService, useValue: uiServiceSpy },
         {
           provide: AutoRefreshService,
-          useValue: jasmine.createSpyObj(
-            'AutoRefreshService',
-            ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'],
-            { refresh$: of() }
-          )
+          useValue: {
+            toggleAutoRefresh: vi.fn().mockName('AutoRefreshService.toggleAutoRefresh'),
+            startAutoRefresh: vi.fn().mockName('AutoRefreshService.startAutoRefresh'),
+            stopAutoRefresh: vi.fn().mockName('AutoRefreshService.stopAutoRefresh'),
+            refresh$: of()
+          }
         },
-        { provide: HttpCacheService, useValue: jasmine.createSpyObj('HttpCacheService', ['invalidate']) },
+        {
+          provide: HttpCacheService,
+          useValue: {
+            invalidate: vi.fn().mockName('HttpCacheService.invalidate')
+          }
+        },
         { provide: LocalStorageService, useValue: storageSpy }
       ]
     });
@@ -75,7 +92,7 @@ describe('CrackerHashtypesDataSource', () => {
     dataSource.pageSize = 25;
     dataSource.loadAll();
 
-    const [serviceConfig, params] = gsSpy.getAll.calls.mostRecent().args;
+    const [serviceConfig, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
     expect(serviceConfig.URL).toBe(`${SERV.CRACKERS.URL}/12/hashtypes`);
     expect((params as RequestParams).page?.size).toBe(25);
   });
@@ -93,7 +110,7 @@ describe('CrackerHashtypesDataSource', () => {
     dataSource.loadAll(filter);
     dataSource.reload();
 
-    const params = gsSpy.getAll.calls.mostRecent().args[1] as RequestParams;
+    const params = vi.mocked(gsSpy.getAll).mock.lastCall[1] as RequestParams;
     expect(params.filter).toEqual([filter]);
   });
 });

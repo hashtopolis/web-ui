@@ -11,16 +11,18 @@ describe('PermissionGuard.humanizeRoleName', () => {
     TestBed.configureTestingModule({
       providers: [
         PermissionGuard,
-        { provide: AlertService, useValue: { showErrorMessage: jasmine.createSpy('showErrorMessage') } }
+        { provide: AlertService, useValue: { showErrorMessage: vi.fn().mockName('showErrorMessage') } }
       ]
     });
     guard = TestBed.inject(PermissionGuard);
   });
 
   it('does not add an extra "s" when the scope name already ends in "s"', () => {
-    const humanize = (guard as unknown as { humanizeRoleName: (d: string, r: string) => string }).humanizeRoleName.bind(
-      guard
-    );
+    const humanize = (
+      guard as unknown as {
+        humanizeRoleName: (d: string, r: string) => string;
+      }
+    ).humanizeRoleName.bind(guard);
     expect(humanize('HashTypes', 'read')).toBe('read HashTypes');
     expect(humanize('Tasks', 'read')).toBe('read Tasks');
     expect(humanize('Settings', 'read')).toBe('read Settings');
@@ -30,9 +32,11 @@ describe('PermissionGuard.humanizeRoleName', () => {
   });
 
   it('adds "s" when the scope name is singular', () => {
-    const humanize = (guard as unknown as { humanizeRoleName: (d: string, r: string) => string }).humanizeRoleName.bind(
-      guard
-    );
+    const humanize = (
+      guard as unknown as {
+        humanizeRoleName: (d: string, r: string) => string;
+      }
+    ).humanizeRoleName.bind(guard);
     expect(humanize('Agent', 'read')).toBe('read Agents');
     expect(humanize('Log', 'read')).toBe('read Logs');
   });

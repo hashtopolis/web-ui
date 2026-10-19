@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 /// <reference types="jasmine" />
 import { SelectionModel } from '@angular/cdk/collections';
 
@@ -24,10 +25,10 @@ function makeComponent() {
 
   component['dataSource'] = mockDataSource;
   component['bulkActionClicked'] = {
-    emit: jasmine.createSpy('emit')
+    emit: vi.fn().mockName('emit')
   } as never;
   component['exportActionClicked'] = {
-    emit: jasmine.createSpy('emit')
+    emit: vi.fn().mockName('emit')
   } as never;
 
   return { component, mockSelection };
@@ -50,7 +51,7 @@ describe('HTTableComponent', () => {
       component.bulkAction(event);
 
       expect(component['bulkActionClicked'].emit).toHaveBeenCalledWith(
-        jasmine.objectContaining({
+        expect.objectContaining({
           data: [row1, row2]
         })
       );
@@ -67,7 +68,7 @@ describe('HTTableComponent', () => {
       component.bulkAction(event);
 
       expect(component['bulkActionClicked'].emit).toHaveBeenCalledWith(
-        jasmine.objectContaining({
+        expect.objectContaining({
           menuItem: { label: 'Archive', action: 'archive' }
         })
       );
@@ -87,7 +88,7 @@ describe('HTTableComponent', () => {
 
       component.bulkAction(event);
 
-      const emittedEvent = (component['bulkActionClicked'].emit as jasmine.Spy).calls.mostRecent().args[0];
+      const emittedEvent = vi.mocked(component['bulkActionClicked'].emit as Mock).mock.lastCall[0];
       expect(emittedEvent.data).not.toBe(dummyData);
       expect(emittedEvent.data).toEqual([selectedRow]);
     });
@@ -103,7 +104,7 @@ describe('HTTableComponent', () => {
       component.bulkAction(event);
 
       expect(component['bulkActionClicked'].emit).toHaveBeenCalledWith(
-        jasmine.objectContaining({
+        expect.objectContaining({
           data: []
         })
       );
@@ -126,7 +127,7 @@ describe('HTTableComponent', () => {
       component.exportAction(event);
 
       expect(component['exportActionClicked'].emit).toHaveBeenCalledWith(
-        jasmine.objectContaining({
+        expect.objectContaining({
           data: [row1, row2]
         })
       );
@@ -143,7 +144,7 @@ describe('HTTableComponent', () => {
       component.exportAction(event);
 
       expect(component['exportActionClicked'].emit).toHaveBeenCalledWith(
-        jasmine.objectContaining({
+        expect.objectContaining({
           menuItem: { label: 'CSV', action: 'export-csv' }
         })
       );
@@ -163,7 +164,7 @@ describe('HTTableComponent', () => {
 
       component.exportAction(event);
 
-      const emittedEvent = (component['exportActionClicked'].emit as jasmine.Spy).calls.mostRecent().args[0];
+      const emittedEvent = vi.mocked(component['exportActionClicked'].emit as Mock).mock.lastCall[0];
       expect(emittedEvent.data).not.toBe(dummyData);
       expect(emittedEvent.data).toEqual([selectedRow]);
     });
@@ -179,7 +180,7 @@ describe('HTTableComponent', () => {
       component.exportAction(event);
 
       expect(component['exportActionClicked'].emit).toHaveBeenCalledWith(
-        jasmine.objectContaining({
+        expect.objectContaining({
           data: []
         })
       );
@@ -198,7 +199,7 @@ describe('HTTableComponent', () => {
 
       component.exportAction(event);
 
-      const emittedEvent = (component['exportActionClicked'].emit as jasmine.Spy).calls.mostRecent().args[0];
+      const emittedEvent = vi.mocked(component['exportActionClicked'].emit as Mock).mock.lastCall[0];
       expect(Array.isArray(emittedEvent.data)).toBe(true);
       expect(() => {
         for (const _ of emittedEvent.data) {
@@ -226,8 +227,8 @@ describe('HTTableComponent', () => {
       component.bulkAction(bulkEvent);
       component.exportAction(exportEvent);
 
-      const bulkData = (component['bulkActionClicked'].emit as jasmine.Spy).calls.mostRecent().args[0].data;
-      const exportData = (component['exportActionClicked'].emit as jasmine.Spy).calls.mostRecent().args[0].data;
+      const bulkData = vi.mocked(component['bulkActionClicked'].emit as Mock).mock.lastCall[0].data;
+      const exportData = vi.mocked(component['exportActionClicked'].emit as Mock).mock.lastCall[0].data;
       expect(exportData).toEqual(bulkData);
     });
 
@@ -247,9 +248,9 @@ describe('HTTableComponent', () => {
       mockSelection.select(newRow);
       component.exportAction(event);
 
-      const emitSpy = component['exportActionClicked'].emit as jasmine.Spy;
-      expect(emitSpy.calls.argsFor(0)[0].data).toEqual([initialRow]);
-      expect(emitSpy.calls.argsFor(1)[0].data).toEqual([initialRow, newRow]);
+      const emitSpy = component['exportActionClicked'].emit as Mock;
+      expect(vi.mocked(emitSpy).mock.calls[0][0].data).toEqual([initialRow]);
+      expect(vi.mocked(emitSpy).mock.calls[1][0].data).toEqual([initialRow, newRow]);
     });
 
     it('should not mutate the original event object', () => {

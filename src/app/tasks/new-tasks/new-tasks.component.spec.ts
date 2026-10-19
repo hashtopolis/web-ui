@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import {
   zCrackerBinaryListResponse,
   zCrackerBinaryTypeListResponse,
@@ -317,8 +318,14 @@ const MOCK_PRETASK_GET_RESPONSE = mockValidResponse(zPreTaskResponse, {
   ]
 });
 
-function buildGetAllCallFake(overrides: { [url: string]: Observable<ResponseWrapper> } = {}) {
-  const defaults: { [url: string]: Observable<ResponseWrapper> } = {
+function buildGetAllCallFake(
+  overrides: {
+    [url: string]: Observable<ResponseWrapper>;
+  } = {}
+) {
+  const defaults: {
+    [url: string]: Observable<ResponseWrapper>;
+  } = {
     [SERV.HASHLISTS.URL]: of(MOCK_HASHLISTS_RESPONSE),
     [SERV.CRACKERS_TYPES.URL]: of(MOCK_CRACKER_TYPES_RESPONSE),
     [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_RESPONSE),
@@ -359,40 +366,60 @@ describe('NewTasksComponent', () => {
   let component: NewTasksComponent;
   let fixture: ComponentFixture<NewTasksComponent>;
 
-  let titleServiceSpy: jasmine.SpyObj<AutoTitleService>;
-  let tooltipServiceSpy: jasmine.SpyObj<TooltipService>;
-  let uiServiceMock: jasmine.SpyObj<UIConfigService>;
-  let alertServiceSpy: jasmine.SpyObj<AlertService>;
-  let globalServiceSpy: jasmine.SpyObj<GlobalService>;
-  let dialogSpy: jasmine.SpyObj<MatDialog>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let supportSpy: jasmine.SpyObj<CrackerHashtypeSupportService>;
-  let activatedRoute: { params: Observable<Params>; data: Observable<unknown>; snapshot: { params: Params } };
+  let titleServiceSpy: MockedObject<AutoTitleService>;
+  let tooltipServiceSpy: MockedObject<TooltipService>;
+  let uiServiceMock: MockedObject<UIConfigService>;
+  let alertServiceSpy: MockedObject<AlertService>;
+  let globalServiceSpy: MockedObject<GlobalService>;
+  let dialogSpy: MockedObject<MatDialog>;
+  let routerSpy: MockedObject<Router>;
+  let supportSpy: MockedObject<CrackerHashtypeSupportService>;
+  let activatedRoute: {
+    params: Observable<Params>;
+    data: Observable<unknown>;
+    snapshot: {
+      params: Params;
+    };
+  };
 
   beforeEach(async () => {
-    titleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    tooltipServiceSpy = jasmine.createSpyObj('TooltipService', ['getTaskTooltips']);
-    tooltipServiceSpy.getTaskTooltips.and.returnValue({} as TaskTooltipsLevel);
+    titleServiceSpy = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    };
+    tooltipServiceSpy = {
+      getTaskTooltips: vi.fn().mockName('TooltipService.getTaskTooltips')
+    };
+    tooltipServiceSpy.getTaskTooltips.mockReturnValue({} as TaskTooltipsLevel);
 
-    uiServiceMock = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    uiServiceMock.getUISettings.and.returnValue({
+    uiServiceMock = {
+      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+    };
+    uiServiceMock.getUISettings.mockReturnValue({
       hashlistAlias: '#HL#',
       chunktime: 600,
       statustimer: 5
     } as unknown as UiSettings);
 
-    alertServiceSpy = jasmine.createSpyObj('AlertService', [
-      'showErrorMessage',
-      'showSuccessMessage',
-      'showInfoMessage'
-    ]);
-    globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create']);
-    globalServiceSpy.getAll.and.callFake(buildGetAllCallFake());
-    globalServiceSpy.create.and.returnValue(of(mockResponse()));
+    alertServiceSpy = {
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage'),
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showInfoMessage: vi.fn().mockName('AlertService.showInfoMessage')
+    };
+    globalServiceSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      get: vi.fn().mockName('GlobalService.get'),
+      create: vi.fn().mockName('GlobalService.create')
+    };
+    globalServiceSpy.getAll.mockImplementation(buildGetAllCallFake());
+    globalServiceSpy.create.mockReturnValue(of(mockResponse()));
 
-    dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    routerSpy.navigate.and.returnValue(Promise.resolve(true));
+    dialogSpy = {
+      open: vi.fn().mockName('MatDialog.open')
+    };
+    routerSpy = {
+      navigate: vi.fn().mockName('Router.navigate')
+    };
+    routerSpy.navigate.mockResolvedValue(true);
 
     activatedRoute = {
       params: of({}),
@@ -400,8 +427,10 @@ describe('NewTasksComponent', () => {
       snapshot: { params: {} }
     };
 
-    supportSpy = jasmine.createSpyObj('CrackerHashtypeSupportService', ['getSupportedCrackerBinaryIds']);
-    supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10, 11, 30])));
+    supportSpy = {
+      getSupportedCrackerBinaryIds: vi.fn().mockName('CrackerHashtypeSupportService.getSupportedCrackerBinaryIds')
+    };
+    supportSpy.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([10, 11, 30])));
 
     await TestBed.configureTestingModule({
       declarations: [NewTasksComponent],
@@ -441,7 +470,7 @@ describe('NewTasksComponent', () => {
 
   describe('Benchmark default from settings (useNewBench)', () => {
     it('should default useNewBench to true (Speed Test) when defaultBenchmark is 1', async () => {
-      uiServiceMock.getUISettings.and.returnValue({ defaultBenchmark: 1 } as unknown as UiSettings);
+      uiServiceMock.getUISettings.mockReturnValue({ defaultBenchmark: 1 } as unknown as UiSettings);
 
       await initComponent(fixture);
 
@@ -449,7 +478,7 @@ describe('NewTasksComponent', () => {
     });
 
     it('should default useNewBench to false (Runtime Benchmark) when defaultBenchmark is 0', async () => {
-      uiServiceMock.getUISettings.and.returnValue({ defaultBenchmark: 0 } as unknown as UiSettings);
+      uiServiceMock.getUISettings.mockReturnValue({ defaultBenchmark: 0 } as unknown as UiSettings);
 
       await initComponent(fixture);
 
@@ -457,7 +486,7 @@ describe('NewTasksComponent', () => {
     });
 
     it('should fall back to true (Speed Test) when defaultBenchmark is absent', async () => {
-      uiServiceMock.getUISettings.and.returnValue({} as unknown as UiSettings);
+      uiServiceMock.getUISettings.mockReturnValue({} as unknown as UiSettings);
 
       await initComponent(fixture);
 
@@ -531,7 +560,9 @@ describe('NewTasksComponent', () => {
 
       await component['onSubmit']();
 
-      const payload = globalServiceSpy.create.calls.mostRecent().args[1] as { files: number[] };
+      const payload = vi.mocked(globalServiceSpy.create).mock.lastCall[1] as {
+        files: number[];
+      };
       expect(payload.files).toEqual([10, 30]);
     });
 
@@ -559,7 +590,9 @@ describe('NewTasksComponent', () => {
 
       await component['onSubmit']();
 
-      const payload = globalServiceSpy.create.calls.mostRecent().args[1] as { files: number[] };
+      const payload = vi.mocked(globalServiceSpy.create).mock.lastCall[1] as {
+        files: number[];
+      };
       expect(payload.files).toEqual([10]);
       expect(component.form.controls.preprocessorCommand.value).toBe('');
     });
@@ -582,14 +615,14 @@ describe('NewTasksComponent', () => {
     beforeEach(() => {
       activatedRoute.params = of({ id: '42' });
       activatedRoute.data = of({ kind: 'copy-task' });
-      globalServiceSpy.get.and.returnValue(of(MOCK_TASK_GET_RESPONSE));
+      globalServiceSpy.get.mockReturnValue(of(MOCK_TASK_GET_RESPONSE));
     });
 
     it('should call gs.get with SERV.TASKS endpoint and the task id', async () => {
       await initComponent(fixture);
 
       expect(globalServiceSpy.get).toHaveBeenCalled();
-      const [endpoint, id] = globalServiceSpy.get.calls.mostRecent().args;
+      const [endpoint, id] = vi.mocked(globalServiceSpy.get).mock.lastCall;
       expect(endpoint).toEqual(SERV.TASKS);
       expect(id).toBe(42);
     });
@@ -646,7 +679,7 @@ describe('NewTasksComponent', () => {
           }
         ]
       });
-      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(onlyEleven) }));
+      globalServiceSpy.getAll.mockImplementation(buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(onlyEleven) }));
       await initComponent(fixture);
       expect(component.form.controls.crackerBinaryId.value).toBe(11);
       expect(alertServiceSpy.showInfoMessage).toHaveBeenCalledWith(
@@ -696,21 +729,21 @@ describe('NewTasksComponent', () => {
           }
         ]
       });
-      globalServiceSpy.getAll.and.callFake(
+      globalServiceSpy.getAll.mockImplementation(
         buildGetAllCallFake({ [SERV.CRACKERS_TYPES.URL]: of(onlyTypeThree), [SERV.CRACKERS.URL]: of(versionThirty) })
       );
       await initComponent(fixture);
       expect(component.form.controls.crackerBinaryTypeId.value).toBe(3);
       expect(component.form.controls.crackerBinaryId.value).toBe(30);
-      expect(component.noCrackerVersionsAvailable).toBeFalse();
+      expect(component.noCrackerVersionsAvailable).toBe(false);
       expect(alertServiceSpy.showInfoMessage).toHaveBeenCalledWith(
         'The cracker version of the copied task is not accessible or does not support the hashtype of the hashlist, the latest supported version was selected instead.'
       );
     });
 
     it('checks the copied version against the hashtype of the copied hashlist', async () => {
-      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([11])));
-      globalServiceSpy.getAll.and.callFake(
+      supportSpy.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([11])));
+      globalServiceSpy.getAll.mockImplementation(
         buildGetAllCallFake({
           [SERV.CRACKERS_TYPES.URL]: of(MOCK_CRACKER_TYPES_10_11_RESPONSE),
           [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_10_11_RESPONSE)
@@ -752,7 +785,7 @@ describe('NewTasksComponent', () => {
           }
         ]
       });
-      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.HASHLISTS.URL]: of(onlySecond) }));
+      globalServiceSpy.getAll.mockImplementation(buildGetAllCallFake({ [SERV.HASHLISTS.URL]: of(onlySecond) }));
 
       await initComponent(fixture);
 
@@ -811,7 +844,7 @@ describe('NewTasksComponent', () => {
           }
         }
       });
-      globalServiceSpy.get.and.returnValue(of(taskWithoutHashlist));
+      globalServiceSpy.get.mockReturnValue(of(taskWithoutHashlist));
 
       await initComponent(fixture);
 
@@ -823,14 +856,14 @@ describe('NewTasksComponent', () => {
     beforeEach(() => {
       activatedRoute.params = of({ id: '7' });
       activatedRoute.data = of({ kind: 'copy-pretask' });
-      globalServiceSpy.get.and.returnValue(of(MOCK_PRETASK_GET_RESPONSE));
+      globalServiceSpy.get.mockReturnValue(of(MOCK_PRETASK_GET_RESPONSE));
     });
 
     it('should call gs.get with SERV.PRETASKS endpoint and the pretask id', async () => {
       await initComponent(fixture);
 
       expect(globalServiceSpy.get).toHaveBeenCalled();
-      const [endpoint, id] = globalServiceSpy.get.calls.mostRecent().args;
+      const [endpoint, id] = vi.mocked(globalServiceSpy.get).mock.lastCall;
       expect(endpoint).toEqual(SERV.PRETASKS);
       expect(id).toBe(7);
     });
@@ -939,13 +972,15 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       // Reset call tracking so we only see calls triggered by the value change
-      globalServiceSpy.getAll.calls.reset();
+      globalServiceSpy.getAll.mockClear();
 
       component.form.controls.crackerBinaryTypeId.setValue(2);
       await fixture.whenStable();
 
       // handleChangeBinary should have called gs.getAll(SERV.CRACKERS, ...)
-      const crackerCalls = globalServiceSpy.getAll.calls.allArgs().filter((args) => args[0].URL === SERV.CRACKERS.URL);
+      const crackerCalls = vi
+        .mocked(globalServiceSpy.getAll)
+        .mock.calls.filter((args) => args[0].URL === SERV.CRACKERS.URL);
       expect(crackerCalls.length).toBeGreaterThanOrEqual(1);
     });
 
@@ -987,7 +1022,7 @@ describe('NewTasksComponent', () => {
     });
 
     it('should show error when no hashlists are available', async () => {
-      globalServiceSpy.getAll.and.callFake(
+      globalServiceSpy.getAll.mockImplementation(
         buildGetAllCallFake({ [SERV.HASHLISTS.URL]: of(MOCK_EMPTY_HASHLISTS_RESPONSE) })
       );
 
@@ -999,7 +1034,7 @@ describe('NewTasksComponent', () => {
     });
 
     it('should show error message when hashlists fail to load', async () => {
-      globalServiceSpy.getAll.and.callFake(
+      globalServiceSpy.getAll.mockImplementation(
         buildGetAllCallFake({ [SERV.HASHLISTS.URL]: throwError(() => new Error('Network error')) })
       );
 
@@ -1012,12 +1047,14 @@ describe('NewTasksComponent', () => {
   describe('handleChangeBinary', () => {
     it('should load cracker versions when binary type changes', async () => {
       await initComponent(fixture);
-      globalServiceSpy.getAll.calls.reset();
+      globalServiceSpy.getAll.mockClear();
 
       component.form.controls.crackerBinaryTypeId.setValue(1);
       await fixture.whenStable();
 
-      const crackerCalls = globalServiceSpy.getAll.calls.allArgs().filter((args) => args[0].URL === SERV.CRACKERS.URL);
+      const crackerCalls = vi
+        .mocked(globalServiceSpy.getAll)
+        .mock.calls.filter((args) => args[0].URL === SERV.CRACKERS.URL);
       expect(crackerCalls.length).toBeGreaterThanOrEqual(1);
       expect(component.selectCrackerversions).toBeDefined();
     });
@@ -1055,7 +1092,9 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       // Override only CRACKERS responses for the next value change
-      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(multiVersionResponse) }));
+      globalServiceSpy.getAll.mockImplementation(
+        buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(multiVersionResponse) })
+      );
 
       component.form.controls.crackerBinaryTypeId.setValue(1);
       await fixture.whenStable();
@@ -1067,7 +1106,7 @@ describe('NewTasksComponent', () => {
     it('should set required error when no versions are available', async () => {
       await initComponent(fixture);
 
-      globalServiceSpy.getAll.and.callFake(
+      globalServiceSpy.getAll.mockImplementation(
         buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_EMPTY_RESPONSE) })
       );
 
@@ -1090,17 +1129,15 @@ describe('NewTasksComponent', () => {
       const type = el.querySelector('[formcontrolname="crackerBinaryTypeId"]');
       const version = el.querySelector('[formcontrolname="crackerBinaryId"]');
       const attackCmd = el.querySelector('[formcontrolname="attackCmd"]');
-      expect(hashlist && type && version && attackCmd)
-        .withContext('all controls rendered')
-        .toBeTruthy();
-      expect(type?.closest('mat-expansion-panel')).withContext('type not in advanced settings').toBeNull();
-      expect(version?.closest('mat-expansion-panel')).withContext('version not in advanced settings').toBeNull();
+      expect(hashlist && type && version && attackCmd, 'all controls rendered').toBeTruthy();
+      expect(type?.closest('mat-expansion-panel'), 'type not in advanced settings').toBeNull();
+      expect(version?.closest('mat-expansion-panel'), 'version not in advanced settings').toBeNull();
       // document order: hashlist, cracker type, cracker version, attack command
       const follows = (a: Element | null, b: Element | null) =>
         !!a && !!b && (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
-      expect(follows(hashlist, type)).toBeTrue();
-      expect(follows(type, version)).toBeTrue();
-      expect(follows(version, attackCmd)).toBeTrue();
+      expect(follows(hashlist, type)).toBe(true);
+      expect(follows(type, version)).toBe(true);
+      expect(follows(version, attackCmd)).toBe(true);
     });
   });
 
@@ -1142,7 +1179,7 @@ describe('NewTasksComponent', () => {
     });
 
     it('hides cracker types without accessible versions', async () => {
-      globalServiceSpy.getAll.and.callFake(
+      globalServiceSpy.getAll.mockImplementation(
         buildGetAllCallFake({ [SERV.CRACKERS_TYPES.URL]: of(TYPES_WITH_EMPTY_TYPE) })
       );
       await initComponent(fixture);
@@ -1160,18 +1197,18 @@ describe('NewTasksComponent', () => {
           }
         ]
       });
-      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.CRACKERS_TYPES.URL]: of(noVersions) }));
+      globalServiceSpy.getAll.mockImplementation(buildGetAllCallFake({ [SERV.CRACKERS_TYPES.URL]: of(noVersions) }));
       await initComponent(fixture);
       expect(component.selectCrackertype).toEqual([]);
-      expect(component.noCrackerVersionsAvailable).toBeTrue();
+      expect(component.noCrackerVersionsAvailable).toBe(true);
       expect(component.form.controls.crackerBinaryId.value).toBeNull();
-      expect(component.form.valid).toBeFalse();
+      expect(component.form.valid).toBe(false);
     });
   });
 
   describe('hashtype support', () => {
     beforeEach(() => {
-      globalServiceSpy.getAll.and.callFake(
+      globalServiceSpy.getAll.mockImplementation(
         buildGetAllCallFake({
           [SERV.CRACKERS_TYPES.URL]: of(MOCK_CRACKER_TYPES_10_11_RESPONSE),
           [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_10_11_RESPONSE)
@@ -1194,7 +1231,7 @@ describe('NewTasksComponent', () => {
     });
 
     it('falls back to the newest supported version', async () => {
-      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10])));
+      supportSpy.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([10])));
       await initComponent(fixture);
 
       await selectHashlist(2);
@@ -1206,7 +1243,7 @@ describe('NewTasksComponent', () => {
     });
 
     it('keeps the selected version when it supports the hashtype', async () => {
-      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10, 11])));
+      supportSpy.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([10, 11])));
       await initComponent(fixture);
       component.form.controls.crackerBinaryId.setValue(10);
 
@@ -1216,7 +1253,7 @@ describe('NewTasksComponent', () => {
     });
 
     it('blocks when no accessible version supports the hashtype', async () => {
-      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      supportSpy.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set<number>()));
       await initComponent(fixture);
 
       await selectHashlist(2);
@@ -1228,23 +1265,23 @@ describe('NewTasksComponent', () => {
       expect(component.unsupportedHashtypeMessage).toBe(buildUnsupportedHashtypeMessage(1));
       const el: HTMLElement = fixture.nativeElement;
       expect(el.querySelector('[data-testid="unsupported-hashtype"]')).toBeTruthy();
-      expect(component.form.valid).toBeFalse();
+      expect(component.form.valid).toBe(false);
     });
 
     it('shows no required hint on the selects the user opened before the block', async () => {
-      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      supportSpy.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set<number>()));
       await initComponent(fixture);
       component.form.controls.crackerBinaryTypeId.markAsTouched();
       component.form.controls.crackerBinaryId.markAsTouched();
 
       await selectHashlist(2);
 
-      expect(component.form.controls.crackerBinaryTypeId.touched).toBeFalse();
-      expect(component.form.controls.crackerBinaryId.touched).toBeFalse();
+      expect(component.form.controls.crackerBinaryTypeId.touched).toBe(false);
+      expect(component.form.controls.crackerBinaryId.touched).toBe(false);
     });
 
     it('says the check failed when the support lookup failed', async () => {
-      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(SUPPORT_LOOKUP_FAILED));
+      supportSpy.getSupportedCrackerBinaryIds.mockReturnValue(of(SUPPORT_LOOKUP_FAILED));
       await initComponent(fixture);
 
       await selectHashlist(2);
@@ -1254,7 +1291,7 @@ describe('NewTasksComponent', () => {
     });
 
     it('restores all versions when the hashlist is cleared', async () => {
-      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      supportSpy.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set<number>()));
       await initComponent(fixture);
       await selectHashlist(2);
 
@@ -1267,13 +1304,13 @@ describe('NewTasksComponent', () => {
 
     it('does not let the initial cracker load override a hashlist chosen before it finished', async () => {
       const types = new Subject<ResponseWrapper>();
-      globalServiceSpy.getAll.and.callFake(
+      globalServiceSpy.getAll.mockImplementation(
         buildGetAllCallFake({
           [SERV.CRACKERS_TYPES.URL]: types,
           [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_10_11_RESPONSE)
         })
       );
-      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10])));
+      supportSpy.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([10])));
       fixture.detectChanges();
       await fixture.whenStable();
 
@@ -1287,10 +1324,10 @@ describe('NewTasksComponent', () => {
     });
 
     it('blocks when loading the versions fails', async () => {
-      spyOn(console, 'error');
-      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10])));
+      vi.spyOn(console, 'error').mockReturnValue(undefined);
+      supportSpy.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([10])));
       await initComponent(fixture);
-      globalServiceSpy.getAll.and.callFake(
+      globalServiceSpy.getAll.mockImplementation(
         buildGetAllCallFake({ [SERV.CRACKERS.URL]: throwError(() => new Error('down')) })
       );
 
@@ -1298,50 +1335,50 @@ describe('NewTasksComponent', () => {
 
       expect(component.selectCrackerversions).toEqual([]);
       expect(component.form.controls.crackerBinaryId.value).toBeNull();
-      expect(component.form.controls.crackerBinaryId.valid).toBeFalse();
+      expect(component.form.controls.crackerBinaryId.valid).toBe(false);
     });
 
     it('keeps the version pending while the support lookup runs', async () => {
       const lookup = new Subject<Set<number>>();
-      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(lookup);
+      supportSpy.getSupportedCrackerBinaryIds.mockReturnValue(lookup);
       await initComponent(fixture);
 
       component.form.controls.hashlistId.setValue(2);
 
-      expect(component.form.controls.crackerBinaryId.pending).toBeTrue();
-      expect(component.form.valid).toBeFalse();
+      expect(component.form.controls.crackerBinaryId.pending).toBe(true);
+      expect(component.form.valid).toBe(false);
 
       lookup.next(new Set([10]));
       lookup.complete();
       await fixture.whenStable();
 
-      expect(component.form.controls.crackerBinaryId.pending).toBeFalse();
-      expect(component.form.controls.crackerBinaryId.valid).toBeTrue();
+      expect(component.form.controls.crackerBinaryId.pending).toBe(false);
+      expect(component.form.controls.crackerBinaryId.valid).toBe(true);
     });
 
     it('blocks without the required hint, the alert explains it', async () => {
-      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      supportSpy.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set<number>()));
       await initComponent(fixture);
 
       await selectHashlist(2);
 
       expect(component.form.controls.crackerBinaryId.errors).toEqual({ required: true });
-      expect(component.form.controls.crackerBinaryId.touched).toBeFalse();
+      expect(component.form.controls.crackerBinaryId.touched).toBe(false);
     });
 
     it('cancels the lookup of a previously selected hashlist', async () => {
       const firstLookup = new Subject<Set<number>>();
-      supportSpy.getSupportedCrackerBinaryIds.and.callFake((hashTypeId: number) =>
+      supportSpy.getSupportedCrackerBinaryIds.mockImplementation((hashTypeId: number) =>
         hashTypeId === 0 ? firstLookup : of(new Set([10]))
       );
       await initComponent(fixture);
 
       component.form.controls.hashlistId.setValue(1);
-      expect(firstLookup.observed).toBeTrue();
+      expect(firstLookup.observed).toBe(true);
       await selectHashlist(2);
       firstLookup.next(new Set());
 
-      expect(firstLookup.observed).toBeFalse();
+      expect(firstLookup.observed).toBe(false);
       expect(component.unsupportedHashtypeMessage).toBeNull();
       expect(component.form.controls.crackerBinaryId.value).toBe(10);
     });
@@ -1363,7 +1400,7 @@ describe('NewTasksComponent', () => {
       component.form.controls.preprocessorId.setValue(3);
       await fixture.whenStable();
 
-      const spy = spyOn(component.form.controls.preprocessorId, 'setValue').and.callThrough();
+      const spy = vi.spyOn(component.form.controls.preprocessorId, 'setValue');
 
       // Set the same value again — handler should skip the inner setValue
       component.form.controls.preprocessorId.setValue(3);
@@ -1371,9 +1408,9 @@ describe('NewTasksComponent', () => {
 
       // The spy captures our explicit setValue(3) call, but the handler
       // should NOT have called setValue again since value didn't change.
-      const handlerCalls = spy.calls
-        .allArgs()
-        .filter((args) => args.length > 1 && (args[1] as Record<string, unknown>)?.['emitEvent'] === false);
+      const handlerCalls = vi
+        .mocked(spy)
+        .mock.calls.filter((args) => args.length > 1 && (args[1] as Record<string, unknown>)?.['emitEvent'] === false);
       expect(handlerCalls.length).toBe(0);
     });
   });

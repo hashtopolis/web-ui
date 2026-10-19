@@ -40,8 +40,10 @@ describe('UIConfigService', () => {
   let service: UIConfigService;
 
   beforeEach(() => {
-    const globalServiceSpy = jasmine.createSpyObj('GlobalService', ['ghelper']);
-    globalServiceSpy.ghelper.and.returnValue(of(mockResponse()));
+    const globalServiceSpy = {
+      ghelper: vi.fn().mockName('GlobalService.ghelper')
+    };
+    globalServiceSpy.ghelper.mockReturnValue(of(mockResponse()));
 
     TestBed.configureTestingModule({
       providers: [UIConfigService, { provide: GlobalService, useValue: globalServiceSpy }]
@@ -55,28 +57,28 @@ describe('UIConfigService', () => {
 
   describe('checkStorage', () => {
     it('should not call storeDefault when valid data exists in localStorage', () => {
-      const storeDefaultSpy = spyOn(service, 'storeDefault');
+      const storeDefaultSpy = vi.spyOn(service, 'storeDefault').mockReturnValue(undefined);
       const settings = makeUiSettings();
       localStorage.setItem<UiSettings>('uis', settings, uisSettingsSchema);
 
       service.checkStorage();
 
       expect(storeDefaultSpy).not.toHaveBeenCalled();
-      expect(service.defaultSettings).toBeFalse();
+      expect(service.defaultSettings).toBe(false);
     });
 
     it('should call storeDefault and set defaultSettings when no data exists', () => {
-      const storeDefaultSpy = spyOn(service, 'storeDefault');
+      const storeDefaultSpy = vi.spyOn(service, 'storeDefault').mockReturnValue(undefined);
       localStorage.removeItem('uis');
 
       service.checkStorage();
 
       expect(storeDefaultSpy).toHaveBeenCalled();
-      expect(service.defaultSettings).toBeTrue();
+      expect(service.defaultSettings).toBe(true);
     });
 
     it('should self-heal and call storeDefault when data is corrupt', () => {
-      const storeDefaultSpy = spyOn(service, 'storeDefault');
+      const storeDefaultSpy = vi.spyOn(service, 'storeDefault').mockReturnValue(undefined);
       // Write corrupt data directly bypassing schema validation
       // The typed localStorage will fail validation on read and remove the key
       window.localStorage.setItem('uis', '"not-a-valid-settings-object"');
@@ -84,20 +86,20 @@ describe('UIConfigService', () => {
       service.checkStorage();
 
       expect(storeDefaultSpy).toHaveBeenCalled();
-      expect(service.defaultSettings).toBeTrue();
+      expect(service.defaultSettings).toBe(true);
     });
 
     it('should write back migrated format to persist it', () => {
-      spyOn(service, 'storeDefault');
+      vi.spyOn(service, 'storeDefault').mockReturnValue(undefined);
       const settings = makeUiSettings({ chunktime: 999 });
       localStorage.setItem<UiSettings>('uis', settings, uisSettingsSchema);
 
-      const setItemSpy = spyOn(localStorage, 'setItem').and.callThrough();
+      const setItemSpy = vi.spyOn(localStorage, 'setItem');
 
       service.checkStorage();
 
       // checkStorage reads + writes back to persist any migration
-      expect(setItemSpy).toHaveBeenCalledWith('uis', jasmine.anything(), uisSettingsSchema);
+      expect(setItemSpy).toHaveBeenCalledWith('uis', expect.anything(), uisSettingsSchema);
     });
   });
 
@@ -120,7 +122,7 @@ describe('UIConfigService', () => {
 
   describe('checkExpiry', () => {
     it('should refresh when stored data has expired', () => {
-      const storeDefaultSpy = spyOn(service, 'storeDefault');
+      const storeDefaultSpy = vi.spyOn(service, 'storeDefault').mockReturnValue(undefined);
 
       // Timestamp 100 hours ago, expiry window is 72 hours → stale
       const settings = makeUiSettings({
@@ -135,7 +137,7 @@ describe('UIConfigService', () => {
     });
 
     it('should not refresh when stored data is still fresh', () => {
-      const storeDefaultSpy = spyOn(service, 'storeDefault');
+      const storeDefaultSpy = vi.spyOn(service, 'storeDefault').mockReturnValue(undefined);
 
       // Timestamp is now, expiry window is 72 hours → fresh
       const settings = makeUiSettings({

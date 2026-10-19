@@ -60,7 +60,7 @@ describe('FilePreviewService', () => {
         offset: 100,
         maxLines: 10,
         windowBytes: 64,
-        totalBytes: 10_000,
+        totalBytes: 10000,
         isLineAligned: true
       })
       .subscribe();
@@ -91,7 +91,7 @@ describe('FilePreviewService', () => {
     expect(page.startByte).toBe(0);
     // The trailing fragment belongs to the next page, so it stops right after "bravo\n".
     expect(page.endByte).toBe(12);
-    expect(page.hasPartialLine).toBeFalse();
+    expect(page.hasPartialLine).toBe(false);
   });
 
   it('keeps a final line that carries no terminator', () => {
@@ -124,9 +124,9 @@ describe('FilePreviewService', () => {
   });
 
   it('flags a window that holds no complete line', () => {
-    const page = loadPage({ totalBytes: 100_000 }, 'a-line-longer-than-the-window');
+    const page = loadPage({ totalBytes: 100000 }, 'a-line-longer-than-the-window');
 
-    expect(page.hasPartialLine).toBeTrue();
+    expect(page.hasPartialLine).toBe(true);
     expect(page.lines).toEqual(['a-line-longer-than-the-window']);
     // The whole window is consumed, so paging on makes progress instead of re-reading it.
     expect(page.endByte).toBe(29);
@@ -135,7 +135,7 @@ describe('FilePreviewService', () => {
   it('flags windows holding NUL bytes as binary', () => {
     const page = loadPage({}, 'PK\u0000\u0000archive\n');
 
-    expect(page.isBinary).toBeTrue();
+    expect(page.isBinary).toBe(true);
   });
 
   describe('when filling a page from the end of the window', () => {
@@ -185,7 +185,7 @@ describe('FilePreviewService', () => {
 
     httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile')).flush(encode('far too many bytes'));
 
-    await expectAsync(failure).toBeResolvedTo(jasmine.any(Error));
+    await expect(failure).resolves.toEqual(expect.any(Error));
   });
 
   it('does not request a range for an empty file', () => {

@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import { of, throwError } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -55,7 +56,12 @@ describe('CrackerHashtypesTableComponent', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: ExportService, useValue: jasmine.createSpyObj('ExportService', ['handleExportAction']) }
+        {
+          provide: ExportService,
+          useValue: {
+            handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
+          }
+        }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
@@ -64,7 +70,9 @@ describe('CrackerHashtypesTableComponent', () => {
     component = fixture.componentInstance;
     component.crackerBinaryId = 12;
     fixture.detectChanges();
-    component.table = jasmine.createSpyObj('HTTableComponent', ['reload']) as unknown as HTTableComponent<BaseModel>;
+    component.table = {
+      reload: vi.fn().mockName('HTTableComponent.reload')
+    } as unknown as HTTableComponent<BaseModel>;
   });
 
   it('exposes hashtype, description, salted and slow hash columns', () => {
@@ -79,7 +87,7 @@ describe('CrackerHashtypesTableComponent', () => {
   describe('server side filter', () => {
     it('loads the matching hashtypes for a search', () => {
       const ds = component.dataSource as unknown as MockCrackerHashtypesDataSource;
-      spyOn(ds, 'loadAll');
+      vi.spyOn(ds, 'loadAll').mockReturnValue(undefined);
       component.selectedFilterColumn = component.tableColumns[1];
 
       component.handleBackendSqlFilter('md5');
@@ -94,7 +102,7 @@ describe('CrackerHashtypesTableComponent', () => {
 
     it('clears the filter for an empty search', () => {
       const ds = component.dataSource as unknown as MockCrackerHashtypesDataSource;
-      spyOn(ds, 'clearFilter');
+      vi.spyOn(ds, 'clearFilter').mockReturnValue(undefined);
 
       component.handleBackendSqlFilter('');
 
@@ -103,24 +111,24 @@ describe('CrackerHashtypesTableComponent', () => {
   });
 
   describe('remove actions', () => {
-    let deleteRelationships: jasmine.Spy;
-    let dialogOpen: jasmine.Spy;
-    let showSuccess: jasmine.Spy;
-    let reload: jasmine.Spy;
+    let deleteRelationships: Mock;
+    let dialogOpen: Mock;
+    let showSuccess: Mock;
+    let reload: Mock;
 
     function confirmDialog(action: string, data: JHashtype[]) {
-      dialogOpen.and.returnValue({ afterClosed: () => of({ action, data }) } as unknown as MatDialogRef<unknown>);
+      dialogOpen.mockReturnValue({ afterClosed: () => of({ action, data }) } as unknown as MatDialogRef<unknown>);
     }
 
-    let removed: jasmine.Spy;
+    let removed: Mock;
 
     beforeEach(() => {
-      removed = jasmine.createSpy('removed');
+      removed = vi.fn().mockName('removed');
       component.hashtypesRemoved.subscribe(removed);
-      deleteRelationships = spyOn(component['gs'], 'deleteRelationships').and.returnValue(of({}));
-      dialogOpen = spyOn(component.dialog, 'open');
-      showSuccess = spyOn(component['alertService'], 'showSuccessMessage');
-      reload = spyOn(component, 'reload');
+      deleteRelationships = vi.spyOn(component['gs'], 'deleteRelationships').mockReturnValue(of({}));
+      dialogOpen = vi.spyOn(component.dialog, 'open').mockReturnValue(undefined);
+      showSuccess = vi.spyOn(component['alertService'], 'showSuccessMessage').mockReturnValue(undefined);
+      reload = vi.spyOn(component, 'reload').mockReturnValue(undefined);
     });
 
     it('removes a hashtype after confirmation', () => {
@@ -153,10 +161,10 @@ describe('CrackerHashtypesTableComponent', () => {
     });
 
     it('reloads without success toast when removing fails', () => {
-      spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockReturnValue(undefined);
       const row = hashtype(1000, 'NTLM');
       confirmDialog(RowActionMenuAction.DELETE, [row]);
-      deleteRelationships.and.returnValue(throwError(() => ({ status: 403 })));
+      deleteRelationships.mockReturnValue(throwError(() => ({ status: 403 })));
 
       component.rowActionClicked({ data: row, menuItem: { action: RowActionMenuAction.DELETE, label: '' } });
 
@@ -165,7 +173,7 @@ describe('CrackerHashtypesTableComponent', () => {
     });
 
     it('does nothing when the dialog is cancelled', () => {
-      dialogOpen.and.returnValue({ afterClosed: () => of(undefined) } as unknown as MatDialogRef<unknown>);
+      dialogOpen.mockReturnValue({ afterClosed: () => of(undefined) } as unknown as MatDialogRef<unknown>);
 
       component.rowActionClicked({
         data: hashtype(0, 'MD5'),

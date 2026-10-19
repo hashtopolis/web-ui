@@ -1,3 +1,4 @@
+import type { Mock, MockedObject } from 'vitest';
 import { of } from 'rxjs';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -42,12 +43,16 @@ class TestFilesTableComponent extends FilesTableComponent {
 describe('FilesTableComponent', () => {
   let component: TestFilesTableComponent;
   let fixture: ComponentFixture<TestFilesTableComponent>;
-  let mockExportService: jasmine.SpyObj<ExportService>;
-  let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
+  let mockExportService: MockedObject<ExportService>;
+  let mockHTTable: MockedObject<HTTableComponent<BaseModel>>;
 
   beforeEach(async () => {
-    mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
-    mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
+    mockExportService = {
+      handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
+    };
+    mockHTTable = {
+      reload: vi.fn().mockName('HTTableComponent.reload')
+    };
 
     await TestBed.configureTestingModule({
       declarations: [TestFilesTableComponent],
@@ -75,27 +80,34 @@ describe('FilesTableComponent', () => {
     });
 
     it('should offer the auto-refresh toggle', () => {
-      const table = fixture.nativeElement.querySelector('ht-table') as { supportsAutoRefresh?: boolean };
-      expect(table.supportsAutoRefresh).toBeTrue();
+      const table = fixture.nativeElement.querySelector('ht-table') as {
+        supportsAutoRefresh?: boolean;
+      };
+      expect(table.supportsAutoRefresh).toBe(true);
     });
 
     it('should not offer auto-refresh when embedded as detail list', () => {
       component.isDetailPage = true;
       fixture.detectChanges();
-      const table = fixture.nativeElement.querySelector('ht-table') as { supportsAutoRefresh?: boolean };
-      expect(table.supportsAutoRefresh).toBeFalse();
+      const table = fixture.nativeElement.querySelector('ht-table') as {
+        supportsAutoRefresh?: boolean;
+      };
+      expect(table.supportsAutoRefresh).toBe(false);
     });
   });
 
   describe('rowActionClicked', () => {
-    let gs: { update: jasmine.Spy; chelper: jasmine.Spy };
+    let gs: {
+      update: Mock;
+      chelper: Mock;
+    };
 
     beforeEach(() => {
       gs = component['gs'] as unknown as typeof gs;
-      spyOn(gs, 'update').and.returnValue(of({}));
-      spyOn(gs, 'chelper').and.returnValue(of({}));
-      spyOn(component['alertService'], 'showSuccessMessage');
-      spyOn(component, 'reload');
+      vi.spyOn(gs, 'update').mockReturnValue(of({}));
+      vi.spyOn(gs, 'chelper').mockReturnValue(of({}));
+      vi.spyOn(component['alertService'], 'showSuccessMessage').mockReturnValue(undefined);
+      vi.spyOn(component, 'reload').mockReturnValue(undefined);
     });
 
     it('should set a non-secret file to secret', () => {
@@ -125,7 +137,12 @@ describe('FilesTableComponent', () => {
     });
 
     it('should not update or recount on a plain edit action', () => {
-      spyOn(component as unknown as { rowActionEdit: () => void }, 'rowActionEdit');
+      vi.spyOn(
+        component as unknown as {
+          rowActionEdit: () => void;
+        },
+        'rowActionEdit'
+      ).mockReturnValue(undefined);
       const file = { id: 7, filename: 'a.txt', isSecret: false } as JFile;
       component.rowActionClicked({ data: file, menuItem: { action: RowActionMenuAction.EDIT, label: '' } });
 
@@ -142,7 +159,7 @@ describe('FilesTableComponent', () => {
     it('resumes auto-refresh on init when it is enabled in the settings', () => {
       const ds = mockDataSource();
       ds.autoRefreshService.refreshPage = true;
-      spyOn(ds, 'startAutoRefresh');
+      vi.spyOn(ds, 'startAutoRefresh').mockReturnValue(undefined);
 
       component.ngAfterViewInit();
 
@@ -151,7 +168,7 @@ describe('FilesTableComponent', () => {
 
     it('does not start auto-refresh on init when it is disabled in the settings', () => {
       const ds = mockDataSource();
-      spyOn(ds, 'startAutoRefresh');
+      vi.spyOn(ds, 'startAutoRefresh').mockReturnValue(undefined);
 
       component.ngAfterViewInit();
 
@@ -160,7 +177,7 @@ describe('FilesTableComponent', () => {
 
     it('stops auto-refresh when the table is destroyed', () => {
       const ds = mockDataSource();
-      spyOn(ds, 'stopAutoRefresh');
+      vi.spyOn(ds, 'stopAutoRefresh').mockReturnValue(undefined);
 
       fixture.destroy();
 
@@ -170,8 +187,8 @@ describe('FilesTableComponent', () => {
     it('leaves the shared auto-refresh alone when embedded as detail list', () => {
       const ds = mockDataSource();
       ds.autoRefreshService.refreshPage = true;
-      spyOn(ds, 'startAutoRefresh');
-      spyOn(ds, 'stopAutoRefresh');
+      vi.spyOn(ds, 'startAutoRefresh').mockReturnValue(undefined);
+      vi.spyOn(ds, 'stopAutoRefresh').mockReturnValue(undefined);
       component.isDetailPage = true;
 
       component.ngAfterViewInit();
@@ -190,7 +207,9 @@ describe('FilesTableComponent', () => {
 
       component.exportActionClicked(event);
 
-      expect(mockExportService.handleExportAction).toHaveBeenCalledOnceWith(
+      expect(mockExportService.handleExportAction).toHaveBeenCalledTimes(1);
+
+      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
         event,
         component.tableColumns,
         FilesTableColumnLabel,

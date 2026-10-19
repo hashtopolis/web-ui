@@ -1,3 +1,4 @@
+import type { Mock, MockedObject } from 'vitest';
 /// <reference types="jasmine" />
 import { HttpHeaderName } from '@constants/http.config';
 import { zAgentAssignmentListResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod';
@@ -77,35 +78,48 @@ const MOCK_ASSIGNMENT: JAgentAssignment = {
 
 describe('AgentsDataSource', () => {
   let dataSource: AgentsDataSource;
-  let gsSpy: jasmine.SpyObj<GlobalService>;
-  let deserializeSpy: jasmine.Spy;
+  let gsSpy: MockedObject<GlobalService>;
+  let deserializeSpy: Mock;
 
   beforeEach(() => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll']);
+    gsSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    };
 
-    const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges']);
-    const uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    uiServiceSpy.getUISettings.and.returnValue({});
-    const autoRefreshSpy = jasmine.createSpyObj(
-      'AutoRefreshService',
-      ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'],
-      { refresh$: of() }
-    );
-    const cacheSpy = jasmine.createSpyObj('HttpCacheService', ['invalidate']);
-    const storageSpy = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
-    storageSpy.getItem.and.returnValue(null);
+    const cdrSpy = {
+      markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
+      detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges')
+    };
+    const uiServiceSpy = {
+      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+    };
+    uiServiceSpy.getUISettings.mockReturnValue({});
+    const autoRefreshSpy = {
+      toggleAutoRefresh: vi.fn().mockName('AutoRefreshService.toggleAutoRefresh'),
+      startAutoRefresh: vi.fn().mockName('AutoRefreshService.startAutoRefresh'),
+      stopAutoRefresh: vi.fn().mockName('AutoRefreshService.stopAutoRefresh'),
+      refresh$: of()
+    };
+    const cacheSpy = {
+      invalidate: vi.fn().mockName('HttpCacheService.invalidate')
+    };
+    const storageSpy = {
+      getItem: vi.fn().mockName('LocalStorageService.getItem'),
+      setItem: vi.fn().mockName('LocalStorageService.setItem')
+    };
+    storageSpy.getItem.mockReturnValue(null);
 
-    gsSpy.getAll.and.returnValue(of(mockResponse()));
+    gsSpy.getAll.mockReturnValue(of(mockResponse()));
 
     // Bypass Zod validation — return appropriate mock data based on schema.
-    deserializeSpy = spyOn(JsonAPISerializer.prototype, 'deserialize').and.callFake(
-      (_body: unknown, schema?: unknown) => {
+    deserializeSpy = vi
+      .spyOn(JsonAPISerializer.prototype, 'deserialize')
+      .mockImplementation((_body: unknown, schema?: unknown) => {
         if (schema === zAgentListResponse) return [MOCK_AGENT];
         if (schema === zAgentAssignmentListResponse) return [MOCK_ASSIGNMENT];
         if (schema === zUserListResponse) return [MOCK_USER];
         return [];
-      }
-    );
+      });
 
     TestBed.configureTestingModule({
       providers: [
@@ -136,12 +150,12 @@ describe('AgentsDataSource', () => {
   describe('setAgentStatsRequired()', () => {
     it('should store the flag when set to true', () => {
       dataSource.setAgentStatsRequired(true);
-      expect(dataSource['agentStatsRequired']).toBeTrue();
+      expect(dataSource['agentStatsRequired']).toBe(true);
     });
 
     it('should store the flag when set to false', () => {
       dataSource.setAgentStatsRequired(false);
-      expect(dataSource['agentStatsRequired']).toBeFalse();
+      expect(dataSource['agentStatsRequired']).toBe(false);
     });
   });
 
@@ -150,13 +164,13 @@ describe('AgentsDataSource', () => {
   describe('loadAll()', () => {
     it('should call service.getAll with SERV.AGENTS', () => {
       dataSource.loadAll();
-      const [serviceConfig] = gsSpy.getAll.calls.mostRecent().args;
+      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall;
       expect(serviceConfig).toEqual(SERV.AGENTS);
     });
 
     it('should set loading to false after a successful response', () => {
       dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
 
     it('should populate the data with the deserialized agents', () => {
@@ -174,7 +188,7 @@ describe('AgentsDataSource', () => {
     });
 
     it('should not set task info when the agent has no tasks', () => {
-      deserializeSpy.and.returnValue([MOCK_AGENT_NO_TASKS]);
+      deserializeSpy.mockReturnValue([MOCK_AGENT_NO_TASKS]);
       dataSource.loadAll();
       const agent = dataSource.getOriginalData()[0];
       expect(agent.taskId).toBeUndefined();
@@ -184,19 +198,19 @@ describe('AgentsDataSource', () => {
     it('should include agentStats in the request params when setAgentStatsRequired(true)', () => {
       dataSource.setAgentStatsRequired(true);
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
       expect((params as RequestParams).include).toContain('agentStats');
     });
 
     it('should not include agentStats in the request params by default', () => {
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
       expect((params as RequestParams).include).not.toContain('agentStats');
     });
 
     it('should always include accessGroups, tasks, assignments and user in the request params', () => {
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
       const include = (params as RequestParams).include ?? [];
       expect(include).toContain('accessGroups');
       expect(include).toContain('tasks');
@@ -207,7 +221,7 @@ describe('AgentsDataSource', () => {
     it('should persist the filter across calls when no new filter is provided', () => {
       const filter = { field: 'name', operator: 'eq' as never, value: 'test' };
       dataSource.loadAll(filter);
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
 
       dataSource.loadAll(); // no filter argument
       expect(gsSpy.getAll).toHaveBeenCalled();
@@ -220,7 +234,7 @@ describe('AgentsDataSource', () => {
     beforeEach(() => {
       dataSource.setTaskId(10);
 
-      gsSpy.getAll.and.callFake((serviceConfig) => {
+      gsSpy.getAll.mockImplementation((serviceConfig) => {
         if (serviceConfig === SERV.AGENT_ASSIGN) {
           return of(mockResponse({ meta: { page: { total_elements: 1 } } }));
         }
@@ -232,24 +246,30 @@ describe('AgentsDataSource', () => {
     it('should call service.getAll with SERV.AGENT_ASSIGN', fakeAsync(() => {
       dataSource.loadAssignments();
       flushMicrotasks();
-      const firstCallArgs = gsSpy.getAll.calls.all()[0].args;
+      const firstCallArgs = vi.mocked(gsSpy.getAll).mock.calls[0];
       expect(firstCallArgs[0]).toEqual(SERV.AGENT_ASSIGN);
 
-      const httpOptions = firstCallArgs[2] as { headers?: { get(name: string): string | null } } | undefined;
+      const httpOptions = firstCallArgs[2] as
+        | {
+            headers?: {
+              get(name: string): string | null;
+            };
+          }
+        | undefined;
       expect(httpOptions?.headers?.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
     }));
 
     it('should filter assignments by the stored taskId', fakeAsync(() => {
       dataSource.loadAssignments();
       flushMicrotasks();
-      const [, params] = gsSpy.getAll.calls.all()[0].args;
-      expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'taskId', value: 10 }));
+      const [, params] = vi.mocked(gsSpy.getAll).mock.calls[0];
+      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'taskId', value: 10 }));
     }));
 
     it('should not request nested agent chunks include on assignments endpoint', fakeAsync(() => {
       dataSource.loadAssignments();
       flushMicrotasks();
-      const [, params] = gsSpy.getAll.calls.all()[0].args;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.calls[0];
       expect((params as RequestParams).include).not.toContain('agent.chunks');
     }));
 
@@ -257,11 +277,11 @@ describe('AgentsDataSource', () => {
       dataSource.loadAssignments();
       flushMicrotasks();
 
-      expect(gsSpy.getAll.calls.all().find((call) => call.args[0] === SERV.CHUNKS)).toBeUndefined();
+      expect(vi.mocked(gsSpy.getAll).mock.calls.find((call) => call.args[0] === SERV.CHUNKS)).toBeUndefined();
 
-      const [, params] = gsSpy.getAll.calls.all()[0].args;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.calls[0];
       expect((params as RequestParams).aggregate).toContain(
-        jasmine.objectContaining({
+        expect.objectContaining({
           field: 'assignment',
           values: ['cracked', 'currentSpeed', 'crackingTime', 'searched', 'currentChunkId']
         })
@@ -271,7 +291,7 @@ describe('AgentsDataSource', () => {
     it('should fetch user data for the agents in the assignments', fakeAsync(() => {
       dataSource.loadAssignments();
       flushMicrotasks();
-      const calledServices = gsSpy.getAll.calls.all().map((c) => c.args[0]);
+      const calledServices = vi.mocked(gsSpy.getAll).mock.calls.map((c) => c.args[0]);
       expect(calledServices).toContain(SERV.USERS);
     }));
 
@@ -310,9 +330,13 @@ describe('AgentsDataSource', () => {
     it('should leave the chunk id undefined when the server omits the currentChunkId aggregate', fakeAsync(() => {
       // The server drops null aggregates from the payload instead of sending them as null.
       const assignmentWithoutChunk = { ...MOCK_ASSIGNMENT, agent: { ...MOCK_AGENT } } as unknown as JAgentAssignment;
-      delete (assignmentWithoutChunk as { currentChunkId?: number }).currentChunkId;
+      delete (
+        assignmentWithoutChunk as {
+          currentChunkId?: number;
+        }
+      ).currentChunkId;
 
-      deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {
+      deserializeSpy.mockImplementation((_body: unknown, schema?: unknown) => {
         if (schema === zAgentAssignmentListResponse) return [assignmentWithoutChunk];
         if (schema === zUserListResponse) return [MOCK_USER];
         if (schema === zAgentListResponse) return [MOCK_AGENT];
@@ -326,7 +350,7 @@ describe('AgentsDataSource', () => {
     }));
 
     it('should set data to an empty array when there are no assignments', fakeAsync(() => {
-      deserializeSpy.and.returnValue([]);
+      deserializeSpy.mockReturnValue([]);
       dataSource.loadAssignments();
       flushMicrotasks();
       expect(dataSource.getOriginalData().length).toBe(0);
@@ -335,7 +359,7 @@ describe('AgentsDataSource', () => {
     it('should set loading to false after completing', fakeAsync(() => {
       dataSource.loadAssignments();
       flushMicrotasks();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     }));
   });
 
@@ -343,13 +367,13 @@ describe('AgentsDataSource', () => {
 
   describe('reload()', () => {
     it('should call loadAll() when no taskId is set', () => {
-      spyOn(dataSource, 'loadAll');
+      vi.spyOn(dataSource, 'loadAll').mockReturnValue(undefined);
       dataSource.reload();
       expect(dataSource.loadAll).toHaveBeenCalled();
     });
 
     it('should call loadAssignments() when a taskId is set', () => {
-      spyOn(dataSource, 'loadAssignments');
+      vi.spyOn(dataSource, 'loadAssignments').mockReturnValue(undefined);
       dataSource.setTaskId(10);
       dataSource.reload();
       expect(dataSource.loadAssignments).toHaveBeenCalled();
@@ -367,14 +391,14 @@ describe('AgentsDataSource', () => {
     });
 
     it('should reset the page index to 0', () => {
-      spyOn(dataSource, 'reload'); // prevent actual loadAll
+      vi.spyOn(dataSource, 'reload').mockReturnValue(undefined); // prevent actual loadAll
       dataSource.index = 5;
       dataSource.clearFilter();
       expect(dataSource.index).toBe(0);
     });
 
     it('should call reload()', () => {
-      spyOn(dataSource, 'reload');
+      vi.spyOn(dataSource, 'reload').mockReturnValue(undefined);
       dataSource.clearFilter();
       expect(dataSource.reload).toHaveBeenCalled();
     });

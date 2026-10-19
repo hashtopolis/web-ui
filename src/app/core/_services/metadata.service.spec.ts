@@ -30,7 +30,7 @@ describe('Global permission group creation metadata', () => {
       .find((field) => field.name === 'permissions');
 
     expect(permissionsField).toEqual(
-      jasmine.objectContaining({
+      expect.objectContaining({
         type: FieldType.Hidden,
         defaultValue: {}
       })

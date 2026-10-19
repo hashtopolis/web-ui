@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { HttpHeaderName } from '@constants/http.config';
 import { of } from 'rxjs';
 
@@ -69,33 +70,50 @@ describe('EditTasksComponent', () => {
   let fixture: ComponentFixture<EditTasksComponent>;
   let httpMock: HttpTestingController;
 
-  let titleServiceSpy: jasmine.SpyObj<AutoTitleService>;
-  let alertServiceSpy: jasmine.SpyObj<AlertService>;
-  let globalServiceSpy: jasmine.SpyObj<GlobalService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let confirmDialogSpy: jasmine.SpyObj<ConfirmDialogService>;
-  let roleServiceSpy: jasmine.SpyObj<TasksRoleService>;
-  let configServiceSpy: jasmine.SpyObj<ConfigService>;
+  let titleServiceSpy: MockedObject<AutoTitleService>;
+  let alertServiceSpy: MockedObject<AlertService>;
+  let globalServiceSpy: MockedObject<GlobalService>;
+  let routerSpy: MockedObject<Router>;
+  let confirmDialogSpy: MockedObject<ConfirmDialogService>;
+  let roleServiceSpy: MockedObject<TasksRoleService>;
+  let configServiceSpy: MockedObject<ConfigService>;
 
   beforeEach(async () => {
-    spyOn(console, 'error');
-    spyOn(console, 'warn');
+    vi.spyOn(console, 'error').mockReturnValue(undefined);
+    vi.spyOn(console, 'warn').mockReturnValue(undefined);
 
-    titleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    alertServiceSpy = jasmine.createSpyObj('AlertService', [
-      'showErrorMessage',
-      'showSuccessMessage',
-      'showInfoMessage'
-    ]);
-    globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'update', 'chelper']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
-    routerSpy.navigate.and.returnValue(Promise.resolve(true));
-    routerSpy.navigateByUrl.and.returnValue(Promise.resolve(true));
-    confirmDialogSpy = jasmine.createSpyObj('ConfirmDialogService', ['confirmYesNo']);
-    roleServiceSpy = jasmine.createSpyObj('TasksRoleService', ['hasRole']);
-    roleServiceSpy.hasRole.and.returnValue(false);
-    configServiceSpy = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
-    configServiceSpy.getEndpoint.and.returnValue(API_ENDPOINT);
+    titleServiceSpy = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    };
+    alertServiceSpy = {
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage'),
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showInfoMessage: vi.fn().mockName('AlertService.showInfoMessage')
+    };
+    globalServiceSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      get: vi.fn().mockName('GlobalService.get'),
+      create: vi.fn().mockName('GlobalService.create'),
+      update: vi.fn().mockName('GlobalService.update'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    };
+    routerSpy = {
+      navigate: vi.fn().mockName('Router.navigate'),
+      navigateByUrl: vi.fn().mockName('Router.navigateByUrl')
+    };
+    routerSpy.navigate.mockResolvedValue(true);
+    routerSpy.navigateByUrl.mockResolvedValue(true);
+    confirmDialogSpy = {
+      confirmYesNo: vi.fn().mockName('ConfirmDialogService.confirmYesNo')
+    };
+    roleServiceSpy = {
+      hasRole: vi.fn().mockName('TasksRoleService.hasRole')
+    };
+    roleServiceSpy.hasRole.mockReturnValue(false);
+    configServiceSpy = {
+      getEndpoint: vi.fn().mockName('ConfigService.getEndpoint')
+    };
+    configServiceSpy.getEndpoint.mockReturnValue(API_ENDPOINT);
 
     await TestBed.configureTestingModule({
       declarations: [EditTasksComponent],
@@ -175,7 +193,7 @@ describe('EditTasksComponent', () => {
       respondToTaskRequest(mockTaskResponse());
       tick();
 
-      expect(component.isLoading).toBeFalse();
+      expect(component.isLoading).toBe(false);
     }));
 
     it('should populate form with task data from response', fakeAsync(() => {
@@ -184,7 +202,7 @@ describe('EditTasksComponent', () => {
       tick();
 
       expect(component.updateForm.getRawValue()).toEqual(
-        jasmine.objectContaining({
+        expect.objectContaining({
           taskId: 1,
           forcePipe: 'No',
           staticChunks: 'No',
@@ -205,7 +223,7 @@ describe('EditTasksComponent', () => {
 
       const updateData = component.updateForm.getRawValue()['updateData'];
       expect(updateData).toEqual(
-        jasmine.objectContaining({
+        expect.objectContaining({
           taskName: 'Test Task',
           attackCmd: '-a 0 #HL# rockyou.txt',
           notes: 'Test notes',
@@ -349,8 +367,8 @@ describe('EditTasksComponent', () => {
       tick();
 
       expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
-      expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith(jasmine.stringContaining('Error loading task'));
-      expect(component.isLoading).toBeFalse();
+      expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith(expect.stringContaining('Error loading task'));
+      expect(component.isLoading).toBe(false);
     }));
 
     it('should retry without includes on 500 and succeed', fakeAsync(() => {
@@ -365,7 +383,7 @@ describe('EditTasksComponent', () => {
       retryReq.flush(mockTaskResponse());
       tick();
 
-      expect(component.isLoading).toBeFalse();
+      expect(component.isLoading).toBe(false);
       expect(component.tkeyspace).toBe(1000);
     }));
 
@@ -377,37 +395,37 @@ describe('EditTasksComponent', () => {
       tick();
 
       expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith('Error loading task.');
-      expect(component.isLoading).toBeFalse();
+      expect(component.isLoading).toBe(false);
     }));
   });
 
   describe('isReadOnly', () => {
     it('should be true when "edit" role is not present', fakeAsync(() => {
-      roleServiceSpy.hasRole.and.returnValue(false);
+      roleServiceSpy.hasRole.mockReturnValue(false);
       initComponent();
       respondToTaskRequest(mockTaskResponse());
       tick();
 
-      expect(component.isReadOnly).toBeTrue();
+      expect(component.isReadOnly).toBe(true);
     }));
 
     it('should be false when "edit" role is present', fakeAsync(() => {
-      roleServiceSpy.hasRole.and.callFake((role: string) => role === 'edit');
+      roleServiceSpy.hasRole.mockImplementation((role: string) => role === 'edit');
       initComponent();
       respondToTaskRequest(mockTaskResponse());
       tick();
 
-      expect(component.isReadOnly).toBeFalse();
+      expect(component.isReadOnly).toBe(false);
     }));
   });
 
   describe('onSubmit', () => {
     beforeEach(() => {
-      roleServiceSpy.hasRole.and.callFake((role: string) => role === 'edit');
+      roleServiceSpy.hasRole.mockImplementation((role: string) => role === 'edit');
     });
 
     it('should call gs.update and navigate when form is valid and attackCmd unchanged', fakeAsync(() => {
-      globalServiceSpy.update.and.returnValue(of({}));
+      globalServiceSpy.update.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
       tick();
@@ -418,13 +436,13 @@ describe('EditTasksComponent', () => {
       expect(globalServiceSpy.update).toHaveBeenCalledWith(
         SERV.TASKS,
         1,
-        jasmine.objectContaining({ taskName: 'Test Task', attackCmd: '-a 0 #HL# rockyou.txt' })
+        expect.objectContaining({ taskName: 'Test Task', attackCmd: '-a 0 #HL# rockyou.txt' })
       );
       expect(routerSpy.navigate).toHaveBeenCalledWith(['tasks/show-tasks']);
     }));
 
     it('should show success message after successful update', fakeAsync(() => {
-      globalServiceSpy.update.and.returnValue(of({}));
+      globalServiceSpy.update.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
       tick();
@@ -436,8 +454,8 @@ describe('EditTasksComponent', () => {
     }));
 
     it('should open confirm dialog when attackCmd is changed', fakeAsync(() => {
-      confirmDialogSpy.confirmYesNo.and.returnValue(of(false));
-      globalServiceSpy.update.and.returnValue(of({}));
+      confirmDialogSpy.confirmYesNo.mockReturnValue(of(false));
+      globalServiceSpy.update.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
       tick();
@@ -446,12 +464,12 @@ describe('EditTasksComponent', () => {
       component.onSubmit();
       tick();
 
-      expect(confirmDialogSpy.confirmYesNo).toHaveBeenCalledWith('Update task data', jasmine.any(String));
+      expect(confirmDialogSpy.confirmYesNo).toHaveBeenCalledWith('Update task data', expect.any(String));
     }));
 
     it('should call gs.update after confirming attackCmd change', fakeAsync(() => {
-      confirmDialogSpy.confirmYesNo.and.returnValue(of(true));
-      globalServiceSpy.update.and.returnValue(of({}));
+      confirmDialogSpy.confirmYesNo.mockReturnValue(of(true));
+      globalServiceSpy.update.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
       tick();
@@ -464,7 +482,7 @@ describe('EditTasksComponent', () => {
     }));
 
     it('should show info message when attackCmd change is cancelled', fakeAsync(() => {
-      confirmDialogSpy.confirmYesNo.and.returnValue(of(false));
+      confirmDialogSpy.confirmYesNo.mockReturnValue(of(false));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
       tick();
@@ -483,8 +501,10 @@ describe('EditTasksComponent', () => {
       tick();
 
       component.updateForm.get('updateData.attackCmd')?.setValue('');
-      const markAllAsTouchedSpy = spyOn(component.updateForm, 'markAllAsTouched');
-      const updateValueAndValiditySpy = spyOn(component.updateForm, 'updateValueAndValidity');
+      const markAllAsTouchedSpy = vi.spyOn(component.updateForm, 'markAllAsTouched').mockReturnValue(undefined);
+      const updateValueAndValiditySpy = vi
+        .spyOn(component.updateForm, 'updateValueAndValidity')
+        .mockReturnValue(undefined);
 
       component.onSubmit();
 
@@ -496,8 +516,8 @@ describe('EditTasksComponent', () => {
 
   describe('purgeTask', () => {
     it('should call chelper and show success message on confirmation', fakeAsync(() => {
-      confirmDialogSpy.confirmYesNo.and.returnValue(of(true));
-      globalServiceSpy.chelper.and.returnValue(of({}));
+      confirmDialogSpy.confirmYesNo.mockReturnValue(of(true));
+      globalServiceSpy.chelper.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
       tick();
@@ -510,7 +530,7 @@ describe('EditTasksComponent', () => {
     }));
 
     it('should show info message when purge is cancelled', fakeAsync(() => {
-      confirmDialogSpy.confirmYesNo.and.returnValue(of(false));
+      confirmDialogSpy.confirmYesNo.mockReturnValue(of(false));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
       tick();
@@ -561,33 +581,50 @@ describe('EditTasksComponent (edit-task-cAll route)', () => {
   let fixture: ComponentFixture<EditTasksComponent>;
   let httpMock: HttpTestingController;
 
-  let titleServiceSpy: jasmine.SpyObj<AutoTitleService>;
-  let alertServiceSpy: jasmine.SpyObj<AlertService>;
-  let globalServiceSpy: jasmine.SpyObj<GlobalService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let confirmDialogSpy: jasmine.SpyObj<ConfirmDialogService>;
-  let roleServiceSpy: jasmine.SpyObj<TasksRoleService>;
-  let configServiceSpy: jasmine.SpyObj<ConfigService>;
+  let titleServiceSpy: MockedObject<AutoTitleService>;
+  let alertServiceSpy: MockedObject<AlertService>;
+  let globalServiceSpy: MockedObject<GlobalService>;
+  let routerSpy: MockedObject<Router>;
+  let confirmDialogSpy: MockedObject<ConfirmDialogService>;
+  let roleServiceSpy: MockedObject<TasksRoleService>;
+  let configServiceSpy: MockedObject<ConfigService>;
 
   beforeEach(async () => {
-    spyOn(console, 'error');
-    spyOn(console, 'warn');
+    vi.spyOn(console, 'error').mockReturnValue(undefined);
+    vi.spyOn(console, 'warn').mockReturnValue(undefined);
 
-    titleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    alertServiceSpy = jasmine.createSpyObj('AlertService', [
-      'showErrorMessage',
-      'showSuccessMessage',
-      'showInfoMessage'
-    ]);
-    globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'update', 'chelper']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
-    routerSpy.navigate.and.returnValue(Promise.resolve(true));
-    routerSpy.navigateByUrl.and.returnValue(Promise.resolve(true));
-    confirmDialogSpy = jasmine.createSpyObj('ConfirmDialogService', ['confirmYesNo']);
-    roleServiceSpy = jasmine.createSpyObj('TasksRoleService', ['hasRole']);
-    roleServiceSpy.hasRole.and.returnValue(false);
-    configServiceSpy = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
-    configServiceSpy.getEndpoint.and.returnValue(API_ENDPOINT);
+    titleServiceSpy = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    };
+    alertServiceSpy = {
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage'),
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showInfoMessage: vi.fn().mockName('AlertService.showInfoMessage')
+    };
+    globalServiceSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      get: vi.fn().mockName('GlobalService.get'),
+      create: vi.fn().mockName('GlobalService.create'),
+      update: vi.fn().mockName('GlobalService.update'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    };
+    routerSpy = {
+      navigate: vi.fn().mockName('Router.navigate'),
+      navigateByUrl: vi.fn().mockName('Router.navigateByUrl')
+    };
+    routerSpy.navigate.mockResolvedValue(true);
+    routerSpy.navigateByUrl.mockResolvedValue(true);
+    confirmDialogSpy = {
+      confirmYesNo: vi.fn().mockName('ConfirmDialogService.confirmYesNo')
+    };
+    roleServiceSpy = {
+      hasRole: vi.fn().mockName('TasksRoleService.hasRole')
+    };
+    roleServiceSpy.hasRole.mockReturnValue(false);
+    configServiceSpy = {
+      getEndpoint: vi.fn().mockName('ConfigService.getEndpoint')
+    };
+    configServiceSpy.getEndpoint.mockReturnValue(API_ENDPOINT);
 
     await TestBed.configureTestingModule({
       declarations: [EditTasksComponent],

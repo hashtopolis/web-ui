@@ -1,3 +1,4 @@
+import type { MockedObject } from 'vitest';
 import { of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
@@ -30,7 +31,8 @@ import { mockResponse } from '@src/app/testing/mock-response';
   standalone: false
 })
 export class MockAgentBinariesTableComponent {
-  @Input() isSelectable: boolean;
+  @Input()
+  isSelectable: boolean;
 }
 
 // Voucher table mock
@@ -47,22 +49,33 @@ describe('NewAgentComponent', () => {
   let fixture: ComponentFixture<NewAgentComponent>;
 
   // Mocks
-  let clipboardSpy: jasmine.SpyObj<Clipboard>;
-  let alertServiceSpy: jasmine.SpyObj<AlertService>;
-  let configServiceSpy: jasmine.SpyObj<ConfigService>;
-  let globalServiceSpy: jasmine.SpyObj<GlobalService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+  let clipboardSpy: MockedObject<Clipboard>;
+  let alertServiceSpy: MockedObject<AlertService>;
+  let configServiceSpy: MockedObject<ConfigService>;
+  let globalServiceSpy: MockedObject<GlobalService>;
+  let routerSpy: MockedObject<Router>;
 
   beforeEach(async () => {
-    clipboardSpy = jasmine.createSpyObj('Clipboard', ['copy']);
-    alertServiceSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage']);
-    configServiceSpy = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
-    globalServiceSpy = jasmine.createSpyObj('GlobalService', ['create', 'getAll']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    clipboardSpy = {
+      copy: vi.fn().mockName('Clipboard.copy')
+    };
+    alertServiceSpy = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage')
+    };
+    configServiceSpy = {
+      getEndpoint: vi.fn().mockName('ConfigService.getEndpoint')
+    };
+    globalServiceSpy = {
+      create: vi.fn().mockName('GlobalService.create'),
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    };
+    routerSpy = {
+      navigate: vi.fn().mockName('Router.navigate')
+    };
 
     // Provide default stub for configService.getEndpoint()
-    configServiceSpy.getEndpoint.and.returnValue('http://localhost:8080/api/v2');
-    globalServiceSpy.getAll.and.returnValue(of(mockResponse()));
+    configServiceSpy.getEndpoint.mockReturnValue('http://localhost:8080/api/v2');
+    globalServiceSpy.getAll.mockReturnValue(of(mockResponse()));
 
     await TestBed.configureTestingModule({
       declarations: [NewAgentComponent, MockAgentBinariesTableComponent, MockVouchersTableComponent],
@@ -115,21 +128,21 @@ describe('NewAgentComponent', () => {
 
   it('should return true if form is valid and voucher is not empty', () => {
     component.form.setValue({ voucher: 'fy7vjq56' });
-    expect(component.isValid()).toBeTrue();
+    expect(component.isValid()).toBe(true);
   });
 
   it('should return false if voucher is empty', () => {
     component.form.setValue({ voucher: '' });
-    expect(component.isValid()).toBeFalse();
+    expect(component.isValid()).toBe(false);
   });
 
   it('should generate a voucher and set it into the form', fakeAsync(() => {
     const fakeVoucher = 'fy7vjq56';
 
     // Let internal generation method return a fake voucher
-    spyOn(component, 'generateVoucher').and.returnValue(fakeVoucher);
+    vi.spyOn(component, 'generateVoucher').mockReturnValue(fakeVoucher);
     // Spy on the updateVoucher method to ensure it is called
-    spyOn(component, 'updateVoucher').and.callThrough();
+    vi.spyOn(component, 'updateVoucher');
 
     fixture.detectChanges();
 
@@ -153,15 +166,17 @@ describe('NewAgentComponent', () => {
     const voucher = 'fy7vjq56';
     component.form.controls.voucher.setValue(voucher);
     component.form.updateValueAndValidity();
-    expect(component.form.valid).toBeTrue();
+    expect(component.form.valid).toBe(true);
 
     // Spy on table reload and global service create method
-    component.table = jasmine.createSpyObj('VouchersTableComponent', ['reload']);
-    globalServiceSpy.create.and.returnValue(of(mockResponse()));
+    component.table = {
+      reload: vi.fn().mockName('VouchersTableComponent.reload')
+    };
+    globalServiceSpy.create.mockReturnValue(of(mockResponse()));
 
     const addButton = fixture.nativeElement.querySelector('[data-testid="add-voucher-button"]') as HTMLButtonElement;
     expect(addButton).toBeTruthy();
-    expect(addButton.disabled).toBeFalse(); // ensure the button is enabled
+    expect(addButton.disabled).toBe(false); // ensure the button is enabled
 
     addButton.click();
     tick();
