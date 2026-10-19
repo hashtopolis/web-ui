@@ -19,12 +19,6 @@ class TestBaseDataSource extends BaseDataSource<BaseModel> {
 }
 
 describe('BaseDataSource Pagination', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let dataSource: TestBaseDataSource;
   let mockInjector: MockedObject<Injector>;
 
@@ -69,39 +63,51 @@ describe('BaseDataSource Pagination', () => {
   });
 
   it('should reset index and trigger reload when page becomes out of bounds (simulating cursor-based pagination)', async () => {
-    // Scenario:
-    // Total 6 items, pageSize 5.
-    // You are on Page 2 (index 1) and delete an item.
-    // The API provided a cursor for the end of page 1 ('cursor_after_item_5').
-    const mockCursor = 'cursor_after_item_5';
+    // The reload is scheduled with setTimeout, so this test drives the clock.
+    vi.useFakeTimers();
+    try {
+      // Scenario:
+      // Total 6 items, pageSize 5.
+      // You are on Page 2 (index 1) and delete an item.
+      // The API provided a cursor for the end of page 1 ('cursor_after_item_5').
+      const mockCursor = 'cursor_after_item_5';
 
-    // We simulate the API response:
-    // "You are on index 1, and your cursor is 'cursor_after_item_5'"
-    // But since totalItems is 5 after deleting the sixth and pageSize is 5, index 1 is now invalid.
-    dataSource.setPaginationConfig(5, 4, null, mockCursor, 1);
+      // We simulate the API response:
+      // "You are on index 1, and your cursor is 'cursor_after_item_5'"
+      // But since totalItems is 5 after deleting the sixth and pageSize is 5, index 1 is now invalid.
+      dataSource.setPaginationConfig(5, 4, null, mockCursor, 1);
 
-    // Verify state:
-    // The logic should have detected index 1 > maxPageIndex (0)
-    // And reset the cursors to undefined
-    expect(dataSource.index).toBe(0);
-    expect(dataSource.pageAfter).toBeUndefined();
-    expect(dataSource.pageBefore).toBeUndefined();
+      // Verify state:
+      // The logic should have detected index 1 > maxPageIndex (0)
+      // And reset the cursors to undefined
+      expect(dataSource.index).toBe(0);
+      expect(dataSource.pageAfter).toBeUndefined();
+      expect(dataSource.pageBefore).toBeUndefined();
 
-    // Trigger the setTimeout
-    await vi.advanceTimersByTimeAsync(0);
+      // Trigger the setTimeout
+      await vi.advanceTimersByTimeAsync(0);
 
-    // Verify that reload was called
-    expect(dataSource.reload).toHaveBeenCalled();
+      // Verify that reload was called
+      expect(dataSource.reload).toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('should NOT reload if totalItems is 0 when out of bounds', async () => {
-    // Current state: 0 items total.
-    dataSource.setPaginationConfig(5, 0, null, null, 0);
+    // The reload would be scheduled with setTimeout, so flush the clock before asserting it never ran.
+    vi.useFakeTimers();
+    try {
+      // Current state: 0 items total.
+      dataSource.setPaginationConfig(5, 0, null, null, 0);
 
-    // Trigger potential reload
-    await vi.advanceTimersByTimeAsync(0);
+      // Trigger potential reload
+      await vi.advanceTimersByTimeAsync(0);
 
-    // Verify reload was NOT called because totalItems is not > 0
-    expect(dataSource.reload).not.toHaveBeenCalled();
+      // Verify reload was NOT called because totalItems is not > 0
+      expect(dataSource.reload).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

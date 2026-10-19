@@ -10,12 +10,6 @@ import '@services/storage/session-storage';
 import { SessionStorageService } from '@services/storage/session-storage.service';
 
 describe('SessionStorageService', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let service: SessionStorageService<string | object>;
 
   beforeEach(() => {
@@ -60,16 +54,22 @@ describe('SessionStorageService', () => {
     expect(result).toBeNull();
   });
 
-  it('should return null for expired items', async () => {
-    const key = 'expiring-key';
-    const value = 'expiring-value';
+  it('should return null for expired items', () => {
+    // Expiry is checked against Date.now(), so only the clock needs to be fake.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      const key = 'expiring-key';
+      const value = 'expiring-value';
 
-    service.setItem(key, value, 1); // Expires in 1ms
+      service.setItem(key, value, 1); // Expires in 1ms
 
-    await vi.advanceTimersByTimeAsync(2);
+      vi.setSystemTime(Date.now() + 2);
 
-    const result = service.getItem(key);
-    expect(result).toBeNull();
+      const result = service.getItem(key);
+      expect(result).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('should not expire items with TTL=0 (indefinite)', () => {
@@ -206,13 +206,18 @@ describe('SessionStorageService', () => {
       expect(sessionStorage.getItem('bad')).toBeNull();
     });
 
-    it('getItem should return defaultValue when item has expired', async () => {
-      service.setItem('expiring', { name: 'gone', count: 1 }, 1); // 1ms TTL
+    it('getItem should return defaultValue when item has expired', () => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      try {
+        service.setItem('expiring', { name: 'gone', count: 1 }, 1); // 1ms TTL
 
-      await vi.advanceTimersByTimeAsync(2);
+        vi.setSystemTime(Date.now() + 2);
 
-      const result = service.getItem('expiring', testSchema, defaultObj);
-      expect(result).toEqual(defaultObj);
+        const result = service.getItem('expiring', testSchema, defaultObj);
+        expect(result).toEqual(defaultObj);
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('getItem should return defaultValue without schema when key is missing', () => {
