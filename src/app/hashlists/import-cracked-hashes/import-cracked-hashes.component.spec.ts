@@ -1,8 +1,9 @@
-import type { MockedObject } from 'vitest';
+import { HashSource } from '@constants/hashlist.config';
 import { HttpHeaderName } from '@constants/http.config';
-import { concat, of, throwError } from 'rxjs';
+import { EMPTY, concat, of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -23,7 +24,6 @@ import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { mockResponse } from '@src/app/testing/mock-response';
-import { HashSource } from '@constants/hashlist.config';
 
 const mockServerImportFiles: ResponseWrapper = mockResponse({
   data: [],
@@ -31,6 +31,12 @@ const mockServerImportFiles: ResponseWrapper = mockResponse({
 });
 
 describe('ImportCrackedHashesComponent', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
   let component: ImportCrackedHashesComponent;
   let fixture: ComponentFixture<ImportCrackedHashesComponent>;
 
@@ -44,20 +50,20 @@ describe('ImportCrackedHashesComponent', () => {
     gsSpy = {
       get: vi.fn().mockName('GlobalService.get'),
       chelper: vi.fn().mockName('GlobalService.chelper')
-    };
+    } as MockedObject<GlobalService>;
     uploadSpy = {
       uploadFile: vi.fn().mockName('UploadTUSService.uploadFile')
-    };
+    } as MockedObject<UploadTUSService>;
     alertSpy = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
     titleSpy = {
       set: vi.fn().mockName('AutoTitleService.set')
-    };
+    } as MockedObject<AutoTitleService>;
     routerSpy = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
 
     await TestBed.configureTestingModule({
       declarations: [ImportCrackedHashesComponent],
@@ -86,6 +92,10 @@ describe('ImportCrackedHashesComponent', () => {
   });
 
   beforeEach(() => {
+    // ngOnInit loads the hashlist through gs.get, which these specs never answer. Without a return value
+    // the subscription throws, and RxJS rethrows that error from a timer that the fake clock would run
+    // inside the next test. An observable that never emits leaves the component in the same state.
+    gsSpy.get.mockReturnValue(EMPTY);
     gsSpy.chelper.mockReturnValue(of(mockServerImportFiles));
     fixture = TestBed.createComponent(ImportCrackedHashesComponent);
     component = fixture.componentInstance;
@@ -152,150 +162,150 @@ describe('ImportCrackedHashesComponent', () => {
   });
 
   describe('sourceType change behavior', () => {
-    it('should set hashesAreRequired to true when sourceType is paste', fakeAsync(() => {
+    it('should set hashesAreRequired to true when sourceType is paste', async () => {
       component.form.controls.sourceType.setValue('paste');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(component.hashesAreRequired).toBe(true);
-    }));
+    });
 
-    it('should set required validator on hashes control when sourceType is paste', fakeAsync(() => {
+    it('should set required validator on hashes control when sourceType is paste', async () => {
       component.form.controls.sourceType.setValue('paste');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       const hashesCtrl = component.form.controls.hashes;
       expect(hashesCtrl.hasError('required')).toBe(true);
-    }));
+    });
 
-    it('should reset hashes when sourceType is not paste', fakeAsync(() => {
+    it('should reset hashes when sourceType is not paste', async () => {
       component.form.controls.hashes.setValue('some:data');
       component.form.controls.sourceType.setValue('upload');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(component.form.controls.hashes.value).toBe('');
-    }));
+    });
 
-    it('should reset sourceData when sourceType is paste', fakeAsync(() => {
+    it('should reset sourceData when sourceType is paste', async () => {
       component.form.patchValue({ sourceData: 'somefile.txt' });
       component.form.controls.sourceType.setValue('paste');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(component.form.controls.sourceData.value).toBe('');
-    }));
+    });
 
-    it('should reset selectedFiles, fileName and uploadProgress when sourceType is not upload', fakeAsync(() => {
+    it('should reset selectedFiles, fileName and uploadProgress when sourceType is not upload', async () => {
       component.selectedFiles = {} as FileList;
       component.fileName = 'test.txt';
       component.uploadProgress = 50;
       component.form.controls.sourceType.setValue('paste');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(component.selectedFiles).toBeNull();
       expect(component.fileName).toBe('');
       expect(component.uploadProgress).toBe(0);
-    }));
+    });
 
-    it('should call loadServerFiles when sourceType is import and files not loaded', fakeAsync(() => {
+    it('should call loadServerFiles when sourceType is import and files not loaded', async () => {
       gsSpy.chelper.mockReturnValue(of(mockServerImportFiles));
       const loadSpy = vi.spyOn(component, 'loadServerFiles');
       component.form.controls.sourceType.setValue('import');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(loadSpy).toHaveBeenCalled();
-    }));
+    });
 
-    it('should call loadServerFiles every time sourceType becomes import (refresh, not cached)', fakeAsync(() => {
+    it('should call loadServerFiles every time sourceType becomes import (refresh, not cached)', async () => {
       gsSpy.chelper.mockReturnValue(of(mockServerImportFiles));
       const loadSpy = vi.spyOn(component, 'loadServerFiles').mockResolvedValue();
       component.form.controls.sourceType.setValue('import');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       component.form.controls.sourceType.setValue('paste');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       component.form.controls.sourceType.setValue('import');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(loadSpy).toHaveBeenCalledTimes(2);
-    }));
+    });
 
-    it('should NOT call loadServerFiles when sourceType is import but files already loading', fakeAsync(() => {
+    it('should NOT call loadServerFiles when sourceType is import but files already loading', async () => {
       component.isLoadingServerFiles = true;
       const loadSpy = vi.spyOn(component, 'loadServerFiles').mockResolvedValue();
       component.form.controls.sourceType.setValue('import');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(loadSpy).not.toHaveBeenCalled();
-    }));
+    });
 
-    it('should reset hashesAreRequired to false when switching from paste to upload', fakeAsync(() => {
+    it('should reset hashesAreRequired to false when switching from paste to upload', async () => {
       component.form.controls.sourceType.setValue('paste');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(component.hashesAreRequired).toBe(true);
 
       component.form.controls.sourceType.setValue('upload');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(component.hashesAreRequired).toBe(false);
-    }));
+    });
 
-    it('should reset hashesAreRequired to false when switching from paste to import', fakeAsync(() => {
+    it('should reset hashesAreRequired to false when switching from paste to import', async () => {
       component.form.controls.sourceType.setValue('paste');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(component.hashesAreRequired).toBe(true);
 
       component.form.controls.sourceType.setValue('import');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(component.hashesAreRequired).toBe(false);
-    }));
+    });
 
-    it('should reset hashesAreRequired to false when switching from paste to url', fakeAsync(() => {
+    it('should reset hashesAreRequired to false when switching from paste to url', async () => {
       component.form.controls.sourceType.setValue('paste');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(component.hashesAreRequired).toBe(true);
 
       component.form.controls.sourceType.setValue('url');
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(component.hashesAreRequired).toBe(false);
-    }));
+    });
   });
 
   describe('loadServerFiles', () => {
-    it('should load server files and set options', fakeAsync(async () => {
+    it('should load server files and set options', async () => {
       gsSpy.chelper.mockReturnValue(of(mockServerImportFiles));
       await component.loadServerFiles();
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(component.serverFiles.length).toBe(2);
       expect(component.serverFileOptions.length).toBe(2);
       expect(component.isLoadingServerFiles).toBe(false);
-    }));
+    });
 
-    it('should handle empty meta array', fakeAsync(async () => {
+    it('should handle empty meta array', async () => {
       const emptyResponse: ResponseWrapper = mockResponse({ data: [], meta: [] });
       gsSpy.chelper.mockReturnValue(of(emptyResponse));
       await component.loadServerFiles();
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(component.serverFiles.length).toBe(0);
       expect(component.serverFileOptions.length).toBe(0);
       expect(component.isLoadingServerFiles).toBe(false);
-    }));
+    });
 
-    it('should handle error and show alert', fakeAsync(async () => {
+    it('should handle error and show alert', async () => {
       const error = new Error('Network error');
       error.stack = '';
       gsSpy.chelper.mockReturnValue(throwError(() => error));
       const consoleSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
       await component.loadServerFiles();
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(consoleSpy).toHaveBeenCalled();
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('Could not load files from server import directory.');
       expect(component.isLoadingServerFiles).toBe(false);
-    }));
+    });
 
-    it('should always set isLoadingServerFiles to false in finally block', fakeAsync(async () => {
+    it('should always set isLoadingServerFiles to false in finally block', async () => {
       const error = new Error('Error');
       error.stack = '';
       gsSpy.chelper.mockReturnValue(throwError(() => error));
       component.isLoadingServerFiles = false;
       await component.loadServerFiles();
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       expect(component.isLoadingServerFiles).toBe(false);
-    }));
+    });
 
     // Regression guard for the stale-while-revalidate bug: HttpCacheInterceptor serves a stale
     // cached value first, then the revalidated fresh one (concat(of(stale), revalidate())).
     // firstValueFrom took the stale list (file added after login stayed hidden until re-login);
     // the fix uses lastValueFrom, which resolves on the revalidated emission.
-    it('uses the revalidated (fresh) emission, not the stale-while-revalidate cache hit', fakeAsync(async () => {
+    it('uses the revalidated (fresh) emission, not the stale-while-revalidate cache hit', async () => {
       const stale: ResponseWrapper = mockResponse({ data: [], meta: [{ file: 'cached.txt' }] });
       const fresh: ResponseWrapper = mockResponse({
         data: [],
@@ -304,11 +314,11 @@ describe('ImportCrackedHashesComponent', () => {
       gsSpy.chelper.mockReturnValue(concat(of(stale), of(fresh)));
 
       await component.loadServerFiles();
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
 
       expect(component.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
       expect(component.serverFileOptions.map((o) => o.name)).toEqual(['cached.txt', 'added-after-login.txt']);
-    }));
+    });
   });
 
   describe('onSubmit - form validation', () => {
@@ -377,7 +387,7 @@ describe('ImportCrackedHashesComponent', () => {
   });
 
   describe('submitImport error handling', () => {
-    it('should surface the backend error, skip the global dialog and clear loading when the import fails', fakeAsync(() => {
+    it('should surface the backend error, skip the global dialog and clear loading when the import fails', async () => {
       gsSpy.chelper.mockReturnValue(
         throwError(() => ({ status: 400, error: { title: 'Cracked hash file has too many lines!' } }))
       );
@@ -389,13 +399,12 @@ describe('ImportCrackedHashesComponent', () => {
       });
 
       component.onSubmit();
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
 
       // The component handles the error itself, so it tells the interceptor to skip the modal.
-      // TODO: vitest-migration: Direct usage of mostRecent() is not supported. Please refactor to access .args directly or use vi.mocked(spy).mock.lastCall. See: https://vitest.dev/api/mocked.html#mock-lastcall
-      const call = gsSpy.chelper.calls.mostRecent();
-      expect(call.args[1]).toBe('importCrackedHashes');
-      const httpOptions = call.args[4];
+      const call = vi.mocked(gsSpy.chelper).mock.lastCall!;
+      expect(call[1]).toBe('importCrackedHashes');
+      const httpOptions = call[4];
       expect(httpOptions?.headers?.get(HttpHeaderName.SKIP_ERROR_DIALOG)).toBe('true');
 
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith(
@@ -403,7 +412,7 @@ describe('ImportCrackedHashesComponent', () => {
       );
       expect(routerSpy.navigate).not.toHaveBeenCalled();
       expect(component.isCreatingLoading).toBe(false);
-    }));
+    });
   });
 
   describe('onSubmit - sourceType import', () => {

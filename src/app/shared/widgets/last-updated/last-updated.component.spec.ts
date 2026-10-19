@@ -1,10 +1,16 @@
 import { ChangeDetectorRef } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-updated.component';
 
 describe('LastUpdatedComponent', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
   let component: LastUpdatedComponent;
   let fixture: ComponentFixture<LastUpdatedComponent>;
 
@@ -45,7 +51,7 @@ describe('LastUpdatedComponent', () => {
     expect(component.lastUpdatedDisplay).toContain('26/09/2025 10:30:00');
   });
 
-  it('should display countdown if nextRefreshTimestamp is in the future and not refreshing', fakeAsync(() => {
+  it('should display countdown if nextRefreshTimestamp is in the future and not refreshing', async () => {
     component.nextRefreshTimestamp = Date.now() + 5000; // 5s in the future
     component.refreshing = false;
     component.ngOnChanges({
@@ -57,14 +63,14 @@ describe('LastUpdatedComponent', () => {
       }
     });
 
-    tick(1000); // allow interval to run
+    await vi.advanceTimersByTimeAsync(1000); // allow interval to run
     fixture.detectChanges();
 
     expect(component.nextUpdateDisplay).not.toBeNull();
     expect(component.nextUpdateDisplay).toMatch(/\d{2}:\d{2}/); // mm:ss format
-  }));
+  });
 
-  it('should stop countdown if nextRefreshTimestamp is in the past', fakeAsync(() => {
+  it('should stop countdown if nextRefreshTimestamp is in the past', async () => {
     component.nextRefreshTimestamp = Date.now() - 1000; // past
     component.refreshing = false;
     component.ngOnChanges({
@@ -75,12 +81,12 @@ describe('LastUpdatedComponent', () => {
         isFirstChange: () => true
       }
     });
-    tick(300);
+    await vi.advanceTimersByTimeAsync(300);
 
     expect(component.nextUpdateDisplay).toBe('00:00');
-  }));
+  });
 
-  it('should hide countdown if refreshing is true', fakeAsync(() => {
+  it('should hide countdown if refreshing is true', async () => {
     component.nextRefreshTimestamp = Date.now() + 5000; // future
     component.refreshing = true;
     component.ngOnChanges({
@@ -91,8 +97,8 @@ describe('LastUpdatedComponent', () => {
         isFirstChange: () => true
       }
     });
-    tick(300);
+    await vi.advanceTimersByTimeAsync(300);
 
     expect(component.nextUpdateDisplay).toBeNull();
-  }));
+  });
 });

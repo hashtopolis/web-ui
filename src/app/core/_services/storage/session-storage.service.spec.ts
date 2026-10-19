@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 // Side-effect: replaces window.sessionStorage with the TypedStorage wrapper.
 // Must run before any test touches sessionStorage so that setItem/getItem
@@ -10,6 +10,12 @@ import '@services/storage/session-storage';
 import { SessionStorageService } from '@services/storage/session-storage.service';
 
 describe('SessionStorageService', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
   let service: SessionStorageService<string | object>;
 
   beforeEach(() => {
@@ -54,17 +60,17 @@ describe('SessionStorageService', () => {
     expect(result).toBeNull();
   });
 
-  it('should return null for expired items', fakeAsync(() => {
+  it('should return null for expired items', async () => {
     const key = 'expiring-key';
     const value = 'expiring-value';
 
     service.setItem(key, value, 1); // Expires in 1ms
 
-    tick(2);
+    await vi.advanceTimersByTimeAsync(2);
 
     const result = service.getItem(key);
     expect(result).toBeNull();
-  }));
+  });
 
   it('should not expire items with TTL=0 (indefinite)', () => {
     const key = 'indefinite-key';
@@ -200,14 +206,14 @@ describe('SessionStorageService', () => {
       expect(sessionStorage.getItem('bad')).toBeNull();
     });
 
-    it('getItem should return defaultValue when item has expired', fakeAsync(() => {
+    it('getItem should return defaultValue when item has expired', async () => {
       service.setItem('expiring', { name: 'gone', count: 1 }, 1); // 1ms TTL
 
-      tick(2);
+      await vi.advanceTimersByTimeAsync(2);
 
       const result = service.getItem('expiring', testSchema, defaultObj);
       expect(result).toEqual(defaultObj);
-    }));
+    });
 
     it('getItem should return defaultValue without schema when key is missing', () => {
       const result = service.getItem('nope', undefined!, 'fallback');
@@ -222,7 +228,7 @@ describe('SessionStorageService', () => {
       vi.spyOn(console, 'warn').mockReturnValue(undefined);
       const quotaError = new DOMException('QuotaExceededError', 'QuotaExceededError');
       vi.spyOn(sessionStorage, 'setItem').mockImplementation(() => {
-        throw new Error(quotaError);
+        throw quotaError;
       });
 
       expect(() => service.setItem('key', 'value', 1000)).not.toThrow();
@@ -232,7 +238,7 @@ describe('SessionStorageService', () => {
     it('should re-throw non-quota DOMExceptions', () => {
       const securityError = new DOMException('Access denied', 'SecurityError');
       vi.spyOn(sessionStorage, 'setItem').mockImplementation(() => {
-        throw new Error(securityError);
+        throw securityError;
       });
 
       expect(() => service.setItem('key', 'value', 1000)).toThrowError(DOMException);
