@@ -15,3 +15,10 @@ if (!('parser' in globalThis)) {
     runInThisContext(readFileSync(filename, 'utf8'), { filename });
   }
 }
+
+// Jasmine removed every `spyOn` spy after each spec. Vitest keeps `vi.spyOn` spies until they are
+// restored, and the specs share one context per worker, so a spy on a prototype or on a shared
+// mock object would leak into the following tests. Restore them after each test, as Jasmine did.
+afterEach(() => {
+  vi.restoreAllMocks();
+});
