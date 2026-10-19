@@ -179,7 +179,7 @@ describe('HashesDataSource', () => {
 
       const [serviceConfig, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HASHES);
-      expect((params as RequestParams).filter).toContain(
+      expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'hashlistId', operator: FilterType.EQUAL, value: 5 })
       );
     });
@@ -199,7 +199,7 @@ describe('HashesDataSource', () => {
       dataSource.loadAll(query);
 
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'hash', value: 'aa' }));
+      expect((params as RequestParams).filter).toContainEqual(expect.objectContaining({ field: 'hash', value: 'aa' }));
     });
 
     it('should add isCracked=true when filterParam is "cracked"', () => {
@@ -207,7 +207,7 @@ describe('HashesDataSource', () => {
       dataSource.loadAll();
 
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(
+      expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'isCracked', operator: FilterType.EQUAL, value: true })
       );
     });
@@ -217,7 +217,7 @@ describe('HashesDataSource', () => {
       dataSource.loadAll();
 
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(
+      expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'isCracked', operator: FilterType.EQUAL, value: false })
       );
     });
@@ -250,7 +250,7 @@ describe('HashesDataSource', () => {
 
       const [serviceConfig, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HASHES);
-      expect((params as RequestParams).filter).toContain(
+      expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({
           field: 'hashlistId',
           operator: FilterType.IN,
@@ -264,7 +264,7 @@ describe('HashesDataSource', () => {
 
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
-      expect(filter).not.toContain(
+      expect(filter).not.toContainEqual(
         expect.objectContaining({ field: 'hashlistId', operator: FilterType.EQUAL, value: 77 })
       );
     });
@@ -281,8 +281,8 @@ describe('HashesDataSource', () => {
 
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
-      expect(filter).toContain(expect.objectContaining({ field: 'hashlistId', operator: FilterType.IN }));
-      expect(filter).toContain(expect.objectContaining({ field: 'isCracked', value: true }));
+      expect(filter).toContainEqual(expect.objectContaining({ field: 'hashlistId', operator: FilterType.IN }));
+      expect(filter).toContainEqual(expect.objectContaining({ field: 'isCracked', value: true }));
     });
   });
 
@@ -332,7 +332,7 @@ describe('HashesDataSource', () => {
       dataSource.loadAll();
       const [serviceConfig, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HASHES);
-      expect((params as RequestParams).filter).toContain(
+      expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'chunkId', operator: FilterType.EQUAL, value: 9 })
       );
     });

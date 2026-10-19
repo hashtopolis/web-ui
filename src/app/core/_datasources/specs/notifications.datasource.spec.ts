@@ -157,7 +157,9 @@ describe('NotificationsDataSource', () => {
       const query: Filter = { field: 'action', operator: FilterType.ICONTAINS, value: 'error' };
       dataSource.loadAll(query);
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'action', value: 'error' }));
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'action', value: 'error' })
+      );
     });
 
     it('should persist the query as _currentFilter', () => {
@@ -172,7 +174,7 @@ describe('NotificationsDataSource', () => {
       gsSpy.getAll.mockClear();
       dataSource.loadAll();
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(
+      expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'receiver', value: 'example.org' })
       );
     });

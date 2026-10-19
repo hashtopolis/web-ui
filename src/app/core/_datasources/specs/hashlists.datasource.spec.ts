@@ -196,8 +196,8 @@ describe('HashlistsDataSource', () => {
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
 
-      expect(filter).toContain(expect.objectContaining({ field: 'isArchived', value: false }));
-      expect(filter).toContain(
+      expect(filter).toContainEqual(expect.objectContaining({ field: 'isArchived', value: false }));
+      expect(filter).toContainEqual(
         expect.objectContaining({
           field: 'format',
           operator: FilterType.NOTIN,
@@ -210,14 +210,18 @@ describe('HashlistsDataSource', () => {
       dataSource.setIsArchived(true);
       dataSource.loadAll();
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'isArchived', value: true }));
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'isArchived', value: true })
+      );
     });
 
     it('should append the query filter when provided', () => {
       const query: Filter = { field: 'name', operator: FilterType.ICONTAINS, value: 'sha1' };
       dataSource.loadAll(query);
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'name', value: 'sha1' }));
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'name', value: 'sha1' })
+      );
     });
 
     it('should map hashTypeDescription and hashTypeId from hashType relation', () => {
