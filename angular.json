@@ -66,8 +66,7 @@
               "aot": false,
               "optimization": false,
               "extractLicenses": false,
-              "polyfills": ["src/polyfills.ts", "zone.js/testing"],
-              "assets": ["src/styles/styles.scss"],
+              "polyfills": ["zone.js", "zone.js/testing", "reflect-metadata"],
               "styles": ["src/styles/styles.scss"],
               "stylePreprocessorOptions": {
                 "includePaths": ["src/styles", "node_modules", "."]

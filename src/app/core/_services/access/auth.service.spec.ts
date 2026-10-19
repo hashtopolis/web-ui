@@ -206,8 +206,8 @@ describe('AuthService refresh token', () => {
 
   beforeEach(() => {
     /* A real Web Lock is shared by everything on the page, so one spec that leaves a request
-           unflushed would hold it and hang the next. Stub it with a pass-through that still runs the
-           callback, and record the names so the locking itself can be asserted. */
+       unflushed would hold it and hang the next. Stub it with a pass-through that still runs the
+       callback, and record the names so the locking itself can be asserted. */
     lockRequests = [];
     originalLocks = Object.getOwnPropertyDescriptor(navigator, 'locks');
     Object.defineProperty(navigator, 'locks', {
