@@ -60,7 +60,7 @@ describe('FilePreviewService', () => {
         offset: 100,
         maxLines: 10,
         windowBytes: 64,
-        totalBytes: 10000,
+        totalBytes: 10_000,
         isLineAligned: true
       })
       .subscribe();
@@ -124,7 +124,7 @@ describe('FilePreviewService', () => {
   });
 
   it('flags a window that holds no complete line', () => {
-    const page = loadPage({ totalBytes: 100000 }, 'a-line-longer-than-the-window');
+    const page = loadPage({ totalBytes: 100_000 }, 'a-line-longer-than-the-window');
 
     expect(page.hasPartialLine).toBe(true);
     expect(page.lines).toEqual(['a-line-longer-than-the-window']);

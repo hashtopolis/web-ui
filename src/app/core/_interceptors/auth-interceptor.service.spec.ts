@@ -20,7 +20,7 @@ describe('AuthInterceptorService', () => {
 
   const session = (token: string): AuthData => ({
     _token: token,
-    _expires: new Date(Date.now() + 3600000),
+    _expires: new Date(Date.now() + 3_600_000),
     userId: 1,
     canonicalUsername: 'testuser'
   });

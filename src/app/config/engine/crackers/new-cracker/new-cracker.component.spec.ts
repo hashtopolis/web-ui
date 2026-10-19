@@ -81,18 +81,18 @@ describe('NewCrackerComponent', () => {
   });
 
   /* Only crackers with chunking are supported right now:
-    it('should have exactly two selectable options in input-select-chunkingAvailable', () => {
-      fixture.detectChanges();
-      const selectDebugEl = fixture.debugElement.query(By.css('[data-testid="input-select-chunkingAvailable"]'));
-      expect(selectDebugEl).toBeTruthy();
+  it('should have exactly two selectable options in input-select-chunkingAvailable', () => {
+    fixture.detectChanges();
+    const selectDebugEl = fixture.debugElement.query(By.css('[data-testid="input-select-chunkingAvailable"]'));
+    expect(selectDebugEl).toBeTruthy();
 
-      // Check property 'items' of InputSelectComponent
-      const inputSelectInstance = selectDebugEl.componentInstance;
-      expect(inputSelectInstance.items.length).toBe(2);
-      expect(inputSelectInstance.items[0].name).toBe('Yes');
-      expect(inputSelectInstance.items[1].name).toBe('No');
-    });
-    */
+    // Check property 'items' of InputSelectComponent
+    const inputSelectInstance = selectDebugEl.componentInstance;
+    expect(inputSelectInstance.items.length).toBe(2);
+    expect(inputSelectInstance.items[0].name).toBe('Yes');
+    expect(inputSelectInstance.items[1].name).toBe('No');
+  });
+  */
 
   it('should not submit if form is invalid', async () => {
     component.newCrackerForm.patchValue({ typeName: '' }); // invalid Add isChunkingAvailable: null once it's supported

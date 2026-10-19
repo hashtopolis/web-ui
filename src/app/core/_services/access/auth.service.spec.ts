@@ -92,7 +92,7 @@ describe('AuthService.autoLogin', () => {
       _store: {
         userData: {
           _token: 'dummy-token',
-          _expires: new Date(Date.now() + 3600000),
+          _expires: new Date(Date.now() + 3_600_000),
           userId: 1,
           canonicalUsername: 'testuser'
         }
@@ -354,7 +354,7 @@ describe('AuthService refresh token', () => {
     // Stand in for a tab that held the lock first and wrote its result to the shared storage
     const fresh: AuthData = {
       _token: tokenForUser1(),
-      _expires: new Date(Date.now() + 3600000),
+      _expires: new Date(Date.now() + 3_600_000),
       userId: 1,
       canonicalUsername: 'testuser'
     };
@@ -385,11 +385,11 @@ describe('AuthService refresh token', () => {
     expect(service.isAccessTokenExpired()).toBe(true);
     expect(service.isAccessTokenExpiring()).toBe(true);
 
-    storage._store[AuthService.STORAGE_KEY] = storedSession(30000);
+    storage._store[AuthService.STORAGE_KEY] = storedSession(30_000);
     expect(service.isAccessTokenExpired()).toBe(false);
     expect(service.isAccessTokenExpiring()).toBe(true);
 
-    storage._store[AuthService.STORAGE_KEY] = storedSession(3600000);
+    storage._store[AuthService.STORAGE_KEY] = storedSession(3_600_000);
     expect(service.isAccessTokenExpired()).toBe(false);
     expect(service.isAccessTokenExpiring()).toBe(false);
   });

@@ -37,8 +37,8 @@ describe('ApiKeyDetailComponent', () => {
   const loadedToken: JApiToken = {
     id: 7,
     type: 'apiToken',
-    startValid: 1700000000,
-    endValid: 1700086400,
+    startValid: 1_700_000_000,
+    endValid: 1_700_086_400,
     userId: 42,
     isRevoked: false
   };
@@ -150,7 +150,7 @@ describe('ApiKeyDetailComponent', () => {
     // No detectChanges: we only test the pure formatters, which read dateFormat from
     // the field initializer (uiConfigDefault.timefmt) and don't require ngOnInit.
 
-    const endValidSec = 1700086400;
+    const endValidSec = 1_700_086_400;
     expect(component.formatExpiry(endValidSec)).toBe(component.formatTimestamp(endValidSec - 1));
   });
 });

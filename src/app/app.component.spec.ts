@@ -45,7 +45,7 @@ describe('AppComponent.checkLogin', () => {
 
   it('does not reload when the session is still valid', () => {
     const { component, mockReloadService } = makeComponent();
-    const future = new Date(Date.now() + 60000).toISOString();
+    const future = new Date(Date.now() + 60_000).toISOString();
     localStorage.setItem('userData', JSON.stringify({ _token: 'token', _expires: future }));
 
     component.checkLogin();
