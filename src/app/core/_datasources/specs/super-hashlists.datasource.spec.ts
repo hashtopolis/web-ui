@@ -146,27 +146,25 @@ describe('SuperHashlistsDataSource', () => {
     dataSource = new SuperHashlistsDataSource(injector);
   });
 
-  afterEach(() => TestBed.resetTestingModule());
-
   // loadAll()
 
   describe('loadAll()', () => {
     it('should call service.getAll with SERV.HASHLISTS', () => {
       dataSource.loadAll();
-      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HASHLISTS);
     });
 
     it('should include hashType and hashlists in request params', () => {
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).include).toContain('hashType');
       expect((params as RequestParams).include).toContain('hashlists');
     });
 
     it('should filter by format === SUPERHASHLIST (3)', () => {
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'format', operator: FilterType.EQUAL, value: HashListFormat.SUPERHASHLIST })
       );
@@ -237,7 +235,7 @@ describe('SuperHashlistsDataSource', () => {
     it('should append a query filter when provided', () => {
       const query: Filter = { field: 'name', operator: FilterType.ICONTAINS, value: 'sha1' };
       dataSource.loadAll(query);
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'name', value: 'sha1' })
       );
@@ -254,7 +252,7 @@ describe('SuperHashlistsDataSource', () => {
       dataSource.loadAll(query);
       gsSpy.getAll.mockClear();
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'name', value: 'sha1' })
       );
@@ -339,7 +337,7 @@ describe('SuperHashlistsDataSource', () => {
       gsSpy.getAll.mockClear();
       dataSource.clearFilter();
 
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
       expect(filter.some((f: Filter) => f.field === 'name')).toBe(false);
     });

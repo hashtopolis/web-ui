@@ -22,10 +22,7 @@ import { HTTableComponent } from '@components/tables/ht-table/ht-table.component
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 class MockDataSource {
-  loadAll = vi
-    .fn()
-    .mockName('loadAll')
-    .mockImplementation(() => {});
+  loadAll = vi.fn().mockName('loadAll');
   setColumns = vi.fn().mockName('setColumns');
   clearFilter = vi.fn().mockName('clearFilter');
   reload = vi.fn().mockName('reload');

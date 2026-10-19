@@ -184,7 +184,7 @@ describe('CrackerVersionFormComponent', () => {
       component.form.controls.source.setValue(CrackerSource.SERVER_DOWNLOAD);
       component.form.controls.sourceUrl.setValue('https://e.com/h.7z');
       await component.onSubmit();
-      expect(vi.mocked(gs.create).mock.lastCall![1]).toEqual(
+      expect(gs.create.mock.lastCall![1]).toEqual(
         expect.objectContaining({ sourceType: 'url', sourceData: 'https://e.com/h.7z' })
       );
     });
@@ -196,7 +196,7 @@ describe('CrackerVersionFormComponent', () => {
       fillCommon();
       component.form.controls.importFile.setValue('hashcat-7.1.2.7z');
       await component.onSubmit();
-      expect(vi.mocked(gs.create).mock.lastCall![1]).toEqual(
+      expect(gs.create.mock.lastCall![1]).toEqual(
         expect.objectContaining({ sourceType: 'import', sourceData: 'hashcat-7.1.2.7z' })
       );
     });
@@ -207,7 +207,7 @@ describe('CrackerVersionFormComponent', () => {
       component.form.controls.source.setValue(CrackerSource.UPLOAD);
       component.form.controls.file.setValue(fileList('my hashcat.7z'));
       await component.onSubmit();
-      const [file, name, service, form, redirect] = vi.mocked(tus.uploadFile).mock.lastCall!;
+      const [file, name, service, form, redirect] = tus.uploadFile.mock.lastCall!;
       expect(file.name).toBe('my hashcat.7z');
       expect(name).toBe(`cracker-3-${file.lastModified}-${file.size}.7z`);
       expect(service).toBe(SERV.CRACKERS);
@@ -229,9 +229,9 @@ describe('CrackerVersionFormComponent', () => {
       component.form.controls.file.setValue(fileList('h.7z'));
       await component.onSubmit();
       await component.onSubmit();
-      const names = vi.mocked(tus.uploadFile).mock.calls.map((args) => args[1]);
+      const names = tus.uploadFile.mock.calls.map((args) => args[1]);
       expect(names[0]).toBe(names[1]);
-      expect(vi.mocked(gs.create).mock.lastCall![1]).toEqual(expect.objectContaining({ sourceData: names[1] }));
+      expect(gs.create.mock.lastCall![1]).toEqual(expect.objectContaining({ sourceData: names[1] }));
     });
 
     it('does not create the version when the page is left during the upload', async () => {
@@ -332,7 +332,7 @@ describe('CrackerVersionFormComponent', () => {
       component.form.controls.source.setValue(CrackerSource.EXTERNAL_LINK);
       component.form.controls.downloadUrl.setValue('https://e.com/h.7z');
       await component.onSubmit();
-      const payload = vi.mocked(gs.create).mock.lastCall![1];
+      const payload = gs.create.mock.lastCall![1];
       expect(payload['sourceType']).toBeUndefined();
       expect(payload['sourceData']).toBeUndefined();
     });
@@ -403,7 +403,7 @@ describe('CrackerVersionFormComponent', () => {
     });
 
     it('loads the binary with its type and shows the title', () => {
-      const [serviceConfig, id] = vi.mocked(gs.get).mock.lastCall!;
+      const [serviceConfig, id] = gs.get.mock.lastCall!;
       expect(serviceConfig).toBe(SERV.CRACKERS);
       expect(id).toBe(12);
       expect(component.pageTitle).toBe('Edit hashcat version 7.1.2');

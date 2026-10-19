@@ -82,9 +82,7 @@ describe('AccessPermissionGroupsUsersTableComponent', () => {
 
       component.exportActionClicked(event);
 
-      expect(mockExportService.handleExportAction).toHaveBeenCalledTimes(1);
-
-      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
+      expect(mockExportService.handleExportAction).toHaveBeenCalledExactlyOnceWith(
         event,
         component.tableColumns,
         AccessPermissionGroupsUsersTableColumnLabel,

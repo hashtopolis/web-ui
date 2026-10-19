@@ -5,7 +5,7 @@ import type { Mock, MockedObject } from 'vitest';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -158,9 +158,9 @@ describe('NewHashlistComponent', () => {
     vi.when(gsSpy.get as Mock)
       .calledWith(SERV.CONFIGS, 66)
       .thenReturn(of(mockConfigs));
-    dialogSpy.open.mockReturnValue({
+    vi.mocked(dialogSpy.open, { partial: true }).mockReturnValue({
       afterClosed: () => of(true)
-    } as MatDialogRef<unknown>);
+    });
 
     fixture = TestBed.createComponent(NewHashlistComponent);
     component = fixture.componentInstance;
@@ -348,7 +348,7 @@ describe('NewHashlistComponent', () => {
       await component.onSubmit();
 
       // The component handles the error itself, so it tells the interceptor to skip the modal.
-      const httpOptions = vi.mocked(gsSpy.create).mock.lastCall![2];
+      const httpOptions = gsSpy.create.mock.lastCall![2];
       expect(httpOptions?.headers?.get(HttpHeaderName.SKIP_ERROR_DIALOG)).toBe('true');
 
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('Failed to create Hashlist: Hashlist has too many lines!');
@@ -360,7 +360,7 @@ describe('NewHashlistComponent', () => {
       component.loadServerFiles();
 
       // loadServerFiles shows its own toast on failure, so it tells the interceptor to skip the modal.
-      const call = vi.mocked(gsSpy.chelper).mock.lastCall!;
+      const call = gsSpy.chelper.mock.lastCall!;
       expect(call[1]).toBe('importFile');
       const httpOptions = call[4];
       expect(httpOptions?.headers?.get(HttpHeaderName.SKIP_ERROR_DIALOG)).toBe('true');

@@ -347,9 +347,9 @@ describe('PretasksTableComponent', () => {
     const testPretask = { id: 5, taskName: 'Test Pretask' } as JPretask;
 
     beforeEach(() => {
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => of(null)
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
     });
 
     it('should emit pretaskAdd for ADD action', () => {
@@ -424,9 +424,9 @@ describe('PretasksTableComponent', () => {
 
   describe('bulkActionClicked', () => {
     beforeEach(() => {
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => of(null)
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
     });
 
     it('should emit pretaskAdd for ADD action', () => {
@@ -555,9 +555,9 @@ describe('PretasksTableComponent', () => {
 
   describe('openDialog', () => {
     beforeEach(() => {
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => of(null)
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
     });
 
     it('should open dialog with correct configuration', () => {
@@ -580,7 +580,7 @@ describe('PretasksTableComponent', () => {
       const dialogRefMock = {
         afterClosed: () => of({ action: RowActionMenuAction.DELETE, data: [{ id: 1, taskName: 'Test' }] })
       };
-      mockDialog.open.mockReturnValue(dialogRefMock as unknown as ReturnType<typeof mockDialog.open>);
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue(dialogRefMock);
 
       expect(() => {
         component.openDialog({

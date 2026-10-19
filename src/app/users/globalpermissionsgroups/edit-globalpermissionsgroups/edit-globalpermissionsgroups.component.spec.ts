@@ -94,7 +94,7 @@ describe('EditGlobalpermissionsgroupsComponent', () => {
   describe('loadData()', () => {
     it('should call gs.get with the correct endpoint and ID', () => {
       expect(mockGlobalService.get).toHaveBeenCalled();
-      const [config, id, params] = vi.mocked(mockGlobalService.get).mock.lastCall!;
+      const [config, id, params] = mockGlobalService.get.mock.lastCall!;
       expect(config).toEqual(SERV.ACCESS_PERMISSIONS_GROUPS);
       expect(id).toBe(1);
       expect(params).toEqual(expect.objectContaining({ include: ['userMembers'] }));
@@ -115,8 +115,7 @@ describe('EditGlobalpermissionsgroupsComponent', () => {
     describe('when the form is valid', () => {
       it('should call gs.update with the correct endpoint and ID', () => {
         component.onSubmit();
-        expect(mockGlobalService.update).toHaveBeenCalledTimes(1);
-        expect(mockGlobalService.update).toHaveBeenCalledWith(
+        expect(mockGlobalService.update).toHaveBeenCalledExactlyOnceWith(
           SERV.ACCESS_PERMISSIONS_GROUPS,
           component.editedGPGIndex,
           component.updateForm.value

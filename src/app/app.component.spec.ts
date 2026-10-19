@@ -38,9 +38,7 @@ describe('AppComponent.checkLogin', () => {
 
     component.checkLogin();
 
-    expect(mockReloadService.reloadPage).toHaveBeenCalledTimes(1);
-
-    expect(mockReloadService.reloadPage).toHaveBeenCalledWith();
+    expect(mockReloadService.reloadPage).toHaveBeenCalledExactlyOnceWith();
   });
 
   it('does not reload when the session is still valid', () => {

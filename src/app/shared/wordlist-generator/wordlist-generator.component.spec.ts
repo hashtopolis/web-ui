@@ -113,9 +113,7 @@ describe('WordlistGeneratorComponent', () => {
 
     component.onSubmit();
 
-    expect(wordpolisSpy).toHaveBeenCalledTimes(1);
-
-    expect(wordpolisSpy).toHaveBeenCalledWith(
+    expect(wordpolisSpy).toHaveBeenCalledExactlyOnceWith(
       component.form.controls.names.value,
       component.form.controls.specialdates.value,
       component.form.controls.sparetext.value,

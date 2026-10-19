@@ -5,7 +5,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
 import { JAccessGroup } from '@models/access-group.model';
@@ -62,9 +62,9 @@ function stubDialogAndTrigger(
     action: string;
     data: JAccessGroup[];
   } | null>();
-  mockDialog.open.mockReturnValue({
+  vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
     afterClosed: () => afterClosedSubject.asObservable()
-  } as MatDialogRef<unknown>);
+  });
   triggerFn();
   return afterClosedSubject;
 }
@@ -277,8 +277,7 @@ describe('AccessGroupsTableComponent', () => {
 
     it('should call dataSource.loadAll with ICONTAINS filter when input is non-empty', () => {
       component.filter('mygroup');
-      expect(component.dataSource.loadAll).toHaveBeenCalledTimes(1);
-      expect(component.dataSource.loadAll).toHaveBeenCalledWith(
+      expect(component.dataSource.loadAll).toHaveBeenCalledExactlyOnceWith(
         expect.objectContaining({
           value: 'mygroup',
           field: 'groupName',
@@ -332,8 +331,7 @@ describe('AccessGroupsTableComponent', () => {
       };
       component.table.displayedColumns = ['0', '1', '2', '3'];
       component.exportActionClicked(event);
-      expect(mockExportService.handleExportAction).toHaveBeenCalledTimes(1);
-      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
+      expect(mockExportService.handleExportAction).toHaveBeenCalledExactlyOnceWith(
         event,
         component.tableColumns,
         AccessGroupsTableColumnLabel,
@@ -381,7 +379,7 @@ describe('AccessGroupsTableComponent', () => {
           component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.DELETE, label: '' } })
         );
         const dialogData = (
-          vi.mocked(mockDialog.open).mock.lastCall![1] as {
+          mockDialog.open.mock.lastCall![1] as {
             data: {
               title: string;
             };
@@ -397,7 +395,7 @@ describe('AccessGroupsTableComponent', () => {
           component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.DELETE, label: '' } })
         );
         const dialogData = (
-          vi.mocked(mockDialog.open).mock.lastCall![1] as {
+          mockDialog.open.mock.lastCall![1] as {
             data: {
               warn: boolean;
             };
@@ -414,8 +412,7 @@ describe('AccessGroupsTableComponent', () => {
         component.rowActionClicked({ data: group, menuItem: { action: RowActionMenuAction.EDIT, label: '' } });
 
         await wait();
-        expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
-        expect(mockRouter.navigate).toHaveBeenCalledWith(['/users', 'access-groups', 2, 'edit']);
+        expect(mockRouter.navigate).toHaveBeenCalledExactlyOnceWith(['/users', 'access-groups', 2, 'edit']);
       });
 
       it('should NOT open a dialog', () => {
@@ -450,7 +447,7 @@ describe('AccessGroupsTableComponent', () => {
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall![1] as {
+        mockDialog.open.mock.lastCall![1] as {
           data: {
             title: string;
           };
@@ -466,7 +463,7 @@ describe('AccessGroupsTableComponent', () => {
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall![1] as {
+        mockDialog.open.mock.lastCall![1] as {
           data: {
             listAttribute: string;
           };
@@ -482,7 +479,7 @@ describe('AccessGroupsTableComponent', () => {
         component.bulkActionClicked({ data: groups, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall![1] as {
+        mockDialog.open.mock.lastCall![1] as {
           data: {
             warn: boolean;
           };
@@ -509,8 +506,7 @@ describe('AccessGroupsTableComponent', () => {
 
     it('should call gs.delete with the correct endpoint and group ID', () => {
       triggerConfirmedRowDelete(of({}));
-      expect(mockGlobalService.delete).toHaveBeenCalledTimes(1);
-      expect(mockGlobalService.delete).toHaveBeenCalledWith(SERV.ACCESS_GROUPS, group.id);
+      expect(mockGlobalService.delete).toHaveBeenCalledExactlyOnceWith(SERV.ACCESS_GROUPS, group.id);
     });
 
     it('should show a success alert after deletion', () => {
@@ -562,8 +558,7 @@ describe('AccessGroupsTableComponent', () => {
 
     it('should call gs.bulkDelete with the correct endpoint and groups', () => {
       triggerConfirmedBulkDelete(of({}));
-      expect(mockGlobalService.bulkDelete).toHaveBeenCalledTimes(1);
-      expect(mockGlobalService.bulkDelete).toHaveBeenCalledWith(SERV.ACCESS_GROUPS, groups);
+      expect(mockGlobalService.bulkDelete).toHaveBeenCalledExactlyOnceWith(SERV.ACCESS_GROUPS, groups);
     });
 
     it('should show a success alert after bulk deletion', () => {

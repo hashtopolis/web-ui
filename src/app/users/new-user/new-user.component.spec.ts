@@ -173,7 +173,7 @@ describe('NewUserComponent', () => {
 
     await component.onSubmit();
 
-    const payload = vi.mocked(mockGlobalService.create).mock.lastCall![1] as Record<string, unknown>;
+    const payload = mockGlobalService.create.mock.lastCall![1] as Record<string, unknown>;
     expect(Number.isInteger(payload['sessionLifetime'])).toBe(true);
   });
 

@@ -1,7 +1,7 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { zAgentResponse, zGetBestTasksAgentResponse, zUserListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
-import type { Mock, MockedObject } from 'vitest';
+import type { MockedObject } from 'vitest';
 
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
@@ -262,14 +262,10 @@ describe('EditAgentComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(vi.mocked(globalServiceSpy.get as Mock).mock.calls[0]).toEqual([
-      SERV.AGENTS,
-      1,
-      {
-        include: ['agentStats', 'accessGroups'],
-        aggregate: [{ field: 'agent', values: ['crackingTime'] }]
-      }
-    ]);
+    expect(globalServiceSpy.get).toHaveBeenNthCalledWith(1, SERV.AGENTS, 1, {
+      include: ['agentStats', 'accessGroups'],
+      aggregate: [{ field: 'agent', values: ['crackingTime'] }]
+    });
     expect(component.showagent).toBeDefined();
   });
 

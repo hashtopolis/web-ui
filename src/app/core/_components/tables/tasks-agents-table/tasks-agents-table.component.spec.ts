@@ -5,7 +5,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 
 import { BaseModel } from '@models/base.model';
 
@@ -51,9 +51,9 @@ function openDialogAndClose(
     action: string;
     data: JAgent[];
   } | null>();
-  mockDialog.open.mockReturnValue({
+  vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
     afterClosed: () => afterClosedSubject.asObservable()
-  } as MatDialogRef<unknown>);
+  });
   triggerFn();
   return afterClosedSubject;
 }
@@ -209,9 +209,7 @@ describe('TasksAgentsTableComponent', () => {
 
       component.exportActionClicked(event);
 
-      expect(mockExportService.handleExportAction).toHaveBeenCalledTimes(1);
-
-      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
+      expect(mockExportService.handleExportAction).toHaveBeenCalledExactlyOnceWith(
         event,
         component.tableColumns,
         TasksAgentsTableColumnLabel,
@@ -262,9 +260,7 @@ describe('TasksAgentsTableComponent', () => {
 
       triggerConfirmedUnassign(agent);
 
-      expect(mockGlobalService.delete).toHaveBeenCalledTimes(1);
-
-      expect(mockGlobalService.delete).toHaveBeenCalledWith(SERV.AGENT_ASSIGN, 42);
+      expect(mockGlobalService.delete).toHaveBeenCalledExactlyOnceWith(SERV.AGENT_ASSIGN, 42);
     });
 
     it('should show a success message, reload the table, and emit assignedAgentsChanged after a successful unassign', () => {
@@ -275,9 +271,7 @@ describe('TasksAgentsTableComponent', () => {
 
       triggerConfirmedUnassign(agent);
 
-      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledTimes(1);
-
-      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('Successfully unassigned agent!');
+      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledExactlyOnceWith('Successfully unassigned agent!');
       expect(mockHTTable.reload).toHaveBeenCalledTimes(1);
       expect(emitted).toBe(true);
     });
@@ -288,8 +282,7 @@ describe('TasksAgentsTableComponent', () => {
       triggerConfirmedUnassign(agent);
 
       expect(mockGlobalService.delete).not.toHaveBeenCalled();
-      expect(mockAlertService.showErrorMessage).toHaveBeenCalledTimes(1);
-      expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('Failed to unassign agent!');
+      expect(mockAlertService.showErrorMessage).toHaveBeenCalledExactlyOnceWith('Failed to unassign agent!');
     });
 
     it('should NOT call the API when the confirmation dialog is dismissed', () => {
@@ -333,9 +326,7 @@ describe('TasksAgentsTableComponent', () => {
 
       triggerConfirmedBulkUnassign(agents);
 
-      expect(mockGlobalService.bulkDelete).toHaveBeenCalledTimes(1);
-
-      expect(mockGlobalService.bulkDelete).toHaveBeenCalledWith(SERV.AGENT_ASSIGN, [{ id: 42 }, { id: 43 }]);
+      expect(mockGlobalService.bulkDelete).toHaveBeenCalledExactlyOnceWith(SERV.AGENT_ASSIGN, [{ id: 42 }, { id: 43 }]);
     });
 
     it('should show a success message, reload the data source, and emit assignedAgentsChanged after a successful bulk unassign', () => {
@@ -347,9 +338,7 @@ describe('TasksAgentsTableComponent', () => {
 
       triggerConfirmedBulkUnassign(agents);
 
-      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledTimes(1);
-
-      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('Successfully unassigned agents!');
+      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledExactlyOnceWith('Successfully unassigned agents!');
       expect(component.dataSource.reload).toHaveBeenCalledTimes(1);
       expect(emitted).toBe(true);
     });
@@ -363,11 +352,8 @@ describe('TasksAgentsTableComponent', () => {
 
       triggerConfirmedBulkUnassign(agents);
 
-      expect(mockAlertService.showErrorMessage).toHaveBeenCalledTimes(1);
-
-      expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('Failed to unassign agent!A2');
-      expect(mockGlobalService.bulkDelete).toHaveBeenCalledTimes(1);
-      expect(mockGlobalService.bulkDelete).toHaveBeenCalledWith(SERV.AGENT_ASSIGN, [{ id: 42 }]);
+      expect(mockAlertService.showErrorMessage).toHaveBeenCalledExactlyOnceWith('Failed to unassign agent!A2');
+      expect(mockGlobalService.bulkDelete).toHaveBeenCalledExactlyOnceWith(SERV.AGENT_ASSIGN, [{ id: 42 }]);
     });
 
     it('should NOT call the API when none of the agents have an assignment ID', () => {
@@ -376,8 +362,7 @@ describe('TasksAgentsTableComponent', () => {
       triggerConfirmedBulkUnassign(agents);
 
       expect(mockGlobalService.bulkDelete).not.toHaveBeenCalled();
-      expect(mockAlertService.showErrorMessage).toHaveBeenCalledTimes(1);
-      expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('Failed to unassign agent!A1');
+      expect(mockAlertService.showErrorMessage).toHaveBeenCalledExactlyOnceWith('Failed to unassign agent!A1');
     });
 
     it('should NOT call the API when the confirmation dialog is dismissed', () => {

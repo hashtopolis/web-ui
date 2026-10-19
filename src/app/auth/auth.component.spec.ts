@@ -20,18 +20,19 @@ import { ComponentsModule } from '@src/app/shared/components.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 
 describe('AuthComponent', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let component: AuthComponent;
   let fixture: ComponentFixture<AuthComponent>;
 
   // Mocks
   let mockAuthService: MockedObject<AuthService>;
   let mockConfigService: MockedObject<ConfigService>;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   beforeEach(async () => {
     mockAuthService = {

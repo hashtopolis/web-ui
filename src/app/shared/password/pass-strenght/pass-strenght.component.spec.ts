@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PassStrenghtComponent } from './pass-strenght.component';
+import { PassStrenghtComponent } from '@src/app/shared/password/pass-strenght/pass-strenght.component';
 
 describe('PassStrenghtComponent', () => {
   let component: PassStrenghtComponent;

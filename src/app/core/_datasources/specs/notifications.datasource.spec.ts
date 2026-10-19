@@ -99,14 +99,12 @@ describe('NotificationsDataSource', () => {
     dataSource = new NotificationsDataSource(injector);
   });
 
-  afterEach(() => TestBed.resetTestingModule());
-
   // loadAll()
 
   describe('loadAll()', () => {
     it('should call service.getAll with SERV.NOTIFICATIONS', () => {
       dataSource.loadAll();
-      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.NOTIFICATIONS);
     });
 
@@ -156,7 +154,7 @@ describe('NotificationsDataSource', () => {
     it('should append a query filter when provided', () => {
       const query: Filter = { field: 'action', operator: FilterType.ICONTAINS, value: 'error' };
       dataSource.loadAll(query);
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'action', value: 'error' })
       );
@@ -173,7 +171,7 @@ describe('NotificationsDataSource', () => {
       dataSource.loadAll(query);
       gsSpy.getAll.mockClear();
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'receiver', value: 'example.org' })
       );
@@ -254,7 +252,7 @@ describe('NotificationsDataSource', () => {
       gsSpy.getAll.mockClear();
       dataSource.clearFilter();
 
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
       expect(filter.some((f: Filter) => f.field === 'action')).toBe(false);
     });

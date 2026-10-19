@@ -29,10 +29,7 @@ import {
 } from '@components/tables/tasks-table/tasks-table.constants';
 
 class MockDataSource {
-  loadAll = vi
-    .fn()
-    .mockName('loadAll')
-    .mockImplementation(() => {});
+  loadAll = vi.fn().mockName('loadAll');
   setColumns = vi.fn().mockName('setColumns');
   clearFilter = vi.fn().mockName('clearFilter');
   reload = vi.fn().mockName('reload');
@@ -257,9 +254,9 @@ describe('TasksTableComponent', () => {
         displayName: 'Test Supertask'
       } as JTaskWrapperDisplay;
 
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => of(undefined)
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
 
       const links = await firstValueFrom(nameColumn!.routerLink!(taskWrapper));
       expect(links[0].label).toBe('Test Supertask');
@@ -704,9 +701,9 @@ describe('TasksTableComponent', () => {
 
   describe('rowActionClicked', () => {
     beforeEach(() => {
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => of(null)
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
     });
 
     it('should navigate to task edit page for EDIT_TASKS action on TASK', () => {
@@ -878,9 +875,9 @@ describe('TasksTableComponent', () => {
 
   describe('bulkActionClicked', () => {
     beforeEach(() => {
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => of(null)
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
     });
 
     it('should open archive dialog for ARCHIVE action', () => {
@@ -906,9 +903,9 @@ describe('TasksTableComponent', () => {
         ] as JTaskWrapperDisplay[]
       };
 
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => of({ action: BulkActionMenuAction.ARCHIVE, data: event.data })
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
 
       const bulkActionArchiveSpy = vi
         .spyOn(
@@ -930,9 +927,9 @@ describe('TasksTableComponent', () => {
         data: [{ taskWrapperId: 1, displayName: 'Task 1' }] as JTaskWrapperDisplay[]
       };
 
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => of({ action: BulkActionMenuAction.DELETE, data: event.data })
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
 
       const bulkActionDeleteSpy = vi
         .spyOn(
@@ -962,9 +959,9 @@ describe('TasksTableComponent', () => {
 
   describe('openDialog', () => {
     it('should open dialog with provided data', () => {
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => of(null)
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
 
       component.openDialog({
         rows: [{ taskName: 'Test' }] as JTaskWrapperDisplay[],
@@ -979,9 +976,9 @@ describe('TasksTableComponent', () => {
     });
 
     it('should subscribe to afterClosed and call rowActionDelete for DELETE action', () => {
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => of({ action: RowActionMenuAction.DELETE, data: [{ id: 1 }] })
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
 
       component.openDialog({
         rows: [{ id: 1 }] as JTaskWrapperDisplay[],
@@ -994,13 +991,13 @@ describe('TasksTableComponent', () => {
     });
 
     it('should call bulkActionArchive for ARCHIVE action', () => {
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () =>
           of({
             action: BulkActionMenuAction.ARCHIVE,
             data: [{ taskType: TaskType.TASK, taskId: 1 }]
           })
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
 
       component.openDialog({
         rows: [{ taskType: TaskType.TASK, taskId: 1 }] as JTaskWrapperDisplay[],
@@ -1013,13 +1010,13 @@ describe('TasksTableComponent', () => {
     });
 
     it('should call gs.bulkUpdate for TASKS_WRAPPER when archiving a SUPERTASK', () => {
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () =>
           of({
             action: BulkActionMenuAction.ARCHIVE,
             data: [{ taskType: TaskType.SUPERTASK, taskWrapperId: 10 }]
           })
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
 
       component.openDialog({
         rows: [{ taskType: TaskType.SUPERTASK, taskWrapperId: 10 }] as JTaskWrapperDisplay[],
@@ -1034,13 +1031,13 @@ describe('TasksTableComponent', () => {
     });
 
     it('should call bulkActionDelete for bulk DELETE action', () => {
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () =>
           of({
             action: BulkActionMenuAction.DELETE,
             data: [{ taskWrapperId: 1 }]
           })
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
 
       component.openDialog({
         rows: [{ taskWrapperId: 1 }] as JTaskWrapperDisplay[],
@@ -1053,9 +1050,9 @@ describe('TasksTableComponent', () => {
     });
 
     it('should not call action if result is falsy', () => {
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => of(null)
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
 
       component.openDialog({
         rows: [{ id: 1 }] as JTaskWrapperDisplay[],

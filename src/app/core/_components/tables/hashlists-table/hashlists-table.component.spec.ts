@@ -176,9 +176,9 @@ describe('HashlistsTableComponent', () => {
 
     beforeEach(() => {
       component.shashlistId = 0;
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => of(null)
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
     });
 
     it('should open dialog for DELETE action', () => {
@@ -251,9 +251,9 @@ describe('HashlistsTableComponent', () => {
   describe('bulkActionClicked', () => {
     beforeEach(() => {
       component.shashlistId = 0;
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => of(null)
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
     });
 
     it('should open dialog for ARCHIVE action', () => {
@@ -281,9 +281,9 @@ describe('HashlistsTableComponent', () => {
 
   describe('openDialog', () => {
     beforeEach(() => {
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => of(null)
-      } as unknown as ReturnType<typeof mockDialog.open>);
+      });
     });
 
     it('should open dialog with correct configuration', () => {

@@ -164,7 +164,7 @@ describe('AgentsDataSource', () => {
   describe('loadAll()', () => {
     it('should call service.getAll with SERV.AGENTS', () => {
       dataSource.loadAll();
-      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.AGENTS);
     });
 
@@ -198,19 +198,19 @@ describe('AgentsDataSource', () => {
     it('should include agentStats in the request params when setAgentStatsRequired(true)', () => {
       dataSource.setAgentStatsRequired(true);
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).include).toContain('agentStats');
     });
 
     it('should not include agentStats in the request params by default', () => {
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).include).not.toContain('agentStats');
     });
 
     it('should always include accessGroups, tasks, assignments and user in the request params', () => {
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const include = (params as RequestParams).include ?? [];
       expect(include).toContain('accessGroups');
       expect(include).toContain('tasks');
@@ -245,7 +245,7 @@ describe('AgentsDataSource', () => {
 
     it('should call service.getAll with SERV.AGENT_ASSIGN', () => {
       dataSource.loadAssignments();
-      const firstCallArgs = vi.mocked(gsSpy.getAll).mock.calls[0];
+      const firstCallArgs = gsSpy.getAll.mock.calls[0];
       expect(firstCallArgs[0]).toEqual(SERV.AGENT_ASSIGN);
 
       const httpOptions = firstCallArgs[2] as
@@ -260,22 +260,22 @@ describe('AgentsDataSource', () => {
 
     it('should filter assignments by the stored taskId', () => {
       dataSource.loadAssignments();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.calls[0];
+      const [, params] = gsSpy.getAll.mock.calls[0];
       expect((params as RequestParams).filter).toContainEqual(expect.objectContaining({ field: 'taskId', value: 10 }));
     });
 
     it('should not request nested agent chunks include on assignments endpoint', () => {
       dataSource.loadAssignments();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.calls[0];
+      const [, params] = gsSpy.getAll.mock.calls[0];
       expect((params as RequestParams).include).not.toContain('agent.chunks');
     });
 
     it('should request the assignment aggregates instead of fetching chunks', () => {
       dataSource.loadAssignments();
 
-      expect(vi.mocked(gsSpy.getAll).mock.calls.find((call) => call[0] === SERV.CHUNKS)).toBeUndefined();
+      expect(gsSpy.getAll.mock.calls.find((call) => call[0] === SERV.CHUNKS)).toBeUndefined();
 
-      const [, params] = vi.mocked(gsSpy.getAll).mock.calls[0];
+      const [, params] = gsSpy.getAll.mock.calls[0];
       expect((params as RequestParams).aggregate).toContainEqual(
         expect.objectContaining({
           field: 'assignment',
@@ -286,7 +286,7 @@ describe('AgentsDataSource', () => {
 
     it('should fetch user data for the agents in the assignments', () => {
       dataSource.loadAssignments();
-      const calledServices = vi.mocked(gsSpy.getAll).mock.calls.map((c) => c[0]);
+      const calledServices = gsSpy.getAll.mock.calls.map((c) => c[0]);
       expect(calledServices).toContain(SERV.USERS);
     });
 

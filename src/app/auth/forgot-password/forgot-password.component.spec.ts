@@ -23,12 +23,6 @@ import { InputModule } from '@src/app/shared/input/input.module';
 import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('ForgotPasswordComponent', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let component: ForgotPasswordComponent;
   let fixture: ComponentFixture<ForgotPasswordComponent>;
 
@@ -36,6 +30,13 @@ describe('ForgotPasswordComponent', () => {
   let mockGlobalService: MockedObject<GlobalService>;
   let mockAlertService: MockedObject<AlertService>;
   let mockRouter: MockedObject<Router>;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   beforeEach(async () => {
     mockGlobalService = {

@@ -400,7 +400,7 @@ describe('NewNotificationComponent', () => {
     expect(serviceSpy).toHaveBeenCalledWith(SERV.NOTIFICATIONS, expect.any(Object));
   });
 
-  it('should show actionFilter only for actions with filters', async () => {
+  it('should show actionFilter only for actions with filters', () => {
     const allActions = Object.values(ACTION); // all possible actions
     const actionsWithFilters = component.actionsWithFilters; // use the component's list
 

@@ -202,8 +202,7 @@ describe('EditUsersComponent', () => {
 
       it('should call gs.update with the correct endpoint and user ID', () => {
         component.onSubmit();
-        expect(mockGlobalService.update).toHaveBeenCalledTimes(1);
-        expect(mockGlobalService.update).toHaveBeenCalledWith(
+        expect(mockGlobalService.update).toHaveBeenCalledExactlyOnceWith(
           SERV.USERS,
           component.editedUserIndex,
           expect.objectContaining({
@@ -257,8 +256,7 @@ describe('EditUsersComponent', () => {
 
       it('should call gs.delete with the correct endpoint and user ID', () => {
         component.onDelete();
-        expect(mockGlobalService.delete).toHaveBeenCalledTimes(1);
-        expect(mockGlobalService.delete).toHaveBeenCalledWith(SERV.USERS, component.editedUserIndex);
+        expect(mockGlobalService.delete).toHaveBeenCalledExactlyOnceWith(SERV.USERS, component.editedUserIndex);
       });
 
       it('should navigate to the users list after deletion', () => {
@@ -297,8 +295,7 @@ describe('EditUsersComponent', () => {
   describe('onUpdatePass()', () => {
     it('should call gs.chelper with the password and the current user ID when a password is provided', () => {
       component.onUpdatePass({ password: 'newpassword123' });
-      expect(mockGlobalService.chelper).toHaveBeenCalledTimes(1);
-      expect(mockGlobalService.chelper).toHaveBeenCalledWith(
+      expect(mockGlobalService.chelper).toHaveBeenCalledExactlyOnceWith(
         SERV.HELPER,
         'setUserPassword',
         expect.objectContaining({

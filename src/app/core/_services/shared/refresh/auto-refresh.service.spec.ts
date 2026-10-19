@@ -1,5 +1,3 @@
-import type { Mock } from 'vitest';
-
 import { TestBed } from '@angular/core/testing';
 
 import { AlertService } from '@services/shared/alert.service';
@@ -15,16 +13,17 @@ const mockLocalStorageService = {
  * Unit tests for AutoRefreshService.
  */
 describe('AutoRefreshService', () => {
+  let service: AutoRefreshService;
+
+  const refreshIntervalSeconds = 5; // 5 seconds for testing (virtual time via fake timers)
+  const refreshIntervalMs = refreshIntervalSeconds * 1000;
+
   beforeEach(() => {
     vi.useFakeTimers();
   });
   afterEach(() => {
     vi.useRealTimers();
   });
-  let service: AutoRefreshService;
-
-  const refreshIntervalSeconds = 5; // 5 seconds for testing (virtual time via fake timers)
-  const refreshIntervalMs = refreshIntervalSeconds * 1000;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -93,7 +92,7 @@ describe('AutoRefreshService', () => {
   it('toggleAutoRefresh should update settings, call AlertService, and start/stop refresh timer', async () => {
     // Spy on methods
     const updateSettings = vi.spyOn(service.uiSettings, 'updateSettings').mockReturnValue(undefined as never);
-    const showSucessMessage = TestBed.inject(AlertService).showSuccessMessage as Mock;
+    const showSucessMessage = vi.mocked(TestBed.inject(AlertService).showSuccessMessage);
 
     let emittedCount = 0;
     service.refresh$.subscribe(() => emittedCount++);
