@@ -1,5 +1,5 @@
 import { ChunkState, ChunkStateLabels } from '@constants/chunks.config';
-import { Subject, of } from 'rxjs';
+import { Subject, firstValueFrom, of } from 'rxjs';
 import type { Mock, MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -204,11 +204,10 @@ describe('ChunksTableComponent', () => {
       const taskColumn = columns.find((col) => col.id === ChunksTableCol.TASK);
       const chunk = { taskId: 5, task: { taskName: 'Test Task' } } as JChunk;
 
-      taskColumn?.routerLink!(chunk).subscribe((links) => {
-        expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 5, 'edit']);
-        expect(links[0].label).toBe('Test Task');
-      });
+      const links = await firstValueFrom(taskColumn!.routerLink!(chunk));
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 5, 'edit']);
+      expect(links[0].label).toBe('Test Task');
     });
 
     it('should render TASK column routerLink with taskId as label when taskName is undefined', async () => {
@@ -216,11 +215,10 @@ describe('ChunksTableComponent', () => {
       const taskColumn = columns.find((col) => col.id === ChunksTableCol.TASK);
       const chunk = { taskId: 10, task: { taskName: undefined } } as unknown as JChunk;
 
-      taskColumn?.routerLink!(chunk).subscribe((links) => {
-        expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 10, 'edit']);
-        expect(links[0].label).toBeUndefined();
-      });
+      const links = await firstValueFrom(taskColumn!.routerLink!(chunk));
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 10, 'edit']);
+      expect(links[0].label).toBeUndefined();
     });
 
     it('should include AGENT column with routerLink function', () => {
@@ -238,11 +236,10 @@ describe('ChunksTableComponent', () => {
       const agentColumn = columns.find((col) => col.id === ChunksTableCol.AGENT);
       const chunk = { agentId: 7, agentName: 'Test Agent' } as JChunk;
 
-      agentColumn?.routerLink!(chunk).subscribe((links) => {
-        expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 7, 'edit']);
-        expect(links[0].label).toBe('Test Agent');
-      });
+      const links = await firstValueFrom(agentColumn!.routerLink!(chunk));
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 7, 'edit']);
+      expect(links[0].label).toBe('Test Agent');
     });
 
     it('should render AGENT column routerLink with agentId as label when agentName is undefined', async () => {
@@ -250,11 +247,10 @@ describe('ChunksTableComponent', () => {
       const agentColumn = columns.find((col) => col.id === ChunksTableCol.AGENT);
       const chunk = { agentId: 3, agentName: undefined } as unknown as JChunk;
 
-      agentColumn?.routerLink!(chunk).subscribe((links) => {
-        expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 3, 'edit']);
-        expect(links[0].label).toBe('3');
-      });
+      const links = await firstValueFrom(agentColumn!.routerLink!(chunk));
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 3, 'edit']);
+      expect(links[0].label).toBe('3');
     });
 
     it('should include DISPATCH_TIME column with render function', () => {
@@ -312,11 +308,10 @@ describe('ChunksTableComponent', () => {
       const crackedColumn = columns.find((col) => col.id === ChunksTableCol.CRACKED);
       const chunk = { id: 9, taskId: 5, cracked: 100 } as JChunk;
 
-      crackedColumn?.routerLink!(chunk).subscribe((links) => {
-        expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'chunks', 9]);
-        expect(links[0].label).toBe('100');
-      });
+      const links = await firstValueFrom(crackedColumn!.routerLink!(chunk));
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'chunks', 9]);
+      expect(links[0].label).toBe('100');
     });
   });
 

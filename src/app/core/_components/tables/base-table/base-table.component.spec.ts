@@ -1,4 +1,4 @@
-import { Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
 import { ChangeDetectionStrategy, Component } from '@angular/core';
@@ -107,28 +107,25 @@ describe('BaseTableComponent', () => {
 
   it('should render supertask link', async () => {
     const mockSuperTask = { id: 1, supertaskName: 'Test Supertask' } as JSuperTask;
-    component.renderSupertaskLink(mockSuperTask).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/tasks/', 1, 'edit']);
-      expect(links[0].label).toBe('Test Supertask');
-    });
+    const links = await firstValueFrom(component.renderSupertaskLink(mockSuperTask));
+    expect(links.length).toBe(1);
+    expect(links[0].routerLink).toEqual(['/tasks/', 1, 'edit']);
+    expect(links[0].label).toBe('Test Supertask');
   });
 
   it('should render cracked link from chunk', async () => {
     const mockChunk = { id: 1, taskId: 2, cracked: 100 } as JChunk;
-    component.renderCrackedLinkFromChunk(mockChunk).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'chunks', 1]);
-      expect(links[0].label).toBe('100');
-    });
+    const links = await firstValueFrom(component.renderCrackedLinkFromChunk(mockChunk));
+    expect(links.length).toBe(1);
+    expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'chunks', 1]);
+    expect(links[0].label).toBe('100');
   });
   it('should render cracked link from task', async () => {
     const mockTask = { id: 1, cracked: 100 } as JTaskWith<'cracked'>;
-    component.renderCrackedLinkFromTask(mockTask).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 1]);
-      expect(links[0].label).toBe('100');
-    });
+    const links = await firstValueFrom(component.renderCrackedLinkFromTask(mockTask));
+    expect(links.length).toBe(1);
+    expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 1]);
+    expect(links[0].label).toBe('100');
   });
 
   it('should render cracked link from supertask wrapper', async () => {
@@ -140,12 +137,11 @@ describe('BaseTableComponent', () => {
       taskId: 7,
       hashlist: { hashCount: 100 }
     } as JTaskWrapperDisplay;
-    component.getCrackedLinkFromWrapper(mockWrapper).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].label).toBe('100');
-      expect(links[0].routerLink).toBe(null);
-      expect(links[0].tooltip).toBe('Please access the cracked hashes via the row\'s context menu "show subtasks"');
-    });
+    const links = await firstValueFrom(component.getCrackedLinkFromWrapper(mockWrapper));
+    expect(links.length).toBe(1);
+    expect(links[0].label).toBe('100');
+    expect(links[0].routerLink).toBe(null);
+    expect(links[0].tooltip).toBe('Please access the cracked hashes via the row\'s context menu "show subtasks"');
   });
 
   it('should render cracked link from wrapper', async () => {
@@ -159,108 +155,97 @@ describe('BaseTableComponent', () => {
       tasks: mockTask,
       hashlist: { hashCount: 100 }
     } as JTaskWrapperDisplay;
-    component.getCrackedLinkFromWrapper(mockWrapper).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].label).toBe('100');
-      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 7]);
-      expect(links[0].tooltip).toBe(undefined);
-    });
+    const links = await firstValueFrom(component.getCrackedLinkFromWrapper(mockWrapper));
+    expect(links.length).toBe(1);
+    expect(links[0].label).toBe('100');
+    expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 7]);
+    expect(links[0].tooltip).toBe(undefined);
   });
 
   it('should render hashlist link', async () => {
     const hashlist = { id: 1, name: 'Test Hashlist', isSecret: true } as JHashlist;
-    component.renderHashlistLink(hashlist).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 1, 'edit']);
-      expect(links[0].label).toBe('Test Hashlist');
-      expect(links[0].icon!.tooltip).toBe('Secret hashlist');
-    });
+    const links = await firstValueFrom(component.renderHashlistLink(hashlist));
+    expect(links.length).toBe(1);
+    expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 1, 'edit']);
+    expect(links[0].label).toBe('Test Hashlist');
+    expect(links[0].icon!.tooltip).toBe('Secret hashlist');
   });
 
   it('should render access group link', async () => {
     const accessGroup = { id: 1, groupName: 'Test Group' } as JAccessGroup;
-    component.renderAccessGroupLink(accessGroup).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/users', 'access-groups', 1, 'edit']);
-      expect(links[0].label).toBe('Test Group');
-    });
+    const links = await firstValueFrom(component.renderAccessGroupLink(accessGroup));
+    expect(links.length).toBe(1);
+    expect(links[0].routerLink).toEqual(['/users', 'access-groups', 1, 'edit']);
+    expect(links[0].label).toBe('Test Group');
   });
 
   it('should render access group links', async () => {
     const accessGroup = [{ id: 1, groupName: 'Test Group' }] as JAccessGroup[];
     const agent = { id: 1, accessGroups: accessGroup /* id: 1, groupName: 'Test Group'  */ } as JAgent;
-    component.renderAccessGroupLinks(agent).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/users', 'access-groups', 1, 'edit']);
-      expect(links[0].label).toBe('Test Group');
-    });
+    const links = await firstValueFrom(component.renderAccessGroupLinks(agent));
+    expect(links.length).toBe(1);
+    expect(links[0].routerLink).toEqual(['/users', 'access-groups', 1, 'edit']);
+    expect(links[0].label).toBe('Test Group');
   });
 
   it('should render agent link', async () => {
     const agent = { id: 1, agentName: 'Test Agent', isTrusted: true } as JAgent;
-    component.renderAgentLink(agent).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 1, 'edit']);
-      expect(links[0].label).toBe('Test Agent');
-      expect(links[0].icon!.tooltip).toBe('Trusted Agent');
-    });
+    const links = await firstValueFrom(component.renderAgentLink(agent));
+    expect(links.length).toBe(1);
+    expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 1, 'edit']);
+    expect(links[0].label).toBe('Test Agent');
+    expect(links[0].icon!.tooltip).toBe('Trusted Agent');
   });
   it('should render agent link from chunck', async () => {
     const agent = { id: 1, agentName: 'Test Agent', isTrusted: true } as JAgent;
     const chunk = { agentId: 1, agentName: 'Test Agent', agent: agent } as JChunk;
-    component.renderAgentLinkFromChunk(chunk).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 1, 'edit']);
-      expect(links[0].label).toBe('Test Agent');
-    });
+    const links = await firstValueFrom(component.renderAgentLinkFromChunk(chunk));
+    expect(links.length).toBe(1);
+    expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 1, 'edit']);
+    expect(links[0].label).toBe('Test Agent');
   });
 
   it('should render a muted "(deleted)" placeholder for a chunk whose agent was deleted', async () => {
     const chunk = { agentId: null, agentName: undefined } as JChunk;
-    component.renderAgentLinkFromChunk(chunk).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].routerLink).toBeNull();
-      expect(links[0].label).toBe('(deleted)');
-      expect(links[0].muted).toBe(true);
-    });
+    const links = await firstValueFrom(component.renderAgentLinkFromChunk(chunk));
+    expect(links.length).toBe(1);
+    expect(links[0].routerLink).toBeNull();
+    expect(links[0].label).toBe('(deleted)');
+    expect(links[0].muted).toBe(true);
   });
 
   it('should render user link', async () => {
     const user = { id: 1, name: 'Test User' } as JUser;
-    component.renderUserLink(user).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/users', 1, 'edit']);
-      expect(links[0].label).toBe('Test User');
-    });
+    const links = await firstValueFrom(component.renderUserLink(user));
+    expect(links.length).toBe(1);
+    expect(links[0].routerLink).toEqual(['/users', 1, 'edit']);
+    expect(links[0].label).toBe('Test User');
   });
 
   it('should render user link from agent', async () => {
     const user = { id: 1, name: 'Test User' } as JUser;
     const agent = { id: 1, userId: 1, user: user } as JAgent;
-    component.renderUserLinkFromAgent(agent).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/users', 1, 'edit']);
-      expect(links[0].label).toBe('Test User');
-    });
+    const links = await firstValueFrom(component.renderUserLinkFromAgent(agent));
+    expect(links.length).toBe(1);
+    expect(links[0].routerLink).toEqual(['/users', 1, 'edit']);
+    expect(links[0].label).toBe('Test User');
   });
 
   it('should render task link with task name', async () => {
     const model = { taskId: 1, task: { taskName: 'Test Task' } } as JChunk;
 
-    component.renderTaskLink(model).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
-      expect(links[0].label).toBe('Test Task');
-    });
+    const links = await firstValueFrom(component.renderTaskLink(model));
+    expect(links.length).toBe(1);
+    expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
+    expect(links[0].label).toBe('Test Task');
   });
 
   it('should render task link with task id', async () => {
     const model = { taskId: 1, task: { taskName: 'Test Task' } } as JChunk;
-    component.renderTaskLink(model, true).subscribe((links) => {
-      expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
-      expect(links[0].label).toBe('1');
-    });
+    const links = await firstValueFrom(component.renderTaskLink(model, true));
+    expect(links.length).toBe(1);
+    expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
+    expect(links[0].label).toBe('1');
   });
 
   it('should render valid icon for valid user', () => {

@@ -1,4 +1,4 @@
-import { Subject, of } from 'rxjs';
+import { Subject, firstValueFrom, of } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -174,11 +174,10 @@ describe('PretasksTableComponent', () => {
       expect(nameColumn?.routerLink).toBeDefined();
 
       const link$ = nameColumn!.routerLink!(pretask);
-      link$.subscribe((links) => {
-        expect(links).toBeDefined();
-        expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/tasks/preconfigured-tasks', 5, 'edit']);
-      });
+      const links = await firstValueFrom(link$);
+      expect(links).toBeDefined();
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/tasks/preconfigured-tasks', 5, 'edit']);
     });
 
     it('should include FILES_TOTAL column with render function that returns correct count', () => {

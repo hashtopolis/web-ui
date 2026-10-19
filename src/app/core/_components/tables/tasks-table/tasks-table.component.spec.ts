@@ -1,4 +1,4 @@
-import { Subject, of } from 'rxjs';
+import { Subject, firstValueFrom, of } from 'rxjs';
 import type { Mock, MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -228,10 +228,9 @@ describe('TasksTableComponent', () => {
         displayName: 'Test Task'
       } as JTaskWrapperDisplay;
 
-      nameColumn?.routerLink!(taskWrapper).subscribe((links) => {
-        expect(links[0].label).toBe('Test Task');
-        expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
-      });
+      const links = await firstValueFrom(nameColumn!.routerLink!(taskWrapper));
+      expect(links[0].label).toBe('Test Task');
+      expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
     });
 
     it('should pass the full task name to the NAME column label (CSS handles truncation)', async () => {
@@ -244,10 +243,9 @@ describe('TasksTableComponent', () => {
         displayName: longName
       } as JTaskWrapperDisplay;
 
-      nameColumn?.routerLink!(taskWrapper).subscribe((links) => {
-        expect(links[0].label).toBe(longName);
-        expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
-      });
+      const links = await firstValueFrom(nameColumn!.routerLink!(taskWrapper));
+      expect(links[0].label).toBe(longName);
+      expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
     });
 
     it('should render NAME column for SUPERTASK with an onClick that opens the subtasks dialog', async () => {
@@ -263,19 +261,18 @@ describe('TasksTableComponent', () => {
         afterClosed: () => of(undefined)
       } as unknown as ReturnType<typeof mockDialog.open>);
 
-      nameColumn?.routerLink!(taskWrapper).subscribe((links) => {
-        expect(links[0].label).toBe('Test Supertask');
-        expect(links[0].routerLink).toBeNull();
-        expect(links[0].onClick).toBeDefined();
+      const links = await firstValueFrom(nameColumn!.routerLink!(taskWrapper));
+      expect(links[0].label).toBe('Test Supertask');
+      expect(links[0].routerLink).toBeNull();
+      expect(links[0].onClick).toBeDefined();
 
-        links[0].onClick!();
-        expect(mockDialog.open).toHaveBeenCalledWith(
-          expect.anything(),
-          expect.objectContaining({
-            data: { supertaskId: 42, supertaskName: 'Test Supertask' }
-          })
-        );
-      });
+      links[0].onClick!();
+      expect(mockDialog.open).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          data: { supertaskId: 42, supertaskName: 'Test Supertask' }
+        })
+      );
     });
 
     it('should include TASK_SPEED column with correct properties', () => {
@@ -478,10 +475,9 @@ describe('TasksTableComponent', () => {
         hashlistName: 'Test Hashlist'
       } as JTaskWrapperDisplay;
 
-      hashlistsColumn?.routerLink!(taskWrapper).subscribe((links) => {
-        expect(links[0].label).toBe('Test Hashlist');
-        expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 5, 'edit']);
-      });
+      const links = await firstValueFrom(hashlistsColumn!.routerLink!(taskWrapper));
+      expect(links[0].label).toBe('Test Hashlist');
+      expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 5, 'edit']);
     });
 
     it('should truncate long HASHLISTS label and keep full name in tooltip', async () => {
@@ -493,11 +489,10 @@ describe('TasksTableComponent', () => {
         hashlistName: longName
       } as JTaskWrapperDisplay;
 
-      hashlistsColumn?.routerLink!(taskWrapper).subscribe((links) => {
-        expect(links[0].label).toBe('This is a very long ...');
-        expect(links[0].tooltip).toBe(longName);
-        expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 11, 'edit']);
-      });
+      const links = await firstValueFrom(hashlistsColumn!.routerLink!(taskWrapper));
+      expect(links[0].label).toBe('This is a very long ...');
+      expect(links[0].tooltip).toBe(longName);
+      expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 11, 'edit']);
     });
 
     it('should render HASHLISTS column routerLink with id as label when name is empty', async () => {
@@ -508,10 +503,9 @@ describe('TasksTableComponent', () => {
         hashlistName: undefined
       } as unknown as JTaskWrapperDisplay;
 
-      hashlistsColumn?.routerLink!(taskWrapper).subscribe((links) => {
-        expect(links[0].label).toBe('10');
-        expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 10, 'edit']);
-      });
+      const links = await firstValueFrom(hashlistsColumn!.routerLink!(taskWrapper));
+      expect(links[0].label).toBe('10');
+      expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 10, 'edit']);
     });
 
     it('should render AGENTS column for TASK type using totalAssignedAgents', () => {
@@ -615,10 +609,9 @@ describe('TasksTableComponent', () => {
         groupName: 'Test Group'
       } as JTaskWrapperDisplay;
 
-      accessGroupColumn?.routerLink!(taskWrapper).subscribe((links) => {
-        expect(links[0].label).toBe('Test Group');
-        expect(links[0].routerLink).toEqual(['/users', 'access-groups', 7, 'edit']);
-      });
+      const links = await firstValueFrom(accessGroupColumn!.routerLink!(taskWrapper));
+      expect(links[0].label).toBe('Test Group');
+      expect(links[0].routerLink).toEqual(['/users', 'access-groups', 7, 'edit']);
     });
 
     it('should include PRIORITY and MAX_AGENTS columns without editable when user lacks edit role', () => {
