@@ -582,16 +582,18 @@ describe('PretasksTableComponent', () => {
       };
       mockDialog.open.mockReturnValue(dialogRefMock as unknown as ReturnType<typeof mockDialog.open>);
 
-      component.openDialog({
-        rows: [{ id: 1, taskName: 'Test' }] as JPretask[],
-        title: 'Test Title',
-        icon: 'warning',
-        body: 'Test body',
-        warn: true,
-        action: RowActionMenuAction.DELETE
-      });
+      expect(() => {
+        component.openDialog({
+          rows: [{ id: 1, taskName: 'Test' }] as JPretask[],
+          title: 'Test Title',
+          icon: 'warning',
+          body: 'Test body',
+          warn: true,
+          action: RowActionMenuAction.DELETE
+        });
 
-      fixture.detectChanges();
+        fixture.detectChanges();
+      }).not.toThrow();
     });
   });
 

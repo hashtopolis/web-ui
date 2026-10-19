@@ -323,7 +323,9 @@ describe('AuthService refresh token', () => {
 
     service.refreshToken().subscribe();
     await settle();
-    httpMock.expectOne(REFRESH_URL).flush({ token: tokenForUser1(), expires: Math.floor(Date.now() / 1000) + 3600 });
+    expect(() =>
+      httpMock.expectOne(REFRESH_URL).flush({ token: tokenForUser1(), expires: Math.floor(Date.now() / 1000) + 3600 })
+    ).not.toThrow();
   });
 
   it('reports a failed refresh to the caller', async () => {
@@ -373,7 +375,9 @@ describe('AuthService refresh token', () => {
     service.refreshToken().subscribe();
     await settle();
 
-    httpMock.expectOne(REFRESH_URL).flush({ token: tokenForUser1(), expires: Math.floor(Date.now() / 1000) + 3600 });
+    expect(() =>
+      httpMock.expectOne(REFRESH_URL).flush({ token: tokenForUser1(), expires: Math.floor(Date.now() / 1000) + 3600 })
+    ).not.toThrow();
   });
 
   it('treats a token past its expiry as expired and one near it as expiring', () => {
