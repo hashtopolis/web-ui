@@ -2,6 +2,7 @@ import { zConfigListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -74,7 +75,8 @@ describe('FormConfigComponent', () => {
         { provide: ActivatedRoute, useValue: activatedRoute },
         JsonAPISerializer,
         MetadataService
-      ]
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
     globalService = TestBed.inject(GlobalService) as MockedObject<GlobalService>;
