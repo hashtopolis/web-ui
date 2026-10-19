@@ -49,13 +49,13 @@ describe('SupertasksComponent', () => {
 
   describe('showCreateButton', () => {
     it('should be true when user has create role', () => {
-      roleService.hasRole.withArgs('create').mockReturnValue(true);
+      vi.when(roleService.hasRole).calledWith('create').thenReturn(true);
       const compWithRole = TestBed.createComponent(SupertasksComponent).componentInstance;
       expect(compWithRole.showCreateButton).toBe(true);
     });
 
     it('should be false when user does not have create role', () => {
-      roleService.hasRole.withArgs('create').mockReturnValue(false);
+      vi.when(roleService.hasRole).calledWith('create').thenReturn(false);
       const compWithoutRole = TestBed.createComponent(SupertasksComponent).componentInstance;
       expect(compWithoutRole.showCreateButton).toBe(false);
     });

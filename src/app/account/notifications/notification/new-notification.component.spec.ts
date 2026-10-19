@@ -287,7 +287,9 @@ describe('NewNotificationComponent', () => {
   });
 
   it('should keep submit button enabled but not submit when notification is not selected', () => {
-    vi.spyOn(mockService, 'getAll').mockReturnValue(undefined).withArgs(SERV.TASKS).mockReturnValue(of(taskValues));
+    vi.when(vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never))
+      .calledWith(SERV.TASKS)
+      .thenReturn(of(taskValues));
 
     setAction(ACTION.NEW_TASK);
     setFieldValue(fixture, 'input-receiver', 'test-receiver');
@@ -301,7 +303,9 @@ describe('NewNotificationComponent', () => {
   });
 
   it('should keep submit button enabled but not submit when receiver is not selected', () => {
-    vi.spyOn(mockService, 'getAll').mockReturnValue(undefined).withArgs(SERV.TASKS).mockReturnValue(of(taskValues));
+    vi.when(vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never))
+      .calledWith(SERV.TASKS)
+      .thenReturn(of(taskValues));
 
     setAction(ACTION.NEW_TASK);
     setFieldValue(fixture, 'select-notification', NOTIF.EMAIL);
@@ -315,7 +319,9 @@ describe('NewNotificationComponent', () => {
   });
 
   it('should be possible to submit the form when all fields have data', () => {
-    vi.spyOn(mockService, 'getAll').mockReturnValue(undefined).withArgs(SERV.TASKS).mockReturnValue(of(taskValues));
+    vi.when(vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never))
+      .calledWith(SERV.TASKS)
+      .thenReturn(of(taskValues));
 
     setAction(ACTION.NEW_TASK);
     component.form.controls.actionFilter.patchValue('1');
@@ -379,11 +385,8 @@ describe('NewNotificationComponent', () => {
   });
 
   it('should submit the form when it is valid', () => {
-    const serviceSpy = vi
-      .spyOn(mockService, 'create')
-      .mockReturnValue(undefined)
-      .withArgs(SERV.NOTIFICATIONS, expect.any(Object))
-      .mockReturnValue(of(mockResponse()));
+    const serviceSpy = vi.spyOn(mockService, 'create').mockReturnValue(undefined as never);
+    vi.when(serviceSpy).calledWith(SERV.NOTIFICATIONS, expect.any(Object)).thenReturn(of(mockResponse()));
 
     setValidFormValues();
     fixture.detectChanges();
@@ -430,7 +433,7 @@ describe('NewNotificationComponent', () => {
   };
 
   const expectHiddenOnAction = (action: string): void => {
-    vi.spyOn(mockService, 'getAll').mockReturnValue(undefined);
+    vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never);
     setAction(action);
     expect(mockService.getAll).not.toHaveBeenCalled();
     const actionFilter = fixture.debugElement.query(By.css('select-action-filter'));
@@ -454,7 +457,9 @@ describe('NewNotificationComponent', () => {
   };
 
   const expectAgentOptionsOnAction = async (action: string): Promise<void> => {
-    vi.spyOn(mockService, 'getAll').mockReturnValue(undefined).withArgs(SERV.AGENTS).mockReturnValue(of(agentValues));
+    vi.when(vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never))
+      .calledWith(SERV.AGENTS)
+      .thenReturn(of(agentValues));
 
     const options = await getOptions(action);
 
@@ -465,7 +470,9 @@ describe('NewNotificationComponent', () => {
   };
 
   const expectTaskOptionsOnAction = async (action: string): Promise<void> => {
-    vi.spyOn(mockService, 'getAll').mockReturnValue(undefined).withArgs(SERV.TASKS).mockReturnValue(of(taskValues));
+    vi.when(vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never))
+      .calledWith(SERV.TASKS)
+      .thenReturn(of(taskValues));
 
     const options = await getOptions(action);
 
@@ -476,10 +483,9 @@ describe('NewNotificationComponent', () => {
   };
 
   const expectHashlistOptionsOnAction = async (action: string): Promise<void> => {
-    vi.spyOn(mockService, 'getAll')
-      .mockReturnValue(undefined)
-      .withArgs(SERV.HASHLISTS)
-      .mockReturnValue(of(hashlistValues));
+    vi.when(vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never))
+      .calledWith(SERV.HASHLISTS)
+      .thenReturn(of(hashlistValues));
 
     const options = await getOptions(action);
 
@@ -490,7 +496,9 @@ describe('NewNotificationComponent', () => {
   };
 
   const expectUserOptionsOnAction = async (action: string): Promise<void> => {
-    vi.spyOn(mockService, 'getAll').mockReturnValue(undefined).withArgs(SERV.USERS).mockReturnValue(of(userValues));
+    vi.when(vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never))
+      .calledWith(SERV.USERS)
+      .thenReturn(of(userValues));
 
     const options = await getOptions(action);
 
