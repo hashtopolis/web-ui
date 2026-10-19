@@ -31,12 +31,6 @@ const mockServerImportFiles: ResponseWrapper = mockResponse({
 });
 
 describe('ImportCrackedHashesComponent', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let component: ImportCrackedHashesComponent;
   let fixture: ComponentFixture<ImportCrackedHashesComponent>;
 
@@ -162,99 +156,83 @@ describe('ImportCrackedHashesComponent', () => {
   });
 
   describe('sourceType change behavior', () => {
-    it('should set hashesAreRequired to true when sourceType is paste', async () => {
+    it('should set hashesAreRequired to true when sourceType is paste', () => {
       component.form.controls.sourceType.setValue('paste');
-      await vi.advanceTimersByTimeAsync(0);
       expect(component.hashesAreRequired).toBe(true);
     });
 
-    it('should set required validator on hashes control when sourceType is paste', async () => {
+    it('should set required validator on hashes control when sourceType is paste', () => {
       component.form.controls.sourceType.setValue('paste');
-      await vi.advanceTimersByTimeAsync(0);
       const hashesCtrl = component.form.controls.hashes;
       expect(hashesCtrl.hasError('required')).toBe(true);
     });
 
-    it('should reset hashes when sourceType is not paste', async () => {
+    it('should reset hashes when sourceType is not paste', () => {
       component.form.controls.hashes.setValue('some:data');
       component.form.controls.sourceType.setValue('upload');
-      await vi.advanceTimersByTimeAsync(0);
       expect(component.form.controls.hashes.value).toBe('');
     });
 
-    it('should reset sourceData when sourceType is paste', async () => {
+    it('should reset sourceData when sourceType is paste', () => {
       component.form.patchValue({ sourceData: 'somefile.txt' });
       component.form.controls.sourceType.setValue('paste');
-      await vi.advanceTimersByTimeAsync(0);
       expect(component.form.controls.sourceData.value).toBe('');
     });
 
-    it('should reset selectedFiles, fileName and uploadProgress when sourceType is not upload', async () => {
+    it('should reset selectedFiles, fileName and uploadProgress when sourceType is not upload', () => {
       component.selectedFiles = {} as FileList;
       component.fileName = 'test.txt';
       component.uploadProgress = 50;
       component.form.controls.sourceType.setValue('paste');
-      await vi.advanceTimersByTimeAsync(0);
       expect(component.selectedFiles).toBeNull();
       expect(component.fileName).toBe('');
       expect(component.uploadProgress).toBe(0);
     });
 
-    it('should call loadServerFiles when sourceType is import and files not loaded', async () => {
+    it('should call loadServerFiles when sourceType is import and files not loaded', () => {
       gsSpy.chelper.mockReturnValue(of(mockServerImportFiles));
       const loadSpy = vi.spyOn(component, 'loadServerFiles');
       component.form.controls.sourceType.setValue('import');
-      await vi.advanceTimersByTimeAsync(0);
       expect(loadSpy).toHaveBeenCalled();
     });
 
-    it('should call loadServerFiles every time sourceType becomes import (refresh, not cached)', async () => {
+    it('should call loadServerFiles every time sourceType becomes import (refresh, not cached)', () => {
       gsSpy.chelper.mockReturnValue(of(mockServerImportFiles));
       const loadSpy = vi.spyOn(component, 'loadServerFiles').mockResolvedValue();
       component.form.controls.sourceType.setValue('import');
-      await vi.advanceTimersByTimeAsync(0);
       component.form.controls.sourceType.setValue('paste');
-      await vi.advanceTimersByTimeAsync(0);
       component.form.controls.sourceType.setValue('import');
-      await vi.advanceTimersByTimeAsync(0);
       expect(loadSpy).toHaveBeenCalledTimes(2);
     });
 
-    it('should NOT call loadServerFiles when sourceType is import but files already loading', async () => {
+    it('should NOT call loadServerFiles when sourceType is import but files already loading', () => {
       component.isLoadingServerFiles = true;
       const loadSpy = vi.spyOn(component, 'loadServerFiles').mockResolvedValue();
       component.form.controls.sourceType.setValue('import');
-      await vi.advanceTimersByTimeAsync(0);
       expect(loadSpy).not.toHaveBeenCalled();
     });
 
-    it('should reset hashesAreRequired to false when switching from paste to upload', async () => {
+    it('should reset hashesAreRequired to false when switching from paste to upload', () => {
       component.form.controls.sourceType.setValue('paste');
-      await vi.advanceTimersByTimeAsync(0);
       expect(component.hashesAreRequired).toBe(true);
 
       component.form.controls.sourceType.setValue('upload');
-      await vi.advanceTimersByTimeAsync(0);
       expect(component.hashesAreRequired).toBe(false);
     });
 
-    it('should reset hashesAreRequired to false when switching from paste to import', async () => {
+    it('should reset hashesAreRequired to false when switching from paste to import', () => {
       component.form.controls.sourceType.setValue('paste');
-      await vi.advanceTimersByTimeAsync(0);
       expect(component.hashesAreRequired).toBe(true);
 
       component.form.controls.sourceType.setValue('import');
-      await vi.advanceTimersByTimeAsync(0);
       expect(component.hashesAreRequired).toBe(false);
     });
 
-    it('should reset hashesAreRequired to false when switching from paste to url', async () => {
+    it('should reset hashesAreRequired to false when switching from paste to url', () => {
       component.form.controls.sourceType.setValue('paste');
-      await vi.advanceTimersByTimeAsync(0);
       expect(component.hashesAreRequired).toBe(true);
 
       component.form.controls.sourceType.setValue('url');
-      await vi.advanceTimersByTimeAsync(0);
       expect(component.hashesAreRequired).toBe(false);
     });
   });
@@ -263,7 +241,6 @@ describe('ImportCrackedHashesComponent', () => {
     it('should load server files and set options', async () => {
       gsSpy.chelper.mockReturnValue(of(mockServerImportFiles));
       await component.loadServerFiles();
-      await vi.advanceTimersByTimeAsync(0);
       expect(component.serverFiles.length).toBe(2);
       expect(component.serverFileOptions.length).toBe(2);
       expect(component.isLoadingServerFiles).toBe(false);
@@ -273,7 +250,6 @@ describe('ImportCrackedHashesComponent', () => {
       const emptyResponse: ResponseWrapper = mockResponse({ data: [], meta: [] });
       gsSpy.chelper.mockReturnValue(of(emptyResponse));
       await component.loadServerFiles();
-      await vi.advanceTimersByTimeAsync(0);
       expect(component.serverFiles.length).toBe(0);
       expect(component.serverFileOptions.length).toBe(0);
       expect(component.isLoadingServerFiles).toBe(false);
@@ -285,7 +261,6 @@ describe('ImportCrackedHashesComponent', () => {
       gsSpy.chelper.mockReturnValue(throwError(() => error));
       const consoleSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
       await component.loadServerFiles();
-      await vi.advanceTimersByTimeAsync(0);
       expect(consoleSpy).toHaveBeenCalled();
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('Could not load files from server import directory.');
       expect(component.isLoadingServerFiles).toBe(false);
@@ -297,7 +272,6 @@ describe('ImportCrackedHashesComponent', () => {
       gsSpy.chelper.mockReturnValue(throwError(() => error));
       component.isLoadingServerFiles = false;
       await component.loadServerFiles();
-      await vi.advanceTimersByTimeAsync(0);
       expect(component.isLoadingServerFiles).toBe(false);
     });
 
@@ -314,7 +288,6 @@ describe('ImportCrackedHashesComponent', () => {
       gsSpy.chelper.mockReturnValue(concat(of(stale), of(fresh)));
 
       await component.loadServerFiles();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(component.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
       expect(component.serverFileOptions.map((o) => o.name)).toEqual(['cached.txt', 'added-after-login.txt']);
@@ -387,7 +360,7 @@ describe('ImportCrackedHashesComponent', () => {
   });
 
   describe('submitImport error handling', () => {
-    it('should surface the backend error, skip the global dialog and clear loading when the import fails', async () => {
+    it('should surface the backend error, skip the global dialog and clear loading when the import fails', () => {
       gsSpy.chelper.mockReturnValue(
         throwError(() => ({ status: 400, error: { title: 'Cracked hash file has too many lines!' } }))
       );
@@ -399,7 +372,6 @@ describe('ImportCrackedHashesComponent', () => {
       });
 
       component.onSubmit();
-      await vi.advanceTimersByTimeAsync(0);
 
       // The component handles the error itself, so it tells the interceptor to skip the modal.
       const call = vi.mocked(gsSpy.chelper).mock.lastCall!;

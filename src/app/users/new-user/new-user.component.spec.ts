@@ -19,12 +19,6 @@ import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response'
 import { NewUserComponent } from '@src/app/users/new-user/new-user.component';
 
 describe('NewUserComponent', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let component: NewUserComponent;
   let fixture: ComponentFixture<NewUserComponent>;
 
@@ -93,8 +87,7 @@ describe('NewUserComponent', () => {
   it('should load permission groups and map to select options', async () => {
     mockGlobalService.getAll.mockReturnValue(of(mockPermissionResponse));
 
-    component.loadPermissionGroups();
-    await vi.advanceTimersByTimeAsync(0);
+    await component.loadPermissionGroups();
 
     expect(mockGlobalService.getAll).toHaveBeenCalled();
     expect(component.selectGlobalPermissionGroups.length).toBe(2);
@@ -105,8 +98,7 @@ describe('NewUserComponent', () => {
     // Simulate an error response
     mockGlobalService.getAll.mockReturnValue(throwError(() => new Error('Network error')));
 
-    component.loadPermissionGroups();
-    await vi.advanceTimersByTimeAsync(0);
+    await component.loadPermissionGroups();
 
     expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('Error fetching permission groups');
     expect(component.loadingPermissionGroups).toBe(false);

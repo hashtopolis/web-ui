@@ -46,12 +46,6 @@ export class MockAgentBinariesTableComponent {
 export class MockVouchersTableComponent {}
 
 describe('NewAgentComponent', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let component: NewAgentComponent;
   let fixture: ComponentFixture<NewAgentComponent>;
 
@@ -143,7 +137,7 @@ describe('NewAgentComponent', () => {
     expect(component.isValid()).toBe(false);
   });
 
-  it('should generate a voucher and set it into the form', async () => {
+  it('should generate a voucher and set it into the form', () => {
     const fakeVoucher = 'fy7vjq56';
 
     // Let internal generation method return a fake voucher
@@ -159,7 +153,6 @@ describe('NewAgentComponent', () => {
     ) as HTMLButtonElement;
     expect(refreshButton).toBeTruthy();
     refreshButton.click();
-    await vi.advanceTimersByTimeAsync(0);
     fixture.detectChanges();
 
     // Expect form to contain the generated voucher
@@ -168,7 +161,7 @@ describe('NewAgentComponent', () => {
     expect(component.updateVoucher).toHaveBeenCalled();
   });
 
-  it('should call create service and reload table when add button is clicked', async () => {
+  it('should call create service and reload table when add button is clicked', () => {
     // Set voucher value in the form
     const voucher = 'fy7vjq56';
     component.form.controls.voucher.setValue(voucher);
@@ -186,7 +179,6 @@ describe('NewAgentComponent', () => {
     expect(addButton.disabled).toBe(false); // ensure the button is enabled
 
     addButton.click();
-    await vi.advanceTimersByTimeAsync(0);
     fixture.detectChanges();
 
     expect(globalServiceSpy.create).toHaveBeenCalledWith(SERV.VOUCHER, { voucher: voucher });

@@ -22,6 +22,7 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { AgentsDataSource } from '@src/app/core/_datasources/agents.datasource';
 import { mockResponse } from '@src/app/testing/mock-response';
+import { wait } from '@src/app/testing/wait';
 
 // Mock data
 
@@ -76,12 +77,6 @@ const MOCK_ASSIGNMENT: JAgentAssignment = {
 // Suite
 
 describe('AgentsDataSource', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-  afterEach(() => {
-    vi.useRealTimers();
-  });
   let dataSource: AgentsDataSource;
   let gsSpy: MockedObject<GlobalService>;
   let deserializeSpy: Mock;
@@ -248,9 +243,8 @@ describe('AgentsDataSource', () => {
       });
     });
 
-    it('should call service.getAll with SERV.AGENT_ASSIGN', async () => {
+    it('should call service.getAll with SERV.AGENT_ASSIGN', () => {
       dataSource.loadAssignments();
-      await vi.advanceTimersByTimeAsync(0);
       const firstCallArgs = vi.mocked(gsSpy.getAll).mock.calls[0];
       expect(firstCallArgs[0]).toEqual(SERV.AGENT_ASSIGN);
 
@@ -264,23 +258,20 @@ describe('AgentsDataSource', () => {
       expect(httpOptions?.headers?.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
     });
 
-    it('should filter assignments by the stored taskId', async () => {
+    it('should filter assignments by the stored taskId', () => {
       dataSource.loadAssignments();
-      await vi.advanceTimersByTimeAsync(0);
       const [, params] = vi.mocked(gsSpy.getAll).mock.calls[0];
       expect((params as RequestParams).filter).toContainEqual(expect.objectContaining({ field: 'taskId', value: 10 }));
     });
 
-    it('should not request nested agent chunks include on assignments endpoint', async () => {
+    it('should not request nested agent chunks include on assignments endpoint', () => {
       dataSource.loadAssignments();
-      await vi.advanceTimersByTimeAsync(0);
       const [, params] = vi.mocked(gsSpy.getAll).mock.calls[0];
       expect((params as RequestParams).include).not.toContain('agent.chunks');
     });
 
-    it('should request the assignment aggregates instead of fetching chunks', async () => {
+    it('should request the assignment aggregates instead of fetching chunks', () => {
       dataSource.loadAssignments();
-      await vi.advanceTimersByTimeAsync(0);
 
       expect(vi.mocked(gsSpy.getAll).mock.calls.find((call) => call[0] === SERV.CHUNKS)).toBeUndefined();
 
@@ -293,16 +284,15 @@ describe('AgentsDataSource', () => {
       );
     });
 
-    it('should fetch user data for the agents in the assignments', async () => {
+    it('should fetch user data for the agents in the assignments', () => {
       dataSource.loadAssignments();
-      await vi.advanceTimersByTimeAsync(0);
       const calledServices = vi.mocked(gsSpy.getAll).mock.calls.map((c) => c[0]);
       expect(calledServices).toContain(SERV.USERS);
     });
 
     it('should map task, taskName, taskId, assignmentId, user and benchmark onto agents', async () => {
       dataSource.loadAssignments();
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
       const agents = dataSource.getOriginalData();
       expect(agents.length).toBe(1);
       const agent = agents[0];
@@ -316,7 +306,7 @@ describe('AgentsDataSource', () => {
 
     it('should map the assignment aggregates onto agents', async () => {
       dataSource.loadAssignments();
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       const agent = dataSource.getOriginalData()[0];
       expect(agent.cracked).toBe(2);
@@ -328,7 +318,7 @@ describe('AgentsDataSource', () => {
 
     it('should expose lastTime from the included agent for the last activity column', async () => {
       dataSource.loadAssignments();
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
       expect(dataSource.getOriginalData()[0].lastTime).toBe(NOW);
     });
 
@@ -349,21 +339,19 @@ describe('AgentsDataSource', () => {
       });
 
       dataSource.loadAssignments();
-      await vi.advanceTimersByTimeAsync(0);
+      await wait();
 
       expect(dataSource.getOriginalData()[0].chunkId).toBeUndefined();
     });
 
-    it('should set data to an empty array when there are no assignments', async () => {
+    it('should set data to an empty array when there are no assignments', () => {
       deserializeSpy.mockReturnValue([]);
       dataSource.loadAssignments();
-      await vi.advanceTimersByTimeAsync(0);
       expect(dataSource.getOriginalData().length).toBe(0);
     });
 
-    it('should set loading to false after completing', async () => {
+    it('should set loading to false after completing', () => {
       dataSource.loadAssignments();
-      await vi.advanceTimersByTimeAsync(0);
       expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
   });
