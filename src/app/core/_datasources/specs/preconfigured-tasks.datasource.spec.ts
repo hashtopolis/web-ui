@@ -130,8 +130,6 @@ describe('PreTasksDataSource', () => {
     dataSource = new PreTasksDataSource(injector);
   });
 
-  afterEach(() => TestBed.resetTestingModule());
-
   // setSuperTaskId()
 
   describe('setSuperTaskId()', () => {
@@ -158,13 +156,13 @@ describe('PreTasksDataSource', () => {
   describe('loadAll() — simple mode', () => {
     it('should call service.getAll with SERV.PRETASKS', async () => {
       await dataSource.loadAll();
-      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.PRETASKS);
     });
 
     it('should include pretaskFiles in the request params', async () => {
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).include).toContain('pretaskFiles');
     });
 
@@ -204,7 +202,7 @@ describe('PreTasksDataSource', () => {
     it('should append a query filter when provided', async () => {
       const query: Filter = { field: 'taskName', operator: FilterType.ICONTAINS, value: 'dive' };
       await dataSource.loadAll(query);
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'taskName', value: 'dive' })
       );
@@ -221,7 +219,7 @@ describe('PreTasksDataSource', () => {
       await dataSource.loadAll(query);
       gsSpy.getAll.mockClear();
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'taskName', value: 'rockyou' })
       );
@@ -230,7 +228,7 @@ describe('PreTasksDataSource', () => {
     it('should add isMaskImport=false filter when hideImportMasks is 1', async () => {
       uiServiceSpy.getUISettings.mockReturnValue({ hideImportMasks: 1 } as unknown as UiSettings);
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false })
       );
@@ -239,7 +237,7 @@ describe('PreTasksDataSource', () => {
     it('should NOT add isMaskImport filter when hideImportMasks is 0', async () => {
       uiServiceSpy.getUISettings.mockReturnValue({ hideImportMasks: 0 } as unknown as UiSettings);
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
       expect(filter.some((f) => f.field === 'isMaskImport')).toBe(false);
     });
@@ -247,7 +245,7 @@ describe('PreTasksDataSource', () => {
     it('should NOT add isMaskImport filter when hideImportMasks is absent', async () => {
       uiServiceSpy.getUISettings.mockReturnValue(null);
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
       expect(filter.some((f) => f.field === 'isMaskImport')).toBe(false);
     });
@@ -279,27 +277,27 @@ describe('PreTasksDataSource', () => {
     it('should call service.get with SERV.SUPER_TASKS to fetch the supertask', async () => {
       await dataSource.loadAll();
       expect(gsSpy.get).toHaveBeenCalled();
-      const [serviceConfig, entityId] = vi.mocked(gsSpy.get).mock.lastCall!;
+      const [serviceConfig, entityId] = gsSpy.get.mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.SUPER_TASKS);
       expect(entityId).toBe(1);
     });
 
     it('should include pretasks in the supertask request params', async () => {
       await dataSource.loadAll();
-      const [, , params] = vi.mocked(gsSpy.get).mock.lastCall!;
+      const [, , params] = gsSpy.get.mock.lastCall!;
       expect((params as RequestParams).include).toContain('pretasks');
     });
 
     it('should call service.getAll with SERV.PRETASKS to load pretask files', async () => {
       await dataSource.loadAll();
       expect(gsSpy.getAll).toHaveBeenCalled();
-      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.PRETASKS);
     });
 
     it('should filter pretasks by pretaskId IN the assigned IDs', async () => {
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'pretaskId', operator: FilterType.IN, value: [MOCK_PRETASK.id] })
       );
@@ -319,7 +317,7 @@ describe('PreTasksDataSource', () => {
     it('should NOT add isMaskImport filter even when hideImportMasks is 1', async () => {
       uiServiceSpy.getUISettings.mockReturnValue({ hideImportMasks: 1 } as unknown as UiSettings);
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
       expect(filter.some((f) => f.field === 'isMaskImport')).toBe(false);
     });
@@ -335,7 +333,7 @@ describe('PreTasksDataSource', () => {
 
     it('should filter pretasks by pretaskId NOTIN the assigned IDs', async () => {
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'pretaskId', operator: FilterType.NOTIN, value: [MOCK_PRETASK.id] })
       );
@@ -344,7 +342,7 @@ describe('PreTasksDataSource', () => {
     it('should add isMaskImport=false filter when hideImportMasks is 1', async () => {
       uiServiceSpy.getUISettings.mockReturnValue({ hideImportMasks: 1 } as unknown as UiSettings);
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false })
       );
@@ -353,7 +351,7 @@ describe('PreTasksDataSource', () => {
     it('should NOT add isMaskImport filter when hideImportMasks is 0', async () => {
       uiServiceSpy.getUISettings.mockReturnValue({ hideImportMasks: 0 } as unknown as UiSettings);
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
       expect(filter.some((f) => f.field === 'isMaskImport')).toBe(false);
     });
@@ -361,7 +359,7 @@ describe('PreTasksDataSource', () => {
     it('should NOT add isMaskImport filter when hideImportMasks is absent', async () => {
       uiServiceSpy.getUISettings.mockReturnValue(null);
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
       expect(filter.some((f) => f.field === 'isMaskImport')).toBe(false);
     });
@@ -375,7 +373,7 @@ describe('PreTasksDataSource', () => {
       dataSource.setReverseQuery(true);
       dataSource.setCrackerBinaryTypeId(1);
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).filter).toContainEqual(typeFilter);
     });
 
@@ -389,7 +387,7 @@ describe('PreTasksDataSource', () => {
       dataSource.setReverseQuery(true);
       dataSource.setCrackerBinaryTypeId(1);
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).filter).toContainEqual(typeFilter);
     });
 
@@ -398,7 +396,7 @@ describe('PreTasksDataSource', () => {
       dataSource.setReverseQuery(false);
       dataSource.setCrackerBinaryTypeId(1);
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
       expect(filter.some((f) => f.field === 'crackerBinaryTypeId')).toBe(false);
     });
@@ -407,7 +405,7 @@ describe('PreTasksDataSource', () => {
       dataSource.setSuperTaskId(1);
       dataSource.setReverseQuery(true);
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
       expect(filter.some((f) => f.field === 'crackerBinaryTypeId')).toBe(false);
     });
@@ -458,7 +456,7 @@ describe('PreTasksDataSource', () => {
     it('should load all pretasks (NOTIN empty set = all)', async () => {
       await dataSource.loadAll();
       expect(gsSpy.getAll).toHaveBeenCalled();
-      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.PRETASKS);
     });
 
@@ -471,7 +469,7 @@ describe('PreTasksDataSource', () => {
     it('should add isMaskImport=false filter when hideImportMasks is 1', async () => {
       uiServiceSpy.getUISettings.mockReturnValue({ hideImportMasks: 1 } as unknown as UiSettings);
       await dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false })
       );
@@ -549,7 +547,7 @@ describe('PreTasksDataSource', () => {
       dataSource.clearFilter();
       await Promise.resolve();
 
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
       expect(filter.some((f: Filter) => f.field === 'taskName')).toBe(false);
     });

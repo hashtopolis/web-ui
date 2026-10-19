@@ -43,9 +43,7 @@ describe('HeaderComponent logout', () => {
 
     component.menuItemClicked(logoutEvent);
 
-    expect(mockAuthService.logOut).toHaveBeenCalledTimes(1);
-
-    expect(mockAuthService.logOut).toHaveBeenCalledWith();
+    expect(mockAuthService.logOut).toHaveBeenCalledExactlyOnceWith();
   });
 
   it('does not rebuild the menu on logout', () => {

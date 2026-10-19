@@ -560,7 +560,7 @@ describe('NewTasksComponent', () => {
 
       await component['onSubmit']();
 
-      const payload = vi.mocked(globalServiceSpy.create).mock.lastCall![1] as {
+      const payload = globalServiceSpy.create.mock.lastCall![1] as {
         files: number[];
       };
       expect(payload.files).toEqual([10, 30]);
@@ -590,7 +590,7 @@ describe('NewTasksComponent', () => {
 
       await component['onSubmit']();
 
-      const payload = vi.mocked(globalServiceSpy.create).mock.lastCall![1] as {
+      const payload = globalServiceSpy.create.mock.lastCall![1] as {
         files: number[];
       };
       expect(payload.files).toEqual([10]);
@@ -622,7 +622,7 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       expect(globalServiceSpy.get).toHaveBeenCalled();
-      const [endpoint, id] = vi.mocked(globalServiceSpy.get).mock.lastCall!;
+      const [endpoint, id] = globalServiceSpy.get.mock.lastCall!;
       expect(endpoint).toEqual(SERV.TASKS);
       expect(id).toBe(42);
     });
@@ -863,7 +863,7 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       expect(globalServiceSpy.get).toHaveBeenCalled();
-      const [endpoint, id] = vi.mocked(globalServiceSpy.get).mock.lastCall!;
+      const [endpoint, id] = globalServiceSpy.get.mock.lastCall!;
       expect(endpoint).toEqual(SERV.PRETASKS);
       expect(id).toBe(7);
     });

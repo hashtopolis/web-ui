@@ -367,14 +367,12 @@ describe('AccountSettingsComponent', () => {
       fixture.detectChanges();
 
       // Assert
-      expect(chelperSpy).toHaveBeenCalledTimes(1);
-      expect(chelperSpy).toHaveBeenCalledWith(SERV.HELPER, 'changeOwnPassword', {
+      expect(chelperSpy).toHaveBeenCalledExactlyOnceWith(SERV.HELPER, 'changeOwnPassword', {
         oldPassword: 'oldPass123',
         newPassword: 'newPass456',
         confirmPassword: 'newPass456'
       });
-      expect(component['alert'].showSuccessMessage).toHaveBeenCalledTimes(1);
-      expect(component['alert'].showSuccessMessage).toHaveBeenCalledWith('Password changed successfully');
+      expect(component['alert'].showSuccessMessage).toHaveBeenCalledExactlyOnceWith('Password changed successfully');
       expect(resetSpy).toHaveBeenCalled();
       expect(component.isUpdatingPassLoading).toBe(false);
     });

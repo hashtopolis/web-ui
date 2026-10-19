@@ -6,14 +6,15 @@ import { UiSettingsService } from '@services/shared/ui-settings.service';
 import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-updated.component';
 
 describe('LastUpdatedComponent', () => {
+  let component: LastUpdatedComponent;
+  let fixture: ComponentFixture<LastUpdatedComponent>;
+
   beforeEach(() => {
     vi.useFakeTimers();
   });
   afterEach(() => {
     vi.useRealTimers();
   });
-  let component: LastUpdatedComponent;
-  let fixture: ComponentFixture<LastUpdatedComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({

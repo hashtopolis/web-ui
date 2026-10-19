@@ -374,7 +374,7 @@ describe('ImportCrackedHashesComponent', () => {
       component.onSubmit();
 
       // The component handles the error itself, so it tells the interceptor to skip the modal.
-      const call = vi.mocked(gsSpy.chelper).mock.lastCall!;
+      const call = gsSpy.chelper.mock.lastCall!;
       expect(call[1]).toBe('importCrackedHashes');
       const httpOptions = call[4];
       expect(httpOptions?.headers?.get(HttpHeaderName.SKIP_ERROR_DIALOG)).toBe('true');

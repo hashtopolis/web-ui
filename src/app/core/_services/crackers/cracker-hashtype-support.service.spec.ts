@@ -120,7 +120,7 @@ describe('CrackerHashtypeSupportService', () => {
 
     await firstValueFrom(service.getSupportedCrackerBinaryIds(1000));
 
-    const options = vi.mocked(gs.getRelationshipLink).mock.lastCall![3] as {
+    const options = gs.getRelationshipLink.mock.lastCall![3] as {
       headers: HttpHeaders;
     };
     expect(options.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');

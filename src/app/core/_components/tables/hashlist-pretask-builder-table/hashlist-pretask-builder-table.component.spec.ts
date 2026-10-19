@@ -284,8 +284,9 @@ describe('HashlistPretaskBuilderTableComponent', () => {
 
       const message = buildUnsupportedHashtypeMessage(1000, 'NTLM');
       // one snackbar at a time: the explanation must be part of the last message, not replaced by it
-      expect(mockAlertService.showErrorMessage).toHaveBeenCalledTimes(1);
-      expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith(`Failed to create 2 task(s). ${message}`);
+      expect(mockAlertService.showErrorMessage).toHaveBeenCalledExactlyOnceWith(
+        `Failed to create 2 task(s). ${message}`
+      );
       expect(mockGlobalService.getAll).toHaveBeenCalledTimes(1);
       expect(support.getSupportedCrackerBinaryIds).toHaveBeenCalledTimes(1);
       expect(mockGlobalService.create).not.toHaveBeenCalled();
@@ -313,7 +314,7 @@ describe('HashlistPretaskBuilderTableComponent', () => {
       component.selectedPretaskIds = new Set([1]);
       await component.createTasksFromSelection();
 
-      expect(vi.mocked(mockAlertService.showErrorMessage).mock.lastCall![0]).toBe(
+      expect(mockAlertService.showErrorMessage.mock.lastCall![0]).toBe(
         `Failed to create 1 task(s). ${buildUnsupportedHashtypeMessage(1000, 'NTLM')}`
       );
     });

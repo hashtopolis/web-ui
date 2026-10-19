@@ -197,9 +197,7 @@ describe('HashlistSupertaskBuilderTableComponent', () => {
     expect(component.selectedVersionByRow[10]).toBe(11 as CrackerBinaryId);
     expect(component.rowVersions[11]?.map((option) => option.id)).toEqual([20]);
     expect(component.selectedVersionByRow[11]).toBe(20 as CrackerBinaryId);
-    expect(vi.mocked(mockGlobalService.getAll).mock.calls.every(([config]) => config.URL === SERV.CRACKERS.URL)).toBe(
-      true
-    );
+    expect(mockGlobalService.getAll.mock.calls.every(([config]) => config.URL === SERV.CRACKERS.URL)).toBe(true);
   });
 
   it('shows the type name per row and falls back for unknown ids', async () => {

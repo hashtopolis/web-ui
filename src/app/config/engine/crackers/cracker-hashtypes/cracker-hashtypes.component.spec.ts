@@ -135,14 +135,14 @@ describe('CrackerHashtypesComponent', () => {
     it('opens the add dialog with the version, the assigned ids and the create permission', () => {
       openButton()?.click();
 
-      const [dialogComponent, config] = vi.mocked(dialog.open).mock.lastCall!;
+      const [dialogComponent, config] = dialog.open.mock.lastCall!;
       expect(dialogComponent).toBe(AddCrackerHashtypesDialogComponent);
       expect(config?.data).toEqual({ crackerBinaryId: 12, assignedHashtypeIds: [1000], canCreate: false });
     });
 
     it('focuses the dialog itself, so the hashtype search does not open its options over the actions', () => {
       component.openAddDialog();
-      expect(vi.mocked(dialog.open).mock.lastCall![1]?.autoFocus).toBe('dialog');
+      expect(dialog.open.mock.lastCall![1]?.autoFocus).toBe('dialog');
     });
 
     it('reloads the table and the assigned ids after hashtypes were added', async () => {
@@ -180,7 +180,7 @@ describe('CrackerHashtypesComponent', () => {
 
     it('lets the dialog create hashtypes', () => {
       component.openAddDialog();
-      expect((vi.mocked(dialog.open).mock.lastCall![1]?.data as AddCrackerHashtypesDialogData).canCreate).toBe(true);
+      expect((dialog.open.mock.lastCall![1]?.data as AddCrackerHashtypesDialogData).canCreate).toBe(true);
     });
   });
 

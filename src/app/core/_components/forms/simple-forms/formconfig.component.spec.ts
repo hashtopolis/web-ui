@@ -313,7 +313,7 @@ describe('FormConfigComponent', () => {
     });
 
     expect(globalService.update).toHaveBeenCalledTimes(2);
-    expect(vi.mocked(globalService.update).mock.calls).toEqual([
+    expect(globalService.update.mock.calls).toEqual([
       [SERV.CONFIGS, 21, { item: 'serverLogLevel', value: '30' }],
       [SERV.CONFIGS, 22, { item: 'hashcatBrainEnable', value: '0' }]
     ]);
@@ -340,8 +340,7 @@ describe('FormConfigComponent', () => {
     component.onFormSubmit({ chunktime: 800, ruleSplitAlways: 0 });
 
     // The field with an id still saves...
-    expect(globalService.update).toHaveBeenCalledTimes(1);
-    expect(globalService.update).toHaveBeenCalledWith(SERV.CONFIGS, 3, { item: 'chunktime', value: '800' });
+    expect(globalService.update).toHaveBeenCalledExactlyOnceWith(SERV.CONFIGS, 3, { item: 'chunktime', value: '800' });
     // ...the one without an id is never PATCHed with an undefined id...
     expect(globalService.update).not.toHaveBeenCalledWith(
       SERV.CONFIGS,

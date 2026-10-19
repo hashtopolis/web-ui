@@ -5,7 +5,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 
 import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
@@ -58,9 +58,9 @@ function openDialogAndClose(
     action: string;
     data: JAgent[];
   } | null>();
-  mockDialog.open.mockReturnValue({
+  vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
     afterClosed: () => afterClosedSubject.asObservable()
-  } as MatDialogRef<unknown>);
+  });
   triggerFn();
   return afterClosedSubject;
 }
@@ -192,9 +192,9 @@ describe('AccessGroupsAgentsTableComponent', () => {
   describe('rowActionClicked', () => {
     it('should open a confirmation dialog for the DELETE action', () => {
       const afterClosedSubject = new Subject<null>();
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => afterClosedSubject.asObservable()
-      } as MatDialogRef<unknown>);
+      });
 
       const agent = { id: 5, agentName: 'AgentX' } as JAgent;
       component.rowActionClicked({ data: agent, menuItem: { action: RowActionMenuAction.DELETE, label: '' } });
@@ -204,15 +204,15 @@ describe('AccessGroupsAgentsTableComponent', () => {
 
     it('should include the agent name in the confirmation dialog body', () => {
       const afterClosedSubject = new Subject<null>();
-      mockDialog.open.mockReturnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => afterClosedSubject.asObservable()
-      } as MatDialogRef<unknown>);
+      });
 
       const agent = { id: 5, agentName: 'AgentX' } as JAgent;
       component.rowActionClicked({ data: agent, menuItem: { action: RowActionMenuAction.DELETE, label: '' } });
 
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall![1] as {
+        mockDialog.open.mock.lastCall![1] as {
           data: {
             body: string;
           };
@@ -242,7 +242,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
       );
 
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall![1] as {
+        mockDialog.open.mock.lastCall![1] as {
           data: {
             title: string;
             body: string;
@@ -261,7 +261,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
       );
 
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall![1] as {
+        mockDialog.open.mock.lastCall![1] as {
           data: {
             title: string;
           };
@@ -279,7 +279,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
       );
 
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall![1] as {
+        mockDialog.open.mock.lastCall![1] as {
           data: {
             warn: boolean;
           };
@@ -319,9 +319,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
     it('should call the API with the correct access group ID and agent IDs mapped as AGENTMEMBER relationships', () => {
       triggerConfirmedRemoval(agents, of({}));
 
-      expect(mockGlobalService.deleteRelationships).toHaveBeenCalledTimes(1);
-
-      expect(mockGlobalService.deleteRelationships).toHaveBeenCalledWith(
+      expect(mockGlobalService.deleteRelationships).toHaveBeenCalledExactlyOnceWith(
         SERV.ACCESS_GROUPS,
         GROUP_ID,
         RelationshipType.AGENTMEMBER,
@@ -346,9 +344,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
     it('should show a success alert mentioning the number of removed agents', () => {
       triggerConfirmedRemoval(agents, of({}));
 
-      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledTimes(1);
-
-      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith(expect.stringMatching(/2.*agent/i));
+      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledExactlyOnceWith(expect.stringMatching(/2.*agent/i));
     });
 
     it('should NOT emit agentsRemoved when the API call fails', () => {
@@ -429,7 +425,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
       );
 
       const dialogData = (
-        vi.mocked(mockDialog.open).mock.lastCall![1] as {
+        mockDialog.open.mock.lastCall![1] as {
           data: {
             listAttribute: string;
             rows: JAgent[];
@@ -452,9 +448,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
 
       component.exportActionClicked(event);
 
-      expect(mockExportService.handleExportAction).toHaveBeenCalledTimes(1);
-
-      expect(mockExportService.handleExportAction).toHaveBeenCalledWith(
+      expect(mockExportService.handleExportAction).toHaveBeenCalledExactlyOnceWith(
         event,
         component.tableColumns,
         AccessGroupsAgentsTableColumnLabel,

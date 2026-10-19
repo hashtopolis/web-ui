@@ -220,7 +220,7 @@ describe('BackgroundJobsTableComponent', () => {
         menuItem: { action: BulkActionMenuAction.DELETE, label: '' }
       });
 
-      const dialogData = vi.mocked(dialogOpen).mock.lastCall![1].data;
+      const dialogData = dialogOpen.mock.lastCall![1].data;
       expect(dialogData.rows).toEqual([done, pending]);
       expect(gs.bulkDelete).toHaveBeenCalledWith(SERV.BACKGROUND_JOBS, [done, pending]);
       expect(showSuccess).toHaveBeenCalledWith('Deleted 2 background jobs. 1 running jobs were skipped.');

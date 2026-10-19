@@ -138,7 +138,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     beforeEach(async () => await setup());
 
     it('offers the hashtypes which are not assigned yet', () => {
-      const [serviceConfig, params] = vi.mocked(gs.getAll).mock.lastCall!;
+      const [serviceConfig, params] = gs.getAll.mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HASHTYPES);
       expect((params as RequestParams).filter).toEqual([{ field: 'id', operator: FilterType.NOTIN, value: [1000] }]);
       expect(component.selectHashtypes.map((option) => option.id)).toEqual([0, 100]);
@@ -180,7 +180,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     beforeEach(async () => await setup({ assignedHashtypeIds: null }));
 
     it('offers all hashtypes', () => {
-      expect((vi.mocked(gs.getAll).mock.lastCall![1] as RequestParams).filter).toBeUndefined();
+      expect((gs.getAll.mock.lastCall![1] as RequestParams).filter).toBeUndefined();
     });
   });
 
@@ -248,7 +248,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
       fill({ hashTypeId: 100, description: 'My SHA1' });
       await component.onCreate();
 
-      const [serviceConfig, id, relType, body, options] = vi.mocked(gs.postRelationships).mock.calls[0];
+      const [serviceConfig, id, relType, body, options] = gs.postRelationships.mock.calls[0];
       expect(serviceConfig).toEqual(SERV.CRACKERS);
       expect(id).toBe(12);
       expect(relType).toBe(RelationshipType.HASHTYPES);
@@ -264,7 +264,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     it('links mode 0', async () => {
       fill({ hashTypeId: 0, description: 'MD5' });
       await component.onCreate();
-      expect(vi.mocked(gs.postRelationships).mock.calls[0][3]).toEqual(linkBody(0));
+      expect(gs.postRelationships.mock.calls[0][3]).toEqual(linkBody(0));
       expect(alert.showSuccessMessage).toHaveBeenCalledWith(
         'Hashtype 0 already existed and was added to this version. Its existing description was kept.'
       );
@@ -275,13 +275,13 @@ describe('AddCrackerHashtypesDialogComponent', () => {
       fill({ hashTypeId: 99000, description: 'My custom hash', isSalted: true });
       await component.onCreate();
 
-      const [serviceConfig, item, options] = vi.mocked(gs.create).mock.calls[0];
+      const [serviceConfig, item, options] = gs.create.mock.calls[0];
       expect(serviceConfig).toEqual(SERV.HASHTYPES);
       expect(item).toEqual({ hashTypeId: 99000, description: 'My custom hash', isSalted: true, isSlowHash: false });
       expect(skipsErrorDialog(options)).toBe(true);
       expect(gs.postRelationships).toHaveBeenCalledTimes(2);
-      expect(vi.mocked(gs.postRelationships).mock.calls[1][3]).toEqual(linkBody(99000));
-      expect(skipsErrorDialog(vi.mocked(gs.postRelationships).mock.calls[1][4])).toBe(true);
+      expect(gs.postRelationships.mock.calls[1][3]).toEqual(linkBody(99000));
+      expect(skipsErrorDialog(gs.postRelationships.mock.calls[1][4])).toBe(true);
       expect(alert.showSuccessMessage).toHaveBeenCalledWith(
         'Created hashtype 99000 (My custom hash) and added it to this version.'
       );
@@ -295,7 +295,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
       await component.onCreate();
       expect(
         (
-          vi.mocked(gs.create).mock.calls[0][1] as {
+          gs.create.mock.calls[0][1] as {
             description: string;
           }
         ).description
