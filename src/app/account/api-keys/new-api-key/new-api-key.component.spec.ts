@@ -39,7 +39,7 @@ describe('NewApiKeyComponent', () => {
     id: 1,
     type: 'apiToken',
     startValid: 0,
-    endValid: 1000,
+    endValid: 1_000,
     userId: 42,
     isRevoked: false,
     token: 'jwt-xyz'

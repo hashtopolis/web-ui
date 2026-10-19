@@ -127,7 +127,7 @@ describe('HttpCacheService', () => {
       statusText: 'OK'
     });
 
-    service.set(req, res, 100, 5000); // TTL 100ms, stale window 5s
+    service.set(req, res, 100, 5_000); // TTL 100ms, stale window 5s
 
     const fresh = service.get(req);
     expect(fresh).toBeTruthy();
@@ -195,7 +195,7 @@ describe('HttpCacheService', () => {
       statusText: 'OK'
     });
 
-    service.set(req, res, 30000, 60000);
+    service.set(req, res, 30_000, 60_000);
     const result = service.get(req);
 
     expect(result?.isStale).toBe(false);
