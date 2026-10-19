@@ -167,7 +167,7 @@ describe('SuperHashlistsDataSource', () => {
     it('should filter by format === SUPERHASHLIST (3)', () => {
       dataSource.loadAll();
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(
+      expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'format', operator: FilterType.EQUAL, value: HashListFormat.SUPERHASHLIST })
       );
     });
@@ -238,7 +238,9 @@ describe('SuperHashlistsDataSource', () => {
       const query: Filter = { field: 'name', operator: FilterType.ICONTAINS, value: 'sha1' };
       dataSource.loadAll(query);
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'name', value: 'sha1' }));
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'name', value: 'sha1' })
+      );
     });
 
     it('should persist the query as _currentFilter', () => {
@@ -253,7 +255,9 @@ describe('SuperHashlistsDataSource', () => {
       gsSpy.getAll.mockClear();
       dataSource.loadAll();
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'name', value: 'sha1' }));
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'name', value: 'sha1' })
+      );
     });
 
     it('should set loading to false after a successful response', () => {

@@ -156,7 +156,7 @@ describe('FilesDataSource', () => {
       dataSource.setFileType(FileType.RULES);
       dataSource.loadAll();
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(
+      expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'fileType', value: FileType.RULES })
       );
     });
@@ -165,7 +165,7 @@ describe('FilesDataSource', () => {
       const query: Filter = { field: 'filename', operator: FilterType.ICONTAINS, value: 'rockyou' };
       dataSource.loadAll(query);
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(
+      expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'filename', value: 'rockyou' })
       );
     });
@@ -182,7 +182,7 @@ describe('FilesDataSource', () => {
       gsSpy.getAll.mockClear();
       dataSource.loadAll(); // no query — should reuse stored filter
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(
+      expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'filename', value: 'cyclone' })
       );
     });

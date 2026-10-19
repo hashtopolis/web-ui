@@ -166,14 +166,16 @@ describe('TasksDataSource', () => {
     it('should always include a taskWrapperIsArchived filter', () => {
       dataSource.loadAll();
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'taskWrapperIsArchived' }));
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'taskWrapperIsArchived' })
+      );
     });
 
     it('should pass the current _isArchived value in the filter', () => {
       dataSource.setIsArchived(true);
       dataSource.loadAll();
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(
+      expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'taskWrapperIsArchived', value: true })
       );
     });
@@ -182,7 +184,7 @@ describe('TasksDataSource', () => {
       const query: Filter = { field: 'taskWrapperName', operator: FilterType.EQUAL, value: 'bar' };
       dataSource.loadAll(query);
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(
+      expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'taskWrapperName', value: 'bar' })
       );
     });
@@ -191,7 +193,9 @@ describe('TasksDataSource', () => {
       dataSource.setHashlistID(42);
       dataSource.loadAll();
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'hashlistId', value: 42 }));
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'hashlistId', value: 42 })
+      );
     });
 
     it('should not add a hashlistId filter when _hashlistID is 0', () => {
@@ -282,7 +286,7 @@ describe('TasksDataSource', () => {
       dataSource.reload();
 
       const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
-      expect((params as RequestParams).filter).toContain(
+      expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'taskWrapperName', value: 'myTask' })
       );
     });
