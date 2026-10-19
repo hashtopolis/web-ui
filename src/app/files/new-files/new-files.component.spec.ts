@@ -1,7 +1,7 @@
-import type { Mock } from 'vitest';
 import { concat, of } from 'rxjs';
+import type { Mock } from 'vitest';
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -49,6 +49,12 @@ class MockRouter {
 }
 
 describe('NewFilesComponent', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
   let component: NewFilesComponent;
   let fixture: ComponentFixture<NewFilesComponent>;
 
@@ -288,7 +294,7 @@ describe('NewFilesComponent', () => {
     // Regression guard for the stale-while-revalidate bug: HttpCacheInterceptor serves a stale
     // cached value first, then the revalidated fresh one (concat(of(stale), revalidate())).
     // firstValueFrom took the stale list; the fix uses lastValueFrom, which resolves on the fresh one.
-    it('uses the revalidated (fresh) emission, not the stale-while-revalidate cache hit', fakeAsync(async () => {
+    it('uses the revalidated (fresh) emission, not the stale-while-revalidate cache hit', async () => {
       const comp = setup('wordlist-new');
       const gs = TestBed.inject(GlobalService) as unknown as MockGlobalService;
       const stale = mockResponse({ data: [], meta: [{ file: 'cached.txt' }] });
@@ -296,9 +302,9 @@ describe('NewFilesComponent', () => {
       (gs.chelper as Mock).mockReturnValue(concat(of(stale), of(fresh)));
 
       await comp.loadServerFiles();
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
 
       expect(comp.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
-    }));
+    });
   });
 });

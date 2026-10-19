@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 // Side-effect: replaces window.localStorage with the typed wrapper so setItem/getItem
 // work correctly in tests (same as the import in main.ts).
@@ -9,6 +9,12 @@ import '@services/storage/local-storage';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 describe('LocalStorageService', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
   let service: LocalStorageService<string | object>;
 
   beforeEach(() => {
@@ -34,17 +40,17 @@ describe('LocalStorageService', () => {
     expect(retrievedValue).toBe(value);
   });
 
-  it('should remove data from local storage after expiration', fakeAsync(() => {
+  it('should remove data from local storage after expiration', async () => {
     const key = 'testKey';
     const value = 'testValue';
 
     service.setItem(key, value, 1); // Set with 1-millisecond expiration
 
-    tick(2);
+    await vi.advanceTimersByTimeAsync(2);
 
     const retrievedValue = service.getItem(key);
     expect(retrievedValue).toBeNull();
-  }));
+  });
 
   it('should remove data from local storage when explicitly removed', () => {
     const key = 'testKey';
@@ -220,15 +226,15 @@ describe('LocalStorageService', () => {
       expect(def.x).toBe(1); // original must not be mutated
     });
 
-    it('should not share the defaultValue reference when data has expired', fakeAsync(() => {
+    it('should not share the defaultValue reference when data has expired', async () => {
       const def = { x: 1, y: 2 };
       svc.setItem('__pt__', { x: 5, y: 6 }, 1);
-      tick(2);
+      await vi.advanceTimersByTimeAsync(2);
 
       const result = svc.getItem('__pt__', pointSchema, def);
       result.x = 99;
 
       expect(def.x).toBe(1); // original must not be mutated
-    }));
+    });
   });
 });

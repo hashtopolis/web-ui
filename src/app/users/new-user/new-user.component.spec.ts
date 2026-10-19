@@ -1,9 +1,9 @@
-import type { MockedObject } from 'vitest';
 import { zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -19,6 +19,12 @@ import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response'
 import { NewUserComponent } from '@src/app/users/new-user/new-user.component';
 
 describe('NewUserComponent', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
   let component: NewUserComponent;
   let fixture: ComponentFixture<NewUserComponent>;
 
@@ -51,14 +57,14 @@ describe('NewUserComponent', () => {
     mockGlobalService = {
       getAll: vi.fn().mockName('GlobalService.getAll'),
       create: vi.fn().mockName('GlobalService.create')
-    };
+    } as MockedObject<GlobalService>;
     mockRouter = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
     mockAlertService = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
 
     await TestBed.configureTestingModule({
       declarations: [NewUserComponent],
@@ -84,27 +90,27 @@ describe('NewUserComponent', () => {
     expect(component.newUserForm).toBeTruthy();
   });
 
-  it('should load permission groups and map to select options', fakeAsync(() => {
+  it('should load permission groups and map to select options', async () => {
     mockGlobalService.getAll.mockReturnValue(of(mockPermissionResponse));
 
     component.loadPermissionGroups();
-    tick();
+    await vi.advanceTimersByTimeAsync(0);
 
     expect(mockGlobalService.getAll).toHaveBeenCalled();
     expect(component.selectGlobalPermissionGroups.length).toBe(2);
     expect(component.loadingPermissionGroups).toBe(false);
-  }));
+  });
 
-  it('should show error message if loading permission groups fails', fakeAsync(() => {
+  it('should show error message if loading permission groups fails', async () => {
     // Simulate an error response
     mockGlobalService.getAll.mockReturnValue(throwError(() => new Error('Network error')));
 
     component.loadPermissionGroups();
-    tick();
+    await vi.advanceTimersByTimeAsync(0);
 
     expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('Error fetching permission groups');
     expect(component.loadingPermissionGroups).toBe(false);
-  }));
+  });
 
   // Tests related to form submission
   it('should not submit if form is invalid', async () => {
@@ -175,7 +181,7 @@ describe('NewUserComponent', () => {
 
     await component.onSubmit();
 
-    const payload = vi.mocked(mockGlobalService.create).mock.lastCall[1] as Record<string, unknown>;
+    const payload = vi.mocked(mockGlobalService.create).mock.lastCall![1] as Record<string, unknown>;
     expect(Number.isInteger(payload['sessionLifetime'])).toBe(true);
   });
 

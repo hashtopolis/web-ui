@@ -1,5 +1,5 @@
 import { HTTP_SKIP_CACHE_HEADER_CONFIG } from '@constants/http.config';
-import { HttpCacheInterceptor } from '@interceptors/http-cache.interceptor';
+import { DEFAULT_STALE_TIME_MS, DEFAULT_TTL_MS, HttpCacheInterceptor } from '@interceptors/http-cache.interceptor';
 import { lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpResponse, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
@@ -9,8 +9,6 @@ import { TestBed } from '@angular/core/testing';
 
 import { CacheGetResult, HttpCacheService } from '@services/shared/http-cache.service';
 import { SessionStorageService } from '@services/storage/session-storage.service';
-
-import { DEFAULT_STALE_TIME_MS, DEFAULT_TTL_MS } from './http-cache.interceptor';
 
 describe('HttpCacheInterceptor', () => {
   let httpClient: HttpClient;
@@ -92,8 +90,7 @@ describe('HttpCacheInterceptor', () => {
 
     // Next GET should hit the network again
     httpClient.get(getUrl).subscribe();
-    const secondGetReq = httpMock.expectOne(getUrl);
-    secondGetReq.flush({ id: 3, name: 'Updated' });
+    expect(() => httpMock.expectOne(getUrl).flush({ id: 3, name: 'Updated' })).not.toThrow();
   });
 
   it('should invalidate cache on PUT', () => {
@@ -112,8 +109,7 @@ describe('HttpCacheInterceptor', () => {
 
     // Next GET should hit the network again
     httpClient.get(getUrl).subscribe();
-    const secondGetReq = httpMock.expectOne(getUrl);
-    secondGetReq.flush({ id: 1, name: 'Updated' });
+    expect(() => httpMock.expectOne(getUrl).flush({ id: 1, name: 'Updated' })).not.toThrow();
   });
 
   it('should invalidate cache on DELETE', () => {
@@ -132,8 +128,7 @@ describe('HttpCacheInterceptor', () => {
 
     // Next GET should hit the network again
     httpClient.get(getUrl).subscribe();
-    const secondGetReq = httpMock.expectOne(getUrl);
-    secondGetReq.flush({ id: 1, name: 'Test' }); // Or 404 if deleted
+    expect(() => httpMock.expectOne(getUrl).flush({ id: 1, name: 'Test' })).not.toThrow(); // Or 404 if deleted
   });
 
   it('should skip caching when X-Cache-Skip header is present', () => {
@@ -162,6 +157,8 @@ describe('HttpCacheInterceptor', () => {
     const testData = { id: 1, name: 'Test Data' };
 
     // First request - populate cache
+    let done!: () => void;
+    const finished = new Promise<void>((resolve) => (done = resolve));
     httpClient.get(testUrl).subscribe((data) => {
       expect(data).toEqual(testData);
 
@@ -180,10 +177,12 @@ describe('HttpCacheInterceptor', () => {
       // could have fired a background revalidation request. Flush it so
       // that httpMock.verify() in afterEach does not fail.
       httpMock.match(testUrl).forEach((req) => req.flush(testData));
+      done();
     });
 
     const firstReq = httpMock.expectOne(testUrl);
     firstReq.flush(testData);
+    await finished;
   });
 
   describe('Cache-Control header (RFC 5861)', () => {
@@ -344,7 +343,7 @@ describe('HttpCacheInterceptor', () => {
       httpClient.get(testUrl).subscribe();
 
       // No network request should be made for a fresh hit
-      httpMock.expectNone(testUrl);
+      expect(() => httpMock.expectNone(testUrl)).not.toThrow();
     });
 
     it('should serve stale data and refresh the cache end-to-end when TTL elapses within the stale window', () => {

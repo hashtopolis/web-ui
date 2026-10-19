@@ -1,11 +1,10 @@
-import type { Mock, MockedObject } from 'vitest';
-/// <reference types="jasmine" />
 import { HttpHeaderName } from '@constants/http.config';
 import { zAgentAssignmentListResponse, zAgentListResponse, zUserListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
-import { TestBed, fakeAsync, flushMicrotasks } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
 import { JAgent } from '@models/agent.model';
@@ -77,6 +76,12 @@ const MOCK_ASSIGNMENT: JAgentAssignment = {
 // Suite
 
 describe('AgentsDataSource', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
   let dataSource: AgentsDataSource;
   let gsSpy: MockedObject<GlobalService>;
   let deserializeSpy: Mock;
@@ -84,7 +89,7 @@ describe('AgentsDataSource', () => {
   beforeEach(() => {
     gsSpy = {
       getAll: vi.fn().mockName('GlobalService.getAll')
-    };
+    } as MockedObject<GlobalService>;
 
     const cdrSpy = {
       markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
@@ -164,7 +169,7 @@ describe('AgentsDataSource', () => {
   describe('loadAll()', () => {
     it('should call service.getAll with SERV.AGENTS', () => {
       dataSource.loadAll();
-      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [serviceConfig] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.AGENTS);
     });
 
@@ -198,19 +203,19 @@ describe('AgentsDataSource', () => {
     it('should include agentStats in the request params when setAgentStatsRequired(true)', () => {
       dataSource.setAgentStatsRequired(true);
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).include).toContain('agentStats');
     });
 
     it('should not include agentStats in the request params by default', () => {
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       expect((params as RequestParams).include).not.toContain('agentStats');
     });
 
     it('should always include accessGroups, tasks, assignments and user in the request params', () => {
       dataSource.loadAll();
-      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall;
+      const [, params] = vi.mocked(gsSpy.getAll).mock.lastCall!;
       const include = (params as RequestParams).include ?? [];
       expect(include).toContain('accessGroups');
       expect(include).toContain('tasks');
@@ -243,9 +248,9 @@ describe('AgentsDataSource', () => {
       });
     });
 
-    it('should call service.getAll with SERV.AGENT_ASSIGN', fakeAsync(() => {
+    it('should call service.getAll with SERV.AGENT_ASSIGN', async () => {
       dataSource.loadAssignments();
-      flushMicrotasks();
+      await vi.advanceTimersByTimeAsync(0);
       const firstCallArgs = vi.mocked(gsSpy.getAll).mock.calls[0];
       expect(firstCallArgs[0]).toEqual(SERV.AGENT_ASSIGN);
 
@@ -257,47 +262,47 @@ describe('AgentsDataSource', () => {
           }
         | undefined;
       expect(httpOptions?.headers?.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
-    }));
+    });
 
-    it('should filter assignments by the stored taskId', fakeAsync(() => {
+    it('should filter assignments by the stored taskId', async () => {
       dataSource.loadAssignments();
-      flushMicrotasks();
+      await vi.advanceTimersByTimeAsync(0);
       const [, params] = vi.mocked(gsSpy.getAll).mock.calls[0];
-      expect((params as RequestParams).filter).toContain(expect.objectContaining({ field: 'taskId', value: 10 }));
-    }));
+      expect((params as RequestParams).filter).toContainEqual(expect.objectContaining({ field: 'taskId', value: 10 }));
+    });
 
-    it('should not request nested agent chunks include on assignments endpoint', fakeAsync(() => {
+    it('should not request nested agent chunks include on assignments endpoint', async () => {
       dataSource.loadAssignments();
-      flushMicrotasks();
+      await vi.advanceTimersByTimeAsync(0);
       const [, params] = vi.mocked(gsSpy.getAll).mock.calls[0];
       expect((params as RequestParams).include).not.toContain('agent.chunks');
-    }));
+    });
 
-    it('should request the assignment aggregates instead of fetching chunks', fakeAsync(() => {
+    it('should request the assignment aggregates instead of fetching chunks', async () => {
       dataSource.loadAssignments();
-      flushMicrotasks();
+      await vi.advanceTimersByTimeAsync(0);
 
-      expect(vi.mocked(gsSpy.getAll).mock.calls.find((call) => call.args[0] === SERV.CHUNKS)).toBeUndefined();
+      expect(vi.mocked(gsSpy.getAll).mock.calls.find((call) => call[0] === SERV.CHUNKS)).toBeUndefined();
 
       const [, params] = vi.mocked(gsSpy.getAll).mock.calls[0];
-      expect((params as RequestParams).aggregate).toContain(
+      expect((params as RequestParams).aggregate).toContainEqual(
         expect.objectContaining({
           field: 'assignment',
           values: ['cracked', 'currentSpeed', 'crackingTime', 'searched', 'currentChunkId']
         })
       );
-    }));
+    });
 
-    it('should fetch user data for the agents in the assignments', fakeAsync(() => {
+    it('should fetch user data for the agents in the assignments', async () => {
       dataSource.loadAssignments();
-      flushMicrotasks();
-      const calledServices = vi.mocked(gsSpy.getAll).mock.calls.map((c) => c.args[0]);
+      await vi.advanceTimersByTimeAsync(0);
+      const calledServices = vi.mocked(gsSpy.getAll).mock.calls.map((c) => c[0]);
       expect(calledServices).toContain(SERV.USERS);
-    }));
+    });
 
-    it('should map task, taskName, taskId, assignmentId, user and benchmark onto agents', fakeAsync(() => {
+    it('should map task, taskName, taskId, assignmentId, user and benchmark onto agents', async () => {
       dataSource.loadAssignments();
-      flushMicrotasks();
+      await vi.advanceTimersByTimeAsync(0);
       const agents = dataSource.getOriginalData();
       expect(agents.length).toBe(1);
       const agent = agents[0];
@@ -307,11 +312,11 @@ describe('AgentsDataSource', () => {
       expect(agent.assignmentId).toBe(MOCK_ASSIGNMENT.id);
       expect(agent.benchmark).toBe(MOCK_ASSIGNMENT.benchmark);
       expect(agent.user).toEqual(MOCK_USER);
-    }));
+    });
 
-    it('should map the assignment aggregates onto agents', fakeAsync(() => {
+    it('should map the assignment aggregates onto agents', async () => {
       dataSource.loadAssignments();
-      flushMicrotasks();
+      await vi.advanceTimersByTimeAsync(0);
 
       const agent = dataSource.getOriginalData()[0];
       expect(agent.cracked).toBe(2);
@@ -319,15 +324,15 @@ describe('AgentsDataSource', () => {
       expect(agent.timeSpent).toBe(30);
       expect(agent.searched).toBe(250);
       expect(agent.chunkId).toBe(100);
-    }));
+    });
 
-    it('should expose lastTime from the included agent for the last activity column', fakeAsync(() => {
+    it('should expose lastTime from the included agent for the last activity column', async () => {
       dataSource.loadAssignments();
-      flushMicrotasks();
+      await vi.advanceTimersByTimeAsync(0);
       expect(dataSource.getOriginalData()[0].lastTime).toBe(NOW);
-    }));
+    });
 
-    it('should leave the chunk id undefined when the server omits the currentChunkId aggregate', fakeAsync(() => {
+    it('should leave the chunk id undefined when the server omits the currentChunkId aggregate', async () => {
       // The server drops null aggregates from the payload instead of sending them as null.
       const assignmentWithoutChunk = { ...MOCK_ASSIGNMENT, agent: { ...MOCK_AGENT } } as unknown as JAgentAssignment;
       delete (
@@ -344,23 +349,23 @@ describe('AgentsDataSource', () => {
       });
 
       dataSource.loadAssignments();
-      flushMicrotasks();
+      await vi.advanceTimersByTimeAsync(0);
 
       expect(dataSource.getOriginalData()[0].chunkId).toBeUndefined();
-    }));
+    });
 
-    it('should set data to an empty array when there are no assignments', fakeAsync(() => {
+    it('should set data to an empty array when there are no assignments', async () => {
       deserializeSpy.mockReturnValue([]);
       dataSource.loadAssignments();
-      flushMicrotasks();
+      await vi.advanceTimersByTimeAsync(0);
       expect(dataSource.getOriginalData().length).toBe(0);
-    }));
+    });
 
-    it('should set loading to false after completing', fakeAsync(() => {
+    it('should set loading to false after completing', async () => {
       dataSource.loadAssignments();
-      flushMicrotasks();
+      await vi.advanceTimersByTimeAsync(0);
       expect(dataSource['loadingSubject'].getValue()).toBe(false);
-    }));
+    });
   });
 
   // reload()

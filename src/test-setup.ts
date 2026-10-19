@@ -99,3 +99,32 @@ HTMLCanvasElement.prototype.getContext = function getContext(this: HTMLCanvasEle
   }
   return context;
 } as typeof HTMLCanvasElement.prototype.getContext;
+
+// jsdom has no DataTransfer, which the specs use to build a FileList for file uploads. Provide the part
+// they use: items.add() and a live files list that is a FileList with the added files as its entries.
+if (!('DataTransfer' in globalThis)) {
+  class DataTransferStub {
+    readonly files: FileList;
+    readonly items: { readonly length: number; add(file: File): null };
+
+    constructor() {
+      const entries: File[] = [];
+      const files: FileList = Object.create(FileList.prototype, {
+        length: { get: () => entries.length },
+        item: { value: (index: number) => entries[index] ?? null }
+      });
+      this.files = files;
+      this.items = {
+        get length() {
+          return entries.length;
+        },
+        add(file: File) {
+          Object.defineProperty(files, entries.length, { value: file, enumerable: true });
+          entries.push(file);
+          return null;
+        }
+      };
+    }
+  }
+  globalThis.DataTransfer = DataTransferStub as unknown as typeof DataTransfer;
+}

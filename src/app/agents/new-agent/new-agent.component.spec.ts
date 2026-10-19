@@ -1,9 +1,9 @@
-import type { MockedObject } from 'vitest';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,6 +17,7 @@ import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 
 import { NewAgentComponent } from '@src/app/agents/new-agent/new-agent.component';
+import { VouchersTableComponent } from '@src/app/core/_components/tables/vouchers-table/vouchers-table.component';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
@@ -45,6 +46,12 @@ export class MockAgentBinariesTableComponent {
 export class MockVouchersTableComponent {}
 
 describe('NewAgentComponent', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
   let component: NewAgentComponent;
   let fixture: ComponentFixture<NewAgentComponent>;
 
@@ -58,20 +65,20 @@ describe('NewAgentComponent', () => {
   beforeEach(async () => {
     clipboardSpy = {
       copy: vi.fn().mockName('Clipboard.copy')
-    };
+    } as MockedObject<Clipboard>;
     alertServiceSpy = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage')
-    };
+    } as MockedObject<AlertService>;
     configServiceSpy = {
       getEndpoint: vi.fn().mockName('ConfigService.getEndpoint')
-    };
+    } as MockedObject<ConfigService>;
     globalServiceSpy = {
       create: vi.fn().mockName('GlobalService.create'),
       getAll: vi.fn().mockName('GlobalService.getAll')
-    };
+    } as MockedObject<GlobalService>;
     routerSpy = {
       navigate: vi.fn().mockName('Router.navigate')
-    };
+    } as MockedObject<Router>;
 
     // Provide default stub for configService.getEndpoint()
     configServiceSpy.getEndpoint.mockReturnValue('http://localhost:8080/api/v2');
@@ -136,7 +143,7 @@ describe('NewAgentComponent', () => {
     expect(component.isValid()).toBe(false);
   });
 
-  it('should generate a voucher and set it into the form', fakeAsync(() => {
+  it('should generate a voucher and set it into the form', async () => {
     const fakeVoucher = 'fy7vjq56';
 
     // Let internal generation method return a fake voucher
@@ -152,16 +159,16 @@ describe('NewAgentComponent', () => {
     ) as HTMLButtonElement;
     expect(refreshButton).toBeTruthy();
     refreshButton.click();
-    tick();
+    await vi.advanceTimersByTimeAsync(0);
     fixture.detectChanges();
 
     // Expect form to contain the generated voucher
     expect(component.generateVoucher).toHaveBeenCalled();
     expect(component.form.controls.voucher.value).toBe(fakeVoucher);
     expect(component.updateVoucher).toHaveBeenCalled();
-  }));
+  });
 
-  it('should call create service and reload table when add button is clicked', fakeAsync(() => {
+  it('should call create service and reload table when add button is clicked', async () => {
     // Set voucher value in the form
     const voucher = 'fy7vjq56';
     component.form.controls.voucher.setValue(voucher);
@@ -171,7 +178,7 @@ describe('NewAgentComponent', () => {
     // Spy on table reload and global service create method
     component.table = {
       reload: vi.fn().mockName('VouchersTableComponent.reload')
-    };
+    } as unknown as MockedObject<VouchersTableComponent>;
     globalServiceSpy.create.mockReturnValue(of(mockResponse()));
 
     const addButton = fixture.nativeElement.querySelector('[data-testid="add-voucher-button"]') as HTMLButtonElement;
@@ -179,11 +186,11 @@ describe('NewAgentComponent', () => {
     expect(addButton.disabled).toBe(false); // ensure the button is enabled
 
     addButton.click();
-    tick();
+    await vi.advanceTimersByTimeAsync(0);
     fixture.detectChanges();
 
     expect(globalServiceSpy.create).toHaveBeenCalledWith(SERV.VOUCHER, { voucher: voucher });
     expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('New voucher successfully created!');
     expect(component.table.reload).toHaveBeenCalled();
-  }));
+  });
 });

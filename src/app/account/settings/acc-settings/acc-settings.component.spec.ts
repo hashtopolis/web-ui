@@ -1,10 +1,10 @@
-import type { MockedObject } from 'vitest';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,6 +25,12 @@ import { PipesModule } from '@src/app/shared/pipes.module';
 import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('AccountSettingsComponent', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
   let component: AccountSettingsComponent;
   let fixture: ComponentFixture<AccountSettingsComponent>;
 
@@ -87,7 +93,7 @@ describe('AccountSettingsComponent', () => {
     alertSpy = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    };
+    } as MockedObject<AlertService>;
 
     vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockReturnValue(mockUser);
 
@@ -207,7 +213,7 @@ describe('AccountSettingsComponent', () => {
     });
 
     it('does not submit form with invalid email', () => {
-      const uhelperSpy = vi.spyOn(component['gs'], 'uhelper').mockReturnValue(undefined);
+      const uhelperSpy = vi.spyOn(component['gs'], 'uhelper').mockReturnValue(undefined as never);
       component.form.patchValue({ email: 'invalid-email' });
       component.form.updateValueAndValidity();
       fixture.detectChanges();
@@ -253,7 +259,7 @@ describe('AccountSettingsComponent', () => {
       expect(confirmPasswordControl.hasError('required')).toBe(true);
     });
 
-    it('shows validation only for the password field that has been visited', fakeAsync(() => {
+    it('shows validation only for the password field that has been visited', async () => {
       const form = component.changepasswordFormGroup;
       const oldPasswordHost = fixture.debugElement.query(By.css('[data-testid="input-oldPassword"]'));
       const newPasswordHost = fixture.debugElement.query(By.css('[data-testid="input-newPassword"]'));
@@ -264,7 +270,7 @@ describe('AccountSettingsComponent', () => {
       oldPasswordInput.dispatchEvent(new Event('input'));
       oldPasswordInput.dispatchEvent(new Event('blur'));
       fixture.detectChanges();
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       fixture.detectChanges();
 
       expect(form.controls.oldPassword.touched).toBe(true);
@@ -276,19 +282,19 @@ describe('AccountSettingsComponent', () => {
       const newPasswordInput = newPasswordHost.query(By.css('input')).nativeElement as HTMLInputElement;
       newPasswordInput.dispatchEvent(new Event('blur'));
       fixture.detectChanges();
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       fixture.detectChanges();
 
       expect(form.controls.newPassword.touched).toBe(true);
       expect(form.controls.confirmNewPassword.touched).toBe(false);
       expect(newPasswordHost.query(By.css('.field-stack')).nativeElement.classList).toContain('is-invalid');
       expect(confirmPasswordHost.query(By.css('.field-stack')).nativeElement.classList).not.toContain('is-invalid');
-    }));
+    });
 
-    it('shows every invalid password field after an invalid submission', fakeAsync(() => {
+    it('shows every invalid password field after an invalid submission', async () => {
       component.onSubmitPass();
       fixture.detectChanges();
-      tick();
+      await vi.advanceTimersByTimeAsync(0);
       fixture.detectChanges();
 
       expect(component.changepasswordFormGroup.controls.oldPassword.touched).toBe(true);
@@ -299,7 +305,7 @@ describe('AccountSettingsComponent', () => {
         const field = fixture.debugElement.query(By.css(`[data-testid="${testId}"] .field-stack`));
         expect(field.nativeElement.classList).toContain('is-invalid');
       }
-    }));
+    });
 
     it('validates password length', () => {
       const newPasswordControl = component.changepasswordFormGroup.controls.newPassword;
@@ -350,7 +356,7 @@ describe('AccountSettingsComponent', () => {
       expect(component.changepasswordFormGroup.hasError('passwordMismatch')).toBe(false);
     });
 
-    it('Submits password form and resets on success', fakeAsync(() => {
+    it('Submits password form and resets on success', async () => {
       // Arrange
       const chelperSpy = vi
         .spyOn(component['gs'], 'chelper')
@@ -371,7 +377,7 @@ describe('AccountSettingsComponent', () => {
       expect(btn).toBeTruthy();
       btn.nativeElement.click();
 
-      tick(); // flush observable
+      await vi.advanceTimersByTimeAsync(0); // flush observable
       fixture.detectChanges();
 
       // Assert
@@ -387,10 +393,10 @@ describe('AccountSettingsComponent', () => {
       expect(component['alert'].showSuccessMessage).toHaveBeenCalledWith('Password changed successfully');
       expect(resetSpy).toHaveBeenCalled();
       expect(component.isUpdatingPassLoading).toBe(false);
-    }));
+    });
 
     it('Does not submit password form if invalid', () => {
-      const chelperSpy = vi.spyOn(component['gs'], 'chelper').mockReturnValue(undefined);
+      const chelperSpy = vi.spyOn(component['gs'], 'chelper').mockReturnValue(undefined as never);
       const resetSpy = vi.spyOn(component, 'resetPasswordForm').mockReturnValue(undefined);
 
       // Make the form invalid by patching passwords not matching

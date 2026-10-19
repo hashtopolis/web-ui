@@ -1,6 +1,6 @@
 import type { MockedObject } from 'vitest';
+
 import { ChangeDetectorRef, Injector } from '@angular/core';
-import { fakeAsync, tick } from '@angular/core/testing';
 
 import { BaseModel } from '@models/base.model';
 
@@ -19,6 +19,12 @@ class TestBaseDataSource extends BaseDataSource<BaseModel> {
 }
 
 describe('BaseDataSource Pagination', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
   let dataSource: TestBaseDataSource;
   let mockInjector: MockedObject<Injector>;
 
@@ -49,20 +55,20 @@ describe('BaseDataSource Pagination', () => {
     };
 
     // Map dependencies to their mocks
-    mockInjector.get.withArgs(ChangeDetectorRef).mockReturnValue(mockCdr);
-    mockInjector.get.withArgs(UIConfigService).mockReturnValue(mockUIConfigService);
-    mockInjector.get.withArgs(GlobalService).mockReturnValue(mockGlobalService);
-    mockInjector.get.withArgs(AutoRefreshService).mockReturnValue(mockAutoRefreshService);
-    mockInjector.get.withArgs(HttpCacheService).mockReturnValue(mockHttpCacheService);
-    mockInjector.get.withArgs(LocalStorageService).mockReturnValue(mockLocalStorageService);
-    mockInjector.get.withArgs(PermissionService).mockReturnValue(mockPermissionService);
-    mockInjector.get.withArgs(JsonAPISerializer).mockReturnValue({});
+    vi.when(mockInjector.get).calledWith(ChangeDetectorRef).thenReturn(mockCdr);
+    vi.when(mockInjector.get).calledWith(UIConfigService).thenReturn(mockUIConfigService);
+    vi.when(mockInjector.get).calledWith(GlobalService).thenReturn(mockGlobalService);
+    vi.when(mockInjector.get).calledWith(AutoRefreshService).thenReturn(mockAutoRefreshService);
+    vi.when(mockInjector.get).calledWith(HttpCacheService).thenReturn(mockHttpCacheService);
+    vi.when(mockInjector.get).calledWith(LocalStorageService).thenReturn(mockLocalStorageService);
+    vi.when(mockInjector.get).calledWith(PermissionService).thenReturn(mockPermissionService);
+    vi.when(mockInjector.get).calledWith(JsonAPISerializer).thenReturn({});
 
     // Initialize the DataSource
     dataSource = new TestBaseDataSource(mockInjector);
   });
 
-  it('should reset index and trigger reload when page becomes out of bounds (simulating cursor-based pagination)', fakeAsync(() => {
+  it('should reset index and trigger reload when page becomes out of bounds (simulating cursor-based pagination)', async () => {
     // Scenario:
     // Total 6 items, pageSize 5.
     // You are on Page 2 (index 1) and delete an item.
@@ -82,20 +88,20 @@ describe('BaseDataSource Pagination', () => {
     expect(dataSource.pageBefore).toBeUndefined();
 
     // Trigger the setTimeout
-    tick();
+    await vi.advanceTimersByTimeAsync(0);
 
     // Verify that reload was called
     expect(dataSource.reload).toHaveBeenCalled();
-  }));
+  });
 
-  it('should NOT reload if totalItems is 0 when out of bounds', fakeAsync(() => {
+  it('should NOT reload if totalItems is 0 when out of bounds', async () => {
     // Current state: 0 items total.
     dataSource.setPaginationConfig(5, 0, null, null, 0);
 
     // Trigger potential reload
-    tick();
+    await vi.advanceTimersByTimeAsync(0);
 
     // Verify reload was NOT called because totalItems is not > 0
     expect(dataSource.reload).not.toHaveBeenCalled();
-  }));
+  });
 });
