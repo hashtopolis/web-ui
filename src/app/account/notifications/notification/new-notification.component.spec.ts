@@ -14,7 +14,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSelectHarness } from '@angular/material/select/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
-import { RouterModule } from '@angular/router';
+import { RouterModule, provideRouter } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
 
@@ -248,7 +248,10 @@ describe('NewNotificationComponent', () => {
       providers: [
         { provide: GlobalService, useValue: mockService },
         { provide: NotificationsRoleService, useValue: mockRoleService },
-        provideHttpClient(withInterceptorsFromDi())
+        provideHttpClient(withInterceptorsFromDi()),
+        // The component navigates here after a successful submit; without the route the
+        // navigation rejects with NG04002 after the test, which Vitest reports as an unhandled error.
+        provideRouter([{ path: 'account/notifications', children: [] }])
       ]
     }).compileComponents();
 
