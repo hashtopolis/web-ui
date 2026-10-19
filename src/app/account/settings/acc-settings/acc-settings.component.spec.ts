@@ -382,8 +382,6 @@ describe('AccountSettingsComponent', () => {
 
       // Assert
       expect(chelperSpy).toHaveBeenCalledTimes(1);
-
-      // Assert
       expect(chelperSpy).toHaveBeenCalledWith(SERV.HELPER, 'changeOwnPassword', {
         oldPassword: 'oldPass123',
         newPassword: 'newPass456',
