@@ -280,9 +280,12 @@ describe('ApplyHashlistComponent', () => {
 
       create();
       component.handleChangeHashlist(1);
+      component.onSubmit();
 
-      expect(component.selectCrackerversions).toEqual([]);
+      expect(component.form.controls.crackerBinaryId.pending).toBeFalse();
       expect(component.form.controls.crackerBinaryId.value).toBeNull();
+      expect(component.noCrackerVersionsAvailable).toBeTrue();
+      expect(gs.chelper).not.toHaveBeenCalled();
     });
 
     it('keeps the version pending while the support lookup runs', () => {
