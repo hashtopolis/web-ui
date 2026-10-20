@@ -6,6 +6,7 @@ export type SupertaskCreate = {
     attributes: {
       pretasks: Array<number>;
       supertaskName: string;
+      crackerBinaryTypeId: number;
     };
   };
 };
@@ -49,6 +50,7 @@ export type SupertaskResponse = {
     type: 'supertask';
     attributes: {
       supertaskName: string;
+      crackerBinaryTypeId: number;
       amountPretasks?: number;
     };
     links: {
@@ -100,6 +102,7 @@ export type SupertaskSingleResponse = {
     type: 'supertask';
     attributes: {
       supertaskName: string;
+      crackerBinaryTypeId: number;
       amountPretasks?: number;
     };
     links: {
@@ -151,6 +154,7 @@ export type SupertaskPostPatchResponse = {
     type: 'supertask';
     attributes: {
       supertaskName: string;
+      crackerBinaryTypeId: number;
       amountPretasks?: number;
     };
     links: {
@@ -211,6 +215,7 @@ export type SupertaskListResponse = {
     type: 'supertask';
     attributes: {
       supertaskName: string;
+      crackerBinaryTypeId: number;
       amountPretasks?: number;
     };
     links: {

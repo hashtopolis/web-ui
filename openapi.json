@@ -65241,9 +65241,12 @@
                   },
                   "supertaskName": {
                     "type": "string"
+                  },
+                  "crackerBinaryTypeId": {
+                    "type": "integer"
                   }
                 },
-                "required": ["pretasks", "supertaskName"]
+                "required": ["pretasks", "supertaskName", "crackerBinaryTypeId"]
               }
             }
           }
@@ -65372,10 +65375,13 @@
               },
               "attributes": {
                 "type": "object",
-                "required": ["supertaskName"],
+                "required": ["supertaskName", "crackerBinaryTypeId"],
                 "properties": {
                   "supertaskName": {
                     "type": "string"
+                  },
+                  "crackerBinaryTypeId": {
+                    "type": "integer"
                   },
                   "amountPretasks": {
                     "type": "integer"
@@ -65556,10 +65562,13 @@
               },
               "attributes": {
                 "type": "object",
-                "required": ["supertaskName"],
+                "required": ["supertaskName", "crackerBinaryTypeId"],
                 "properties": {
                   "supertaskName": {
                     "type": "string"
+                  },
+                  "crackerBinaryTypeId": {
+                    "type": "integer"
                   },
                   "amountPretasks": {
                     "type": "integer"
@@ -65740,10 +65749,13 @@
               },
               "attributes": {
                 "type": "object",
-                "required": ["supertaskName"],
+                "required": ["supertaskName", "crackerBinaryTypeId"],
                 "properties": {
                   "supertaskName": {
                     "type": "string"
+                  },
+                  "crackerBinaryTypeId": {
+                    "type": "integer"
                   },
                   "amountPretasks": {
                     "type": "integer"
@@ -65957,10 +65969,13 @@
                 },
                 "attributes": {
                   "type": "object",
-                  "required": ["supertaskName"],
+                  "required": ["supertaskName", "crackerBinaryTypeId"],
                   "properties": {
                     "supertaskName": {
                       "type": "string"
+                    },
+                    "crackerBinaryTypeId": {
+                      "type": "integer"
                     },
                     "amountPretasks": {
                       "type": "integer"
