@@ -1,5 +1,5 @@
 import { HttpHeaderName } from '@constants/http.config';
-import { zGetHashtypesByIdCrackerBinariesResponse } from '@generated/api/zod';
+import { zGetHashtypesByIdRelationshipsCrackerBinariesResponse } from '@generated/api/zod';
 import { firstValueFrom, of, throwError } from 'rxjs';
 
 import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
@@ -18,7 +18,7 @@ import {
 import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 
-import { mockValidResponse } from '@src/app/testing/mock-response';
+import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 
 function crackerType(id: number, typeName: string, versionIds: number[]): JCrackerBinaryType {
   return {
@@ -82,15 +82,15 @@ describe('CrackerHashtypeSupportService', () => {
   let gs: jasmine.SpyObj<GlobalService>;
 
   beforeEach(() => {
-    gs = jasmine.createSpyObj('GlobalService', ['getRelationships']);
+    gs = jasmine.createSpyObj('GlobalService', ['getRelationshipLink']);
     TestBed.configureTestingModule({ providers: [{ provide: GlobalService, useValue: gs }] });
     service = TestBed.inject(CrackerHashtypeSupportService);
   });
 
   it('returns the ids of the supporting cracker versions', async () => {
-    gs.getRelationships.and.returnValue(
+    gs.getRelationshipLink.and.returnValue(
       of(
-        mockValidResponse(zGetHashtypesByIdCrackerBinariesResponse, {
+        mockValidResponse(zGetHashtypesByIdRelationshipsCrackerBinariesResponse, {
           data: [
             { type: 'crackerBinary', id: 5 },
             { type: 'crackerBinary', id: 9 }
@@ -101,7 +101,7 @@ describe('CrackerHashtypeSupportService', () => {
 
     const ids = await firstValueFrom(service.getSupportedCrackerBinaryIds(1000));
 
-    expect(gs.getRelationships).toHaveBeenCalledWith(
+    expect(gs.getRelationshipLink).toHaveBeenCalledWith(
       SERV.HASHTYPES,
       1000,
       RelationshipType.CRACKERBINARIES,
@@ -111,21 +111,32 @@ describe('CrackerHashtypeSupportService', () => {
   });
 
   it('bypasses the HTTP cache, a stale answer must not decide about blocking', async () => {
-    gs.getRelationships.and.returnValue(of(mockValidResponse(zGetHashtypesByIdCrackerBinariesResponse, { data: [] })));
+    gs.getRelationshipLink.and.returnValue(
+      of(mockValidResponse(zGetHashtypesByIdRelationshipsCrackerBinariesResponse, { data: [] }))
+    );
 
     await firstValueFrom(service.getSupportedCrackerBinaryIds(1000));
 
-    const options = gs.getRelationships.calls.mostRecent().args[3] as { headers: HttpHeaders };
+    const options = gs.getRelationshipLink.calls.mostRecent().args[3] as { headers: HttpHeaders };
     expect(options.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
   });
 
   it('resolves to the empty failure marker on error', async () => {
     spyOn(console, 'error');
-    gs.getRelationships.and.returnValue(throwError(() => new HttpErrorResponse({ status: 403 })));
+    gs.getRelationshipLink.and.returnValue(throwError(() => new HttpErrorResponse({ status: 403 })));
 
     const ids = await firstValueFrom(service.getSupportedCrackerBinaryIds(1000));
 
     expect(ids).toBe(SUPPORT_LOOKUP_FAILED);
     expect(ids.size).toBe(0);
+  });
+
+  it('resolves to the empty failure marker when the response is not a relationship link', async () => {
+    spyOn(console, 'error');
+    gs.getRelationshipLink.and.returnValue(of(mockResponse({ data: [{ type: 'crackerBinary' }] })));
+
+    const ids = await firstValueFrom(service.getSupportedCrackerBinaryIds(1000));
+
+    expect(ids).toBe(SUPPORT_LOOKUP_FAILED);
   });
 });

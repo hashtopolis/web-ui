@@ -304,23 +304,22 @@ export class GlobalService {
    * @param serviceConfig the serviceconfig of the API endpoint
    * @param id id of the base resource
    * @param relType name of the relationship
+   * @param httpOptions optional headers, e.g. to bypass the HTTP cache
    */
-  getRelationshipLink(serviceConfig: ServiceConfig, id: number, relType: string): Observable<ResponseWrapper> {
-    return this.http.get<ResponseWrapper>(
-      this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType
-    );
-  }
-
-  getRelationships(
+  getRelationshipLink(
     serviceConfig: ServiceConfig,
     id: number,
     relType: string,
     httpOptions?: { headers?: HttpHeaders }
   ): Observable<ResponseWrapper> {
     return this.http.get<ResponseWrapper>(
-      this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType,
-      httpOptions?.headers ? { headers: httpOptions.headers } : {}
+      this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/relationships/' + relType,
+      httpOptions
     );
+  }
+
+  getRelationships(serviceConfig: ServiceConfig, id: number, relType: string): Observable<ResponseWrapper> {
+    return this.http.get<ResponseWrapper>(this.cs.getEndpoint() + serviceConfig.URL + '/' + id + '/' + relType);
   }
 
   /**

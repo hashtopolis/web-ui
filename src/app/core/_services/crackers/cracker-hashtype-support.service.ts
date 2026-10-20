@@ -1,5 +1,5 @@
 import { HTTP_SKIP_CACHE_HEADER_CONFIG } from '@constants/http.config';
-import { zGetHashtypesByIdCrackerBinariesResponse } from '@generated/api/zod';
+import { zGetHashtypesByIdRelationshipsCrackerBinariesResponse } from '@generated/api/zod';
 import { Observable, catchError, map, of } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -74,15 +74,17 @@ export class CrackerHashtypeSupportService {
 
   /**
    * Ids of the cracker versions supporting the hashtype, filtered by the backend to the access groups of the user.
+   * Reads the relationship link, which carries only the ids and is not paginated.
    * A failed lookup (e.g. 403 without hashtype read permission) emits {@link SUPPORT_LOOKUP_FAILED}, so the selection
    * is blocked; the global HTTP error dialog shows the reason. Unsubscribing cancels the request. The HTTP cache is
    * bypassed: a stale answer would briefly block or unblock the selection.
    */
   getSupportedCrackerBinaryIds(hashTypeId: HashTypeId): Observable<ReadonlySet<CrackerBinaryId>> {
     const headers = new HttpHeaders(HTTP_SKIP_CACHE_HEADER_CONFIG);
-    return this.gs.getRelationships(SERV.HASHTYPES, hashTypeId, RelationshipType.CRACKERBINARIES, { headers }).pipe(
+    return this.gs.getRelationshipLink(SERV.HASHTYPES, hashTypeId, RelationshipType.CRACKERBINARIES, { headers }).pipe(
       map(
-        (response) => new Set(zGetHashtypesByIdCrackerBinariesResponse.parse(response).data.map((binary) => binary.id))
+        (response) =>
+          new Set(zGetHashtypesByIdRelationshipsCrackerBinariesResponse.parse(response).data.map((binary) => binary.id))
       ),
       catchError((error: unknown) => {
         console.error(`Failed to load the cracker versions supporting hashtype ${hashTypeId}:`, error);

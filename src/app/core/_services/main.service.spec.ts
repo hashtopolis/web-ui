@@ -109,11 +109,11 @@ describe('GlobalService relationships', () => {
     req.flush({ data: [] });
   });
 
-  it('getRelationships requests the related resources and forwards headers', () => {
+  it('getRelationshipLink forwards headers', () => {
     service
-      .getRelationships(SERV.HASHTYPES, 0, 'crackerBinaries', { headers: new HttpHeaders({ 'X-Test': '1' }) })
+      .getRelationshipLink(SERV.HASHTYPES, 0, 'crackerBinaries', { headers: new HttpHeaders({ 'X-Test': '1' }) })
       .subscribe();
-    const req = httpMock.expectOne('http://localhost:8080/api/v2/ui/hashtypes/0/crackerBinaries');
+    const req = httpMock.expectOne('http://localhost:8080/api/v2/ui/hashtypes/0/relationships/crackerBinaries');
     expect(req.request.headers.get('X-Test')).toBe('1');
     req.flush({ data: [] });
   });
