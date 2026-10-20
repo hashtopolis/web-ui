@@ -1,4 +1,5 @@
 import type { ErrorResponse } from './common';
+import type { UserResponse } from './user';
 
 export type ApiTokenCreate = {
   data: {
@@ -238,7 +239,7 @@ export type ApiTokenRelationUserGetResponse = {
   data: {
     type: 'user';
     id: number;
-  };
+  } | null;
 };
 
 export type DeleteApiTokensData = {
@@ -502,7 +503,7 @@ export type GetApiTokensByIdUserResponses = {
   /**
    * successful operation
    */
-  200: ApiTokenRelationUserGetResponse;
+  200: UserResponse;
 };
 
 export type GetApiTokensByIdUserResponse = GetApiTokensByIdUserResponses[keyof GetApiTokensByIdUserResponses];
@@ -542,7 +543,7 @@ export type GetApiTokensByIdRelationshipsUserResponses = {
   /**
    * successful operation
    */
-  200: ApiTokenResponse;
+  200: ApiTokenRelationUserGetResponse;
 };
 
 export type GetApiTokensByIdRelationshipsUserResponse =

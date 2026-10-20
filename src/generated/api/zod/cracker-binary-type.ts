@@ -1,5 +1,8 @@
 import * as z from 'zod';
 
+import { zCrackerBinaryListResponse } from './cracker-binary';
+import { zTaskListResponse } from './task';
+
 export const zCrackerBinaryTypeCreate = z.object({
   data: z.object({
     type: z.literal('crackerBinaryType'),
@@ -467,7 +470,7 @@ export const zGetCrackertypesByIdCrackerVersionsPath = z.object({
 /**
  * successful operation
  */
-export const zGetCrackertypesByIdCrackerVersionsResponse = zCrackerBinaryTypeRelationCrackerVersionsGetResponse;
+export const zGetCrackertypesByIdCrackerVersionsResponse = zCrackerBinaryListResponse;
 
 export const zDeleteCrackertypesByIdRelationshipsCrackerVersionsBody = zCrackerBinaryTypeRelationCrackerVersions;
 
@@ -490,7 +493,8 @@ export const zGetCrackertypesByIdRelationshipsCrackerVersionsPath = z.object({
 /**
  * successful operation
  */
-export const zGetCrackertypesByIdRelationshipsCrackerVersionsResponse = zCrackerBinaryTypeResponse;
+export const zGetCrackertypesByIdRelationshipsCrackerVersionsResponse =
+  zCrackerBinaryTypeRelationCrackerVersionsGetResponse;
 
 export const zPatchCrackertypesByIdRelationshipsCrackerVersionsBody = zCrackerBinaryTypeRelationCrackerVersions;
 
@@ -524,7 +528,7 @@ export const zGetCrackertypesByIdTasksPath = z.object({
 /**
  * successful operation
  */
-export const zGetCrackertypesByIdTasksResponse = zCrackerBinaryTypeRelationTasksGetResponse;
+export const zGetCrackertypesByIdTasksResponse = zTaskListResponse;
 
 export const zDeleteCrackertypesByIdRelationshipsTasksBody = zCrackerBinaryTypeRelationTasks;
 
@@ -547,7 +551,7 @@ export const zGetCrackertypesByIdRelationshipsTasksPath = z.object({
 /**
  * successful operation
  */
-export const zGetCrackertypesByIdRelationshipsTasksResponse = zCrackerBinaryTypeResponse;
+export const zGetCrackertypesByIdRelationshipsTasksResponse = zCrackerBinaryTypeRelationTasksGetResponse;
 
 export const zPatchCrackertypesByIdRelationshipsTasksBody = zCrackerBinaryTypeRelationTasks;
 

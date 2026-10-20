@@ -1,5 +1,8 @@
 import * as z from 'zod';
 
+import { zChunkResponse } from './chunk';
+import { zHashlistResponse } from './hashlist';
+
 export const zHashResourceObject = z.object({
   id: z.int(),
   type: z.literal('hash'),
@@ -306,10 +309,12 @@ export const zHashRelationChunk = z.object({
 });
 
 export const zHashRelationChunkGetResponse = z.object({
-  data: z.object({
-    type: z.literal('chunk'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('chunk'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zHashRelationHashlist = z.object({
@@ -320,10 +325,12 @@ export const zHashRelationHashlist = z.object({
 });
 
 export const zHashRelationHashlistGetResponse = z.object({
-  data: z.object({
-    type: z.literal('hashlist'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('hashlist'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zGetHashesQuery = z.object({
@@ -363,7 +370,7 @@ export const zGetHashesByIdChunkPath = z.object({
 /**
  * successful operation
  */
-export const zGetHashesByIdChunkResponse = zHashRelationChunkGetResponse;
+export const zGetHashesByIdChunkResponse = zChunkResponse;
 
 export const zGetHashesByIdRelationshipsChunkPath = z.object({
   id: z
@@ -375,7 +382,7 @@ export const zGetHashesByIdRelationshipsChunkPath = z.object({
 /**
  * successful operation
  */
-export const zGetHashesByIdRelationshipsChunkResponse = zHashResponse;
+export const zGetHashesByIdRelationshipsChunkResponse = zHashRelationChunkGetResponse;
 
 export const zPatchHashesByIdRelationshipsChunkBody = zHashRelationChunk;
 
@@ -398,7 +405,7 @@ export const zGetHashesByIdHashlistPath = z.object({
 /**
  * successful operation
  */
-export const zGetHashesByIdHashlistResponse = zHashRelationHashlistGetResponse;
+export const zGetHashesByIdHashlistResponse = zHashlistResponse;
 
 export const zGetHashesByIdRelationshipsHashlistPath = z.object({
   id: z
@@ -410,7 +417,7 @@ export const zGetHashesByIdRelationshipsHashlistPath = z.object({
 /**
  * successful operation
  */
-export const zGetHashesByIdRelationshipsHashlistResponse = zHashResponse;
+export const zGetHashesByIdRelationshipsHashlistResponse = zHashRelationHashlistGetResponse;
 
 export const zPatchHashesByIdRelationshipsHashlistBody = zHashRelationHashlist;
 

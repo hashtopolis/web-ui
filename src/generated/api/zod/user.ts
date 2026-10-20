@@ -1,5 +1,8 @@
 import * as z from 'zod';
 
+import { zAccessGroupListResponse } from './access-group';
+import { zGlobalPermissionGroupResponse } from './global-permission-group';
+
 export const zUserResourceObject = z.object({
   id: z.int(),
   type: z.literal('user'),
@@ -369,10 +372,12 @@ export const zUserRelationGlobalPermissionGroup = z.object({
 });
 
 export const zUserRelationGlobalPermissionGroupGetResponse = z.object({
-  data: z.object({
-    type: z.literal('globalPermissionGroup'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('globalPermissionGroup'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zUserRelationAccessGroups = z.object({
@@ -451,7 +456,7 @@ export const zGetUsersByIdGlobalPermissionGroupPath = z.object({
 /**
  * successful operation
  */
-export const zGetUsersByIdGlobalPermissionGroupResponse = zUserRelationGlobalPermissionGroupGetResponse;
+export const zGetUsersByIdGlobalPermissionGroupResponse = zGlobalPermissionGroupResponse;
 
 export const zGetUsersByIdRelationshipsGlobalPermissionGroupPath = z.object({
   id: z
@@ -463,7 +468,7 @@ export const zGetUsersByIdRelationshipsGlobalPermissionGroupPath = z.object({
 /**
  * successful operation
  */
-export const zGetUsersByIdRelationshipsGlobalPermissionGroupResponse = zUserResponse;
+export const zGetUsersByIdRelationshipsGlobalPermissionGroupResponse = zUserRelationGlobalPermissionGroupGetResponse;
 
 export const zPatchUsersByIdRelationshipsGlobalPermissionGroupBody = zUserRelationGlobalPermissionGroup;
 
@@ -486,7 +491,7 @@ export const zGetUsersByIdAccessGroupsPath = z.object({
 /**
  * successful operation
  */
-export const zGetUsersByIdAccessGroupsResponse = zUserRelationAccessGroupsGetResponse;
+export const zGetUsersByIdAccessGroupsResponse = zAccessGroupListResponse;
 
 export const zDeleteUsersByIdRelationshipsAccessGroupsBody = zUserRelationAccessGroups;
 
@@ -509,7 +514,7 @@ export const zGetUsersByIdRelationshipsAccessGroupsPath = z.object({
 /**
  * successful operation
  */
-export const zGetUsersByIdRelationshipsAccessGroupsResponse = zUserResponse;
+export const zGetUsersByIdRelationshipsAccessGroupsResponse = zUserRelationAccessGroupsGetResponse;
 
 export const zPatchUsersByIdRelationshipsAccessGroupsBody = zUserRelationAccessGroups;
 

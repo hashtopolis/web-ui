@@ -8,7 +8,7 @@ import { zGlobalPermissionGroupResourceObject } from './global-permission-group'
 import { zHashResourceObject } from './hash';
 import { zHashlistSingleResponse } from './hashlist';
 import { zSupertaskSingleResponse } from './supertask';
-import { zTaskResourceObject } from './task';
+import { zTaskListResponse, zTaskResourceObject } from './task';
 import {
   zTaskWrapperDisplayCountResponse,
   zTaskWrapperDisplayListResponse,
@@ -440,7 +440,7 @@ export const zGetTaskwrapperdisplaysByIdTasksPath = z.object({
 /**
  * successful operation
  */
-export const zGetTaskwrapperdisplaysByIdTasksResponse = zTaskWrapperDisplayRelationTasksGetResponse;
+export const zGetTaskwrapperdisplaysByIdTasksResponse = zTaskListResponse;
 
 export const zGetTaskwrapperdisplaysByIdRelationshipsTasksPath = z.object({
   id: z
@@ -452,7 +452,7 @@ export const zGetTaskwrapperdisplaysByIdRelationshipsTasksPath = z.object({
 /**
  * successful operation
  */
-export const zGetTaskwrapperdisplaysByIdRelationshipsTasksResponse = zTaskWrapperDisplayResponse;
+export const zGetTaskwrapperdisplaysByIdRelationshipsTasksResponse = zTaskWrapperDisplayRelationTasksGetResponse;
 
 export const zGetTaskwrapperdisplaysByIdPath = z.object({
   id: z

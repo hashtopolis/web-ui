@@ -1,4 +1,6 @@
+import type { AccessGroupListResponse } from './access-group';
 import type { ErrorResponse } from './common';
+import type { GlobalPermissionGroupResponse } from './global-permission-group';
 
 export type UserResourceObject = {
   id: number;
@@ -332,7 +334,7 @@ export type UserRelationGlobalPermissionGroupGetResponse = {
   data: {
     type: 'globalPermissionGroup';
     id: number;
-  };
+  } | null;
 };
 
 export type UserRelationAccessGroups = {
@@ -611,7 +613,7 @@ export type GetUsersByIdGlobalPermissionGroupResponses = {
   /**
    * successful operation
    */
-  200: UserRelationGlobalPermissionGroupGetResponse;
+  200: GlobalPermissionGroupResponse;
 };
 
 export type GetUsersByIdGlobalPermissionGroupResponse =
@@ -652,7 +654,7 @@ export type GetUsersByIdRelationshipsGlobalPermissionGroupResponses = {
   /**
    * successful operation
    */
-  200: UserResponse;
+  200: UserRelationGlobalPermissionGroupGetResponse;
 };
 
 export type GetUsersByIdRelationshipsGlobalPermissionGroupResponse =
@@ -737,7 +739,7 @@ export type GetUsersByIdAccessGroupsResponses = {
   /**
    * successful operation
    */
-  200: UserRelationAccessGroupsGetResponse;
+  200: AccessGroupListResponse;
 };
 
 export type GetUsersByIdAccessGroupsResponse =
@@ -819,7 +821,7 @@ export type GetUsersByIdRelationshipsAccessGroupsResponses = {
   /**
    * successful operation
    */
-  200: UserResponse;
+  200: UserRelationAccessGroupsGetResponse;
 };
 
 export type GetUsersByIdRelationshipsAccessGroupsResponse =

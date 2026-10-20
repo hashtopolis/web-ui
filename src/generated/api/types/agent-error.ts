@@ -1,4 +1,5 @@
 import type { ErrorResponse } from './common';
+import type { TaskResponse } from './task';
 
 export type AgentErrorDeleteMultiple = {
   data: Array<{
@@ -180,7 +181,7 @@ export type AgentErrorRelationTaskGetResponse = {
   data: {
     type: 'task';
     id: number;
-  };
+  } | null;
 };
 
 export type DeleteAgenterrorsData = {
@@ -366,7 +367,7 @@ export type GetAgenterrorsByIdTaskResponses = {
   /**
    * successful operation
    */
-  200: AgentErrorRelationTaskGetResponse;
+  200: TaskResponse;
 };
 
 export type GetAgenterrorsByIdTaskResponse = GetAgenterrorsByIdTaskResponses[keyof GetAgenterrorsByIdTaskResponses];
@@ -406,7 +407,7 @@ export type GetAgenterrorsByIdRelationshipsTaskResponses = {
   /**
    * successful operation
    */
-  200: AgentErrorResponse;
+  200: AgentErrorRelationTaskGetResponse;
 };
 
 export type GetAgenterrorsByIdRelationshipsTaskResponse =

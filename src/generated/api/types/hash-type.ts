@@ -1,4 +1,5 @@
 import type { ErrorResponse } from './common';
+import type { CrackerBinaryListResponse } from './cracker-binary';
 
 export type HashTypeCreate = {
   data: {
@@ -508,7 +509,7 @@ export type GetHashtypesByIdCrackerBinariesResponses = {
   /**
    * successful operation
    */
-  200: HashTypeRelationCrackerBinariesGetResponse;
+  200: CrackerBinaryListResponse;
 };
 
 export type GetHashtypesByIdCrackerBinariesResponse =
@@ -549,7 +550,7 @@ export type GetHashtypesByIdRelationshipsCrackerBinariesResponses = {
   /**
    * successful operation
    */
-  200: HashTypeResponse;
+  200: HashTypeRelationCrackerBinariesGetResponse;
 };
 
 export type GetHashtypesByIdRelationshipsCrackerBinariesResponse =

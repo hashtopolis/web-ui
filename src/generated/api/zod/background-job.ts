@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { zUserResponse } from './user';
+
 export const zBackgroundJobDeleteMultiple = z.object({
   data: z.array(
     z.object({
@@ -175,10 +177,12 @@ export const zBackgroundJobRelationUser = z.object({
 });
 
 export const zBackgroundJobRelationUserGetResponse = z.object({
-  data: z.object({
-    type: z.literal('user'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('user'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zDeleteBackgroundJobsBody = zBackgroundJobDeleteMultiple;
@@ -225,7 +229,7 @@ export const zGetBackgroundJobsByIdUserPath = z.object({
 /**
  * successful operation
  */
-export const zGetBackgroundJobsByIdUserResponse = zBackgroundJobRelationUserGetResponse;
+export const zGetBackgroundJobsByIdUserResponse = zUserResponse;
 
 export const zGetBackgroundJobsByIdRelationshipsUserPath = z.object({
   id: z
@@ -237,7 +241,7 @@ export const zGetBackgroundJobsByIdRelationshipsUserPath = z.object({
 /**
  * successful operation
  */
-export const zGetBackgroundJobsByIdRelationshipsUserResponse = zBackgroundJobResponse;
+export const zGetBackgroundJobsByIdRelationshipsUserResponse = zBackgroundJobRelationUserGetResponse;
 
 export const zPatchBackgroundJobsByIdRelationshipsUserBody = zBackgroundJobRelationUser;
 

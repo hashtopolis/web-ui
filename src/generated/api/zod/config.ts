@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { zConfigSectionResponse } from './config-section';
+
 export const zConfigResourceObject = z.object({
   id: z.int(),
   type: z.literal('config'),
@@ -409,10 +411,12 @@ export const zConfigRelationConfigSection = z.object({
 });
 
 export const zConfigRelationConfigSectionGetResponse = z.object({
-  data: z.object({
-    type: z.literal('configSection'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('configSection'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zGetConfigsQuery = z.object({
@@ -460,7 +464,7 @@ export const zGetConfigsByIdConfigSectionPath = z.object({
 /**
  * successful operation
  */
-export const zGetConfigsByIdConfigSectionResponse = zConfigRelationConfigSectionGetResponse;
+export const zGetConfigsByIdConfigSectionResponse = zConfigSectionResponse;
 
 export const zGetConfigsByIdRelationshipsConfigSectionPath = z.object({
   id: z
@@ -472,7 +476,7 @@ export const zGetConfigsByIdRelationshipsConfigSectionPath = z.object({
 /**
  * successful operation
  */
-export const zGetConfigsByIdRelationshipsConfigSectionResponse = zConfigResponse;
+export const zGetConfigsByIdRelationshipsConfigSectionResponse = zConfigRelationConfigSectionGetResponse;
 
 export const zPatchConfigsByIdRelationshipsConfigSectionBody = zConfigRelationConfigSection;
 

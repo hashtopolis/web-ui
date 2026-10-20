@@ -1,4 +1,11 @@
+import type { AccessGroupListResponse } from './access-group';
+import type { AgentAssignmentListResponse } from './agent-assignment';
+import type { AgentErrorListResponse } from './agent-error';
+import type { AgentStatListResponse } from './agent-stat';
+import type { ChunkListResponse } from './chunk';
 import type { ErrorResponse } from './common';
+import type { TaskListResponse } from './task';
+import type { UserResponse } from './user';
 
 export type AgentPatch = {
   data: {
@@ -703,7 +710,7 @@ export type AgentRelationUserGetResponse = {
   data: {
     type: 'user';
     id: number;
-  };
+  } | null;
 };
 
 export type AgentRelationAccessGroups = {
@@ -1020,7 +1027,7 @@ export type GetAgentsByIdUserResponses = {
   /**
    * successful operation
    */
-  200: AgentRelationUserGetResponse;
+  200: UserResponse;
 };
 
 export type GetAgentsByIdUserResponse = GetAgentsByIdUserResponses[keyof GetAgentsByIdUserResponses];
@@ -1060,7 +1067,7 @@ export type GetAgentsByIdRelationshipsUserResponses = {
   /**
    * successful operation
    */
-  200: AgentResponse;
+  200: AgentRelationUserGetResponse;
 };
 
 export type GetAgentsByIdRelationshipsUserResponse =
@@ -1145,7 +1152,7 @@ export type GetAgentsByIdAccessGroupsResponses = {
   /**
    * successful operation
    */
-  200: AgentRelationAccessGroupsGetResponse;
+  200: AccessGroupListResponse;
 };
 
 export type GetAgentsByIdAccessGroupsResponse =
@@ -1227,7 +1234,7 @@ export type GetAgentsByIdRelationshipsAccessGroupsResponses = {
   /**
    * successful operation
    */
-  200: AgentResponse;
+  200: AgentRelationAccessGroupsGetResponse;
 };
 
 export type GetAgentsByIdRelationshipsAccessGroupsResponse =
@@ -1357,7 +1364,7 @@ export type GetAgentsByIdAgentStatsResponses = {
   /**
    * successful operation
    */
-  200: AgentRelationAgentStatsGetResponse;
+  200: AgentStatListResponse;
 };
 
 export type GetAgentsByIdAgentStatsResponse = GetAgentsByIdAgentStatsResponses[keyof GetAgentsByIdAgentStatsResponses];
@@ -1438,7 +1445,7 @@ export type GetAgentsByIdRelationshipsAgentStatsResponses = {
   /**
    * successful operation
    */
-  200: AgentResponse;
+  200: AgentRelationAgentStatsGetResponse;
 };
 
 export type GetAgentsByIdRelationshipsAgentStatsResponse =
@@ -1568,7 +1575,7 @@ export type GetAgentsByIdAgentErrorsResponses = {
   /**
    * successful operation
    */
-  200: AgentRelationAgentErrorsGetResponse;
+  200: AgentErrorListResponse;
 };
 
 export type GetAgentsByIdAgentErrorsResponse =
@@ -1650,7 +1657,7 @@ export type GetAgentsByIdRelationshipsAgentErrorsResponses = {
   /**
    * successful operation
    */
-  200: AgentResponse;
+  200: AgentRelationAgentErrorsGetResponse;
 };
 
 export type GetAgentsByIdRelationshipsAgentErrorsResponse =
@@ -1780,7 +1787,7 @@ export type GetAgentsByIdChunksResponses = {
   /**
    * successful operation
    */
-  200: AgentRelationChunksGetResponse;
+  200: ChunkListResponse;
 };
 
 export type GetAgentsByIdChunksResponse = GetAgentsByIdChunksResponses[keyof GetAgentsByIdChunksResponses];
@@ -1861,7 +1868,7 @@ export type GetAgentsByIdRelationshipsChunksResponses = {
   /**
    * successful operation
    */
-  200: AgentResponse;
+  200: AgentRelationChunksGetResponse;
 };
 
 export type GetAgentsByIdRelationshipsChunksResponse =
@@ -1991,7 +1998,7 @@ export type GetAgentsByIdTasksResponses = {
   /**
    * successful operation
    */
-  200: AgentRelationTasksGetResponse;
+  200: TaskListResponse;
 };
 
 export type GetAgentsByIdTasksResponse = GetAgentsByIdTasksResponses[keyof GetAgentsByIdTasksResponses];
@@ -2072,7 +2079,7 @@ export type GetAgentsByIdRelationshipsTasksResponses = {
   /**
    * successful operation
    */
-  200: AgentResponse;
+  200: AgentRelationTasksGetResponse;
 };
 
 export type GetAgentsByIdRelationshipsTasksResponse =
@@ -2202,7 +2209,7 @@ export type GetAgentsByIdAssignmentsResponses = {
   /**
    * successful operation
    */
-  200: AgentRelationAssignmentsGetResponse;
+  200: AgentAssignmentListResponse;
 };
 
 export type GetAgentsByIdAssignmentsResponse =
@@ -2284,7 +2291,7 @@ export type GetAgentsByIdRelationshipsAssignmentsResponses = {
   /**
    * successful operation
    */
-  200: AgentResponse;
+  200: AgentRelationAssignmentsGetResponse;
 };
 
 export type GetAgentsByIdRelationshipsAssignmentsResponse =

@@ -1,3 +1,4 @@
+import type { AccessGroupResponse } from './access-group';
 import type { ErrorResponse } from './common';
 
 export type FileCreate = {
@@ -265,7 +266,7 @@ export type FileRelationAccessGroupGetResponse = {
   data: {
     type: 'accessGroup';
     id: number;
-  };
+  } | null;
 };
 
 export type DeleteFilesData = {
@@ -529,7 +530,7 @@ export type GetFilesByIdAccessGroupResponses = {
   /**
    * successful operation
    */
-  200: FileRelationAccessGroupGetResponse;
+  200: AccessGroupResponse;
 };
 
 export type GetFilesByIdAccessGroupResponse = GetFilesByIdAccessGroupResponses[keyof GetFilesByIdAccessGroupResponses];
@@ -569,7 +570,7 @@ export type GetFilesByIdRelationshipsAccessGroupResponses = {
   /**
    * successful operation
    */
-  200: FileResponse;
+  200: FileRelationAccessGroupGetResponse;
 };
 
 export type GetFilesByIdRelationshipsAccessGroupResponse =

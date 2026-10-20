@@ -1,4 +1,10 @@
+import type { AgentListResponse } from './agent';
 import type { ErrorResponse } from './common';
+import type { CrackerBinaryResponse } from './cracker-binary';
+import type { CrackerBinaryTypeResponse } from './cracker-binary-type';
+import type { FileListResponse } from './file';
+import type { HashlistResponse } from './hashlist';
+import type { SpeedListResponse } from './speed';
 
 export type TaskResourceObject = {
   id: number;
@@ -850,7 +856,7 @@ export type TaskRelationCrackerBinaryGetResponse = {
   data: {
     type: 'crackerBinary';
     id: number;
-  };
+  } | null;
 };
 
 export type TaskRelationCrackerBinaryType = {
@@ -864,7 +870,7 @@ export type TaskRelationCrackerBinaryTypeGetResponse = {
   data: {
     type: 'crackerBinaryType';
     id: number;
-  };
+  } | null;
 };
 
 export type TaskRelationHashlist = {
@@ -878,7 +884,7 @@ export type TaskRelationHashlistGetResponse = {
   data: {
     type: 'hashlist';
     id: number;
-  };
+  } | null;
 };
 
 export type TaskRelationAssignedAgents = {
@@ -1190,7 +1196,7 @@ export type GetTasksByIdCrackerBinaryResponses = {
   /**
    * successful operation
    */
-  200: TaskRelationCrackerBinaryGetResponse;
+  200: CrackerBinaryResponse;
 };
 
 export type GetTasksByIdCrackerBinaryResponse =
@@ -1231,7 +1237,7 @@ export type GetTasksByIdRelationshipsCrackerBinaryResponses = {
   /**
    * successful operation
    */
-  200: TaskResponse;
+  200: TaskRelationCrackerBinaryGetResponse;
 };
 
 export type GetTasksByIdRelationshipsCrackerBinaryResponse =
@@ -1317,7 +1323,7 @@ export type GetTasksByIdCrackerBinaryTypeResponses = {
   /**
    * successful operation
    */
-  200: TaskRelationCrackerBinaryTypeGetResponse;
+  200: CrackerBinaryTypeResponse;
 };
 
 export type GetTasksByIdCrackerBinaryTypeResponse =
@@ -1358,7 +1364,7 @@ export type GetTasksByIdRelationshipsCrackerBinaryTypeResponses = {
   /**
    * successful operation
    */
-  200: TaskResponse;
+  200: TaskRelationCrackerBinaryTypeGetResponse;
 };
 
 export type GetTasksByIdRelationshipsCrackerBinaryTypeResponse =
@@ -1443,7 +1449,7 @@ export type GetTasksByIdHashlistResponses = {
   /**
    * successful operation
    */
-  200: TaskRelationHashlistGetResponse;
+  200: HashlistResponse;
 };
 
 export type GetTasksByIdHashlistResponse = GetTasksByIdHashlistResponses[keyof GetTasksByIdHashlistResponses];
@@ -1483,7 +1489,7 @@ export type GetTasksByIdRelationshipsHashlistResponses = {
   /**
    * successful operation
    */
-  200: TaskResponse;
+  200: TaskRelationHashlistGetResponse;
 };
 
 export type GetTasksByIdRelationshipsHashlistResponse =
@@ -1568,7 +1574,7 @@ export type GetTasksByIdAssignedAgentsResponses = {
   /**
    * successful operation
    */
-  200: TaskRelationAssignedAgentsGetResponse;
+  200: AgentListResponse;
 };
 
 export type GetTasksByIdAssignedAgentsResponse =
@@ -1650,7 +1656,7 @@ export type GetTasksByIdRelationshipsAssignedAgentsResponses = {
   /**
    * successful operation
    */
-  200: TaskResponse;
+  200: TaskRelationAssignedAgentsGetResponse;
 };
 
 export type GetTasksByIdRelationshipsAssignedAgentsResponse =
@@ -1780,7 +1786,7 @@ export type GetTasksByIdFilesResponses = {
   /**
    * successful operation
    */
-  200: TaskRelationFilesGetResponse;
+  200: FileListResponse;
 };
 
 export type GetTasksByIdFilesResponse = GetTasksByIdFilesResponses[keyof GetTasksByIdFilesResponses];
@@ -1861,7 +1867,7 @@ export type GetTasksByIdRelationshipsFilesResponses = {
   /**
    * successful operation
    */
-  200: TaskResponse;
+  200: TaskRelationFilesGetResponse;
 };
 
 export type GetTasksByIdRelationshipsFilesResponse =
@@ -1991,7 +1997,7 @@ export type GetTasksByIdSpeedsResponses = {
   /**
    * successful operation
    */
-  200: TaskRelationSpeedsGetResponse;
+  200: SpeedListResponse;
 };
 
 export type GetTasksByIdSpeedsResponse = GetTasksByIdSpeedsResponses[keyof GetTasksByIdSpeedsResponses];
@@ -2072,7 +2078,7 @@ export type GetTasksByIdRelationshipsSpeedsResponses = {
   /**
    * successful operation
    */
-  200: TaskResponse;
+  200: TaskRelationSpeedsGetResponse;
 };
 
 export type GetTasksByIdRelationshipsSpeedsResponse =

@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { zCrackerBinaryListResponse } from './cracker-binary';
+
 export const zHashTypeCreate = z.object({
   data: z.object({
     type: z.literal('hashType'),
@@ -313,7 +315,7 @@ export const zGetHashtypesByIdCrackerBinariesPath = z.object({
 /**
  * successful operation
  */
-export const zGetHashtypesByIdCrackerBinariesResponse = zHashTypeRelationCrackerBinariesGetResponse;
+export const zGetHashtypesByIdCrackerBinariesResponse = zCrackerBinaryListResponse;
 
 export const zGetHashtypesByIdRelationshipsCrackerBinariesPath = z.object({
   id: z
@@ -325,7 +327,7 @@ export const zGetHashtypesByIdRelationshipsCrackerBinariesPath = z.object({
 /**
  * successful operation
  */
-export const zGetHashtypesByIdRelationshipsCrackerBinariesResponse = zHashTypeResponse;
+export const zGetHashtypesByIdRelationshipsCrackerBinariesResponse = zHashTypeRelationCrackerBinariesGetResponse;
 
 export const zDeleteHashtypesByIdPath = z.object({
   id: z.int()

@@ -1,4 +1,7 @@
 import type { ErrorResponse } from './common';
+import type { CrackerBinaryResponse } from './cracker-binary';
+import type { HashTypeResponse } from './hash-type';
+import type { HealthCheckAgentListResponse } from './health-check-agent';
 
 export type HealthCheckCreate = {
   data: {
@@ -392,7 +395,7 @@ export type HealthCheckRelationCrackerBinaryGetResponse = {
   data: {
     type: 'crackerBinary';
     id: number;
-  };
+  } | null;
 };
 
 export type HealthCheckRelationHashType = {
@@ -406,7 +409,7 @@ export type HealthCheckRelationHashTypeGetResponse = {
   data: {
     type: 'hashType';
     id: number;
-  };
+  } | null;
 };
 
 export type HealthCheckRelationHealthCheckAgents = {
@@ -685,7 +688,7 @@ export type GetHealthchecksByIdCrackerBinaryResponses = {
   /**
    * successful operation
    */
-  200: HealthCheckRelationCrackerBinaryGetResponse;
+  200: CrackerBinaryResponse;
 };
 
 export type GetHealthchecksByIdCrackerBinaryResponse =
@@ -726,7 +729,7 @@ export type GetHealthchecksByIdRelationshipsCrackerBinaryResponses = {
   /**
    * successful operation
    */
-  200: HealthCheckResponse;
+  200: HealthCheckRelationCrackerBinaryGetResponse;
 };
 
 export type GetHealthchecksByIdRelationshipsCrackerBinaryResponse =
@@ -812,7 +815,7 @@ export type GetHealthchecksByIdHashTypeResponses = {
   /**
    * successful operation
    */
-  200: HealthCheckRelationHashTypeGetResponse;
+  200: HashTypeResponse;
 };
 
 export type GetHealthchecksByIdHashTypeResponse =
@@ -853,7 +856,7 @@ export type GetHealthchecksByIdRelationshipsHashTypeResponses = {
   /**
    * successful operation
    */
-  200: HealthCheckResponse;
+  200: HealthCheckRelationHashTypeGetResponse;
 };
 
 export type GetHealthchecksByIdRelationshipsHashTypeResponse =
@@ -939,7 +942,7 @@ export type GetHealthchecksByIdHealthCheckAgentsResponses = {
   /**
    * successful operation
    */
-  200: HealthCheckRelationHealthCheckAgentsGetResponse;
+  200: HealthCheckAgentListResponse;
 };
 
 export type GetHealthchecksByIdHealthCheckAgentsResponse =
@@ -1021,7 +1024,7 @@ export type GetHealthchecksByIdRelationshipsHealthCheckAgentsResponses = {
   /**
    * successful operation
    */
-  200: HealthCheckResponse;
+  200: HealthCheckRelationHealthCheckAgentsGetResponse;
 };
 
 export type GetHealthchecksByIdRelationshipsHealthCheckAgentsResponse =

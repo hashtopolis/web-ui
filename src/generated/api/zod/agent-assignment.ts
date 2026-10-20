@@ -1,5 +1,8 @@
 import * as z from 'zod';
 
+import { zAgentResponse } from './agent';
+import { zTaskResponse } from './task';
+
 export const zAgentAssignmentCreate = z.object({
   data: z.object({
     type: z.literal('agentAssignment'),
@@ -414,10 +417,12 @@ export const zAgentAssignmentRelationAgent = z.object({
 });
 
 export const zAgentAssignmentRelationAgentGetResponse = z.object({
-  data: z.object({
-    type: z.literal('agent'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('agent'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zAgentAssignmentRelationTask = z.object({
@@ -428,10 +433,12 @@ export const zAgentAssignmentRelationTask = z.object({
 });
 
 export const zAgentAssignmentRelationTaskGetResponse = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('task'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zDeleteAgentassignmentsBody = zAgentAssignmentDeleteMultiple;
@@ -493,7 +500,7 @@ export const zGetAgentassignmentsByIdAgentPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentassignmentsByIdAgentResponse = zAgentAssignmentRelationAgentGetResponse;
+export const zGetAgentassignmentsByIdAgentResponse = zAgentResponse;
 
 export const zGetAgentassignmentsByIdRelationshipsAgentPath = z.object({
   id: z
@@ -505,7 +512,7 @@ export const zGetAgentassignmentsByIdRelationshipsAgentPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentassignmentsByIdRelationshipsAgentResponse = zAgentAssignmentResponse;
+export const zGetAgentassignmentsByIdRelationshipsAgentResponse = zAgentAssignmentRelationAgentGetResponse;
 
 export const zPatchAgentassignmentsByIdRelationshipsAgentBody = zAgentAssignmentRelationAgent;
 
@@ -528,7 +535,7 @@ export const zGetAgentassignmentsByIdTaskPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentassignmentsByIdTaskResponse = zAgentAssignmentRelationTaskGetResponse;
+export const zGetAgentassignmentsByIdTaskResponse = zTaskResponse;
 
 export const zGetAgentassignmentsByIdRelationshipsTaskPath = z.object({
   id: z
@@ -540,7 +547,7 @@ export const zGetAgentassignmentsByIdRelationshipsTaskPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentassignmentsByIdRelationshipsTaskResponse = zAgentAssignmentResponse;
+export const zGetAgentassignmentsByIdRelationshipsTaskResponse = zAgentAssignmentRelationTaskGetResponse;
 
 export const zPatchAgentassignmentsByIdRelationshipsTaskBody = zAgentAssignmentRelationTask;
 

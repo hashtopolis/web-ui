@@ -1,5 +1,13 @@
 import * as z from 'zod';
 
+import { zAccessGroupListResponse } from './access-group';
+import { zAgentAssignmentListResponse } from './agent-assignment';
+import { zAgentErrorListResponse } from './agent-error';
+import { zAgentStatListResponse } from './agent-stat';
+import { zChunkListResponse } from './chunk';
+import { zTaskListResponse } from './task';
+import { zUserResponse } from './user';
+
 export const zAgentPatch = z.object({
   data: z.object({
     type: z.literal('agent'),
@@ -836,10 +844,12 @@ export const zAgentRelationUser = z.object({
 });
 
 export const zAgentRelationUserGetResponse = z.object({
-  data: z.object({
-    type: z.literal('user'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('user'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zAgentRelationAccessGroups = z.object({
@@ -1004,7 +1014,7 @@ export const zGetAgentsByIdUserPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsByIdUserResponse = zAgentRelationUserGetResponse;
+export const zGetAgentsByIdUserResponse = zUserResponse;
 
 export const zGetAgentsByIdRelationshipsUserPath = z.object({
   id: z
@@ -1016,7 +1026,7 @@ export const zGetAgentsByIdRelationshipsUserPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsByIdRelationshipsUserResponse = zAgentResponse;
+export const zGetAgentsByIdRelationshipsUserResponse = zAgentRelationUserGetResponse;
 
 export const zPatchAgentsByIdRelationshipsUserBody = zAgentRelationUser;
 
@@ -1039,7 +1049,7 @@ export const zGetAgentsByIdAccessGroupsPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsByIdAccessGroupsResponse = zAgentRelationAccessGroupsGetResponse;
+export const zGetAgentsByIdAccessGroupsResponse = zAccessGroupListResponse;
 
 export const zDeleteAgentsByIdRelationshipsAccessGroupsBody = zAgentRelationAccessGroups;
 
@@ -1062,7 +1072,7 @@ export const zGetAgentsByIdRelationshipsAccessGroupsPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsByIdRelationshipsAccessGroupsResponse = zAgentResponse;
+export const zGetAgentsByIdRelationshipsAccessGroupsResponse = zAgentRelationAccessGroupsGetResponse;
 
 export const zPatchAgentsByIdRelationshipsAccessGroupsBody = zAgentRelationAccessGroups;
 
@@ -1096,7 +1106,7 @@ export const zGetAgentsByIdAgentStatsPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsByIdAgentStatsResponse = zAgentRelationAgentStatsGetResponse;
+export const zGetAgentsByIdAgentStatsResponse = zAgentStatListResponse;
 
 export const zDeleteAgentsByIdRelationshipsAgentStatsBody = zAgentRelationAgentStats;
 
@@ -1119,7 +1129,7 @@ export const zGetAgentsByIdRelationshipsAgentStatsPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsByIdRelationshipsAgentStatsResponse = zAgentResponse;
+export const zGetAgentsByIdRelationshipsAgentStatsResponse = zAgentRelationAgentStatsGetResponse;
 
 export const zPatchAgentsByIdRelationshipsAgentStatsBody = zAgentRelationAgentStats;
 
@@ -1153,7 +1163,7 @@ export const zGetAgentsByIdAgentErrorsPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsByIdAgentErrorsResponse = zAgentRelationAgentErrorsGetResponse;
+export const zGetAgentsByIdAgentErrorsResponse = zAgentErrorListResponse;
 
 export const zDeleteAgentsByIdRelationshipsAgentErrorsBody = zAgentRelationAgentErrors;
 
@@ -1176,7 +1186,7 @@ export const zGetAgentsByIdRelationshipsAgentErrorsPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsByIdRelationshipsAgentErrorsResponse = zAgentResponse;
+export const zGetAgentsByIdRelationshipsAgentErrorsResponse = zAgentRelationAgentErrorsGetResponse;
 
 export const zPatchAgentsByIdRelationshipsAgentErrorsBody = zAgentRelationAgentErrors;
 
@@ -1210,7 +1220,7 @@ export const zGetAgentsByIdChunksPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsByIdChunksResponse = zAgentRelationChunksGetResponse;
+export const zGetAgentsByIdChunksResponse = zChunkListResponse;
 
 export const zDeleteAgentsByIdRelationshipsChunksBody = zAgentRelationChunks;
 
@@ -1233,7 +1243,7 @@ export const zGetAgentsByIdRelationshipsChunksPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsByIdRelationshipsChunksResponse = zAgentResponse;
+export const zGetAgentsByIdRelationshipsChunksResponse = zAgentRelationChunksGetResponse;
 
 export const zPatchAgentsByIdRelationshipsChunksBody = zAgentRelationChunks;
 
@@ -1267,7 +1277,7 @@ export const zGetAgentsByIdTasksPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsByIdTasksResponse = zAgentRelationTasksGetResponse;
+export const zGetAgentsByIdTasksResponse = zTaskListResponse;
 
 export const zDeleteAgentsByIdRelationshipsTasksBody = zAgentRelationTasks;
 
@@ -1290,7 +1300,7 @@ export const zGetAgentsByIdRelationshipsTasksPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsByIdRelationshipsTasksResponse = zAgentResponse;
+export const zGetAgentsByIdRelationshipsTasksResponse = zAgentRelationTasksGetResponse;
 
 export const zPatchAgentsByIdRelationshipsTasksBody = zAgentRelationTasks;
 
@@ -1324,7 +1334,7 @@ export const zGetAgentsByIdAssignmentsPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsByIdAssignmentsResponse = zAgentRelationAssignmentsGetResponse;
+export const zGetAgentsByIdAssignmentsResponse = zAgentAssignmentListResponse;
 
 export const zDeleteAgentsByIdRelationshipsAssignmentsBody = zAgentRelationAssignments;
 
@@ -1347,7 +1357,7 @@ export const zGetAgentsByIdRelationshipsAssignmentsPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgentsByIdRelationshipsAssignmentsResponse = zAgentResponse;
+export const zGetAgentsByIdRelationshipsAssignmentsResponse = zAgentRelationAssignmentsGetResponse;
 
 export const zPatchAgentsByIdRelationshipsAssignmentsBody = zAgentRelationAssignments;
 

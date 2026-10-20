@@ -486,7 +486,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AccessGroupRelationUserMembersGetResponse"
+                  "$ref": "#/components/schemas/UserListResponse"
                 }
               }
             }
@@ -563,7 +563,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AccessGroupResponse"
+                  "$ref": "#/components/schemas/AccessGroupRelationUserMembersGetResponse"
                 }
               }
             }
@@ -888,7 +888,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AccessGroupRelationAgentMembersGetResponse"
+                  "$ref": "#/components/schemas/AgentListResponse"
                 }
               }
             }
@@ -965,7 +965,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AccessGroupResponse"
+                  "$ref": "#/components/schemas/AccessGroupRelationAgentMembersGetResponse"
                 }
               }
             }
@@ -1902,7 +1902,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentRelationUserGetResponse"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
@@ -1979,7 +1979,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentResponse"
+                  "$ref": "#/components/schemas/AgentRelationUserGetResponse"
                 }
               }
             }
@@ -2142,7 +2142,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentRelationAccessGroupsGetResponse"
+                  "$ref": "#/components/schemas/AccessGroupListResponse"
                 }
               }
             }
@@ -2219,7 +2219,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentResponse"
+                  "$ref": "#/components/schemas/AgentRelationAccessGroupsGetResponse"
                 }
               }
             }
@@ -2544,7 +2544,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentRelationAgentStatsGetResponse"
+                  "$ref": "#/components/schemas/AgentStatListResponse"
                 }
               }
             }
@@ -2621,7 +2621,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentResponse"
+                  "$ref": "#/components/schemas/AgentRelationAgentStatsGetResponse"
                 }
               }
             }
@@ -2946,7 +2946,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentRelationAgentErrorsGetResponse"
+                  "$ref": "#/components/schemas/AgentErrorListResponse"
                 }
               }
             }
@@ -3023,7 +3023,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentResponse"
+                  "$ref": "#/components/schemas/AgentRelationAgentErrorsGetResponse"
                 }
               }
             }
@@ -3348,7 +3348,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentRelationChunksGetResponse"
+                  "$ref": "#/components/schemas/ChunkListResponse"
                 }
               }
             }
@@ -3425,7 +3425,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentResponse"
+                  "$ref": "#/components/schemas/AgentRelationChunksGetResponse"
                 }
               }
             }
@@ -3750,7 +3750,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentRelationTasksGetResponse"
+                  "$ref": "#/components/schemas/TaskListResponse"
                 }
               }
             }
@@ -3827,7 +3827,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentResponse"
+                  "$ref": "#/components/schemas/AgentRelationTasksGetResponse"
                 }
               }
             }
@@ -4152,7 +4152,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentRelationAssignmentsGetResponse"
+                  "$ref": "#/components/schemas/AgentAssignmentListResponse"
                 }
               }
             }
@@ -4229,7 +4229,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentResponse"
+                  "$ref": "#/components/schemas/AgentRelationAssignmentsGetResponse"
                 }
               }
             }
@@ -5240,7 +5240,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentAssignmentRelationAgentGetResponse"
+                  "$ref": "#/components/schemas/AgentResponse"
                 }
               }
             }
@@ -5317,7 +5317,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentAssignmentResponse"
+                  "$ref": "#/components/schemas/AgentAssignmentRelationAgentGetResponse"
                 }
               }
             }
@@ -5480,7 +5480,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentAssignmentRelationTaskGetResponse"
+                  "$ref": "#/components/schemas/TaskResponse"
                 }
               }
             }
@@ -5557,7 +5557,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentAssignmentResponse"
+                  "$ref": "#/components/schemas/AgentAssignmentRelationTaskGetResponse"
                 }
               }
             }
@@ -6903,7 +6903,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentErrorRelationTaskGetResponse"
+                  "$ref": "#/components/schemas/TaskResponse"
                 }
               }
             }
@@ -6980,7 +6980,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AgentErrorResponse"
+                  "$ref": "#/components/schemas/AgentErrorRelationTaskGetResponse"
                 }
               }
             }
@@ -8140,7 +8140,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiTokenRelationUserGetResponse"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
@@ -8217,7 +8217,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiTokenResponse"
+                  "$ref": "#/components/schemas/ApiTokenRelationUserGetResponse"
                 }
               }
             }
@@ -8898,7 +8898,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BackgroundJobRelationUserGetResponse"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
@@ -8975,7 +8975,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/BackgroundJobResponse"
+                  "$ref": "#/components/schemas/BackgroundJobRelationUserGetResponse"
                 }
               }
             }
@@ -9496,7 +9496,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ChunkRelationAgentGetResponse"
+                  "$ref": "#/components/schemas/AgentResponse"
                 }
               }
             }
@@ -9573,7 +9573,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ChunkResponse"
+                  "$ref": "#/components/schemas/ChunkRelationAgentGetResponse"
                 }
               }
             }
@@ -9736,7 +9736,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ChunkRelationTaskGetResponse"
+                  "$ref": "#/components/schemas/TaskResponse"
                 }
               }
             }
@@ -9813,7 +9813,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ChunkResponse"
+                  "$ref": "#/components/schemas/ChunkRelationTaskGetResponse"
                 }
               }
             }
@@ -10362,7 +10362,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConfigRelationConfigSectionGetResponse"
+                  "$ref": "#/components/schemas/ConfigSectionResponse"
                 }
               }
             }
@@ -10439,7 +10439,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConfigResponse"
+                  "$ref": "#/components/schemas/ConfigRelationConfigSectionGetResponse"
                 }
               }
             }
@@ -11493,7 +11493,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CrackerBinaryRelationCrackerBinaryTypeGetResponse"
+                  "$ref": "#/components/schemas/CrackerBinaryTypeResponse"
                 }
               }
             }
@@ -11570,7 +11570,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CrackerBinaryResponse"
+                  "$ref": "#/components/schemas/CrackerBinaryRelationCrackerBinaryTypeGetResponse"
                 }
               }
             }
@@ -11733,7 +11733,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CrackerBinaryRelationAccessGroupGetResponse"
+                  "$ref": "#/components/schemas/AccessGroupResponse"
                 }
               }
             }
@@ -11810,7 +11810,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CrackerBinaryResponse"
+                  "$ref": "#/components/schemas/CrackerBinaryRelationAccessGroupGetResponse"
                 }
               }
             }
@@ -11973,7 +11973,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CrackerBinaryRelationTasksGetResponse"
+                  "$ref": "#/components/schemas/TaskListResponse"
                 }
               }
             }
@@ -12050,7 +12050,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CrackerBinaryResponse"
+                  "$ref": "#/components/schemas/CrackerBinaryRelationTasksGetResponse"
                 }
               }
             }
@@ -12375,7 +12375,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CrackerBinaryRelationHashtypesGetResponse"
+                  "$ref": "#/components/schemas/HashTypeListResponse"
                 }
               }
             }
@@ -12452,7 +12452,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CrackerBinaryResponse"
+                  "$ref": "#/components/schemas/CrackerBinaryRelationHashtypesGetResponse"
                 }
               }
             }
@@ -13446,7 +13446,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CrackerBinaryTypeRelationCrackerVersionsGetResponse"
+                  "$ref": "#/components/schemas/CrackerBinaryListResponse"
                 }
               }
             }
@@ -13523,7 +13523,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CrackerBinaryTypeResponse"
+                  "$ref": "#/components/schemas/CrackerBinaryTypeRelationCrackerVersionsGetResponse"
                 }
               }
             }
@@ -13848,7 +13848,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CrackerBinaryTypeRelationTasksGetResponse"
+                  "$ref": "#/components/schemas/TaskListResponse"
                 }
               }
             }
@@ -13925,7 +13925,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CrackerBinaryTypeResponse"
+                  "$ref": "#/components/schemas/CrackerBinaryTypeRelationTasksGetResponse"
                 }
               }
             }
@@ -14919,7 +14919,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FileRelationAccessGroupGetResponse"
+                  "$ref": "#/components/schemas/AccessGroupResponse"
                 }
               }
             }
@@ -14996,7 +14996,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FileResponse"
+                  "$ref": "#/components/schemas/FileRelationAccessGroupGetResponse"
                 }
               }
             }
@@ -15828,7 +15828,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GlobalPermissionGroupRelationUserMembersGetResponse"
+                  "$ref": "#/components/schemas/UserListResponse"
                 }
               }
             }
@@ -15905,7 +15905,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GlobalPermissionGroupResponse"
+                  "$ref": "#/components/schemas/GlobalPermissionGroupRelationUserMembersGetResponse"
                 }
               }
             }
@@ -16681,7 +16681,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashRelationChunkGetResponse"
+                  "$ref": "#/components/schemas/ChunkResponse"
                 }
               }
             }
@@ -16758,7 +16758,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashResponse"
+                  "$ref": "#/components/schemas/HashRelationChunkGetResponse"
                 }
               }
             }
@@ -16921,7 +16921,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashRelationHashlistGetResponse"
+                  "$ref": "#/components/schemas/HashlistResponse"
                 }
               }
             }
@@ -16998,7 +16998,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashResponse"
+                  "$ref": "#/components/schemas/HashRelationHashlistGetResponse"
                 }
               }
             }
@@ -17671,7 +17671,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashlistRelationAccessGroupGetResponse"
+                  "$ref": "#/components/schemas/AccessGroupResponse"
                 }
               }
             }
@@ -17748,7 +17748,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashlistResponse"
+                  "$ref": "#/components/schemas/HashlistRelationAccessGroupGetResponse"
                 }
               }
             }
@@ -17911,7 +17911,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashlistRelationHashTypeGetResponse"
+                  "$ref": "#/components/schemas/HashTypeResponse"
                 }
               }
             }
@@ -17988,7 +17988,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashlistResponse"
+                  "$ref": "#/components/schemas/HashlistRelationHashTypeGetResponse"
                 }
               }
             }
@@ -18151,7 +18151,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashlistRelationHashesGetResponse"
+                  "$ref": "#/components/schemas/HashListResponse"
                 }
               }
             }
@@ -18228,7 +18228,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashlistResponse"
+                  "$ref": "#/components/schemas/HashlistRelationHashesGetResponse"
                 }
               }
             }
@@ -18553,7 +18553,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashlistRelationHashlistsGetResponse"
+                  "$ref": "#/components/schemas/HashlistListResponse"
                 }
               }
             }
@@ -18630,7 +18630,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashlistResponse"
+                  "$ref": "#/components/schemas/HashlistRelationHashlistsGetResponse"
                 }
               }
             }
@@ -18955,7 +18955,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashlistRelationTasksGetResponse"
+                  "$ref": "#/components/schemas/TaskListResponse"
                 }
               }
             }
@@ -19032,7 +19032,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashlistResponse"
+                  "$ref": "#/components/schemas/HashlistRelationTasksGetResponse"
                 }
               }
             }
@@ -20026,7 +20026,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashTypeRelationCrackerBinariesGetResponse"
+                  "$ref": "#/components/schemas/CrackerBinaryListResponse"
                 }
               }
             }
@@ -20103,7 +20103,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HashTypeResponse"
+                  "$ref": "#/components/schemas/HashTypeRelationCrackerBinariesGetResponse"
                 }
               }
             }
@@ -20631,7 +20631,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HealthCheckAgentRelationAgentGetResponse"
+                  "$ref": "#/components/schemas/AgentResponse"
                 }
               }
             }
@@ -20708,7 +20708,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HealthCheckAgentResponse"
+                  "$ref": "#/components/schemas/HealthCheckAgentRelationAgentGetResponse"
                 }
               }
             }
@@ -20871,7 +20871,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HealthCheckAgentRelationHealthCheckGetResponse"
+                  "$ref": "#/components/schemas/HealthCheckResponse"
                 }
               }
             }
@@ -20948,7 +20948,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HealthCheckAgentResponse"
+                  "$ref": "#/components/schemas/HealthCheckAgentRelationHealthCheckGetResponse"
                 }
               }
             }
@@ -21621,7 +21621,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HealthCheckRelationCrackerBinaryGetResponse"
+                  "$ref": "#/components/schemas/CrackerBinaryResponse"
                 }
               }
             }
@@ -21698,7 +21698,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HealthCheckResponse"
+                  "$ref": "#/components/schemas/HealthCheckRelationCrackerBinaryGetResponse"
                 }
               }
             }
@@ -21861,7 +21861,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HealthCheckRelationHashTypeGetResponse"
+                  "$ref": "#/components/schemas/HashTypeResponse"
                 }
               }
             }
@@ -21938,7 +21938,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HealthCheckResponse"
+                  "$ref": "#/components/schemas/HealthCheckRelationHashTypeGetResponse"
                 }
               }
             }
@@ -22101,7 +22101,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HealthCheckRelationHealthCheckAgentsGetResponse"
+                  "$ref": "#/components/schemas/HealthCheckAgentListResponse"
                 }
               }
             }
@@ -22178,7 +22178,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HealthCheckResponse"
+                  "$ref": "#/components/schemas/HealthCheckRelationHealthCheckAgentsGetResponse"
                 }
               }
             }
@@ -23460,7 +23460,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/NotificationSettingRelationUserGetResponse"
+                  "$ref": "#/components/schemas/UserResponse"
                 }
               }
             }
@@ -23537,7 +23537,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/NotificationSettingResponse"
+                  "$ref": "#/components/schemas/NotificationSettingRelationUserGetResponse"
                 }
               }
             }
@@ -25051,7 +25051,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PreTaskRelationPretaskFilesGetResponse"
+                  "$ref": "#/components/schemas/FileListResponse"
                 }
               }
             }
@@ -25128,7 +25128,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PreTaskResponse"
+                  "$ref": "#/components/schemas/PreTaskRelationPretaskFilesGetResponse"
                 }
               }
             }
@@ -25904,7 +25904,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SpeedRelationAgentGetResponse"
+                  "$ref": "#/components/schemas/AgentResponse"
                 }
               }
             }
@@ -25981,7 +25981,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SpeedResponse"
+                  "$ref": "#/components/schemas/SpeedRelationAgentGetResponse"
                 }
               }
             }
@@ -26144,7 +26144,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SpeedRelationTaskGetResponse"
+                  "$ref": "#/components/schemas/TaskResponse"
                 }
               }
             }
@@ -26221,7 +26221,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SpeedResponse"
+                  "$ref": "#/components/schemas/SpeedRelationTaskGetResponse"
                 }
               }
             }
@@ -26911,7 +26911,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SupertaskRelationPretasksGetResponse"
+                  "$ref": "#/components/schemas/PreTaskListResponse"
                 }
               }
             }
@@ -26988,7 +26988,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SupertaskResponse"
+                  "$ref": "#/components/schemas/SupertaskRelationPretasksGetResponse"
                 }
               }
             }
@@ -27999,7 +27999,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskRelationCrackerBinaryGetResponse"
+                  "$ref": "#/components/schemas/CrackerBinaryResponse"
                 }
               }
             }
@@ -28076,7 +28076,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskResponse"
+                  "$ref": "#/components/schemas/TaskRelationCrackerBinaryGetResponse"
                 }
               }
             }
@@ -28239,7 +28239,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskRelationCrackerBinaryTypeGetResponse"
+                  "$ref": "#/components/schemas/CrackerBinaryTypeResponse"
                 }
               }
             }
@@ -28316,7 +28316,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskResponse"
+                  "$ref": "#/components/schemas/TaskRelationCrackerBinaryTypeGetResponse"
                 }
               }
             }
@@ -28479,7 +28479,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskRelationHashlistGetResponse"
+                  "$ref": "#/components/schemas/HashlistResponse"
                 }
               }
             }
@@ -28556,7 +28556,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskResponse"
+                  "$ref": "#/components/schemas/TaskRelationHashlistGetResponse"
                 }
               }
             }
@@ -28719,7 +28719,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskRelationAssignedAgentsGetResponse"
+                  "$ref": "#/components/schemas/AgentListResponse"
                 }
               }
             }
@@ -28796,7 +28796,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskResponse"
+                  "$ref": "#/components/schemas/TaskRelationAssignedAgentsGetResponse"
                 }
               }
             }
@@ -29121,7 +29121,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskRelationFilesGetResponse"
+                  "$ref": "#/components/schemas/FileListResponse"
                 }
               }
             }
@@ -29198,7 +29198,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskResponse"
+                  "$ref": "#/components/schemas/TaskRelationFilesGetResponse"
                 }
               }
             }
@@ -29523,7 +29523,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskRelationSpeedsGetResponse"
+                  "$ref": "#/components/schemas/SpeedListResponse"
                 }
               }
             }
@@ -29600,7 +29600,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskResponse"
+                  "$ref": "#/components/schemas/TaskRelationSpeedsGetResponse"
                 }
               }
             }
@@ -30520,7 +30520,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskWrapperRelationAccessGroupGetResponse"
+                  "$ref": "#/components/schemas/AccessGroupResponse"
                 }
               }
             }
@@ -30597,7 +30597,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskWrapperResponse"
+                  "$ref": "#/components/schemas/TaskWrapperRelationAccessGroupGetResponse"
                 }
               }
             }
@@ -30760,7 +30760,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskWrapperRelationHashlistGetResponse"
+                  "$ref": "#/components/schemas/HashlistResponse"
                 }
               }
             }
@@ -30837,7 +30837,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskWrapperResponse"
+                  "$ref": "#/components/schemas/TaskWrapperRelationHashlistGetResponse"
                 }
               }
             }
@@ -31000,7 +31000,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskWrapperRelationHashTypeGetResponse"
+                  "$ref": "#/components/schemas/HashTypeResponse"
                 }
               }
             }
@@ -31077,7 +31077,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskWrapperResponse"
+                  "$ref": "#/components/schemas/TaskWrapperRelationHashTypeGetResponse"
                 }
               }
             }
@@ -31240,7 +31240,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskWrapperRelationTaskGetResponse"
+                  "$ref": "#/components/schemas/TaskResponse"
                 }
               }
             }
@@ -31317,7 +31317,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskWrapperResponse"
+                  "$ref": "#/components/schemas/TaskWrapperRelationTaskGetResponse"
                 }
               }
             }
@@ -31394,7 +31394,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskWrapperRelationTasksGetResponse"
+                  "$ref": "#/components/schemas/TaskListResponse"
                 }
               }
             }
@@ -31471,7 +31471,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskWrapperResponse"
+                  "$ref": "#/components/schemas/TaskWrapperRelationTasksGetResponse"
                 }
               }
             }
@@ -32016,7 +32016,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskWrapperDisplayRelationTasksGetResponse"
+                  "$ref": "#/components/schemas/TaskListResponse"
                 }
               }
             }
@@ -32093,7 +32093,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TaskWrapperDisplayResponse"
+                  "$ref": "#/components/schemas/TaskWrapperDisplayRelationTasksGetResponse"
                 }
               }
             }
@@ -32680,7 +32680,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserRelationGlobalPermissionGroupGetResponse"
+                  "$ref": "#/components/schemas/GlobalPermissionGroupResponse"
                 }
               }
             }
@@ -32757,7 +32757,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResponse"
+                  "$ref": "#/components/schemas/UserRelationGlobalPermissionGroupGetResponse"
                 }
               }
             }
@@ -32920,7 +32920,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserRelationAccessGroupsGetResponse"
+                  "$ref": "#/components/schemas/AccessGroupListResponse"
                 }
               }
             }
@@ -32997,7 +32997,7 @@
             "content": {
               "application/vnd.api+json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserResponse"
+                  "$ref": "#/components/schemas/UserRelationAccessGroupsGetResponse"
                 }
               }
             }
@@ -41424,18 +41424,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "user"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "user"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -43176,18 +43183,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "agent"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "agent"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -43216,18 +43230,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "task"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "task"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -44318,18 +44339,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "task"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "task"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -45395,18 +45423,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "user"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "user"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -45977,18 +46012,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "user"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "user"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -47090,18 +47132,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "agent"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "agent"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -47130,18 +47179,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "task"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "task"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -48495,18 +48551,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "configSection"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "configSection"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -50361,18 +50424,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "crackerBinaryType"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "crackerBinaryType"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -50401,18 +50471,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "accessGroup"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "accessGroup"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -52771,18 +52848,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "accessGroup"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "accessGroup"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -54692,18 +54776,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "chunk"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "chunk"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -54732,18 +54823,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "hashlist"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "hashlist"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -57747,18 +57845,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "accessGroup"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "accessGroup"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -57787,18 +57892,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "hashType"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "hashType"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -59556,18 +59668,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "agent"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "agent"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -59596,18 +59715,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "healthCheck"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "healthCheck"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -61066,18 +61192,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "crackerBinary"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "crackerBinary"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -61106,18 +61239,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "hashType"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "hashType"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -62749,18 +62889,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "user"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "user"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -65163,18 +65310,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "agent"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "agent"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -65203,18 +65357,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "task"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "task"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -69529,18 +69690,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "crackerBinary"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "crackerBinary"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -69569,18 +69737,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "crackerBinaryType"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "crackerBinaryType"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -69609,18 +69784,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "hashlist"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "hashlist"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -72332,18 +72514,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "accessGroup"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "accessGroup"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -72372,18 +72561,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "hashlist"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "hashlist"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -72412,18 +72608,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "hashType"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "hashType"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -72432,18 +72635,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "task"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "task"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },
@@ -74474,18 +74684,25 @@
         "required": ["data"],
         "properties": {
           "data": {
-            "type": "object",
-            "required": ["type", "id"],
-            "properties": {
-              "type": {
-                "type": "string",
-                "const": "globalPermissionGroup"
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["type", "id"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "const": "globalPermissionGroup"
+                  },
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               },
-              "id": {
-                "type": "integer",
-                "example": 1
+              {
+                "type": "null"
               }
-            }
+            ]
           }
         }
       },

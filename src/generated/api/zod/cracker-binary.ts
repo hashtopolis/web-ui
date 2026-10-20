@@ -1,5 +1,10 @@
 import * as z from 'zod';
 
+import { zAccessGroupResponse } from './access-group';
+import { zCrackerBinaryTypeResponse } from './cracker-binary-type';
+import { zHashTypeListResponse } from './hash-type';
+import { zTaskListResponse } from './task';
+
 export const zCrackerBinaryCreate = z.object({
   data: z.object({
     type: z.literal('crackerBinary'),
@@ -511,10 +516,12 @@ export const zCrackerBinaryRelationCrackerBinaryType = z.object({
 });
 
 export const zCrackerBinaryRelationCrackerBinaryTypeGetResponse = z.object({
-  data: z.object({
-    type: z.literal('crackerBinaryType'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('crackerBinaryType'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zCrackerBinaryRelationAccessGroup = z.object({
@@ -525,10 +532,12 @@ export const zCrackerBinaryRelationAccessGroup = z.object({
 });
 
 export const zCrackerBinaryRelationAccessGroupGetResponse = z.object({
-  data: z.object({
-    type: z.literal('accessGroup'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('accessGroup'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zCrackerBinaryRelationTasks = z.object({
@@ -625,7 +634,7 @@ export const zGetCrackersByIdCrackerBinaryTypePath = z.object({
 /**
  * successful operation
  */
-export const zGetCrackersByIdCrackerBinaryTypeResponse = zCrackerBinaryRelationCrackerBinaryTypeGetResponse;
+export const zGetCrackersByIdCrackerBinaryTypeResponse = zCrackerBinaryTypeResponse;
 
 export const zGetCrackersByIdRelationshipsCrackerBinaryTypePath = z.object({
   id: z
@@ -637,7 +646,8 @@ export const zGetCrackersByIdRelationshipsCrackerBinaryTypePath = z.object({
 /**
  * successful operation
  */
-export const zGetCrackersByIdRelationshipsCrackerBinaryTypeResponse = zCrackerBinaryResponse;
+export const zGetCrackersByIdRelationshipsCrackerBinaryTypeResponse =
+  zCrackerBinaryRelationCrackerBinaryTypeGetResponse;
 
 export const zPatchCrackersByIdRelationshipsCrackerBinaryTypeBody = zCrackerBinaryRelationCrackerBinaryType;
 
@@ -660,7 +670,7 @@ export const zGetCrackersByIdAccessGroupPath = z.object({
 /**
  * successful operation
  */
-export const zGetCrackersByIdAccessGroupResponse = zCrackerBinaryRelationAccessGroupGetResponse;
+export const zGetCrackersByIdAccessGroupResponse = zAccessGroupResponse;
 
 export const zGetCrackersByIdRelationshipsAccessGroupPath = z.object({
   id: z
@@ -672,7 +682,7 @@ export const zGetCrackersByIdRelationshipsAccessGroupPath = z.object({
 /**
  * successful operation
  */
-export const zGetCrackersByIdRelationshipsAccessGroupResponse = zCrackerBinaryResponse;
+export const zGetCrackersByIdRelationshipsAccessGroupResponse = zCrackerBinaryRelationAccessGroupGetResponse;
 
 export const zPatchCrackersByIdRelationshipsAccessGroupBody = zCrackerBinaryRelationAccessGroup;
 
@@ -695,7 +705,7 @@ export const zGetCrackersByIdTasksPath = z.object({
 /**
  * successful operation
  */
-export const zGetCrackersByIdTasksResponse = zCrackerBinaryRelationTasksGetResponse;
+export const zGetCrackersByIdTasksResponse = zTaskListResponse;
 
 export const zDeleteCrackersByIdRelationshipsTasksBody = zCrackerBinaryRelationTasks;
 
@@ -718,7 +728,7 @@ export const zGetCrackersByIdRelationshipsTasksPath = z.object({
 /**
  * successful operation
  */
-export const zGetCrackersByIdRelationshipsTasksResponse = zCrackerBinaryResponse;
+export const zGetCrackersByIdRelationshipsTasksResponse = zCrackerBinaryRelationTasksGetResponse;
 
 export const zPatchCrackersByIdRelationshipsTasksBody = zCrackerBinaryRelationTasks;
 
@@ -752,7 +762,7 @@ export const zGetCrackersByIdHashtypesPath = z.object({
 /**
  * successful operation
  */
-export const zGetCrackersByIdHashtypesResponse = zCrackerBinaryRelationHashtypesGetResponse;
+export const zGetCrackersByIdHashtypesResponse = zHashTypeListResponse;
 
 export const zDeleteCrackersByIdRelationshipsHashtypesBody = zCrackerBinaryRelationHashtypes;
 
@@ -775,7 +785,7 @@ export const zGetCrackersByIdRelationshipsHashtypesPath = z.object({
 /**
  * successful operation
  */
-export const zGetCrackersByIdRelationshipsHashtypesResponse = zCrackerBinaryResponse;
+export const zGetCrackersByIdRelationshipsHashtypesResponse = zCrackerBinaryRelationHashtypesGetResponse;
 
 export const zPatchCrackersByIdRelationshipsHashtypesBody = zCrackerBinaryRelationHashtypes;
 

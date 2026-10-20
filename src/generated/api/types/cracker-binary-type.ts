@@ -1,4 +1,6 @@
 import type { ErrorResponse } from './common';
+import type { CrackerBinaryListResponse } from './cracker-binary';
+import type { TaskListResponse } from './task';
 
 export type CrackerBinaryTypeCreate = {
   data: {
@@ -644,7 +646,7 @@ export type GetCrackertypesByIdCrackerVersionsResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryTypeRelationCrackerVersionsGetResponse;
+  200: CrackerBinaryListResponse;
 };
 
 export type GetCrackertypesByIdCrackerVersionsResponse =
@@ -726,7 +728,7 @@ export type GetCrackertypesByIdRelationshipsCrackerVersionsResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryTypeResponse;
+  200: CrackerBinaryTypeRelationCrackerVersionsGetResponse;
 };
 
 export type GetCrackertypesByIdRelationshipsCrackerVersionsResponse =
@@ -856,7 +858,7 @@ export type GetCrackertypesByIdTasksResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryTypeRelationTasksGetResponse;
+  200: TaskListResponse;
 };
 
 export type GetCrackertypesByIdTasksResponse =
@@ -938,7 +940,7 @@ export type GetCrackertypesByIdRelationshipsTasksResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryTypeResponse;
+  200: CrackerBinaryTypeRelationTasksGetResponse;
 };
 
 export type GetCrackertypesByIdRelationshipsTasksResponse =

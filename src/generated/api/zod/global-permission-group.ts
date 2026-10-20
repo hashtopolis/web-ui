@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { zUserListResponse } from './user';
+
 export const zGlobalPermissionGroupResourceObject = z.object({
   id: z.int(),
   type: z.literal('globalPermissionGroup'),
@@ -349,7 +351,7 @@ export const zGetGlobalpermissiongroupsByIdUserMembersPath = z.object({
 /**
  * successful operation
  */
-export const zGetGlobalpermissiongroupsByIdUserMembersResponse = zGlobalPermissionGroupRelationUserMembersGetResponse;
+export const zGetGlobalpermissiongroupsByIdUserMembersResponse = zUserListResponse;
 
 export const zDeleteGlobalpermissiongroupsByIdRelationshipsUserMembersBody = zGlobalPermissionGroupRelationUserMembers;
 
@@ -372,7 +374,8 @@ export const zGetGlobalpermissiongroupsByIdRelationshipsUserMembersPath = z.obje
 /**
  * successful operation
  */
-export const zGetGlobalpermissiongroupsByIdRelationshipsUserMembersResponse = zGlobalPermissionGroupResponse;
+export const zGetGlobalpermissiongroupsByIdRelationshipsUserMembersResponse =
+  zGlobalPermissionGroupRelationUserMembersGetResponse;
 
 export const zPatchGlobalpermissiongroupsByIdRelationshipsUserMembersBody = zGlobalPermissionGroupRelationUserMembers;
 

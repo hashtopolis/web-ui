@@ -1,4 +1,6 @@
+import type { ChunkResponse } from './chunk';
 import type { ErrorResponse } from './common';
+import type { HashlistResponse } from './hashlist';
 
 export type HashResourceObject = {
   id: number;
@@ -259,7 +261,7 @@ export type HashRelationChunkGetResponse = {
   data: {
     type: 'chunk';
     id: number;
-  };
+  } | null;
 };
 
 export type HashRelationHashlist = {
@@ -273,7 +275,7 @@ export type HashRelationHashlistGetResponse = {
   data: {
     type: 'hashlist';
     id: number;
-  };
+  } | null;
 };
 
 export type GetHashesData = {
@@ -422,7 +424,7 @@ export type GetHashesByIdChunkResponses = {
   /**
    * successful operation
    */
-  200: HashRelationChunkGetResponse;
+  200: ChunkResponse;
 };
 
 export type GetHashesByIdChunkResponse = GetHashesByIdChunkResponses[keyof GetHashesByIdChunkResponses];
@@ -462,7 +464,7 @@ export type GetHashesByIdRelationshipsChunkResponses = {
   /**
    * successful operation
    */
-  200: HashResponse;
+  200: HashRelationChunkGetResponse;
 };
 
 export type GetHashesByIdRelationshipsChunkResponse =
@@ -547,7 +549,7 @@ export type GetHashesByIdHashlistResponses = {
   /**
    * successful operation
    */
-  200: HashRelationHashlistGetResponse;
+  200: HashlistResponse;
 };
 
 export type GetHashesByIdHashlistResponse = GetHashesByIdHashlistResponses[keyof GetHashesByIdHashlistResponses];
@@ -587,7 +589,7 @@ export type GetHashesByIdRelationshipsHashlistResponses = {
   /**
    * successful operation
    */
-  200: HashResponse;
+  200: HashRelationHashlistGetResponse;
 };
 
 export type GetHashesByIdRelationshipsHashlistResponse =

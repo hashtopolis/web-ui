@@ -1,5 +1,8 @@
 import * as z from 'zod';
 
+import { zAgentResponse } from './agent';
+import { zTaskResponse } from './task';
+
 export const zChunkResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
@@ -294,10 +297,12 @@ export const zChunkRelationAgent = z.object({
 });
 
 export const zChunkRelationAgentGetResponse = z.object({
-  data: z.object({
-    type: z.literal('agent'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('agent'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zChunkRelationTask = z.object({
@@ -308,10 +313,12 @@ export const zChunkRelationTask = z.object({
 });
 
 export const zChunkRelationTaskGetResponse = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('task'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zGetChunksQuery = z.object({
@@ -351,7 +358,7 @@ export const zGetChunksByIdAgentPath = z.object({
 /**
  * successful operation
  */
-export const zGetChunksByIdAgentResponse = zChunkRelationAgentGetResponse;
+export const zGetChunksByIdAgentResponse = zAgentResponse;
 
 export const zGetChunksByIdRelationshipsAgentPath = z.object({
   id: z
@@ -363,7 +370,7 @@ export const zGetChunksByIdRelationshipsAgentPath = z.object({
 /**
  * successful operation
  */
-export const zGetChunksByIdRelationshipsAgentResponse = zChunkResponse;
+export const zGetChunksByIdRelationshipsAgentResponse = zChunkRelationAgentGetResponse;
 
 export const zPatchChunksByIdRelationshipsAgentBody = zChunkRelationAgent;
 
@@ -386,7 +393,7 @@ export const zGetChunksByIdTaskPath = z.object({
 /**
  * successful operation
  */
-export const zGetChunksByIdTaskResponse = zChunkRelationTaskGetResponse;
+export const zGetChunksByIdTaskResponse = zTaskResponse;
 
 export const zGetChunksByIdRelationshipsTaskPath = z.object({
   id: z
@@ -398,7 +405,7 @@ export const zGetChunksByIdRelationshipsTaskPath = z.object({
 /**
  * successful operation
  */
-export const zGetChunksByIdRelationshipsTaskResponse = zChunkResponse;
+export const zGetChunksByIdRelationshipsTaskResponse = zChunkRelationTaskGetResponse;
 
 export const zPatchChunksByIdRelationshipsTaskBody = zChunkRelationTask;
 

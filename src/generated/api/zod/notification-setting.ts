@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { zUserResponse } from './user';
+
 export const zNotificationSettingCreate = z.object({
   data: z.object({
     type: z.literal('notificationSetting'),
@@ -377,10 +379,12 @@ export const zNotificationSettingRelationUser = z.object({
 });
 
 export const zNotificationSettingRelationUserGetResponse = z.object({
-  data: z.object({
-    type: z.literal('user'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('user'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zDeleteNotificationsBody = zNotificationSettingDeleteMultiple;
@@ -441,7 +445,7 @@ export const zGetNotificationsByIdUserPath = z.object({
 /**
  * successful operation
  */
-export const zGetNotificationsByIdUserResponse = zNotificationSettingRelationUserGetResponse;
+export const zGetNotificationsByIdUserResponse = zUserResponse;
 
 export const zGetNotificationsByIdRelationshipsUserPath = z.object({
   id: z
@@ -453,7 +457,7 @@ export const zGetNotificationsByIdRelationshipsUserPath = z.object({
 /**
  * successful operation
  */
-export const zGetNotificationsByIdRelationshipsUserResponse = zNotificationSettingResponse;
+export const zGetNotificationsByIdRelationshipsUserResponse = zNotificationSettingRelationUserGetResponse;
 
 export const zPatchNotificationsByIdRelationshipsUserBody = zNotificationSettingRelationUser;
 

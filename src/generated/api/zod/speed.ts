@@ -1,5 +1,8 @@
 import * as z from 'zod';
 
+import { zAgentResponse } from './agent';
+import { zTaskResponse } from './task';
+
 export const zSpeedResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
@@ -256,10 +259,12 @@ export const zSpeedRelationAgent = z.object({
 });
 
 export const zSpeedRelationAgentGetResponse = z.object({
-  data: z.object({
-    type: z.literal('agent'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('agent'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zSpeedRelationTask = z.object({
@@ -270,10 +275,12 @@ export const zSpeedRelationTask = z.object({
 });
 
 export const zSpeedRelationTaskGetResponse = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('task'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zGetSpeedsQuery = z.object({
@@ -313,7 +320,7 @@ export const zGetSpeedsByIdAgentPath = z.object({
 /**
  * successful operation
  */
-export const zGetSpeedsByIdAgentResponse = zSpeedRelationAgentGetResponse;
+export const zGetSpeedsByIdAgentResponse = zAgentResponse;
 
 export const zGetSpeedsByIdRelationshipsAgentPath = z.object({
   id: z
@@ -325,7 +332,7 @@ export const zGetSpeedsByIdRelationshipsAgentPath = z.object({
 /**
  * successful operation
  */
-export const zGetSpeedsByIdRelationshipsAgentResponse = zSpeedResponse;
+export const zGetSpeedsByIdRelationshipsAgentResponse = zSpeedRelationAgentGetResponse;
 
 export const zPatchSpeedsByIdRelationshipsAgentBody = zSpeedRelationAgent;
 
@@ -348,7 +355,7 @@ export const zGetSpeedsByIdTaskPath = z.object({
 /**
  * successful operation
  */
-export const zGetSpeedsByIdTaskResponse = zSpeedRelationTaskGetResponse;
+export const zGetSpeedsByIdTaskResponse = zTaskResponse;
 
 export const zGetSpeedsByIdRelationshipsTaskPath = z.object({
   id: z
@@ -360,7 +367,7 @@ export const zGetSpeedsByIdRelationshipsTaskPath = z.object({
 /**
  * successful operation
  */
-export const zGetSpeedsByIdRelationshipsTaskResponse = zSpeedResponse;
+export const zGetSpeedsByIdRelationshipsTaskResponse = zSpeedRelationTaskGetResponse;
 
 export const zPatchSpeedsByIdRelationshipsTaskBody = zSpeedRelationTask;
 

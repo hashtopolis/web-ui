@@ -1,5 +1,9 @@
 import * as z from 'zod';
 
+import { zCrackerBinaryResponse } from './cracker-binary';
+import { zHashTypeResponse } from './hash-type';
+import { zHealthCheckAgentListResponse } from './health-check-agent';
+
 export const zHealthCheckCreate = z.object({
   data: z.object({
     type: z.literal('healthCheck'),
@@ -408,10 +412,12 @@ export const zHealthCheckRelationCrackerBinary = z.object({
 });
 
 export const zHealthCheckRelationCrackerBinaryGetResponse = z.object({
-  data: z.object({
-    type: z.literal('crackerBinary'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('crackerBinary'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zHealthCheckRelationHashType = z.object({
@@ -422,10 +428,12 @@ export const zHealthCheckRelationHashType = z.object({
 });
 
 export const zHealthCheckRelationHashTypeGetResponse = z.object({
-  data: z.object({
-    type: z.literal('hashType'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('hashType'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zHealthCheckRelationHealthCheckAgents = z.object({
@@ -504,7 +512,7 @@ export const zGetHealthchecksByIdCrackerBinaryPath = z.object({
 /**
  * successful operation
  */
-export const zGetHealthchecksByIdCrackerBinaryResponse = zHealthCheckRelationCrackerBinaryGetResponse;
+export const zGetHealthchecksByIdCrackerBinaryResponse = zCrackerBinaryResponse;
 
 export const zGetHealthchecksByIdRelationshipsCrackerBinaryPath = z.object({
   id: z
@@ -516,7 +524,7 @@ export const zGetHealthchecksByIdRelationshipsCrackerBinaryPath = z.object({
 /**
  * successful operation
  */
-export const zGetHealthchecksByIdRelationshipsCrackerBinaryResponse = zHealthCheckResponse;
+export const zGetHealthchecksByIdRelationshipsCrackerBinaryResponse = zHealthCheckRelationCrackerBinaryGetResponse;
 
 export const zPatchHealthchecksByIdRelationshipsCrackerBinaryBody = zHealthCheckRelationCrackerBinary;
 
@@ -539,7 +547,7 @@ export const zGetHealthchecksByIdHashTypePath = z.object({
 /**
  * successful operation
  */
-export const zGetHealthchecksByIdHashTypeResponse = zHealthCheckRelationHashTypeGetResponse;
+export const zGetHealthchecksByIdHashTypeResponse = zHashTypeResponse;
 
 export const zGetHealthchecksByIdRelationshipsHashTypePath = z.object({
   id: z
@@ -551,7 +559,7 @@ export const zGetHealthchecksByIdRelationshipsHashTypePath = z.object({
 /**
  * successful operation
  */
-export const zGetHealthchecksByIdRelationshipsHashTypeResponse = zHealthCheckResponse;
+export const zGetHealthchecksByIdRelationshipsHashTypeResponse = zHealthCheckRelationHashTypeGetResponse;
 
 export const zPatchHealthchecksByIdRelationshipsHashTypeBody = zHealthCheckRelationHashType;
 
@@ -574,7 +582,7 @@ export const zGetHealthchecksByIdHealthCheckAgentsPath = z.object({
 /**
  * successful operation
  */
-export const zGetHealthchecksByIdHealthCheckAgentsResponse = zHealthCheckRelationHealthCheckAgentsGetResponse;
+export const zGetHealthchecksByIdHealthCheckAgentsResponse = zHealthCheckAgentListResponse;
 
 export const zDeleteHealthchecksByIdRelationshipsHealthCheckAgentsBody = zHealthCheckRelationHealthCheckAgents;
 
@@ -597,7 +605,8 @@ export const zGetHealthchecksByIdRelationshipsHealthCheckAgentsPath = z.object({
 /**
  * successful operation
  */
-export const zGetHealthchecksByIdRelationshipsHealthCheckAgentsResponse = zHealthCheckResponse;
+export const zGetHealthchecksByIdRelationshipsHealthCheckAgentsResponse =
+  zHealthCheckRelationHealthCheckAgentsGetResponse;
 
 export const zPatchHealthchecksByIdRelationshipsHealthCheckAgentsBody = zHealthCheckRelationHealthCheckAgents;
 

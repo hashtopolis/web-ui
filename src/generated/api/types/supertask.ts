@@ -1,4 +1,5 @@
 import type { ErrorResponse } from './common';
+import type { PreTaskListResponse } from './pre-task';
 
 export type SupertaskCreate = {
   data: {
@@ -558,7 +559,7 @@ export type GetSupertasksByIdPretasksResponses = {
   /**
    * successful operation
    */
-  200: SupertaskRelationPretasksGetResponse;
+  200: PreTaskListResponse;
 };
 
 export type GetSupertasksByIdPretasksResponse =
@@ -640,7 +641,7 @@ export type GetSupertasksByIdRelationshipsPretasksResponses = {
   /**
    * successful operation
    */
-  200: SupertaskResponse;
+  200: SupertaskRelationPretasksGetResponse;
 };
 
 export type GetSupertasksByIdRelationshipsPretasksResponse =

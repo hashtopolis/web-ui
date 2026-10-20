@@ -1,4 +1,6 @@
+import type { AgentResponse } from './agent';
 import type { ErrorResponse } from './common';
+import type { TaskResponse } from './task';
 
 export type SpeedResponse = {
   jsonapi: {
@@ -237,7 +239,7 @@ export type SpeedRelationAgentGetResponse = {
   data: {
     type: 'agent';
     id: number;
-  };
+  } | null;
 };
 
 export type SpeedRelationTask = {
@@ -251,7 +253,7 @@ export type SpeedRelationTaskGetResponse = {
   data: {
     type: 'task';
     id: number;
-  };
+  } | null;
 };
 
 export type GetSpeedsData = {
@@ -400,7 +402,7 @@ export type GetSpeedsByIdAgentResponses = {
   /**
    * successful operation
    */
-  200: SpeedRelationAgentGetResponse;
+  200: AgentResponse;
 };
 
 export type GetSpeedsByIdAgentResponse = GetSpeedsByIdAgentResponses[keyof GetSpeedsByIdAgentResponses];
@@ -440,7 +442,7 @@ export type GetSpeedsByIdRelationshipsAgentResponses = {
   /**
    * successful operation
    */
-  200: SpeedResponse;
+  200: SpeedRelationAgentGetResponse;
 };
 
 export type GetSpeedsByIdRelationshipsAgentResponse =
@@ -525,7 +527,7 @@ export type GetSpeedsByIdTaskResponses = {
   /**
    * successful operation
    */
-  200: SpeedRelationTaskGetResponse;
+  200: TaskResponse;
 };
 
 export type GetSpeedsByIdTaskResponse = GetSpeedsByIdTaskResponses[keyof GetSpeedsByIdTaskResponses];
@@ -565,7 +567,7 @@ export type GetSpeedsByIdRelationshipsTaskResponses = {
   /**
    * successful operation
    */
-  200: SpeedResponse;
+  200: SpeedRelationTaskGetResponse;
 };
 
 export type GetSpeedsByIdRelationshipsTaskResponse =

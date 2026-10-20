@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { zPreTaskListResponse } from './pre-task';
+
 export const zSupertaskCreate = z.object({
   data: z.object({
     type: z.literal('supertask'),
@@ -396,7 +398,7 @@ export const zGetSupertasksByIdPretasksPath = z.object({
 /**
  * successful operation
  */
-export const zGetSupertasksByIdPretasksResponse = zSupertaskRelationPretasksGetResponse;
+export const zGetSupertasksByIdPretasksResponse = zPreTaskListResponse;
 
 export const zDeleteSupertasksByIdRelationshipsPretasksBody = zSupertaskRelationPretasks;
 
@@ -419,7 +421,7 @@ export const zGetSupertasksByIdRelationshipsPretasksPath = z.object({
 /**
  * successful operation
  */
-export const zGetSupertasksByIdRelationshipsPretasksResponse = zSupertaskResponse;
+export const zGetSupertasksByIdRelationshipsPretasksResponse = zSupertaskRelationPretasksGetResponse;
 
 export const zPatchSupertasksByIdRelationshipsPretasksBody = zSupertaskRelationPretasks;
 

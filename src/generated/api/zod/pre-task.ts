@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { zFileListResponse } from './file';
+
 export const zPreTaskCreate = z.object({
   data: z.object({
     type: z.literal('preTask'),
@@ -380,7 +382,7 @@ export const zGetPretasksByIdPretaskFilesPath = z.object({
 /**
  * successful operation
  */
-export const zGetPretasksByIdPretaskFilesResponse = zPreTaskRelationPretaskFilesGetResponse;
+export const zGetPretasksByIdPretaskFilesResponse = zFileListResponse;
 
 export const zDeletePretasksByIdRelationshipsPretaskFilesBody = zPreTaskRelationPretaskFiles;
 
@@ -403,7 +405,7 @@ export const zGetPretasksByIdRelationshipsPretaskFilesPath = z.object({
 /**
  * successful operation
  */
-export const zGetPretasksByIdRelationshipsPretaskFilesResponse = zPreTaskResponse;
+export const zGetPretasksByIdRelationshipsPretaskFilesResponse = zPreTaskRelationPretaskFilesGetResponse;
 
 export const zPatchPretasksByIdRelationshipsPretaskFilesBody = zPreTaskRelationPretaskFiles;
 

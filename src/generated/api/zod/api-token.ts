@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { zUserResponse } from './user';
+
 export const zApiTokenCreate = z.object({
   data: z.object({
     type: z.literal('apiToken'),
@@ -263,10 +265,12 @@ export const zApiTokenRelationUser = z.object({
 });
 
 export const zApiTokenRelationUserGetResponse = z.object({
-  data: z.object({
-    type: z.literal('user'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('user'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zDeleteApiTokensBody = zApiTokenDeleteMultiple;
@@ -327,7 +331,7 @@ export const zGetApiTokensByIdUserPath = z.object({
 /**
  * successful operation
  */
-export const zGetApiTokensByIdUserResponse = zApiTokenRelationUserGetResponse;
+export const zGetApiTokensByIdUserResponse = zUserResponse;
 
 export const zGetApiTokensByIdRelationshipsUserPath = z.object({
   id: z
@@ -339,7 +343,7 @@ export const zGetApiTokensByIdRelationshipsUserPath = z.object({
 /**
  * successful operation
  */
-export const zGetApiTokensByIdRelationshipsUserResponse = zApiTokenResponse;
+export const zGetApiTokensByIdRelationshipsUserResponse = zApiTokenRelationUserGetResponse;
 
 export const zPatchApiTokensByIdRelationshipsUserBody = zApiTokenRelationUser;
 

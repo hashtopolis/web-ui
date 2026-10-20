@@ -1,5 +1,10 @@
 import * as z from 'zod';
 
+import { zAccessGroupResponse } from './access-group';
+import { zHashTypeResponse } from './hash-type';
+import { zHashlistResponse } from './hashlist';
+import { zTaskListResponse, zTaskResponse } from './task';
+
 export const zTaskWrapperPatch = z.object({
   data: z.object({
     type: z.literal('taskWrapper'),
@@ -732,10 +737,12 @@ export const zTaskWrapperRelationAccessGroup = z.object({
 });
 
 export const zTaskWrapperRelationAccessGroupGetResponse = z.object({
-  data: z.object({
-    type: z.literal('accessGroup'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('accessGroup'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zTaskWrapperRelationHashlist = z.object({
@@ -746,10 +753,12 @@ export const zTaskWrapperRelationHashlist = z.object({
 });
 
 export const zTaskWrapperRelationHashlistGetResponse = z.object({
-  data: z.object({
-    type: z.literal('hashlist'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('hashlist'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zTaskWrapperRelationHashType = z.object({
@@ -760,17 +769,21 @@ export const zTaskWrapperRelationHashType = z.object({
 });
 
 export const zTaskWrapperRelationHashTypeGetResponse = z.object({
-  data: z.object({
-    type: z.literal('hashType'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('hashType'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zTaskWrapperRelationTaskGetResponse = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('task'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zTaskWrapperRelationTasksGetResponse = z.object({
@@ -1092,7 +1105,7 @@ export const zGetTaskwrappersByIdAccessGroupPath = z.object({
 /**
  * successful operation
  */
-export const zGetTaskwrappersByIdAccessGroupResponse = zTaskWrapperRelationAccessGroupGetResponse;
+export const zGetTaskwrappersByIdAccessGroupResponse = zAccessGroupResponse;
 
 export const zGetTaskwrappersByIdRelationshipsAccessGroupPath = z.object({
   id: z
@@ -1104,7 +1117,7 @@ export const zGetTaskwrappersByIdRelationshipsAccessGroupPath = z.object({
 /**
  * successful operation
  */
-export const zGetTaskwrappersByIdRelationshipsAccessGroupResponse = zTaskWrapperResponse;
+export const zGetTaskwrappersByIdRelationshipsAccessGroupResponse = zTaskWrapperRelationAccessGroupGetResponse;
 
 export const zPatchTaskwrappersByIdRelationshipsAccessGroupBody = zTaskWrapperRelationAccessGroup;
 
@@ -1127,7 +1140,7 @@ export const zGetTaskwrappersByIdHashlistPath = z.object({
 /**
  * successful operation
  */
-export const zGetTaskwrappersByIdHashlistResponse = zTaskWrapperRelationHashlistGetResponse;
+export const zGetTaskwrappersByIdHashlistResponse = zHashlistResponse;
 
 export const zGetTaskwrappersByIdRelationshipsHashlistPath = z.object({
   id: z
@@ -1139,7 +1152,7 @@ export const zGetTaskwrappersByIdRelationshipsHashlistPath = z.object({
 /**
  * successful operation
  */
-export const zGetTaskwrappersByIdRelationshipsHashlistResponse = zTaskWrapperResponse;
+export const zGetTaskwrappersByIdRelationshipsHashlistResponse = zTaskWrapperRelationHashlistGetResponse;
 
 export const zPatchTaskwrappersByIdRelationshipsHashlistBody = zTaskWrapperRelationHashlist;
 
@@ -1162,7 +1175,7 @@ export const zGetTaskwrappersByIdHashTypePath = z.object({
 /**
  * successful operation
  */
-export const zGetTaskwrappersByIdHashTypeResponse = zTaskWrapperRelationHashTypeGetResponse;
+export const zGetTaskwrappersByIdHashTypeResponse = zHashTypeResponse;
 
 export const zGetTaskwrappersByIdRelationshipsHashTypePath = z.object({
   id: z
@@ -1174,7 +1187,7 @@ export const zGetTaskwrappersByIdRelationshipsHashTypePath = z.object({
 /**
  * successful operation
  */
-export const zGetTaskwrappersByIdRelationshipsHashTypeResponse = zTaskWrapperResponse;
+export const zGetTaskwrappersByIdRelationshipsHashTypeResponse = zTaskWrapperRelationHashTypeGetResponse;
 
 export const zPatchTaskwrappersByIdRelationshipsHashTypeBody = zTaskWrapperRelationHashType;
 
@@ -1197,7 +1210,7 @@ export const zGetTaskwrappersByIdTaskPath = z.object({
 /**
  * successful operation
  */
-export const zGetTaskwrappersByIdTaskResponse = zTaskWrapperRelationTaskGetResponse;
+export const zGetTaskwrappersByIdTaskResponse = zTaskResponse;
 
 export const zGetTaskwrappersByIdRelationshipsTaskPath = z.object({
   id: z
@@ -1209,7 +1222,7 @@ export const zGetTaskwrappersByIdRelationshipsTaskPath = z.object({
 /**
  * successful operation
  */
-export const zGetTaskwrappersByIdRelationshipsTaskResponse = zTaskWrapperResponse;
+export const zGetTaskwrappersByIdRelationshipsTaskResponse = zTaskWrapperRelationTaskGetResponse;
 
 export const zGetTaskwrappersByIdTasksPath = z.object({
   id: z
@@ -1221,7 +1234,7 @@ export const zGetTaskwrappersByIdTasksPath = z.object({
 /**
  * successful operation
  */
-export const zGetTaskwrappersByIdTasksResponse = zTaskWrapperRelationTasksGetResponse;
+export const zGetTaskwrappersByIdTasksResponse = zTaskListResponse;
 
 export const zGetTaskwrappersByIdRelationshipsTasksPath = z.object({
   id: z
@@ -1233,7 +1246,7 @@ export const zGetTaskwrappersByIdRelationshipsTasksPath = z.object({
 /**
  * successful operation
  */
-export const zGetTaskwrappersByIdRelationshipsTasksResponse = zTaskWrapperResponse;
+export const zGetTaskwrappersByIdRelationshipsTasksResponse = zTaskWrapperRelationTasksGetResponse;
 
 export const zDeleteTaskwrappersByIdPath = z.object({
   id: z.int()

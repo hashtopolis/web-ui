@@ -1,4 +1,5 @@
 import type { ErrorResponse } from './common';
+import type { UserResponse } from './user';
 
 export type BackgroundJobDeleteMultiple = {
   data: Array<{
@@ -162,7 +163,7 @@ export type BackgroundJobRelationUserGetResponse = {
   data: {
     type: 'user';
     id: number;
-  };
+  } | null;
 };
 
 export type DeleteBackgroundJobsData = {
@@ -348,7 +349,7 @@ export type GetBackgroundJobsByIdUserResponses = {
   /**
    * successful operation
    */
-  200: BackgroundJobRelationUserGetResponse;
+  200: UserResponse;
 };
 
 export type GetBackgroundJobsByIdUserResponse =
@@ -389,7 +390,7 @@ export type GetBackgroundJobsByIdRelationshipsUserResponses = {
   /**
    * successful operation
    */
-  200: BackgroundJobResponse;
+  200: BackgroundJobRelationUserGetResponse;
 };
 
 export type GetBackgroundJobsByIdRelationshipsUserResponse =

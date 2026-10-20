@@ -1,4 +1,6 @@
+import type { AgentResponse } from './agent';
 import type { ErrorResponse } from './common';
+import type { TaskResponse } from './task';
 
 export type AgentAssignmentCreate = {
   data: {
@@ -383,7 +385,7 @@ export type AgentAssignmentRelationAgentGetResponse = {
   data: {
     type: 'agent';
     id: number;
-  };
+  } | null;
 };
 
 export type AgentAssignmentRelationTask = {
@@ -397,7 +399,7 @@ export type AgentAssignmentRelationTaskGetResponse = {
   data: {
     type: 'task';
     id: number;
-  };
+  } | null;
 };
 
 export type DeleteAgentassignmentsData = {
@@ -669,7 +671,7 @@ export type GetAgentassignmentsByIdAgentResponses = {
   /**
    * successful operation
    */
-  200: AgentAssignmentRelationAgentGetResponse;
+  200: AgentResponse;
 };
 
 export type GetAgentassignmentsByIdAgentResponse =
@@ -710,7 +712,7 @@ export type GetAgentassignmentsByIdRelationshipsAgentResponses = {
   /**
    * successful operation
    */
-  200: AgentAssignmentResponse;
+  200: AgentAssignmentRelationAgentGetResponse;
 };
 
 export type GetAgentassignmentsByIdRelationshipsAgentResponse =
@@ -796,7 +798,7 @@ export type GetAgentassignmentsByIdTaskResponses = {
   /**
    * successful operation
    */
-  200: AgentAssignmentRelationTaskGetResponse;
+  200: TaskResponse;
 };
 
 export type GetAgentassignmentsByIdTaskResponse =
@@ -837,7 +839,7 @@ export type GetAgentassignmentsByIdRelationshipsTaskResponses = {
   /**
    * successful operation
    */
-  200: AgentAssignmentResponse;
+  200: AgentAssignmentRelationTaskGetResponse;
 };
 
 export type GetAgentassignmentsByIdRelationshipsTaskResponse =

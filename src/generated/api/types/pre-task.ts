@@ -1,4 +1,5 @@
 import type { ErrorResponse } from './common';
+import type { FileListResponse } from './file';
 
 export type PreTaskCreate = {
   data: {
@@ -551,7 +552,7 @@ export type GetPretasksByIdPretaskFilesResponses = {
   /**
    * successful operation
    */
-  200: PreTaskRelationPretaskFilesGetResponse;
+  200: FileListResponse;
 };
 
 export type GetPretasksByIdPretaskFilesResponse =
@@ -633,7 +634,7 @@ export type GetPretasksByIdRelationshipsPretaskFilesResponses = {
   /**
    * successful operation
    */
-  200: PreTaskResponse;
+  200: PreTaskRelationPretaskFilesGetResponse;
 };
 
 export type GetPretasksByIdRelationshipsPretaskFilesResponse =

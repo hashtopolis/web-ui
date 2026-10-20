@@ -1,5 +1,10 @@
 import * as z from 'zod';
 
+import { zAccessGroupResponse } from './access-group';
+import { zHashListResponse } from './hash';
+import { zHashTypeResponse } from './hash-type';
+import { zTaskListResponse } from './task';
+
 export const zHashlistCreate = z.object({
   data: z.object({
     type: z.literal('hashlist'),
@@ -852,10 +857,12 @@ export const zHashlistRelationAccessGroup = z.object({
 });
 
 export const zHashlistRelationAccessGroupGetResponse = z.object({
-  data: z.object({
-    type: z.literal('accessGroup'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('accessGroup'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zHashlistRelationHashType = z.object({
@@ -866,10 +873,12 @@ export const zHashlistRelationHashType = z.object({
 });
 
 export const zHashlistRelationHashTypeGetResponse = z.object({
-  data: z.object({
-    type: z.literal('hashType'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('hashType'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zHashlistRelationHashes = z.object({
@@ -984,7 +993,7 @@ export const zGetHashlistsByIdAccessGroupPath = z.object({
 /**
  * successful operation
  */
-export const zGetHashlistsByIdAccessGroupResponse = zHashlistRelationAccessGroupGetResponse;
+export const zGetHashlistsByIdAccessGroupResponse = zAccessGroupResponse;
 
 export const zGetHashlistsByIdRelationshipsAccessGroupPath = z.object({
   id: z
@@ -996,7 +1005,7 @@ export const zGetHashlistsByIdRelationshipsAccessGroupPath = z.object({
 /**
  * successful operation
  */
-export const zGetHashlistsByIdRelationshipsAccessGroupResponse = zHashlistResponse;
+export const zGetHashlistsByIdRelationshipsAccessGroupResponse = zHashlistRelationAccessGroupGetResponse;
 
 export const zPatchHashlistsByIdRelationshipsAccessGroupBody = zHashlistRelationAccessGroup;
 
@@ -1019,7 +1028,7 @@ export const zGetHashlistsByIdHashTypePath = z.object({
 /**
  * successful operation
  */
-export const zGetHashlistsByIdHashTypeResponse = zHashlistRelationHashTypeGetResponse;
+export const zGetHashlistsByIdHashTypeResponse = zHashTypeResponse;
 
 export const zGetHashlistsByIdRelationshipsHashTypePath = z.object({
   id: z
@@ -1031,7 +1040,7 @@ export const zGetHashlistsByIdRelationshipsHashTypePath = z.object({
 /**
  * successful operation
  */
-export const zGetHashlistsByIdRelationshipsHashTypeResponse = zHashlistResponse;
+export const zGetHashlistsByIdRelationshipsHashTypeResponse = zHashlistRelationHashTypeGetResponse;
 
 export const zPatchHashlistsByIdRelationshipsHashTypeBody = zHashlistRelationHashType;
 
@@ -1054,7 +1063,7 @@ export const zGetHashlistsByIdHashesPath = z.object({
 /**
  * successful operation
  */
-export const zGetHashlistsByIdHashesResponse = zHashlistRelationHashesGetResponse;
+export const zGetHashlistsByIdHashesResponse = zHashListResponse;
 
 export const zDeleteHashlistsByIdRelationshipsHashesBody = zHashlistRelationHashes;
 
@@ -1077,7 +1086,7 @@ export const zGetHashlistsByIdRelationshipsHashesPath = z.object({
 /**
  * successful operation
  */
-export const zGetHashlistsByIdRelationshipsHashesResponse = zHashlistResponse;
+export const zGetHashlistsByIdRelationshipsHashesResponse = zHashlistRelationHashesGetResponse;
 
 export const zPatchHashlistsByIdRelationshipsHashesBody = zHashlistRelationHashes;
 
@@ -1111,7 +1120,7 @@ export const zGetHashlistsByIdHashlistsPath = z.object({
 /**
  * successful operation
  */
-export const zGetHashlistsByIdHashlistsResponse = zHashlistRelationHashlistsGetResponse;
+export const zGetHashlistsByIdHashlistsResponse = zHashlistListResponse;
 
 export const zDeleteHashlistsByIdRelationshipsHashlistsBody = zHashlistRelationHashlists;
 
@@ -1134,7 +1143,7 @@ export const zGetHashlistsByIdRelationshipsHashlistsPath = z.object({
 /**
  * successful operation
  */
-export const zGetHashlistsByIdRelationshipsHashlistsResponse = zHashlistResponse;
+export const zGetHashlistsByIdRelationshipsHashlistsResponse = zHashlistRelationHashlistsGetResponse;
 
 export const zPatchHashlistsByIdRelationshipsHashlistsBody = zHashlistRelationHashlists;
 
@@ -1168,7 +1177,7 @@ export const zGetHashlistsByIdTasksPath = z.object({
 /**
  * successful operation
  */
-export const zGetHashlistsByIdTasksResponse = zHashlistRelationTasksGetResponse;
+export const zGetHashlistsByIdTasksResponse = zTaskListResponse;
 
 export const zDeleteHashlistsByIdRelationshipsTasksBody = zHashlistRelationTasks;
 
@@ -1191,7 +1200,7 @@ export const zGetHashlistsByIdRelationshipsTasksPath = z.object({
 /**
  * successful operation
  */
-export const zGetHashlistsByIdRelationshipsTasksResponse = zHashlistResponse;
+export const zGetHashlistsByIdRelationshipsTasksResponse = zHashlistRelationTasksGetResponse;
 
 export const zPatchHashlistsByIdRelationshipsTasksBody = zHashlistRelationTasks;
 

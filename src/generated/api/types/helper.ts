@@ -6,7 +6,7 @@ import type { GlobalPermissionGroupResourceObject } from './global-permission-gr
 import type { HashResourceObject } from './hash';
 import type { HashlistSingleResponse } from './hashlist';
 import type { SupertaskSingleResponse } from './supertask';
-import type { TaskResourceObject } from './task';
+import type { TaskListResponse, TaskResourceObject } from './task';
 import type {
   TaskWrapperDisplayCountResponse,
   TaskWrapperDisplayListResponse,
@@ -588,7 +588,7 @@ export type GetTaskwrapperdisplaysByIdTasksResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperDisplayRelationTasksGetResponse;
+  200: TaskListResponse;
 };
 
 export type GetTaskwrapperdisplaysByIdTasksResponse =
@@ -629,7 +629,7 @@ export type GetTaskwrapperdisplaysByIdRelationshipsTasksResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperDisplayResponse;
+  200: TaskWrapperDisplayRelationTasksGetResponse;
 };
 
 export type GetTaskwrapperdisplaysByIdRelationshipsTasksResponse =

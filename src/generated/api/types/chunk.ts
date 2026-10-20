@@ -1,4 +1,6 @@
+import type { AgentResponse } from './agent';
 import type { ErrorResponse } from './common';
+import type { TaskResponse } from './task';
 
 export type ChunkResponse = {
   jsonapi: {
@@ -251,7 +253,7 @@ export type ChunkRelationAgentGetResponse = {
   data: {
     type: 'agent';
     id: number;
-  };
+  } | null;
 };
 
 export type ChunkRelationTask = {
@@ -265,7 +267,7 @@ export type ChunkRelationTaskGetResponse = {
   data: {
     type: 'task';
     id: number;
-  };
+  } | null;
 };
 
 export type GetChunksData = {
@@ -414,7 +416,7 @@ export type GetChunksByIdAgentResponses = {
   /**
    * successful operation
    */
-  200: ChunkRelationAgentGetResponse;
+  200: AgentResponse;
 };
 
 export type GetChunksByIdAgentResponse = GetChunksByIdAgentResponses[keyof GetChunksByIdAgentResponses];
@@ -454,7 +456,7 @@ export type GetChunksByIdRelationshipsAgentResponses = {
   /**
    * successful operation
    */
-  200: ChunkResponse;
+  200: ChunkRelationAgentGetResponse;
 };
 
 export type GetChunksByIdRelationshipsAgentResponse =
@@ -539,7 +541,7 @@ export type GetChunksByIdTaskResponses = {
   /**
    * successful operation
    */
-  200: ChunkRelationTaskGetResponse;
+  200: TaskResponse;
 };
 
 export type GetChunksByIdTaskResponse = GetChunksByIdTaskResponses[keyof GetChunksByIdTaskResponses];
@@ -579,7 +581,7 @@ export type GetChunksByIdRelationshipsTaskResponses = {
   /**
    * successful operation
    */
-  200: ChunkResponse;
+  200: ChunkRelationTaskGetResponse;
 };
 
 export type GetChunksByIdRelationshipsTaskResponse =

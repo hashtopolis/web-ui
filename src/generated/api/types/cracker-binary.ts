@@ -1,4 +1,8 @@
+import type { AccessGroupResponse } from './access-group';
 import type { ErrorResponse } from './common';
+import type { CrackerBinaryTypeResponse } from './cracker-binary-type';
+import type { HashTypeListResponse } from './hash-type';
+import type { TaskListResponse } from './task';
 
 export type CrackerBinaryCreate = {
   data: {
@@ -495,7 +499,7 @@ export type CrackerBinaryRelationCrackerBinaryTypeGetResponse = {
   data: {
     type: 'crackerBinaryType';
     id: number;
-  };
+  } | null;
 };
 
 export type CrackerBinaryRelationAccessGroup = {
@@ -509,7 +513,7 @@ export type CrackerBinaryRelationAccessGroupGetResponse = {
   data: {
     type: 'accessGroup';
     id: number;
-  };
+  } | null;
 };
 
 export type CrackerBinaryRelationTasks = {
@@ -802,7 +806,7 @@ export type GetCrackersByIdCrackerBinaryTypeResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryRelationCrackerBinaryTypeGetResponse;
+  200: CrackerBinaryTypeResponse;
 };
 
 export type GetCrackersByIdCrackerBinaryTypeResponse =
@@ -843,7 +847,7 @@ export type GetCrackersByIdRelationshipsCrackerBinaryTypeResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryResponse;
+  200: CrackerBinaryRelationCrackerBinaryTypeGetResponse;
 };
 
 export type GetCrackersByIdRelationshipsCrackerBinaryTypeResponse =
@@ -928,7 +932,7 @@ export type GetCrackersByIdAccessGroupResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryRelationAccessGroupGetResponse;
+  200: AccessGroupResponse;
 };
 
 export type GetCrackersByIdAccessGroupResponse =
@@ -969,7 +973,7 @@ export type GetCrackersByIdRelationshipsAccessGroupResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryResponse;
+  200: CrackerBinaryRelationAccessGroupGetResponse;
 };
 
 export type GetCrackersByIdRelationshipsAccessGroupResponse =
@@ -1054,7 +1058,7 @@ export type GetCrackersByIdTasksResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryRelationTasksGetResponse;
+  200: TaskListResponse;
 };
 
 export type GetCrackersByIdTasksResponse = GetCrackersByIdTasksResponses[keyof GetCrackersByIdTasksResponses];
@@ -1135,7 +1139,7 @@ export type GetCrackersByIdRelationshipsTasksResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryResponse;
+  200: CrackerBinaryRelationTasksGetResponse;
 };
 
 export type GetCrackersByIdRelationshipsTasksResponse =
@@ -1265,7 +1269,7 @@ export type GetCrackersByIdHashtypesResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryRelationHashtypesGetResponse;
+  200: HashTypeListResponse;
 };
 
 export type GetCrackersByIdHashtypesResponse =
@@ -1347,7 +1351,7 @@ export type GetCrackersByIdRelationshipsHashtypesResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryResponse;
+  200: CrackerBinaryRelationHashtypesGetResponse;
 };
 
 export type GetCrackersByIdRelationshipsHashtypesResponse =

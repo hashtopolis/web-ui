@@ -1,4 +1,6 @@
+import type { AgentResponse } from './agent';
 import type { ErrorResponse } from './common';
+import type { HealthCheckResponse } from './health-check';
 
 export type HealthCheckAgentResponse = {
   jsonapi: {
@@ -213,7 +215,7 @@ export type HealthCheckAgentRelationAgentGetResponse = {
   data: {
     type: 'agent';
     id: number;
-  };
+  } | null;
 };
 
 export type HealthCheckAgentRelationHealthCheck = {
@@ -227,7 +229,7 @@ export type HealthCheckAgentRelationHealthCheckGetResponse = {
   data: {
     type: 'healthCheck';
     id: number;
-  };
+  } | null;
 };
 
 export type GetHealthcheckagentsData = {
@@ -378,7 +380,7 @@ export type GetHealthcheckagentsByIdAgentResponses = {
   /**
    * successful operation
    */
-  200: HealthCheckAgentRelationAgentGetResponse;
+  200: AgentResponse;
 };
 
 export type GetHealthcheckagentsByIdAgentResponse =
@@ -419,7 +421,7 @@ export type GetHealthcheckagentsByIdRelationshipsAgentResponses = {
   /**
    * successful operation
    */
-  200: HealthCheckAgentResponse;
+  200: HealthCheckAgentRelationAgentGetResponse;
 };
 
 export type GetHealthcheckagentsByIdRelationshipsAgentResponse =
@@ -505,7 +507,7 @@ export type GetHealthcheckagentsByIdHealthCheckResponses = {
   /**
    * successful operation
    */
-  200: HealthCheckAgentRelationHealthCheckGetResponse;
+  200: HealthCheckResponse;
 };
 
 export type GetHealthcheckagentsByIdHealthCheckResponse =
@@ -546,7 +548,7 @@ export type GetHealthcheckagentsByIdRelationshipsHealthCheckResponses = {
   /**
    * successful operation
    */
-  200: HealthCheckAgentResponse;
+  200: HealthCheckAgentRelationHealthCheckGetResponse;
 };
 
 export type GetHealthcheckagentsByIdRelationshipsHealthCheckResponse =

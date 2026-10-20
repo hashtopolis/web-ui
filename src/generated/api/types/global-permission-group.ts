@@ -1,4 +1,5 @@
 import type { ErrorResponse } from './common';
+import type { UserListResponse } from './user';
 
 export type GlobalPermissionGroupResourceObject = {
   id: number;
@@ -533,7 +534,7 @@ export type GetGlobalpermissiongroupsByIdUserMembersResponses = {
   /**
    * successful operation
    */
-  200: GlobalPermissionGroupRelationUserMembersGetResponse;
+  200: UserListResponse;
 };
 
 export type GetGlobalpermissiongroupsByIdUserMembersResponse =
@@ -615,7 +616,7 @@ export type GetGlobalpermissiongroupsByIdRelationshipsUserMembersResponses = {
   /**
    * successful operation
    */
-  200: GlobalPermissionGroupResponse;
+  200: GlobalPermissionGroupRelationUserMembersGetResponse;
 };
 
 export type GetGlobalpermissiongroupsByIdRelationshipsUserMembersResponse =

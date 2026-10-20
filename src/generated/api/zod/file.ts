@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { zAccessGroupResponse } from './access-group';
+
 export const zFileCreate = z.object({
   data: z.object({
     type: z.literal('file'),
@@ -296,10 +298,12 @@ export const zFileRelationAccessGroup = z.object({
 });
 
 export const zFileRelationAccessGroupGetResponse = z.object({
-  data: z.object({
-    type: z.literal('accessGroup'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('accessGroup'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zDeleteFilesBody = zFileDeleteMultiple;
@@ -360,7 +364,7 @@ export const zGetFilesByIdAccessGroupPath = z.object({
 /**
  * successful operation
  */
-export const zGetFilesByIdAccessGroupResponse = zFileRelationAccessGroupGetResponse;
+export const zGetFilesByIdAccessGroupResponse = zAccessGroupResponse;
 
 export const zGetFilesByIdRelationshipsAccessGroupPath = z.object({
   id: z
@@ -372,7 +376,7 @@ export const zGetFilesByIdRelationshipsAccessGroupPath = z.object({
 /**
  * successful operation
  */
-export const zGetFilesByIdRelationshipsAccessGroupResponse = zFileResponse;
+export const zGetFilesByIdRelationshipsAccessGroupResponse = zFileRelationAccessGroupGetResponse;
 
 export const zPatchFilesByIdRelationshipsAccessGroupBody = zFileRelationAccessGroup;
 

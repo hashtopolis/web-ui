@@ -1,4 +1,8 @@
+import type { AccessGroupResponse } from './access-group';
 import type { ErrorResponse } from './common';
+import type { HashTypeResponse } from './hash-type';
+import type { HashlistResponse } from './hashlist';
+import type { TaskListResponse, TaskResponse } from './task';
 
 export type TaskWrapperPatch = {
   data: {
@@ -661,7 +665,7 @@ export type TaskWrapperRelationAccessGroupGetResponse = {
   data: {
     type: 'accessGroup';
     id: number;
-  };
+  } | null;
 };
 
 export type TaskWrapperRelationHashlist = {
@@ -675,7 +679,7 @@ export type TaskWrapperRelationHashlistGetResponse = {
   data: {
     type: 'hashlist';
     id: number;
-  };
+  } | null;
 };
 
 export type TaskWrapperRelationHashType = {
@@ -689,14 +693,14 @@ export type TaskWrapperRelationHashTypeGetResponse = {
   data: {
     type: 'hashType';
     id: number;
-  };
+  } | null;
 };
 
 export type TaskWrapperRelationTaskGetResponse = {
   data: {
     type: 'task';
     id: number;
-  };
+  } | null;
 };
 
 export type TaskWrapperRelationTasksGetResponse = {
@@ -1166,7 +1170,7 @@ export type GetTaskwrappersByIdAccessGroupResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperRelationAccessGroupGetResponse;
+  200: AccessGroupResponse;
 };
 
 export type GetTaskwrappersByIdAccessGroupResponse =
@@ -1207,7 +1211,7 @@ export type GetTaskwrappersByIdRelationshipsAccessGroupResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperResponse;
+  200: TaskWrapperRelationAccessGroupGetResponse;
 };
 
 export type GetTaskwrappersByIdRelationshipsAccessGroupResponse =
@@ -1293,7 +1297,7 @@ export type GetTaskwrappersByIdHashlistResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperRelationHashlistGetResponse;
+  200: HashlistResponse;
 };
 
 export type GetTaskwrappersByIdHashlistResponse =
@@ -1334,7 +1338,7 @@ export type GetTaskwrappersByIdRelationshipsHashlistResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperResponse;
+  200: TaskWrapperRelationHashlistGetResponse;
 };
 
 export type GetTaskwrappersByIdRelationshipsHashlistResponse =
@@ -1420,7 +1424,7 @@ export type GetTaskwrappersByIdHashTypeResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperRelationHashTypeGetResponse;
+  200: HashTypeResponse;
 };
 
 export type GetTaskwrappersByIdHashTypeResponse =
@@ -1461,7 +1465,7 @@ export type GetTaskwrappersByIdRelationshipsHashTypeResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperResponse;
+  200: TaskWrapperRelationHashTypeGetResponse;
 };
 
 export type GetTaskwrappersByIdRelationshipsHashTypeResponse =
@@ -1546,7 +1550,7 @@ export type GetTaskwrappersByIdTaskResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperRelationTaskGetResponse;
+  200: TaskResponse;
 };
 
 export type GetTaskwrappersByIdTaskResponse = GetTaskwrappersByIdTaskResponses[keyof GetTaskwrappersByIdTaskResponses];
@@ -1586,7 +1590,7 @@ export type GetTaskwrappersByIdRelationshipsTaskResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperResponse;
+  200: TaskWrapperRelationTaskGetResponse;
 };
 
 export type GetTaskwrappersByIdRelationshipsTaskResponse =
@@ -1626,7 +1630,7 @@ export type GetTaskwrappersByIdTasksResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperRelationTasksGetResponse;
+  200: TaskListResponse;
 };
 
 export type GetTaskwrappersByIdTasksResponse =
@@ -1667,7 +1671,7 @@ export type GetTaskwrappersByIdRelationshipsTasksResponses = {
   /**
    * successful operation
    */
-  200: TaskWrapperResponse;
+  200: TaskWrapperRelationTasksGetResponse;
 };
 
 export type GetTaskwrappersByIdRelationshipsTasksResponse =

@@ -1,4 +1,6 @@
+import type { AgentListResponse } from './agent';
 import type { ErrorResponse } from './common';
+import type { UserListResponse } from './user';
 
 export type AccessGroupResourceObject = {
   id: number;
@@ -627,7 +629,7 @@ export type GetAccessgroupsByIdUserMembersResponses = {
   /**
    * successful operation
    */
-  200: AccessGroupRelationUserMembersGetResponse;
+  200: UserListResponse;
 };
 
 export type GetAccessgroupsByIdUserMembersResponse =
@@ -709,7 +711,7 @@ export type GetAccessgroupsByIdRelationshipsUserMembersResponses = {
   /**
    * successful operation
    */
-  200: AccessGroupResponse;
+  200: AccessGroupRelationUserMembersGetResponse;
 };
 
 export type GetAccessgroupsByIdRelationshipsUserMembersResponse =
@@ -840,7 +842,7 @@ export type GetAccessgroupsByIdAgentMembersResponses = {
   /**
    * successful operation
    */
-  200: AccessGroupRelationAgentMembersGetResponse;
+  200: AgentListResponse;
 };
 
 export type GetAccessgroupsByIdAgentMembersResponse =
@@ -922,7 +924,7 @@ export type GetAccessgroupsByIdRelationshipsAgentMembersResponses = {
   /**
    * successful operation
    */
-  200: AccessGroupResponse;
+  200: AccessGroupRelationAgentMembersGetResponse;
 };
 
 export type GetAccessgroupsByIdRelationshipsAgentMembersResponse =

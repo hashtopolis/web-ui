@@ -1,5 +1,8 @@
 import * as z from 'zod';
 
+import { zAgentResponse } from './agent';
+import { zHealthCheckResponse } from './health-check';
+
 export const zHealthCheckAgentResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
@@ -232,10 +235,12 @@ export const zHealthCheckAgentRelationAgent = z.object({
 });
 
 export const zHealthCheckAgentRelationAgentGetResponse = z.object({
-  data: z.object({
-    type: z.literal('agent'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('agent'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zHealthCheckAgentRelationHealthCheck = z.object({
@@ -246,10 +251,12 @@ export const zHealthCheckAgentRelationHealthCheck = z.object({
 });
 
 export const zHealthCheckAgentRelationHealthCheckGetResponse = z.object({
-  data: z.object({
-    type: z.literal('healthCheck'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('healthCheck'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zGetHealthcheckagentsQuery = z.object({
@@ -289,7 +296,7 @@ export const zGetHealthcheckagentsByIdAgentPath = z.object({
 /**
  * successful operation
  */
-export const zGetHealthcheckagentsByIdAgentResponse = zHealthCheckAgentRelationAgentGetResponse;
+export const zGetHealthcheckagentsByIdAgentResponse = zAgentResponse;
 
 export const zGetHealthcheckagentsByIdRelationshipsAgentPath = z.object({
   id: z
@@ -301,7 +308,7 @@ export const zGetHealthcheckagentsByIdRelationshipsAgentPath = z.object({
 /**
  * successful operation
  */
-export const zGetHealthcheckagentsByIdRelationshipsAgentResponse = zHealthCheckAgentResponse;
+export const zGetHealthcheckagentsByIdRelationshipsAgentResponse = zHealthCheckAgentRelationAgentGetResponse;
 
 export const zPatchHealthcheckagentsByIdRelationshipsAgentBody = zHealthCheckAgentRelationAgent;
 
@@ -324,7 +331,7 @@ export const zGetHealthcheckagentsByIdHealthCheckPath = z.object({
 /**
  * successful operation
  */
-export const zGetHealthcheckagentsByIdHealthCheckResponse = zHealthCheckAgentRelationHealthCheckGetResponse;
+export const zGetHealthcheckagentsByIdHealthCheckResponse = zHealthCheckResponse;
 
 export const zGetHealthcheckagentsByIdRelationshipsHealthCheckPath = z.object({
   id: z
@@ -336,7 +343,8 @@ export const zGetHealthcheckagentsByIdRelationshipsHealthCheckPath = z.object({
 /**
  * successful operation
  */
-export const zGetHealthcheckagentsByIdRelationshipsHealthCheckResponse = zHealthCheckAgentResponse;
+export const zGetHealthcheckagentsByIdRelationshipsHealthCheckResponse =
+  zHealthCheckAgentRelationHealthCheckGetResponse;
 
 export const zPatchHealthcheckagentsByIdRelationshipsHealthCheckBody = zHealthCheckAgentRelationHealthCheck;
 

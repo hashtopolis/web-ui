@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { zTaskResponse } from './task';
+
 export const zAgentErrorDeleteMultiple = z.object({
   data: z.array(
     z.object({
@@ -197,10 +199,12 @@ export const zAgentErrorRelationTask = z.object({
 });
 
 export const zAgentErrorRelationTaskGetResponse = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('task'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zDeleteAgenterrorsBody = zAgentErrorDeleteMultiple;
@@ -247,7 +251,7 @@ export const zGetAgenterrorsByIdTaskPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgenterrorsByIdTaskResponse = zAgentErrorRelationTaskGetResponse;
+export const zGetAgenterrorsByIdTaskResponse = zTaskResponse;
 
 export const zGetAgenterrorsByIdRelationshipsTaskPath = z.object({
   id: z
@@ -259,7 +263,7 @@ export const zGetAgenterrorsByIdRelationshipsTaskPath = z.object({
 /**
  * successful operation
  */
-export const zGetAgenterrorsByIdRelationshipsTaskResponse = zAgentErrorResponse;
+export const zGetAgenterrorsByIdRelationshipsTaskResponse = zAgentErrorRelationTaskGetResponse;
 
 export const zPatchAgenterrorsByIdRelationshipsTaskBody = zAgentErrorRelationTask;
 

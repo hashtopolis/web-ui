@@ -1,5 +1,12 @@
 import * as z from 'zod';
 
+import { zAgentListResponse } from './agent';
+import { zCrackerBinaryResponse } from './cracker-binary';
+import { zCrackerBinaryTypeResponse } from './cracker-binary-type';
+import { zFileListResponse } from './file';
+import { zHashlistResponse } from './hashlist';
+import { zSpeedListResponse } from './speed';
+
 export const zTaskResourceObject = z.object({
   id: z.int(),
   type: z.literal('task'),
@@ -914,10 +921,12 @@ export const zTaskRelationCrackerBinary = z.object({
 });
 
 export const zTaskRelationCrackerBinaryGetResponse = z.object({
-  data: z.object({
-    type: z.literal('crackerBinary'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('crackerBinary'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zTaskRelationCrackerBinaryType = z.object({
@@ -928,10 +937,12 @@ export const zTaskRelationCrackerBinaryType = z.object({
 });
 
 export const zTaskRelationCrackerBinaryTypeGetResponse = z.object({
-  data: z.object({
-    type: z.literal('crackerBinaryType'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('crackerBinaryType'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zTaskRelationHashlist = z.object({
@@ -942,10 +953,12 @@ export const zTaskRelationHashlist = z.object({
 });
 
 export const zTaskRelationHashlistGetResponse = z.object({
-  data: z.object({
-    type: z.literal('hashlist'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('hashlist'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zTaskRelationAssignedAgents = z.object({
@@ -1063,7 +1076,7 @@ export const zGetTasksByIdCrackerBinaryPath = z.object({
 /**
  * successful operation
  */
-export const zGetTasksByIdCrackerBinaryResponse = zTaskRelationCrackerBinaryGetResponse;
+export const zGetTasksByIdCrackerBinaryResponse = zCrackerBinaryResponse;
 
 export const zGetTasksByIdRelationshipsCrackerBinaryPath = z.object({
   id: z
@@ -1075,7 +1088,7 @@ export const zGetTasksByIdRelationshipsCrackerBinaryPath = z.object({
 /**
  * successful operation
  */
-export const zGetTasksByIdRelationshipsCrackerBinaryResponse = zTaskResponse;
+export const zGetTasksByIdRelationshipsCrackerBinaryResponse = zTaskRelationCrackerBinaryGetResponse;
 
 export const zPatchTasksByIdRelationshipsCrackerBinaryBody = zTaskRelationCrackerBinary;
 
@@ -1098,7 +1111,7 @@ export const zGetTasksByIdCrackerBinaryTypePath = z.object({
 /**
  * successful operation
  */
-export const zGetTasksByIdCrackerBinaryTypeResponse = zTaskRelationCrackerBinaryTypeGetResponse;
+export const zGetTasksByIdCrackerBinaryTypeResponse = zCrackerBinaryTypeResponse;
 
 export const zGetTasksByIdRelationshipsCrackerBinaryTypePath = z.object({
   id: z
@@ -1110,7 +1123,7 @@ export const zGetTasksByIdRelationshipsCrackerBinaryTypePath = z.object({
 /**
  * successful operation
  */
-export const zGetTasksByIdRelationshipsCrackerBinaryTypeResponse = zTaskResponse;
+export const zGetTasksByIdRelationshipsCrackerBinaryTypeResponse = zTaskRelationCrackerBinaryTypeGetResponse;
 
 export const zPatchTasksByIdRelationshipsCrackerBinaryTypeBody = zTaskRelationCrackerBinaryType;
 
@@ -1133,7 +1146,7 @@ export const zGetTasksByIdHashlistPath = z.object({
 /**
  * successful operation
  */
-export const zGetTasksByIdHashlistResponse = zTaskRelationHashlistGetResponse;
+export const zGetTasksByIdHashlistResponse = zHashlistResponse;
 
 export const zGetTasksByIdRelationshipsHashlistPath = z.object({
   id: z
@@ -1145,7 +1158,7 @@ export const zGetTasksByIdRelationshipsHashlistPath = z.object({
 /**
  * successful operation
  */
-export const zGetTasksByIdRelationshipsHashlistResponse = zTaskResponse;
+export const zGetTasksByIdRelationshipsHashlistResponse = zTaskRelationHashlistGetResponse;
 
 export const zPatchTasksByIdRelationshipsHashlistBody = zTaskRelationHashlist;
 
@@ -1168,7 +1181,7 @@ export const zGetTasksByIdAssignedAgentsPath = z.object({
 /**
  * successful operation
  */
-export const zGetTasksByIdAssignedAgentsResponse = zTaskRelationAssignedAgentsGetResponse;
+export const zGetTasksByIdAssignedAgentsResponse = zAgentListResponse;
 
 export const zDeleteTasksByIdRelationshipsAssignedAgentsBody = zTaskRelationAssignedAgents;
 
@@ -1191,7 +1204,7 @@ export const zGetTasksByIdRelationshipsAssignedAgentsPath = z.object({
 /**
  * successful operation
  */
-export const zGetTasksByIdRelationshipsAssignedAgentsResponse = zTaskResponse;
+export const zGetTasksByIdRelationshipsAssignedAgentsResponse = zTaskRelationAssignedAgentsGetResponse;
 
 export const zPatchTasksByIdRelationshipsAssignedAgentsBody = zTaskRelationAssignedAgents;
 
@@ -1225,7 +1238,7 @@ export const zGetTasksByIdFilesPath = z.object({
 /**
  * successful operation
  */
-export const zGetTasksByIdFilesResponse = zTaskRelationFilesGetResponse;
+export const zGetTasksByIdFilesResponse = zFileListResponse;
 
 export const zDeleteTasksByIdRelationshipsFilesBody = zTaskRelationFiles;
 
@@ -1248,7 +1261,7 @@ export const zGetTasksByIdRelationshipsFilesPath = z.object({
 /**
  * successful operation
  */
-export const zGetTasksByIdRelationshipsFilesResponse = zTaskResponse;
+export const zGetTasksByIdRelationshipsFilesResponse = zTaskRelationFilesGetResponse;
 
 export const zPatchTasksByIdRelationshipsFilesBody = zTaskRelationFiles;
 
@@ -1282,7 +1295,7 @@ export const zGetTasksByIdSpeedsPath = z.object({
 /**
  * successful operation
  */
-export const zGetTasksByIdSpeedsResponse = zTaskRelationSpeedsGetResponse;
+export const zGetTasksByIdSpeedsResponse = zSpeedListResponse;
 
 export const zDeleteTasksByIdRelationshipsSpeedsBody = zTaskRelationSpeeds;
 
@@ -1305,7 +1318,7 @@ export const zGetTasksByIdRelationshipsSpeedsPath = z.object({
 /**
  * successful operation
  */
-export const zGetTasksByIdRelationshipsSpeedsResponse = zTaskResponse;
+export const zGetTasksByIdRelationshipsSpeedsResponse = zTaskRelationSpeedsGetResponse;
 
 export const zPatchTasksByIdRelationshipsSpeedsBody = zTaskRelationSpeeds;
 

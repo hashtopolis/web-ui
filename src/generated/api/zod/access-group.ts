@@ -1,5 +1,8 @@
 import * as z from 'zod';
 
+import { zAgentListResponse } from './agent';
+import { zUserListResponse } from './user';
+
 export const zAccessGroupResourceObject = z.object({
   id: z.int(),
   type: z.literal('accessGroup'),
@@ -485,7 +488,7 @@ export const zGetAccessgroupsByIdUserMembersPath = z.object({
 /**
  * successful operation
  */
-export const zGetAccessgroupsByIdUserMembersResponse = zAccessGroupRelationUserMembersGetResponse;
+export const zGetAccessgroupsByIdUserMembersResponse = zUserListResponse;
 
 export const zDeleteAccessgroupsByIdRelationshipsUserMembersBody = zAccessGroupRelationUserMembers;
 
@@ -508,7 +511,7 @@ export const zGetAccessgroupsByIdRelationshipsUserMembersPath = z.object({
 /**
  * successful operation
  */
-export const zGetAccessgroupsByIdRelationshipsUserMembersResponse = zAccessGroupResponse;
+export const zGetAccessgroupsByIdRelationshipsUserMembersResponse = zAccessGroupRelationUserMembersGetResponse;
 
 export const zPatchAccessgroupsByIdRelationshipsUserMembersBody = zAccessGroupRelationUserMembers;
 
@@ -542,7 +545,7 @@ export const zGetAccessgroupsByIdAgentMembersPath = z.object({
 /**
  * successful operation
  */
-export const zGetAccessgroupsByIdAgentMembersResponse = zAccessGroupRelationAgentMembersGetResponse;
+export const zGetAccessgroupsByIdAgentMembersResponse = zAgentListResponse;
 
 export const zDeleteAccessgroupsByIdRelationshipsAgentMembersBody = zAccessGroupRelationAgentMembers;
 
@@ -565,7 +568,7 @@ export const zGetAccessgroupsByIdRelationshipsAgentMembersPath = z.object({
 /**
  * successful operation
  */
-export const zGetAccessgroupsByIdRelationshipsAgentMembersResponse = zAccessGroupResponse;
+export const zGetAccessgroupsByIdRelationshipsAgentMembersResponse = zAccessGroupRelationAgentMembersGetResponse;
 
 export const zPatchAccessgroupsByIdRelationshipsAgentMembersBody = zAccessGroupRelationAgentMembers;
 

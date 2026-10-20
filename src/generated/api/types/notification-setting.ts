@@ -1,4 +1,5 @@
 import type { ErrorResponse } from './common';
+import type { UserResponse } from './user';
 
 export type NotificationSettingCreate = {
   data: {
@@ -342,7 +343,7 @@ export type NotificationSettingRelationUserGetResponse = {
   data: {
     type: 'user';
     id: number;
-  };
+  } | null;
 };
 
 export type DeleteNotificationsData = {
@@ -606,7 +607,7 @@ export type GetNotificationsByIdUserResponses = {
   /**
    * successful operation
    */
-  200: NotificationSettingRelationUserGetResponse;
+  200: UserResponse;
 };
 
 export type GetNotificationsByIdUserResponse =
@@ -647,7 +648,7 @@ export type GetNotificationsByIdRelationshipsUserResponses = {
   /**
    * successful operation
    */
-  200: NotificationSettingResponse;
+  200: NotificationSettingRelationUserGetResponse;
 };
 
 export type GetNotificationsByIdRelationshipsUserResponse =

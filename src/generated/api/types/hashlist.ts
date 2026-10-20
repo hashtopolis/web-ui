@@ -1,4 +1,8 @@
+import type { AccessGroupResponse } from './access-group';
 import type { ErrorResponse } from './common';
+import type { HashListResponse } from './hash';
+import type { HashTypeResponse } from './hash-type';
+import type { TaskListResponse } from './task';
 
 export type HashlistCreate = {
   data: {
@@ -765,7 +769,7 @@ export type HashlistRelationAccessGroupGetResponse = {
   data: {
     type: 'accessGroup';
     id: number;
-  };
+  } | null;
 };
 
 export type HashlistRelationHashType = {
@@ -779,7 +783,7 @@ export type HashlistRelationHashTypeGetResponse = {
   data: {
     type: 'hashType';
     id: number;
-  };
+  } | null;
 };
 
 export type HashlistRelationHashes = {
@@ -1086,7 +1090,7 @@ export type GetHashlistsByIdAccessGroupResponses = {
   /**
    * successful operation
    */
-  200: HashlistRelationAccessGroupGetResponse;
+  200: AccessGroupResponse;
 };
 
 export type GetHashlistsByIdAccessGroupResponse =
@@ -1127,7 +1131,7 @@ export type GetHashlistsByIdRelationshipsAccessGroupResponses = {
   /**
    * successful operation
    */
-  200: HashlistResponse;
+  200: HashlistRelationAccessGroupGetResponse;
 };
 
 export type GetHashlistsByIdRelationshipsAccessGroupResponse =
@@ -1212,7 +1216,7 @@ export type GetHashlistsByIdHashTypeResponses = {
   /**
    * successful operation
    */
-  200: HashlistRelationHashTypeGetResponse;
+  200: HashTypeResponse;
 };
 
 export type GetHashlistsByIdHashTypeResponse =
@@ -1253,7 +1257,7 @@ export type GetHashlistsByIdRelationshipsHashTypeResponses = {
   /**
    * successful operation
    */
-  200: HashlistResponse;
+  200: HashlistRelationHashTypeGetResponse;
 };
 
 export type GetHashlistsByIdRelationshipsHashTypeResponse =
@@ -1338,7 +1342,7 @@ export type GetHashlistsByIdHashesResponses = {
   /**
    * successful operation
    */
-  200: HashlistRelationHashesGetResponse;
+  200: HashListResponse;
 };
 
 export type GetHashlistsByIdHashesResponse = GetHashlistsByIdHashesResponses[keyof GetHashlistsByIdHashesResponses];
@@ -1419,7 +1423,7 @@ export type GetHashlistsByIdRelationshipsHashesResponses = {
   /**
    * successful operation
    */
-  200: HashlistResponse;
+  200: HashlistRelationHashesGetResponse;
 };
 
 export type GetHashlistsByIdRelationshipsHashesResponse =
@@ -1549,7 +1553,7 @@ export type GetHashlistsByIdHashlistsResponses = {
   /**
    * successful operation
    */
-  200: HashlistRelationHashlistsGetResponse;
+  200: HashlistListResponse;
 };
 
 export type GetHashlistsByIdHashlistsResponse =
@@ -1631,7 +1635,7 @@ export type GetHashlistsByIdRelationshipsHashlistsResponses = {
   /**
    * successful operation
    */
-  200: HashlistResponse;
+  200: HashlistRelationHashlistsGetResponse;
 };
 
 export type GetHashlistsByIdRelationshipsHashlistsResponse =
@@ -1761,7 +1765,7 @@ export type GetHashlistsByIdTasksResponses = {
   /**
    * successful operation
    */
-  200: HashlistRelationTasksGetResponse;
+  200: TaskListResponse;
 };
 
 export type GetHashlistsByIdTasksResponse = GetHashlistsByIdTasksResponses[keyof GetHashlistsByIdTasksResponses];
@@ -1842,7 +1846,7 @@ export type GetHashlistsByIdRelationshipsTasksResponses = {
   /**
    * successful operation
    */
-  200: HashlistResponse;
+  200: HashlistRelationTasksGetResponse;
 };
 
 export type GetHashlistsByIdRelationshipsTasksResponse =

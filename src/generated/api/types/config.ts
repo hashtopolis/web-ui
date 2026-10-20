@@ -1,4 +1,5 @@
 import type { ErrorResponse } from './common';
+import type { ConfigSectionResponse } from './config-section';
 
 export type ConfigResourceObject = {
   id: number;
@@ -472,7 +473,7 @@ export type ConfigRelationConfigSectionGetResponse = {
   data: {
     type: 'configSection';
     id: number;
-  };
+  } | null;
 };
 
 export type GetConfigsData = {
@@ -669,7 +670,7 @@ export type GetConfigsByIdConfigSectionResponses = {
   /**
    * successful operation
    */
-  200: ConfigRelationConfigSectionGetResponse;
+  200: ConfigSectionResponse;
 };
 
 export type GetConfigsByIdConfigSectionResponse =
@@ -710,7 +711,7 @@ export type GetConfigsByIdRelationshipsConfigSectionResponses = {
   /**
    * successful operation
    */
-  200: ConfigResponse;
+  200: ConfigRelationConfigSectionGetResponse;
 };
 
 export type GetConfigsByIdRelationshipsConfigSectionResponse =
