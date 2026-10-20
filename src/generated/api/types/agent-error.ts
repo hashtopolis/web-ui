@@ -332,17 +332,16 @@ export type GetAgenterrorsCountResponses = {
 
 export type GetAgenterrorsCountResponse = GetAgenterrorsCountResponses[keyof GetAgenterrorsCountResponses];
 
-export type GetAgenterrorsByIdByRelationData = {
+export type GetAgenterrorsByIdTaskData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/agenterrors/{id}/{relation}';
+  url: '/api/v2/ui/agenterrors/{id}/task';
 };
 
-export type GetAgenterrorsByIdByRelationErrors = {
+export type GetAgenterrorsByIdTaskErrors = {
   /**
    * Invalid request
    */
@@ -361,30 +360,27 @@ export type GetAgenterrorsByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetAgenterrorsByIdByRelationError =
-  GetAgenterrorsByIdByRelationErrors[keyof GetAgenterrorsByIdByRelationErrors];
+export type GetAgenterrorsByIdTaskError = GetAgenterrorsByIdTaskErrors[keyof GetAgenterrorsByIdTaskErrors];
 
-export type GetAgenterrorsByIdByRelationResponses = {
+export type GetAgenterrorsByIdTaskResponses = {
   /**
    * successful operation
    */
   200: AgentErrorRelationTaskGetResponse;
 };
 
-export type GetAgenterrorsByIdByRelationResponse =
-  GetAgenterrorsByIdByRelationResponses[keyof GetAgenterrorsByIdByRelationResponses];
+export type GetAgenterrorsByIdTaskResponse = GetAgenterrorsByIdTaskResponses[keyof GetAgenterrorsByIdTaskResponses];
 
-export type GetAgenterrorsByIdRelationshipsByRelationData = {
+export type GetAgenterrorsByIdRelationshipsTaskData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/agenterrors/{id}/relationships/{relation}';
+  url: '/api/v2/ui/agenterrors/{id}/relationships/task';
 };
 
-export type GetAgenterrorsByIdRelationshipsByRelationErrors = {
+export type GetAgenterrorsByIdRelationshipsTaskErrors = {
   /**
    * Invalid request
    */
@@ -403,30 +399,29 @@ export type GetAgenterrorsByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetAgenterrorsByIdRelationshipsByRelationError =
-  GetAgenterrorsByIdRelationshipsByRelationErrors[keyof GetAgenterrorsByIdRelationshipsByRelationErrors];
+export type GetAgenterrorsByIdRelationshipsTaskError =
+  GetAgenterrorsByIdRelationshipsTaskErrors[keyof GetAgenterrorsByIdRelationshipsTaskErrors];
 
-export type GetAgenterrorsByIdRelationshipsByRelationResponses = {
+export type GetAgenterrorsByIdRelationshipsTaskResponses = {
   /**
    * successful operation
    */
   200: AgentErrorResponse;
 };
 
-export type GetAgenterrorsByIdRelationshipsByRelationResponse =
-  GetAgenterrorsByIdRelationshipsByRelationResponses[keyof GetAgenterrorsByIdRelationshipsByRelationResponses];
+export type GetAgenterrorsByIdRelationshipsTaskResponse =
+  GetAgenterrorsByIdRelationshipsTaskResponses[keyof GetAgenterrorsByIdRelationshipsTaskResponses];
 
-export type PatchAgenterrorsByIdRelationshipsByRelationData = {
+export type PatchAgenterrorsByIdRelationshipsTaskData = {
   body: AgentErrorRelationTask;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/agenterrors/{id}/relationships/{relation}';
+  url: '/api/v2/ui/agenterrors/{id}/relationships/task';
 };
 
-export type PatchAgenterrorsByIdRelationshipsByRelationErrors = {
+export type PatchAgenterrorsByIdRelationshipsTaskErrors = {
   /**
    * Invalid request
    */
@@ -449,18 +444,18 @@ export type PatchAgenterrorsByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchAgenterrorsByIdRelationshipsByRelationError =
-  PatchAgenterrorsByIdRelationshipsByRelationErrors[keyof PatchAgenterrorsByIdRelationshipsByRelationErrors];
+export type PatchAgenterrorsByIdRelationshipsTaskError =
+  PatchAgenterrorsByIdRelationshipsTaskErrors[keyof PatchAgenterrorsByIdRelationshipsTaskErrors];
 
-export type PatchAgenterrorsByIdRelationshipsByRelationResponses = {
+export type PatchAgenterrorsByIdRelationshipsTaskResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchAgenterrorsByIdRelationshipsByRelationResponse =
-  PatchAgenterrorsByIdRelationshipsByRelationResponses[keyof PatchAgenterrorsByIdRelationshipsByRelationResponses];
+export type PatchAgenterrorsByIdRelationshipsTaskResponse =
+  PatchAgenterrorsByIdRelationshipsTaskResponses[keyof PatchAgenterrorsByIdRelationshipsTaskResponses];
 
 export type DeleteAgenterrorsByIdData = {
   body?: never;

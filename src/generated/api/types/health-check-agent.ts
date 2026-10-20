@@ -202,6 +202,20 @@ export type HealthCheckAgentCountResponse = {
   }>;
 };
 
+export type HealthCheckAgentRelationAgent = {
+  data: {
+    type: 'agent';
+    id: number;
+  };
+};
+
+export type HealthCheckAgentRelationAgentGetResponse = {
+  data: {
+    type: 'agent';
+    id: number;
+  };
+};
+
 export type HealthCheckAgentRelationHealthCheck = {
   data: {
     type: 'healthCheck';
@@ -329,17 +343,16 @@ export type GetHealthcheckagentsCountResponses = {
 export type GetHealthcheckagentsCountResponse =
   GetHealthcheckagentsCountResponses[keyof GetHealthcheckagentsCountResponses];
 
-export type GetHealthcheckagentsByIdByRelationData = {
+export type GetHealthcheckagentsByIdAgentData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/healthcheckagents/{id}/{relation}';
+  url: '/api/v2/ui/healthcheckagents/{id}/agent';
 };
 
-export type GetHealthcheckagentsByIdByRelationErrors = {
+export type GetHealthcheckagentsByIdAgentErrors = {
   /**
    * Invalid request
    */
@@ -358,30 +371,29 @@ export type GetHealthcheckagentsByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetHealthcheckagentsByIdByRelationError =
-  GetHealthcheckagentsByIdByRelationErrors[keyof GetHealthcheckagentsByIdByRelationErrors];
+export type GetHealthcheckagentsByIdAgentError =
+  GetHealthcheckagentsByIdAgentErrors[keyof GetHealthcheckagentsByIdAgentErrors];
 
-export type GetHealthcheckagentsByIdByRelationResponses = {
+export type GetHealthcheckagentsByIdAgentResponses = {
   /**
    * successful operation
    */
-  200: HealthCheckAgentRelationHealthCheckGetResponse;
+  200: HealthCheckAgentRelationAgentGetResponse;
 };
 
-export type GetHealthcheckagentsByIdByRelationResponse =
-  GetHealthcheckagentsByIdByRelationResponses[keyof GetHealthcheckagentsByIdByRelationResponses];
+export type GetHealthcheckagentsByIdAgentResponse =
+  GetHealthcheckagentsByIdAgentResponses[keyof GetHealthcheckagentsByIdAgentResponses];
 
-export type GetHealthcheckagentsByIdRelationshipsByRelationData = {
+export type GetHealthcheckagentsByIdRelationshipsAgentData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/healthcheckagents/{id}/relationships/{relation}';
+  url: '/api/v2/ui/healthcheckagents/{id}/relationships/agent';
 };
 
-export type GetHealthcheckagentsByIdRelationshipsByRelationErrors = {
+export type GetHealthcheckagentsByIdRelationshipsAgentErrors = {
   /**
    * Invalid request
    */
@@ -400,30 +412,29 @@ export type GetHealthcheckagentsByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetHealthcheckagentsByIdRelationshipsByRelationError =
-  GetHealthcheckagentsByIdRelationshipsByRelationErrors[keyof GetHealthcheckagentsByIdRelationshipsByRelationErrors];
+export type GetHealthcheckagentsByIdRelationshipsAgentError =
+  GetHealthcheckagentsByIdRelationshipsAgentErrors[keyof GetHealthcheckagentsByIdRelationshipsAgentErrors];
 
-export type GetHealthcheckagentsByIdRelationshipsByRelationResponses = {
+export type GetHealthcheckagentsByIdRelationshipsAgentResponses = {
   /**
    * successful operation
    */
   200: HealthCheckAgentResponse;
 };
 
-export type GetHealthcheckagentsByIdRelationshipsByRelationResponse =
-  GetHealthcheckagentsByIdRelationshipsByRelationResponses[keyof GetHealthcheckagentsByIdRelationshipsByRelationResponses];
+export type GetHealthcheckagentsByIdRelationshipsAgentResponse =
+  GetHealthcheckagentsByIdRelationshipsAgentResponses[keyof GetHealthcheckagentsByIdRelationshipsAgentResponses];
 
-export type PatchHealthcheckagentsByIdRelationshipsByRelationData = {
-  body: HealthCheckAgentRelationHealthCheck;
+export type PatchHealthcheckagentsByIdRelationshipsAgentData = {
+  body: HealthCheckAgentRelationAgent;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/healthcheckagents/{id}/relationships/{relation}';
+  url: '/api/v2/ui/healthcheckagents/{id}/relationships/agent';
 };
 
-export type PatchHealthcheckagentsByIdRelationshipsByRelationErrors = {
+export type PatchHealthcheckagentsByIdRelationshipsAgentErrors = {
   /**
    * Invalid request
    */
@@ -446,18 +457,145 @@ export type PatchHealthcheckagentsByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchHealthcheckagentsByIdRelationshipsByRelationError =
-  PatchHealthcheckagentsByIdRelationshipsByRelationErrors[keyof PatchHealthcheckagentsByIdRelationshipsByRelationErrors];
+export type PatchHealthcheckagentsByIdRelationshipsAgentError =
+  PatchHealthcheckagentsByIdRelationshipsAgentErrors[keyof PatchHealthcheckagentsByIdRelationshipsAgentErrors];
 
-export type PatchHealthcheckagentsByIdRelationshipsByRelationResponses = {
+export type PatchHealthcheckagentsByIdRelationshipsAgentResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchHealthcheckagentsByIdRelationshipsByRelationResponse =
-  PatchHealthcheckagentsByIdRelationshipsByRelationResponses[keyof PatchHealthcheckagentsByIdRelationshipsByRelationResponses];
+export type PatchHealthcheckagentsByIdRelationshipsAgentResponse =
+  PatchHealthcheckagentsByIdRelationshipsAgentResponses[keyof PatchHealthcheckagentsByIdRelationshipsAgentResponses];
+
+export type GetHealthcheckagentsByIdHealthCheckData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/healthcheckagents/{id}/healthCheck';
+};
+
+export type GetHealthcheckagentsByIdHealthCheckErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHealthcheckagentsByIdHealthCheckError =
+  GetHealthcheckagentsByIdHealthCheckErrors[keyof GetHealthcheckagentsByIdHealthCheckErrors];
+
+export type GetHealthcheckagentsByIdHealthCheckResponses = {
+  /**
+   * successful operation
+   */
+  200: HealthCheckAgentRelationHealthCheckGetResponse;
+};
+
+export type GetHealthcheckagentsByIdHealthCheckResponse =
+  GetHealthcheckagentsByIdHealthCheckResponses[keyof GetHealthcheckagentsByIdHealthCheckResponses];
+
+export type GetHealthcheckagentsByIdRelationshipsHealthCheckData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/healthcheckagents/{id}/relationships/healthCheck';
+};
+
+export type GetHealthcheckagentsByIdRelationshipsHealthCheckErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHealthcheckagentsByIdRelationshipsHealthCheckError =
+  GetHealthcheckagentsByIdRelationshipsHealthCheckErrors[keyof GetHealthcheckagentsByIdRelationshipsHealthCheckErrors];
+
+export type GetHealthcheckagentsByIdRelationshipsHealthCheckResponses = {
+  /**
+   * successful operation
+   */
+  200: HealthCheckAgentResponse;
+};
+
+export type GetHealthcheckagentsByIdRelationshipsHealthCheckResponse =
+  GetHealthcheckagentsByIdRelationshipsHealthCheckResponses[keyof GetHealthcheckagentsByIdRelationshipsHealthCheckResponses];
+
+export type PatchHealthcheckagentsByIdRelationshipsHealthCheckData = {
+  body: HealthCheckAgentRelationHealthCheck;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/healthcheckagents/{id}/relationships/healthCheck';
+};
+
+export type PatchHealthcheckagentsByIdRelationshipsHealthCheckErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchHealthcheckagentsByIdRelationshipsHealthCheckError =
+  PatchHealthcheckagentsByIdRelationshipsHealthCheckErrors[keyof PatchHealthcheckagentsByIdRelationshipsHealthCheckErrors];
+
+export type PatchHealthcheckagentsByIdRelationshipsHealthCheckResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchHealthcheckagentsByIdRelationshipsHealthCheckResponse =
+  PatchHealthcheckagentsByIdRelationshipsHealthCheckResponses[keyof PatchHealthcheckagentsByIdRelationshipsHealthCheckResponses];
 
 export type GetHealthcheckagentsByIdData = {
   body?: never;

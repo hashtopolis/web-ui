@@ -373,10 +373,28 @@ export const zCrackerBinaryTypeCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
+export const zCrackerBinaryTypeRelationCrackerVersions = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('crackerBinary'),
+      id: z.int()
+    })
+  )
+});
+
+export const zCrackerBinaryTypeRelationCrackerVersionsGetResponse = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('crackerBinary'),
+      id: z.int()
+    })
+  )
+});
+
 export const zCrackerBinaryTypeRelationTasks = z.object({
   data: z.array(
     z.object({
-      type: z.literal('tasks'),
+      type: z.literal('task'),
       id: z.int()
     })
   )
@@ -385,7 +403,7 @@ export const zCrackerBinaryTypeRelationTasks = z.object({
 export const zCrackerBinaryTypeRelationTasksGetResponse = z.object({
   data: z.array(
     z.object({
-      type: z.literal('tasks'),
+      type: z.literal('task'),
       id: z.int()
     })
   )
@@ -439,67 +457,119 @@ export const zGetCrackertypesCountQuery = z.object({
  */
 export const zGetCrackertypesCountResponse = zCrackerBinaryTypeCountResponse;
 
-export const zGetCrackertypesByIdByRelationPath = z.object({
+export const zGetCrackertypesByIdCrackerVersionsPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetCrackertypesByIdByRelationResponse = zCrackerBinaryTypeRelationTasksGetResponse;
+export const zGetCrackertypesByIdCrackerVersionsResponse = zCrackerBinaryTypeRelationCrackerVersionsGetResponse;
 
-export const zDeleteCrackertypesByIdRelationshipsByRelationBody = zCrackerBinaryTypeRelationTasks;
+export const zDeleteCrackertypesByIdRelationshipsCrackerVersionsBody = zCrackerBinaryTypeRelationCrackerVersions;
 
-export const zDeleteCrackertypesByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zDeleteCrackertypesByIdRelationshipsCrackerVersionsPath = z.object({
+  id: z.int()
 });
 
 /**
  * successfully deleted
  */
-export const zDeleteCrackertypesByIdRelationshipsByRelationResponse = z.void();
+export const zDeleteCrackertypesByIdRelationshipsCrackerVersionsResponse = z.void();
 
-export const zGetCrackertypesByIdRelationshipsByRelationPath = z.object({
+export const zGetCrackertypesByIdRelationshipsCrackerVersionsPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetCrackertypesByIdRelationshipsByRelationResponse = zCrackerBinaryTypeResponse;
+export const zGetCrackertypesByIdRelationshipsCrackerVersionsResponse = zCrackerBinaryTypeResponse;
 
-export const zPatchCrackertypesByIdRelationshipsByRelationBody = zCrackerBinaryTypeRelationTasks;
+export const zPatchCrackertypesByIdRelationshipsCrackerVersionsBody = zCrackerBinaryTypeRelationCrackerVersions;
 
-export const zPatchCrackertypesByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchCrackertypesByIdRelationshipsCrackerVersionsPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchCrackertypesByIdRelationshipsByRelationResponse = z.void();
+export const zPatchCrackertypesByIdRelationshipsCrackerVersionsResponse = z.void();
 
-export const zPostCrackertypesByIdRelationshipsByRelationBody = zCrackerBinaryTypeRelationTasks;
+export const zPostCrackertypesByIdRelationshipsCrackerVersionsBody = zCrackerBinaryTypeRelationCrackerVersions;
 
-export const zPostCrackertypesByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPostCrackertypesByIdRelationshipsCrackerVersionsPath = z.object({
+  id: z.int()
 });
 
 /**
  * successfully created
  */
-export const zPostCrackertypesByIdRelationshipsByRelationResponse = z.void();
+export const zPostCrackertypesByIdRelationshipsCrackerVersionsResponse = z.void();
+
+export const zGetCrackertypesByIdTasksPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetCrackertypesByIdTasksResponse = zCrackerBinaryTypeRelationTasksGetResponse;
+
+export const zDeleteCrackertypesByIdRelationshipsTasksBody = zCrackerBinaryTypeRelationTasks;
+
+export const zDeleteCrackertypesByIdRelationshipsTasksPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully deleted
+ */
+export const zDeleteCrackertypesByIdRelationshipsTasksResponse = z.void();
+
+export const zGetCrackertypesByIdRelationshipsTasksPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetCrackertypesByIdRelationshipsTasksResponse = zCrackerBinaryTypeResponse;
+
+export const zPatchCrackertypesByIdRelationshipsTasksBody = zCrackerBinaryTypeRelationTasks;
+
+export const zPatchCrackertypesByIdRelationshipsTasksPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchCrackertypesByIdRelationshipsTasksResponse = z.void();
+
+export const zPostCrackertypesByIdRelationshipsTasksBody = zCrackerBinaryTypeRelationTasks;
+
+export const zPostCrackertypesByIdRelationshipsTasksPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully created
+ */
+export const zPostCrackertypesByIdRelationshipsTasksResponse = z.void();
 
 export const zDeleteCrackertypesByIdPath = z.object({
   id: z.int()
