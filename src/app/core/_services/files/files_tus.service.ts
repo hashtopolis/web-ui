@@ -195,6 +195,11 @@ export class UploadTUSService {
     form: Record<string, unknown> | null,
     redirect: string[] | null
   ): void {
+    // tus reports the success of the last chunk right after its progress without checking for an
+    // abort, so a subscriber that unsubscribed on that progress must not get a create
+    if (observer.closed) {
+      return;
+    }
     if (form === null) {
       observer.complete();
       return;

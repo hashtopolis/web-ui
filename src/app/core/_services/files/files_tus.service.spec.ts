@@ -1,4 +1,4 @@
-import { Subject } from 'rxjs';
+import { Subject, filter, take } from 'rxjs';
 import * as tus from 'tus-js-client';
 
 import { TestBed } from '@angular/core/testing';
@@ -82,5 +82,24 @@ describe('UploadTUSService', () => {
 
     expect(create.observed).toBeFalse();
     expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('does not create when the subscriber unsubscribes on the final progress', async () => {
+    gs.create.and.returnValue(new Subject<ResponseWrapper>());
+    // tus reports the final progress and the success of the last chunk in the same tick
+    start.and.callFake(function (this: tus.Upload) {
+      this.options.onProgress?.(1, 1);
+      void this.options.onSuccess?.();
+    });
+    service
+      .uploadFile(file, 'h.txt', SERV.HASHLISTS, { name: 'h' }, ['/hashlists/hashlist'])
+      .pipe(
+        filter((progress) => progress === 100),
+        take(1)
+      )
+      .subscribe();
+    await settle();
+
+    expect(gs.create).not.toHaveBeenCalled();
   });
 });
