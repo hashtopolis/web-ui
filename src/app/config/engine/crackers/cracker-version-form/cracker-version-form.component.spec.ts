@@ -188,17 +188,20 @@ describe('CrackerVersionFormComponent', () => {
       expect(gs.create.calls.mostRecent().args[1]).toEqual(jasmine.objectContaining({ sourceData: names[1] }));
     });
 
-    it('does not create the version when the page is left during the upload', () => {
+    it('does not create the version when the page is left during the upload', async () => {
       const progress = new Subject<number>();
       tus.uploadFile.and.returnValue(progress);
       fillCommon();
       component.form.controls.source.setValue(CrackerSource.UPLOAD);
       component.form.controls.file.setValue(fileList('h.7z'));
-      void component.onSubmit();
+      const submit = component.onSubmit();
+      progress.next(50);
       fixture.destroy();
       progress.next(100);
       progress.complete();
+      await submit;
       expect(gs.create).not.toHaveBeenCalled();
+      expect(alert.showErrorMessage).not.toHaveBeenCalled();
     });
 
     it('keeps the user on the page when the create after an upload fails', async () => {

@@ -1,6 +1,6 @@
 import { HTTP_SKIP_ERROR_HEADER_CONFIG, HttpMethod, HttpStatus } from '@constants/http.config';
 import { zCrackerBinaryResponse, zGetAccessGroupsHelperApiResponse } from '@generated/api/zod';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { concat, defer, firstValueFrom, ignoreElements, lastValueFrom, tap } from 'rxjs';
 import { z } from 'zod';
 
 import { HttpErrorResponse, HttpHeaders } from '@angular/common/http';
@@ -273,34 +273,45 @@ export class CrackerVersionFormComponent implements OnInit {
       await this.submitCreate(buildCreatePayload(this.form, typeId), false);
       return;
     }
+    this.uploadAndCreate(typeId);
+  }
 
+  /**
+   * Upload the archive, then create the version in the same subscription. The version is
+   * created here, not by the TUS service, so leaving the page during the upload cancels
+   * the create as well and never creates it in the background.
+   */
+  private uploadAndCreate(typeId: CrackerBinaryTypeId): void {
     const file = (this.form.controls.file.value as FileList)[0];
     const uploadFilename = buildUploadFilename(typeId, file);
-    try {
-      // The version is created here after the upload, not by the TUS service, so leaving
-      // the page during the upload (unsubscribe) never creates it in the background.
-      await new Promise<void>((resolve, reject) => {
-        this.uploadService
-          .uploadFile(file, uploadFilename, SERV.CRACKERS, null, null)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe({
-            next: (progress) => {
-              this.uploadProgress = progress;
-              this.changeDetectorRef.detectChanges();
-            },
-            error: reject,
-            complete: resolve
-          });
+    let uploaded = false;
+    concat(
+      this.uploadService.uploadFile(file, uploadFilename, SERV.CRACKERS, null, null).pipe(
+        tap({
+          next: (progress) => {
+            this.uploadProgress = progress;
+            this.changeDetectorRef.detectChanges();
+          },
+          complete: () => (uploaded = true)
+        }),
+        ignoreElements()
+      ),
+      defer(() =>
+        this.gs.create(SERV.CRACKERS, buildCreatePayload(this.form, typeId, uploadFilename), this.skipErrorDialog)
+      )
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.onCreated(),
+        error: (error: unknown) => {
+          if (uploaded) {
+            this.showCreateError(error, true);
+          } else {
+            this.showUploadError(error);
+          }
+          this.isSubmitting = false;
+        }
       });
-    } catch (error) {
-      console.error('Error uploading cracker archive', error);
-      this.uploadProgress = 0;
-      const reason = extractErrorMessage(error);
-      this.alert.showErrorMessage(reason ? `Failed to upload the archive: ${reason}` : 'Failed to upload the archive.');
-      this.isSubmitting = false;
-      return;
-    }
-    await this.submitCreate(buildCreatePayload(this.form, typeId, uploadFilename), true);
   }
 
   /**
@@ -322,6 +333,13 @@ export class CrackerVersionFormComponent implements OnInit {
   private onCreated(): void {
     this.alert.showSuccessMessage('Cracker version created!');
     void this.router.navigate(CRACKERS_PAGE);
+  }
+
+  private showUploadError(error: unknown): void {
+    console.error('Error uploading cracker archive', error);
+    this.uploadProgress = 0;
+    const reason = extractErrorMessage(error);
+    this.alert.showErrorMessage(reason ? `Failed to upload the archive: ${reason}` : 'Failed to upload the archive.');
   }
 
   private showCreateError(error: unknown, afterUpload: boolean): void {
