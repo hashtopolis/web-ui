@@ -42,6 +42,19 @@ export class UISettingsUtilityClass {
   }
 
   /**
+   * Re-reads the stored config into {@link uiConfig} before a write.
+   *
+   * Every holder of this class (each `ht-table`, each data source, `AutoRefreshService`, ...) keeps
+   * its own snapshot taken at construction, and a write persists that whole snapshot. Without this
+   * refresh, the last writer silently reverts every setting another holder changed since — toggling
+   * auto-reload, for instance, would restore the columns and sort order that were in place when
+   * `AutoRefreshService` was constructed.
+   */
+  private refreshFromStorage(): void {
+    this.uiConfig = this.storage.getItem(UISettingsUtilityClass.KEY, uiConfigSchema, uiConfigDefault);
+  }
+
+  /**
    * Updates the table settings for a specific key in the UI configuration.
    *
    * @param {string} key - The key for the table settings.
@@ -66,6 +79,7 @@ export class UISettingsUtilityClass {
     }
   ): void {
     try {
+      this.refreshFromStorage();
       const existingTableSettings = this.uiConfig.tableSettings[key];
 
       if (existingTableSettings && !Array.isArray(existingTableSettings)) {
@@ -181,6 +195,7 @@ export class UISettingsUtilityClass {
    * @returns The number of settings that were successfully changed.
    */
   updateSettings(settings: Partial<UIConfig>): number {
+    this.refreshFromStorage();
     const keys = Object.keys(settings) as UIConfigKeys[];
     let changedValues = 0;
     let themeChanged = false;
