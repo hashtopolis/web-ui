@@ -1,5 +1,5 @@
 import { HttpHeaderName } from '@constants/http.config';
-import { concat, of, throwError } from 'rxjs';
+import { Subject, concat, of, throwError } from 'rxjs';
 
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -334,6 +334,69 @@ describe('ImportCrackedHashesComponent', () => {
       component.onSubmit();
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('Please select a file to upload.');
     });
+
+    function selectNewFile(): void {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(new File(['hash:password'], 'new-cracks.txt'));
+      component.onFilesSelected(dataTransfer.files);
+      component.form.patchValue({ sourceType: 'upload' });
+    }
+
+    function importCalls(): number {
+      return gsSpy.chelper.calls.allArgs().filter((args) => args[1] === 'importCrackedHashes').length;
+    }
+
+    it('should import the uploaded file once the upload has finished', fakeAsync(() => {
+      uploadSpy.uploadFile.and.returnValue(of(50, 100));
+      selectNewFile();
+
+      component.onSubmit();
+      tick();
+
+      expect(importCalls()).toBe(1);
+      expect(gsSpy.chelper.calls.mostRecent().args[2]).toEqual(
+        jasmine.objectContaining({ sourceType: 'import', sourceData: 'new-cracks.txt' })
+      );
+    }));
+
+    it('should import an upload that finished without reporting progress', fakeAsync(() => {
+      uploadSpy.uploadFile.and.returnValue(of());
+      selectNewFile();
+
+      component.onSubmit();
+      tick();
+
+      expect(importCalls()).toBe(1);
+    }));
+
+    it('should show an error and not import when the upload fails', fakeAsync(() => {
+      uploadSpy.uploadFile.and.returnValue(throwError(() => new Error('connection lost')));
+      selectNewFile();
+
+      component.onSubmit();
+      tick();
+
+      expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('Failed to upload file.');
+      expect(component.isCreatingLoading).toBe(false);
+      expect(importCalls()).toBe(0);
+    }));
+
+    it('should not import when the page is left during the upload', fakeAsync(() => {
+      const progress = new Subject<number>();
+      uploadSpy.uploadFile.and.returnValue(progress);
+      selectNewFile();
+
+      component.onSubmit();
+      tick();
+      progress.next(50);
+      fixture.destroy();
+      progress.next(100);
+      progress.complete();
+      tick();
+
+      expect(importCalls()).toBe(0);
+      expect(alertSpy.showErrorMessage).not.toHaveBeenCalled();
+    }));
   });
 
   describe('onSubmit - sourceType paste', () => {
