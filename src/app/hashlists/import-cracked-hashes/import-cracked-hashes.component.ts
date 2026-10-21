@@ -1,7 +1,7 @@
 import { HashListFormat } from '@constants/hashlist.config';
 import { HTTP_SKIP_ERROR_HEADER_CONFIG, HttpMethod } from '@constants/http.config';
 import { zHashlistResponse } from '@generated/api/zod';
-import { lastValueFrom } from 'rxjs';
+import { last, lastValueFrom, tap } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
@@ -284,16 +284,16 @@ export class ImportCrackedHashesComponent implements OnInit {
 
     this.uploadService
       .uploadFile(files[0], files[0].name, SERV.HASHLISTS)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        tap((progress) => (this.uploadProgress = progress)),
+        // Emit once the upload has finished, with a default because an empty file finishes without
+        // progress. takeUntilDestroyed completes the stream without this emission when the page is
+        // left, so an unfinished upload is never imported.
+        last(null, 100),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
-        next: (progress) => {
-          this.uploadProgress = progress;
-        },
-        error: () => {
-          this.isCreatingLoading = false;
-          this.alert.showErrorMessage('Failed to upload file.');
-        },
-        complete: () => {
+        next: () => {
           this.submitImport({
             sourceType: HashSource.IMPORT,
             hashlistId: this.editedHashlistIndex,
@@ -301,6 +301,10 @@ export class ImportCrackedHashesComponent implements OnInit {
             sourceData: filename,
             overwrite: this.form.controls.conflictResolution.value ? 1 : 0
           });
+        },
+        error: () => {
+          this.isCreatingLoading = false;
+          this.alert.showErrorMessage('Failed to upload file.');
         }
       });
   }
