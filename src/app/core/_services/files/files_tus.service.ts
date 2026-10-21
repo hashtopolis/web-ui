@@ -1,5 +1,5 @@
 import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
-import { Observable } from 'rxjs';
+import { Observable, Subscriber } from 'rxjs';
 import * as tus from 'tus-js-client';
 
 import { HttpEvent, HttpEventType, HttpHeaders, HttpProgressEvent } from '@angular/common/http';
@@ -118,24 +118,7 @@ export class UploadTUSService {
           if (exist) {
             const progress = 100;
             observer.next(progress);
-            if (form !== null) {
-              observer.add(
-                this.gs.create(serviceConfig, form, this.skipErrorDialogHeaders).subscribe({
-                  next: () => {
-                    if (redirect) {
-                      this.router.navigate(redirect);
-                    }
-                    observer.complete();
-                  },
-                  error: (createError) => {
-                    observer.next(0);
-                    observer.error(createError);
-                  }
-                })
-              );
-            } else {
-              observer.complete();
-            }
+            this.createAfterUpload(observer, serviceConfig, form, redirect);
           } else {
             observer.next(0);
             observer.error(error);
@@ -147,25 +130,7 @@ export class UploadTUSService {
           observer.next(progress);
         },
         onSuccess: async () => {
-          if (form !== null) {
-            // Added to the observer, so unsubscribing cancels the create together with the upload
-            observer.add(
-              this.gs.create(serviceConfig, form, this.skipErrorDialogHeaders).subscribe({
-                next: () => {
-                  if (redirect) {
-                    this.router.navigate(redirect);
-                  }
-                  observer.complete();
-                },
-                error: (createError) => {
-                  observer.next(0);
-                  observer.error(createError);
-                }
-              })
-            );
-          } else {
-            observer.complete();
-          }
+          this.createAfterUpload(observer, serviceConfig, form, redirect);
         }
       });
 
@@ -215,6 +180,40 @@ export class UploadTUSService {
       // Start or continue the upload
       upload.start();
     }
+  }
+
+  /**
+   * Completes the upload, creating the resource and redirecting first when a form is given.
+   * @param observer - Observer of the upload.
+   * @param serviceConfig - Service (URL and Resource) for which the upload was made.
+   * @param form - Creation form, or null to only upload.
+   * @param redirect - Link to redirect to after the create.
+   */
+  private createAfterUpload(
+    observer: Subscriber<number>,
+    serviceConfig: ServiceConfig,
+    form: Record<string, unknown> | null,
+    redirect: string[] | null
+  ): void {
+    if (form === null) {
+      observer.complete();
+      return;
+    }
+    // Added to the observer, so unsubscribing cancels the create together with the upload
+    observer.add(
+      this.gs.create(serviceConfig, form, this.skipErrorDialogHeaders).subscribe({
+        next: () => {
+          if (redirect) {
+            this.router.navigate(redirect);
+          }
+          observer.complete();
+        },
+        error: (createError) => {
+          observer.next(0);
+          observer.error(createError);
+        }
+      })
+    );
   }
 
   /**
