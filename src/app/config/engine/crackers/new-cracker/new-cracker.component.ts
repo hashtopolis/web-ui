@@ -4,6 +4,7 @@ import { Component, inject } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { CrackerBinaryTypesService } from '@services/crackers/cracker-binary-types.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
@@ -24,6 +25,7 @@ export class NewCrackerComponent {
   private gs = inject(GlobalService);
   private router = inject(Router);
   private alert = inject(AlertService);
+  private crackerBinaryTypes = inject(CrackerBinaryTypesService);
   protected roleService = inject(CrackerBinaryRoleService);
 
   newCrackerForm: FormGroup<NewCrackerForm> = getNewCrackerForm();
@@ -47,6 +49,7 @@ export class NewCrackerComponent {
       };
 
       await firstValueFrom(this.gs.create(SERV.CRACKERS_TYPES, payload));
+      this.crackerBinaryTypes.invalidate();
       this.alert.showSuccessMessage('Cracker type created!');
       void this.router.navigate(['config/engine/crackers']);
     } catch (err: unknown) {

@@ -26,7 +26,7 @@ export interface NewTaskForm {
   color: FormControl<string>;
   isCpuTask: FormControl<boolean>;
   skipKeyspace: FormControl<number>;
-  crackerBinaryId: FormControl<CrackerBinaryId>;
+  crackerBinaryId: FormControl<CrackerBinaryId | null>;
   crackerBinaryTypeId: FormControl<CrackerBinaryTypeId | null>;
   isArchived: FormControl<boolean>;
   staticChunks: FormControl<number>;
@@ -69,7 +69,7 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
     color: new FormControl<string>('', { nonNullable: true }),
     isCpuTask: new FormControl<boolean>(false, { nonNullable: true }),
     skipKeyspace: new FormControl<number>(0, { nonNullable: true }),
-    crackerBinaryId: new FormControl<number>(1, { nonNullable: true, validators: [Validators.required] }),
+    crackerBinaryId: new FormControl<CrackerBinaryId | null>(null, [Validators.required]),
     crackerBinaryTypeId: new FormControl<number | null>(null, [Validators.required]),
     isArchived: new FormControl<boolean>(false, { nonNullable: true }),
     staticChunks: new FormControl<number>(StaticChunkingMode.NONE, { nonNullable: true }),

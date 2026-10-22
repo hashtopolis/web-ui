@@ -71,6 +71,7 @@ export class SERV {
   public static HEALTH_CHECKS = { URL: '/ui/healthchecks', RESOURCE: 'HealthCheck' };
   public static HEALTH_CHECKS_AGENTS = { URL: '/ui/healthcheckagents', RESOURCE: 'HealthCheckAgents' };
   public static LOGS = { URL: '/ui/logentries', RESOURCE: 'LogEntries' };
+  public static BACKGROUND_JOBS = { URL: '/ui/backgroundJobs', RESOURCE: 'backgroundJob' };
   public static PREPROCESSORS = { URL: '/ui/preprocessors', RESOURCE: 'Preprocessors' };
   // FILES
   public static FILES = { URL: '/ui/files', RESOURCE: 'Files' };
@@ -113,6 +114,7 @@ export const RelationshipType = {
   CHUNKS: 'chunks',
   CONFIGSECTION: 'configSection',
   CRACKERBINARY: 'crackerBinary',
+  CRACKERBINARIES: 'crackerBinaries',
   CRACKERBINARYTYPE: 'crackerBinaryType',
   CRACKERVERSION: 'crackerVersions',
   FILES: 'files',
@@ -121,6 +123,7 @@ export const RelationshipType = {
   HASHLIST: 'hashlist',
   HASHLISTS: 'hashlists',
   HASHTYPE: 'hashtype',
+  HASHTYPES: 'hashtypes',
   HEALTHCHECK: 'healthCheck',
   HEALTHCHECKAGENTS: 'healthCheckAgents',
   PRETASKS: 'pretasks',

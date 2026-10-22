@@ -1,13 +1,21 @@
 import * as z from 'zod';
 
+import { zAccessGroupResponse } from './access-group';
+import { zCrackerBinaryTypeResponse } from './cracker-binary-type';
+import { zHashTypeListResponse } from './hash-type';
+import { zTaskListResponse } from './task';
+
 export const zCrackerBinaryCreate = z.object({
   data: z.object({
     type: z.literal('crackerBinary'),
     attributes: z.object({
+      sourceType: z.union([z.literal('inline'), z.literal('import'), z.literal('url')]).nullish(),
+      sourceData: z.string().nullish(),
       crackerBinaryTypeId: z.int(),
       version: z.string(),
-      downloadUrl: z.string(),
-      binaryName: z.string()
+      downloadUrl: z.string().nullish(),
+      binaryName: z.string(),
+      accessGroupId: z.int()
     })
   })
 });
@@ -16,8 +24,9 @@ export const zCrackerBinaryPatch = z.object({
   data: z.object({
     type: z.literal('crackerBinary'),
     attributes: z.object({
+      accessGroupId: z.int().optional(),
       binaryName: z.string().optional(),
-      downloadUrl: z.string().optional(),
+      downloadUrl: z.string().nullish(),
       version: z.string().optional()
     })
   })
@@ -29,8 +38,9 @@ export const zCrackerBinaryPatchMultiple = z.object({
       id: z.int(),
       type: z.literal('crackerBinary'),
       attributes: z.object({
+        accessGroupId: z.int().optional(),
         binaryName: z.string().optional(),
-        downloadUrl: z.string().optional(),
+        downloadUrl: z.string().nullish(),
         version: z.string().optional()
       })
     })
@@ -60,13 +70,27 @@ export const zCrackerBinaryResponse = z.object({
     attributes: z.object({
       crackerBinaryTypeId: z.int(),
       version: z.string(),
-      downloadUrl: z.string(),
-      binaryName: z.string()
+      downloadUrl: z.string().nullable(),
+      binaryName: z.string(),
+      filename: z.string().nullable(),
+      accessGroupId: z.int()
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/crackers/1')
     }),
     relationships: z.object({
+      accessGroup: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/crackers/relationships/accessGroup'),
+          related: z.string().default('/api/v2/ui/crackers/accessGroup')
+        }),
+        data: z
+          .object({
+            type: z.literal('accessGroup'),
+            id: z.int()
+          })
+          .nullish()
+      }),
       crackerBinaryType: z.object({
         links: z.object({
           self: z.string().default('/api/v2/ui/crackers/relationships/crackerBinaryType'),
@@ -78,6 +102,20 @@ export const zCrackerBinaryResponse = z.object({
             id: z.int()
           })
           .nullish()
+      }),
+      hashtypes: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/crackers/relationships/hashtypes'),
+          related: z.string().default('/api/v2/ui/crackers/hashtypes')
+        }),
+        data: z
+          .array(
+            z.object({
+              type: z.literal('hashType'),
+              id: z.int()
+            })
+          )
+          .optional()
       }),
       tasks: z.object({
         links: z.object({
@@ -108,6 +146,13 @@ export const zCrackerBinaryResponse = z.object({
         }),
         z.object({
           id: z.int(),
+          type: z.literal('accessGroup'),
+          attributes: z.object({
+            groupName: z.string()
+          })
+        }),
+        z.object({
+          id: z.int(),
           type: z.literal('task'),
           attributes: z.object({
             taskName: z.string(),
@@ -133,6 +178,15 @@ export const zCrackerBinaryResponse = z.object({
             forcePipe: z.boolean(),
             preprocessorId: z.int(),
             preprocessorCommand: z.string()
+          })
+        }),
+        z.object({
+          id: z.int(),
+          type: z.literal('hashType'),
+          attributes: z.object({
+            description: z.string(),
+            isSalted: z.boolean(),
+            isSlowHash: z.boolean()
           })
         })
       ])
@@ -154,13 +208,27 @@ export const zCrackerBinaryPostPatchResponse = z.object({
     attributes: z.object({
       crackerBinaryTypeId: z.int(),
       version: z.string(),
-      downloadUrl: z.string(),
-      binaryName: z.string()
+      downloadUrl: z.string().nullable(),
+      binaryName: z.string(),
+      filename: z.string().nullable(),
+      accessGroupId: z.int()
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/crackers/1')
     }),
     relationships: z.object({
+      accessGroup: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/crackers/relationships/accessGroup'),
+          related: z.string().default('/api/v2/ui/crackers/accessGroup')
+        }),
+        data: z
+          .object({
+            type: z.literal('accessGroup'),
+            id: z.int()
+          })
+          .nullish()
+      }),
       crackerBinaryType: z.object({
         links: z.object({
           self: z.string().default('/api/v2/ui/crackers/relationships/crackerBinaryType'),
@@ -172,6 +240,20 @@ export const zCrackerBinaryPostPatchResponse = z.object({
             id: z.int()
           })
           .nullish()
+      }),
+      hashtypes: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/crackers/relationships/hashtypes'),
+          related: z.string().default('/api/v2/ui/crackers/hashtypes')
+        }),
+        data: z
+          .array(
+            z.object({
+              type: z.literal('hashType'),
+              id: z.int()
+            })
+          )
+          .optional()
       }),
       tasks: z.object({
         links: z.object({
@@ -202,6 +284,13 @@ export const zCrackerBinaryPostPatchResponse = z.object({
         }),
         z.object({
           id: z.int(),
+          type: z.literal('accessGroup'),
+          attributes: z.object({
+            groupName: z.string()
+          })
+        }),
+        z.object({
+          id: z.int(),
           type: z.literal('task'),
           attributes: z.object({
             taskName: z.string(),
@@ -227,6 +316,15 @@ export const zCrackerBinaryPostPatchResponse = z.object({
             forcePipe: z.boolean(),
             preprocessorId: z.int(),
             preprocessorCommand: z.string()
+          })
+        }),
+        z.object({
+          id: z.int(),
+          type: z.literal('hashType'),
+          attributes: z.object({
+            description: z.string(),
+            isSalted: z.boolean(),
+            isSlowHash: z.boolean()
           })
         })
       ])
@@ -273,13 +371,27 @@ export const zCrackerBinaryListResponse = z.object({
       attributes: z.object({
         crackerBinaryTypeId: z.int(),
         version: z.string(),
-        downloadUrl: z.string(),
-        binaryName: z.string()
+        downloadUrl: z.string().nullable(),
+        binaryName: z.string(),
+        filename: z.string().nullable(),
+        accessGroupId: z.int()
       }),
       links: z.object({
         self: z.string().default('/api/v2/ui/crackers/1')
       }),
       relationships: z.object({
+        accessGroup: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/crackers/relationships/accessGroup'),
+            related: z.string().default('/api/v2/ui/crackers/accessGroup')
+          }),
+          data: z
+            .object({
+              type: z.literal('accessGroup'),
+              id: z.int()
+            })
+            .nullish()
+        }),
         crackerBinaryType: z.object({
           links: z.object({
             self: z.string().default('/api/v2/ui/crackers/relationships/crackerBinaryType'),
@@ -291,6 +403,20 @@ export const zCrackerBinaryListResponse = z.object({
               id: z.int()
             })
             .nullish()
+        }),
+        hashtypes: z.object({
+          links: z.object({
+            self: z.string().default('/api/v2/ui/crackers/relationships/hashtypes'),
+            related: z.string().default('/api/v2/ui/crackers/hashtypes')
+          }),
+          data: z
+            .array(
+              z.object({
+                type: z.literal('hashType'),
+                id: z.int()
+              })
+            )
+            .optional()
         }),
         tasks: z.object({
           links: z.object({
@@ -322,6 +448,13 @@ export const zCrackerBinaryListResponse = z.object({
         }),
         z.object({
           id: z.int(),
+          type: z.literal('accessGroup'),
+          attributes: z.object({
+            groupName: z.string()
+          })
+        }),
+        z.object({
+          id: z.int(),
           type: z.literal('task'),
           attributes: z.object({
             taskName: z.string(),
@@ -348,6 +481,15 @@ export const zCrackerBinaryListResponse = z.object({
             preprocessorId: z.int(),
             preprocessorCommand: z.string()
           })
+        }),
+        z.object({
+          id: z.int(),
+          type: z.literal('hashType'),
+          attributes: z.object({
+            description: z.string(),
+            isSalted: z.boolean(),
+            isSlowHash: z.boolean()
+          })
         })
       ])
     )
@@ -366,10 +508,42 @@ export const zCrackerBinaryCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
+export const zCrackerBinaryRelationCrackerBinaryType = z.object({
+  data: z.object({
+    type: z.literal('crackerBinaryType'),
+    id: z.int()
+  })
+});
+
+export const zCrackerBinaryRelationCrackerBinaryTypeGetResponse = z.object({
+  data: z
+    .object({
+      type: z.literal('crackerBinaryType'),
+      id: z.int()
+    })
+    .nullable()
+});
+
+export const zCrackerBinaryRelationAccessGroup = z.object({
+  data: z.object({
+    type: z.literal('accessGroup'),
+    id: z.int()
+  })
+});
+
+export const zCrackerBinaryRelationAccessGroupGetResponse = z.object({
+  data: z
+    .object({
+      type: z.literal('accessGroup'),
+      id: z.int()
+    })
+    .nullable()
+});
+
 export const zCrackerBinaryRelationTasks = z.object({
   data: z.array(
     z.object({
-      type: z.literal('tasks'),
+      type: z.literal('task'),
       id: z.int()
     })
   )
@@ -378,7 +552,25 @@ export const zCrackerBinaryRelationTasks = z.object({
 export const zCrackerBinaryRelationTasksGetResponse = z.object({
   data: z.array(
     z.object({
-      type: z.literal('tasks'),
+      type: z.literal('task'),
+      id: z.int()
+    })
+  )
+});
+
+export const zCrackerBinaryRelationHashtypes = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('hashType'),
+      id: z.int()
+    })
+  )
+});
+
+export const zCrackerBinaryRelationHashtypesGetResponse = z.object({
+  data: z.array(
+    z.object({
+      type: z.literal('hashType'),
       id: z.int()
     })
   )
@@ -400,7 +592,7 @@ export const zGetCrackersQuery = z.object({
     .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
     .optional(),
   filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.enum(['crackerBinaryType', 'tasks'])).optional()
+  include: z.array(z.enum(['crackerBinaryType', 'accessGroup', 'tasks', 'hashtypes'])).optional()
 });
 
 /**
@@ -432,67 +624,190 @@ export const zGetCrackersCountQuery = z.object({
  */
 export const zGetCrackersCountResponse = zCrackerBinaryCountResponse;
 
-export const zGetCrackersByIdByRelationPath = z.object({
+export const zGetCrackersByIdCrackerBinaryTypePath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetCrackersByIdByRelationResponse = zCrackerBinaryRelationTasksGetResponse;
+export const zGetCrackersByIdCrackerBinaryTypeResponse = zCrackerBinaryTypeResponse;
 
-export const zDeleteCrackersByIdRelationshipsByRelationBody = zCrackerBinaryRelationTasks;
-
-export const zDeleteCrackersByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
-});
-
-/**
- * successfully deleted
- */
-export const zDeleteCrackersByIdRelationshipsByRelationResponse = z.void();
-
-export const zGetCrackersByIdRelationshipsByRelationPath = z.object({
+export const zGetCrackersByIdRelationshipsCrackerBinaryTypePath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetCrackersByIdRelationshipsByRelationResponse = zCrackerBinaryResponse;
+export const zGetCrackersByIdRelationshipsCrackerBinaryTypeResponse =
+  zCrackerBinaryRelationCrackerBinaryTypeGetResponse;
 
-export const zPatchCrackersByIdRelationshipsByRelationBody = zCrackerBinaryRelationTasks;
+export const zPatchCrackersByIdRelationshipsCrackerBinaryTypeBody = zCrackerBinaryRelationCrackerBinaryType;
 
-export const zPatchCrackersByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchCrackersByIdRelationshipsCrackerBinaryTypePath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchCrackersByIdRelationshipsByRelationResponse = z.void();
+export const zPatchCrackersByIdRelationshipsCrackerBinaryTypeResponse = z.void();
 
-export const zPostCrackersByIdRelationshipsByRelationBody = zCrackerBinaryRelationTasks;
+export const zGetCrackersByIdAccessGroupPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
 
-export const zPostCrackersByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+/**
+ * successful operation
+ */
+export const zGetCrackersByIdAccessGroupResponse = zAccessGroupResponse;
+
+export const zGetCrackersByIdRelationshipsAccessGroupPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetCrackersByIdRelationshipsAccessGroupResponse = zCrackerBinaryRelationAccessGroupGetResponse;
+
+export const zPatchCrackersByIdRelationshipsAccessGroupBody = zCrackerBinaryRelationAccessGroup;
+
+export const zPatchCrackersByIdRelationshipsAccessGroupPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchCrackersByIdRelationshipsAccessGroupResponse = z.void();
+
+export const zGetCrackersByIdTasksPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetCrackersByIdTasksResponse = zTaskListResponse;
+
+export const zDeleteCrackersByIdRelationshipsTasksBody = zCrackerBinaryRelationTasks;
+
+export const zDeleteCrackersByIdRelationshipsTasksPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully deleted
+ */
+export const zDeleteCrackersByIdRelationshipsTasksResponse = z.void();
+
+export const zGetCrackersByIdRelationshipsTasksPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetCrackersByIdRelationshipsTasksResponse = zCrackerBinaryRelationTasksGetResponse;
+
+export const zPatchCrackersByIdRelationshipsTasksBody = zCrackerBinaryRelationTasks;
+
+export const zPatchCrackersByIdRelationshipsTasksPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchCrackersByIdRelationshipsTasksResponse = z.void();
+
+export const zPostCrackersByIdRelationshipsTasksBody = zCrackerBinaryRelationTasks;
+
+export const zPostCrackersByIdRelationshipsTasksPath = z.object({
+  id: z.int()
 });
 
 /**
  * successfully created
  */
-export const zPostCrackersByIdRelationshipsByRelationResponse = z.void();
+export const zPostCrackersByIdRelationshipsTasksResponse = z.void();
+
+export const zGetCrackersByIdHashtypesPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetCrackersByIdHashtypesResponse = zHashTypeListResponse;
+
+export const zDeleteCrackersByIdRelationshipsHashtypesBody = zCrackerBinaryRelationHashtypes;
+
+export const zDeleteCrackersByIdRelationshipsHashtypesPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully deleted
+ */
+export const zDeleteCrackersByIdRelationshipsHashtypesResponse = z.void();
+
+export const zGetCrackersByIdRelationshipsHashtypesPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetCrackersByIdRelationshipsHashtypesResponse = zCrackerBinaryRelationHashtypesGetResponse;
+
+export const zPatchCrackersByIdRelationshipsHashtypesBody = zCrackerBinaryRelationHashtypes;
+
+export const zPatchCrackersByIdRelationshipsHashtypesPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchCrackersByIdRelationshipsHashtypesResponse = z.void();
+
+export const zPostCrackersByIdRelationshipsHashtypesBody = zCrackerBinaryRelationHashtypes;
+
+export const zPostCrackersByIdRelationshipsHashtypesPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully created
+ */
+export const zPostCrackersByIdRelationshipsHashtypesResponse = z.void();
 
 export const zDeleteCrackersByIdPath = z.object({
   id: z.int()
@@ -511,7 +826,7 @@ export const zGetCrackersByIdPath = z.object({
 });
 
 export const zGetCrackersByIdQuery = z.object({
-  include: z.array(z.enum(['crackerBinaryType', 'tasks'])).optional()
+  include: z.array(z.enum(['crackerBinaryType', 'accessGroup', 'tasks', 'hashtypes'])).optional()
 });
 
 /**

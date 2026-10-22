@@ -1,4 +1,4 @@
-import { zAgentBinaryResponse, zCrackerBinaryResponse, zHashTypeResponse } from '@generated/api/zod';
+import { zAgentBinaryResponse, zHashTypeResponse } from '@generated/api/zod';
 
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
@@ -10,6 +10,7 @@ import { SERV } from '@services/main.config';
 import { AgentBinaryRoleService } from '@services/roles/binaries/agent-binary-role.service';
 import { CrackerBinaryRoleService } from '@services/roles/binaries/cracker-binary-role.service';
 import { PreprocessorRoleService } from '@services/roles/binaries/preprocessor-role.service';
+import { BackgroundJobRoleService } from '@services/roles/config/background-job-role.service';
 import { HashTypesRoleService } from '@services/roles/config/hashtypes-role.service';
 import { HealthCheckRoleService } from '@services/roles/config/healthcheck-role.service';
 import { LogRoleService } from '@services/roles/config/log-role.service';
@@ -19,7 +20,9 @@ import { SettingsRoleService } from '@services/roles/config/settings-role.servic
 import { FormComponent } from '@components/forms/simple-forms/form.component';
 import { FormConfigComponent } from '@components/forms/simple-forms/formconfig.component';
 
+import { BackgroundJobsComponent } from '@src/app/config/background-jobs/background-jobs.component';
 import { AgentBinariesComponent } from '@src/app/config/engine/agent-binaries/agent-binaries.component';
+import { CrackerVersionFormComponent } from '@src/app/config/engine/crackers/cracker-version-form/cracker-version-form.component';
 import { CrackersComponent } from '@src/app/config/engine/crackers/crackers.component';
 import { NewCrackerComponent } from '@src/app/config/engine/crackers/new-cracker/new-cracker.component';
 import { NewEditPreprocessorComponent } from '@src/app/config/engine/preprocessors/new_edit-preprocessor/new_edit-preprocessor.component';
@@ -32,7 +35,7 @@ import { LogComponent } from '@src/app/config/log/log.component';
 import { IsAuth } from '@src/app/core/_guards/auth.guard';
 import { CheckRole } from '@src/app/core/_guards/permission.guard';
 
-const routes: MyRoute[] = [
+export const routes: MyRoute[] = [
   {
     path: '',
     canActivate: [IsAuth],
@@ -114,19 +117,7 @@ const routes: MyRoute[] = [
         component: HashtypesComponent,
         data: {
           roleServiceClass: HashTypesRoleService,
-          roleName: 'read'
-        },
-        canActivate: [CheckRole]
-      },
-      {
-        path: 'hashtypes/new',
-        component: FormComponent,
-        data: {
-          kind: FormRouteKind.NewHashtype,
-          type: FormRouteType.Create,
-          serviceConfig: SERV.HASHTYPES,
-          roleServiceClass: HashTypesRoleService,
-          roleName: 'create'
+          roleName: 'update'
         },
         canActivate: [CheckRole]
       },
@@ -139,7 +130,7 @@ const routes: MyRoute[] = [
           serviceConfig: SERV.HASHTYPES,
           responseSchema: zHashTypeResponse,
           roleServiceClass: HashTypesRoleService,
-          roleName: 'read'
+          roleName: 'update'
         },
         canActivate: [CheckRole]
       },
@@ -148,6 +139,15 @@ const routes: MyRoute[] = [
         component: LogComponent,
         data: {
           roleServiceClass: LogRoleService,
+          roleName: 'read'
+        },
+        canActivate: [CheckRole]
+      },
+      {
+        path: 'background-jobs',
+        component: BackgroundJobsComponent,
+        data: {
+          roleServiceClass: BackgroundJobRoleService,
           roleName: 'read'
         },
         canActivate: [CheckRole]
@@ -233,11 +233,9 @@ const routes: MyRoute[] = [
       },
       {
         path: 'engine/crackers/:id/new',
-        component: FormComponent,
+        component: CrackerVersionFormComponent,
         data: {
-          kind: FormRouteKind.NewCrackerVersion,
           type: FormRouteType.Create,
-          serviceConfig: SERV.CRACKERS,
           roleServiceClass: CrackerBinaryRoleService,
           roleName: 'create'
         },
@@ -245,12 +243,9 @@ const routes: MyRoute[] = [
       },
       {
         path: 'engine/crackers/:id/edit',
-        component: FormComponent,
+        component: CrackerVersionFormComponent,
         data: {
-          kind: FormRouteKind.EditCrackerVersion,
           type: FormRouteType.Edit,
-          serviceConfig: SERV.CRACKERS,
-          responseSchema: zCrackerBinaryResponse,
           roleServiceClass: CrackerBinaryRoleService,
           roleName: 'read'
         },

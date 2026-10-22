@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { zUserResponse } from './user';
+
 export const zNotificationSettingCreate = z.object({
   data: z.object({
     type: z.literal('notificationSetting'),
@@ -377,10 +379,12 @@ export const zNotificationSettingRelationUser = z.object({
 });
 
 export const zNotificationSettingRelationUserGetResponse = z.object({
-  data: z.object({
-    type: z.literal('user'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('user'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zDeleteNotificationsBody = zNotificationSettingDeleteMultiple;
@@ -431,43 +435,40 @@ export const zGetNotificationsCountQuery = z.object({
  */
 export const zGetNotificationsCountResponse = zNotificationSettingCountResponse;
 
-export const zGetNotificationsByIdByRelationPath = z.object({
+export const zGetNotificationsByIdUserPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetNotificationsByIdByRelationResponse = zNotificationSettingRelationUserGetResponse;
+export const zGetNotificationsByIdUserResponse = zUserResponse;
 
-export const zGetNotificationsByIdRelationshipsByRelationPath = z.object({
+export const zGetNotificationsByIdRelationshipsUserPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetNotificationsByIdRelationshipsByRelationResponse = zNotificationSettingResponse;
+export const zGetNotificationsByIdRelationshipsUserResponse = zNotificationSettingRelationUserGetResponse;
 
-export const zPatchNotificationsByIdRelationshipsByRelationBody = zNotificationSettingRelationUser;
+export const zPatchNotificationsByIdRelationshipsUserBody = zNotificationSettingRelationUser;
 
-export const zPatchNotificationsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchNotificationsByIdRelationshipsUserPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchNotificationsByIdRelationshipsByRelationResponse = z.void();
+export const zPatchNotificationsByIdRelationshipsUserResponse = z.void();
 
 export const zDeleteNotificationsByIdPath = z.object({
   id: z.int()

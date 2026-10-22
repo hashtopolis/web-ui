@@ -14,7 +14,6 @@ import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.se
 import { fileFormat } from '@src/app/core/_constants/files.config';
 import { ACCESS_GROUP_FIELD_MAPPING, FieldMapping } from '@src/app/core/_constants/select.config';
 import { Option, proxytype, serverlog } from '@src/app/core/_constants/settings.config';
-import { urlValidator } from '@src/app/core/_validators/url.validator';
 import { SelectOption } from '@src/app/shared/utils/forms';
 
 /**
@@ -312,115 +311,8 @@ export class MetadataService {
   ];
 
   // //
-  // Cracker Version
-  // //
-
-  // This variable stores information about the New Cracker Version page.
-  newcrackerversionInfo = [
-    {
-      title: 'New Binary Version',
-      customform: true,
-      subtitle: false,
-      submitok: 'New Version created!',
-      submitokredirect: '/config/engine/crackers'
-    }
-  ];
-
-  // This variable stores information about the Edit Cracker Version page.
-  editcrackerversionInfo = [
-    {
-      title: 'Edit Binary Version',
-      titleField: ['binaryName', 'version'],
-      customform: false,
-      subtitle: false,
-      submitok: 'Cracker saved!',
-      submitokredirect: '/config/engine/crackers',
-      deltitle: 'Crackers',
-      delsubmitok: 'Deleted cracker',
-      delsubmitokredirect: 'config/engine/crackers',
-      delsubmitcancel: 'Cracker is safe!'
-    }
-  ];
-
-  //This variable defines the fields and properties required when creating a cracker Version.
-  newcrackerversion: MetadataFormField[] = [
-    {
-      name: 'binaryName',
-      label: 'Binary Base Name',
-      type: 'text',
-      requiredasterisk: true,
-      tooltip: 'Which needs to be called on the client without os-dependent extension',
-      validators: [Validators.required]
-    },
-    {
-      name: 'version',
-      label: 'Binary Version',
-      type: 'text',
-      requiredasterisk: true,
-      tooltip: false,
-      validators: [Validators.required]
-    },
-    {
-      name: 'downloadUrl',
-      label: 'Download URL',
-      type: 'url',
-      requiredasterisk: true,
-      tooltip: 'Link where the client can download a 7zip with the binary, e.g. https://example.com/cracker-1.0.0.7z',
-      validators: [Validators.required, urlValidator()]
-    },
-    {
-      name: 'crackerBinaryTypeId',
-      label: 'crackerBinaryTypeId',
-      type: 'hidden',
-      replacevalue: 'editedIndex',
-      requiredasterisk: true,
-      tooltip: false,
-      validators: false
-    }
-  ];
-
-  //This variable defines the fields and properties required when editing a cracker Version.
-  editcrackerversion: MetadataFormField[] = [
-    {
-      name: 'binaryName',
-      label: 'Binary Base Name',
-      type: 'text',
-      requiredasterisk: true,
-      tooltip: 'Which needs to be called on the client without os-dependent extension',
-      validators: [Validators.required]
-    },
-    {
-      name: 'version',
-      label: 'Binary Version',
-      type: 'text',
-      requiredasterisk: true,
-      fullWidth: true,
-      tooltip: false,
-      validators: [Validators.required]
-    },
-    {
-      name: 'downloadUrl',
-      label: 'Download URL',
-      type: 'url',
-      requiredasterisk: true,
-      tooltip: 'Link where the client can download a 7zip with the binary, e.g. https://example.com/cracker-1.0.0.7z',
-      validators: [Validators.required, urlValidator()]
-    }
-  ];
-
-  // //
   // Preprocessor
   // //
-
-  newhashtypeInfo = [
-    {
-      title: 'Create Hashtype',
-      customform: false,
-      subtitle: false,
-      submitok: 'New Hashtype created!',
-      submitokredirect: '/config/hashtypes'
-    }
-  ];
 
   // This variable stores information about the Editing Hashtypes page.
   edithashtypeInfo = [
@@ -439,45 +331,7 @@ export class MetadataService {
     }
   ];
 
-  //This variable defines the fields and properties required when creating a new Hashtype.
-  newhashtype: MetadataFormField[] = [
-    {
-      name: 'hashTypeId',
-      label: 'Hashtype',
-      type: 'number',
-      requiredasterisk: true,
-      tooltip: 'ie. Hashcat -m',
-      validators: [Validators.required, Validators.pattern('^[0-9]*$'), Validators.minLength(1), this.numberValidator]
-    },
-    {
-      name: 'description',
-      label: 'Description',
-      type: 'text',
-      requiredasterisk: true,
-      tooltip: false,
-      validators: [Validators.required, Validators.minLength(1)]
-    },
-    {
-      name: 'isSalted',
-      label: 'Salted',
-      type: 'checkbox',
-      requiredasterisk: false,
-      tooltip: 'Only if there is a separate salt value',
-      validators: false,
-      defaultValue: false
-    },
-    {
-      name: 'isSlowHash',
-      label: 'Slow Hash',
-      type: 'checkbox',
-      requiredasterisk: false,
-      tooltip: false,
-      validators: false,
-      defaultValue: false
-    }
-  ];
-
-  //This variable is similar to newhashtype but is used for editing an existing Hashtype. As difference include disable form variable.
+  //This variable defines the fields of the form for editing an existing Hashtype.
   edithashtype: MetadataFormField[] = [
     {
       name: 'id',
@@ -980,12 +834,6 @@ export class MetadataService {
       return this.editfile;
     } else if (formName === 'newagentbinary' || formName === 'editagentbinary') {
       return this.agentbinary;
-    } else if (formName === 'newcrackerversion') {
-      return this.newcrackerversion;
-    } else if (formName === 'editcrackerversion') {
-      return this.editcrackerversion;
-    } else if (formName === 'newhashtype') {
-      return this.newhashtype;
     } else if (formName === 'edithashtype') {
       return this.edithashtype;
     } else if (formName === 'newglobalpermissionsgp') {
@@ -1023,12 +871,6 @@ export class MetadataService {
       return this.newagentbinaryInfo;
     } else if (formName === 'editagentbinaryInfo') {
       return this.editagentbinaryInfo;
-    } else if (formName === 'newcrackerversionInfo') {
-      return this.newcrackerversionInfo;
-    } else if (formName === 'editcrackerversionInfo') {
-      return this.editcrackerversionInfo;
-    } else if (formName === 'newhashtypeInfo') {
-      return this.newhashtypeInfo;
     } else if (formName === 'edithashtypeInfo') {
       return this.edithashtypeInfo;
     } else if (formName === 'newglobalpermissionsgpInfo') {

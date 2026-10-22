@@ -1,4 +1,5 @@
 import type { ErrorResponse } from './common';
+import type { UserResponse } from './user';
 
 export type ApiTokenCreate = {
   data: {
@@ -238,7 +239,7 @@ export type ApiTokenRelationUserGetResponse = {
   data: {
     type: 'user';
     id: number;
-  };
+  } | null;
 };
 
 export type DeleteApiTokensData = {
@@ -468,17 +469,16 @@ export type GetApiTokensCountResponses = {
 
 export type GetApiTokensCountResponse = GetApiTokensCountResponses[keyof GetApiTokensCountResponses];
 
-export type GetApiTokensByIdByRelationData = {
+export type GetApiTokensByIdUserData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/apiTokens/{id}/{relation}';
+  url: '/api/v2/ui/apiTokens/{id}/user';
 };
 
-export type GetApiTokensByIdByRelationErrors = {
+export type GetApiTokensByIdUserErrors = {
   /**
    * Invalid request
    */
@@ -497,71 +497,68 @@ export type GetApiTokensByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetApiTokensByIdByRelationError = GetApiTokensByIdByRelationErrors[keyof GetApiTokensByIdByRelationErrors];
+export type GetApiTokensByIdUserError = GetApiTokensByIdUserErrors[keyof GetApiTokensByIdUserErrors];
 
-export type GetApiTokensByIdByRelationResponses = {
+export type GetApiTokensByIdUserResponses = {
+  /**
+   * successful operation
+   */
+  200: UserResponse;
+};
+
+export type GetApiTokensByIdUserResponse = GetApiTokensByIdUserResponses[keyof GetApiTokensByIdUserResponses];
+
+export type GetApiTokensByIdRelationshipsUserData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/apiTokens/{id}/relationships/user';
+};
+
+export type GetApiTokensByIdRelationshipsUserErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetApiTokensByIdRelationshipsUserError =
+  GetApiTokensByIdRelationshipsUserErrors[keyof GetApiTokensByIdRelationshipsUserErrors];
+
+export type GetApiTokensByIdRelationshipsUserResponses = {
   /**
    * successful operation
    */
   200: ApiTokenRelationUserGetResponse;
 };
 
-export type GetApiTokensByIdByRelationResponse =
-  GetApiTokensByIdByRelationResponses[keyof GetApiTokensByIdByRelationResponses];
+export type GetApiTokensByIdRelationshipsUserResponse =
+  GetApiTokensByIdRelationshipsUserResponses[keyof GetApiTokensByIdRelationshipsUserResponses];
 
-export type GetApiTokensByIdRelationshipsByRelationData = {
-  body?: never;
-  path: {
-    id: number;
-    relation: string;
-  };
-  query?: never;
-  url: '/api/v2/ui/apiTokens/{id}/relationships/{relation}';
-};
-
-export type GetApiTokensByIdRelationshipsByRelationErrors = {
-  /**
-   * Invalid request
-   */
-  400: ErrorResponse;
-  /**
-   * Authentication failed
-   */
-  401: ErrorResponse;
-  /**
-   * Permission denied
-   */
-  403: ErrorResponse;
-  /**
-   * Not Found
-   */
-  404: ErrorResponse;
-};
-
-export type GetApiTokensByIdRelationshipsByRelationError =
-  GetApiTokensByIdRelationshipsByRelationErrors[keyof GetApiTokensByIdRelationshipsByRelationErrors];
-
-export type GetApiTokensByIdRelationshipsByRelationResponses = {
-  /**
-   * successful operation
-   */
-  200: ApiTokenResponse;
-};
-
-export type GetApiTokensByIdRelationshipsByRelationResponse =
-  GetApiTokensByIdRelationshipsByRelationResponses[keyof GetApiTokensByIdRelationshipsByRelationResponses];
-
-export type PatchApiTokensByIdRelationshipsByRelationData = {
+export type PatchApiTokensByIdRelationshipsUserData = {
   body: ApiTokenRelationUser;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/apiTokens/{id}/relationships/{relation}';
+  url: '/api/v2/ui/apiTokens/{id}/relationships/user';
 };
 
-export type PatchApiTokensByIdRelationshipsByRelationErrors = {
+export type PatchApiTokensByIdRelationshipsUserErrors = {
   /**
    * Invalid request
    */
@@ -584,18 +581,18 @@ export type PatchApiTokensByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchApiTokensByIdRelationshipsByRelationError =
-  PatchApiTokensByIdRelationshipsByRelationErrors[keyof PatchApiTokensByIdRelationshipsByRelationErrors];
+export type PatchApiTokensByIdRelationshipsUserError =
+  PatchApiTokensByIdRelationshipsUserErrors[keyof PatchApiTokensByIdRelationshipsUserErrors];
 
-export type PatchApiTokensByIdRelationshipsByRelationResponses = {
+export type PatchApiTokensByIdRelationshipsUserResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchApiTokensByIdRelationshipsByRelationResponse =
-  PatchApiTokensByIdRelationshipsByRelationResponses[keyof PatchApiTokensByIdRelationshipsByRelationResponses];
+export type PatchApiTokensByIdRelationshipsUserResponse =
+  PatchApiTokensByIdRelationshipsUserResponses[keyof PatchApiTokensByIdRelationshipsUserResponses];
 
 export type DeleteApiTokensByIdData = {
   body?: never;

@@ -1,0 +1,18 @@
+<ht-table
+  #table
+  name="backgroundJobsTable"
+  dataType="background-jobs"
+  [columnLabels]="columnLabels"
+  [dataSource]="dataSource"
+  [tableColumns]="tableColumns"
+  [isSelectable]="true"
+  [contextMenuService]="contextMenuService"
+  [isFilterable]="isFilterable"
+  [isPageable]="true"
+  [supportsAutoRefresh]="true"
+  (bulkActionClicked)="bulkActionClicked($event)"
+  (rowActionClicked)="rowActionClicked($event)"
+  (exportActionClicked)="exportActionClicked($event)"
+  (selectedFilterColumnChanged)="selectedFilterColumn = $event"
+  (backendSqlFilter)="handleBackendSqlFilter($event)"
+/>

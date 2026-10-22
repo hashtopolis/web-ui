@@ -1,4 +1,7 @@
 import type { ErrorResponse } from './common';
+import type { CrackerBinaryResponse } from './cracker-binary';
+import type { HashTypeResponse } from './hash-type';
+import type { HealthCheckAgentListResponse } from './health-check-agent';
 
 export type HealthCheckCreate = {
   data: {
@@ -100,8 +103,19 @@ export type HealthCheckResponse = {
         attributes: {
           crackerBinaryTypeId: number;
           version: string;
-          downloadUrl: string;
+          /**
+           * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+           */
+          downloadUrl: string | null;
           binaryName: string;
+          /**
+           * Filename of the locally stored 7z archive, null when the binary is downloaded from the downloadUrl. Cannot be provided.
+           */
+          filename: string | null;
+          /**
+           * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+           */
+          accessGroupId: number;
         };
       }
     | {
@@ -193,8 +207,19 @@ export type HealthCheckPostPatchResponse = {
         attributes: {
           crackerBinaryTypeId: number;
           version: string;
-          downloadUrl: string;
+          /**
+           * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+           */
+          downloadUrl: string | null;
           binaryName: string;
+          /**
+           * Filename of the locally stored 7z archive, null when the binary is downloaded from the downloadUrl. Cannot be provided.
+           */
+          filename: string | null;
+          /**
+           * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+           */
+          accessGroupId: number;
         };
       }
     | {
@@ -295,8 +320,19 @@ export type HealthCheckListResponse = {
         attributes: {
           crackerBinaryTypeId: number;
           version: string;
-          downloadUrl: string;
+          /**
+           * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+           */
+          downloadUrl: string | null;
           binaryName: string;
+          /**
+           * Filename of the locally stored 7z archive, null when the binary is downloaded from the downloadUrl. Cannot be provided.
+           */
+          filename: string | null;
+          /**
+           * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+           */
+          accessGroupId: number;
         };
       }
     | {
@@ -348,16 +384,44 @@ export type HealthCheckCountResponse = {
   }>;
 };
 
+export type HealthCheckRelationCrackerBinary = {
+  data: {
+    type: 'crackerBinary';
+    id: number;
+  };
+};
+
+export type HealthCheckRelationCrackerBinaryGetResponse = {
+  data: {
+    type: 'crackerBinary';
+    id: number;
+  } | null;
+};
+
+export type HealthCheckRelationHashType = {
+  data: {
+    type: 'hashType';
+    id: number;
+  };
+};
+
+export type HealthCheckRelationHashTypeGetResponse = {
+  data: {
+    type: 'hashType';
+    id: number;
+  } | null;
+};
+
 export type HealthCheckRelationHealthCheckAgents = {
   data: Array<{
-    type: 'healthCheckAgents';
+    type: 'healthCheckAgent';
     id: number;
   }>;
 };
 
 export type HealthCheckRelationHealthCheckAgentsGetResponse = {
   data: Array<{
-    type: 'healthCheckAgents';
+    type: 'healthCheckAgent';
     id: number;
   }>;
 };
@@ -589,17 +653,16 @@ export type GetHealthchecksCountResponses = {
 
 export type GetHealthchecksCountResponse = GetHealthchecksCountResponses[keyof GetHealthchecksCountResponses];
 
-export type GetHealthchecksByIdByRelationData = {
+export type GetHealthchecksByIdCrackerBinaryData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/healthchecks/{id}/{relation}';
+  url: '/api/v2/ui/healthchecks/{id}/crackerBinary';
 };
 
-export type GetHealthchecksByIdByRelationErrors = {
+export type GetHealthchecksByIdCrackerBinaryErrors = {
   /**
    * Invalid request
    */
@@ -618,72 +681,29 @@ export type GetHealthchecksByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetHealthchecksByIdByRelationError =
-  GetHealthchecksByIdByRelationErrors[keyof GetHealthchecksByIdByRelationErrors];
+export type GetHealthchecksByIdCrackerBinaryError =
+  GetHealthchecksByIdCrackerBinaryErrors[keyof GetHealthchecksByIdCrackerBinaryErrors];
 
-export type GetHealthchecksByIdByRelationResponses = {
+export type GetHealthchecksByIdCrackerBinaryResponses = {
   /**
    * successful operation
    */
-  200: HealthCheckRelationHealthCheckAgentsGetResponse;
+  200: CrackerBinaryResponse;
 };
 
-export type GetHealthchecksByIdByRelationResponse =
-  GetHealthchecksByIdByRelationResponses[keyof GetHealthchecksByIdByRelationResponses];
+export type GetHealthchecksByIdCrackerBinaryResponse =
+  GetHealthchecksByIdCrackerBinaryResponses[keyof GetHealthchecksByIdCrackerBinaryResponses];
 
-export type DeleteHealthchecksByIdRelationshipsByRelationData = {
-  body: HealthCheckRelationHealthCheckAgents;
-  path: {
-    id: number;
-    relation: string;
-  };
-  query?: never;
-  url: '/api/v2/ui/healthchecks/{id}/relationships/{relation}';
-};
-
-export type DeleteHealthchecksByIdRelationshipsByRelationErrors = {
-  /**
-   * Invalid request
-   */
-  400: ErrorResponse;
-  /**
-   * Authentication failed
-   */
-  401: ErrorResponse;
-  /**
-   * Permission denied
-   */
-  403: ErrorResponse;
-  /**
-   * Not Found
-   */
-  404: ErrorResponse;
-};
-
-export type DeleteHealthchecksByIdRelationshipsByRelationError =
-  DeleteHealthchecksByIdRelationshipsByRelationErrors[keyof DeleteHealthchecksByIdRelationshipsByRelationErrors];
-
-export type DeleteHealthchecksByIdRelationshipsByRelationResponses = {
-  /**
-   * successfully deleted
-   */
-  204: void;
-};
-
-export type DeleteHealthchecksByIdRelationshipsByRelationResponse =
-  DeleteHealthchecksByIdRelationshipsByRelationResponses[keyof DeleteHealthchecksByIdRelationshipsByRelationResponses];
-
-export type GetHealthchecksByIdRelationshipsByRelationData = {
+export type GetHealthchecksByIdRelationshipsCrackerBinaryData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/healthchecks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/healthchecks/{id}/relationships/crackerBinary';
 };
 
-export type GetHealthchecksByIdRelationshipsByRelationErrors = {
+export type GetHealthchecksByIdRelationshipsCrackerBinaryErrors = {
   /**
    * Invalid request
    */
@@ -702,30 +722,29 @@ export type GetHealthchecksByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetHealthchecksByIdRelationshipsByRelationError =
-  GetHealthchecksByIdRelationshipsByRelationErrors[keyof GetHealthchecksByIdRelationshipsByRelationErrors];
+export type GetHealthchecksByIdRelationshipsCrackerBinaryError =
+  GetHealthchecksByIdRelationshipsCrackerBinaryErrors[keyof GetHealthchecksByIdRelationshipsCrackerBinaryErrors];
 
-export type GetHealthchecksByIdRelationshipsByRelationResponses = {
+export type GetHealthchecksByIdRelationshipsCrackerBinaryResponses = {
   /**
    * successful operation
    */
-  200: HealthCheckResponse;
+  200: HealthCheckRelationCrackerBinaryGetResponse;
 };
 
-export type GetHealthchecksByIdRelationshipsByRelationResponse =
-  GetHealthchecksByIdRelationshipsByRelationResponses[keyof GetHealthchecksByIdRelationshipsByRelationResponses];
+export type GetHealthchecksByIdRelationshipsCrackerBinaryResponse =
+  GetHealthchecksByIdRelationshipsCrackerBinaryResponses[keyof GetHealthchecksByIdRelationshipsCrackerBinaryResponses];
 
-export type PatchHealthchecksByIdRelationshipsByRelationData = {
-  body: HealthCheckRelationHealthCheckAgents;
+export type PatchHealthchecksByIdRelationshipsCrackerBinaryData = {
+  body: HealthCheckRelationCrackerBinary;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/healthchecks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/healthchecks/{id}/relationships/crackerBinary';
 };
 
-export type PatchHealthchecksByIdRelationshipsByRelationErrors = {
+export type PatchHealthchecksByIdRelationshipsCrackerBinaryErrors = {
   /**
    * Invalid request
    */
@@ -748,30 +767,111 @@ export type PatchHealthchecksByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchHealthchecksByIdRelationshipsByRelationError =
-  PatchHealthchecksByIdRelationshipsByRelationErrors[keyof PatchHealthchecksByIdRelationshipsByRelationErrors];
+export type PatchHealthchecksByIdRelationshipsCrackerBinaryError =
+  PatchHealthchecksByIdRelationshipsCrackerBinaryErrors[keyof PatchHealthchecksByIdRelationshipsCrackerBinaryErrors];
 
-export type PatchHealthchecksByIdRelationshipsByRelationResponses = {
+export type PatchHealthchecksByIdRelationshipsCrackerBinaryResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchHealthchecksByIdRelationshipsByRelationResponse =
-  PatchHealthchecksByIdRelationshipsByRelationResponses[keyof PatchHealthchecksByIdRelationshipsByRelationResponses];
+export type PatchHealthchecksByIdRelationshipsCrackerBinaryResponse =
+  PatchHealthchecksByIdRelationshipsCrackerBinaryResponses[keyof PatchHealthchecksByIdRelationshipsCrackerBinaryResponses];
 
-export type PostHealthchecksByIdRelationshipsByRelationData = {
-  body: HealthCheckRelationHealthCheckAgents;
+export type GetHealthchecksByIdHashTypeData = {
+  body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/healthchecks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/healthchecks/{id}/hashType';
 };
 
-export type PostHealthchecksByIdRelationshipsByRelationErrors = {
+export type GetHealthchecksByIdHashTypeErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHealthchecksByIdHashTypeError =
+  GetHealthchecksByIdHashTypeErrors[keyof GetHealthchecksByIdHashTypeErrors];
+
+export type GetHealthchecksByIdHashTypeResponses = {
+  /**
+   * successful operation
+   */
+  200: HashTypeResponse;
+};
+
+export type GetHealthchecksByIdHashTypeResponse =
+  GetHealthchecksByIdHashTypeResponses[keyof GetHealthchecksByIdHashTypeResponses];
+
+export type GetHealthchecksByIdRelationshipsHashTypeData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/healthchecks/{id}/relationships/hashType';
+};
+
+export type GetHealthchecksByIdRelationshipsHashTypeErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHealthchecksByIdRelationshipsHashTypeError =
+  GetHealthchecksByIdRelationshipsHashTypeErrors[keyof GetHealthchecksByIdRelationshipsHashTypeErrors];
+
+export type GetHealthchecksByIdRelationshipsHashTypeResponses = {
+  /**
+   * successful operation
+   */
+  200: HealthCheckRelationHashTypeGetResponse;
+};
+
+export type GetHealthchecksByIdRelationshipsHashTypeResponse =
+  GetHealthchecksByIdRelationshipsHashTypeResponses[keyof GetHealthchecksByIdRelationshipsHashTypeResponses];
+
+export type PatchHealthchecksByIdRelationshipsHashTypeData = {
+  body: HealthCheckRelationHashType;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/healthchecks/{id}/relationships/hashType';
+};
+
+export type PatchHealthchecksByIdRelationshipsHashTypeErrors = {
   /**
    * Invalid request
    */
@@ -794,18 +894,231 @@ export type PostHealthchecksByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PostHealthchecksByIdRelationshipsByRelationError =
-  PostHealthchecksByIdRelationshipsByRelationErrors[keyof PostHealthchecksByIdRelationshipsByRelationErrors];
+export type PatchHealthchecksByIdRelationshipsHashTypeError =
+  PatchHealthchecksByIdRelationshipsHashTypeErrors[keyof PatchHealthchecksByIdRelationshipsHashTypeErrors];
 
-export type PostHealthchecksByIdRelationshipsByRelationResponses = {
+export type PatchHealthchecksByIdRelationshipsHashTypeResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchHealthchecksByIdRelationshipsHashTypeResponse =
+  PatchHealthchecksByIdRelationshipsHashTypeResponses[keyof PatchHealthchecksByIdRelationshipsHashTypeResponses];
+
+export type GetHealthchecksByIdHealthCheckAgentsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/healthchecks/{id}/healthCheckAgents';
+};
+
+export type GetHealthchecksByIdHealthCheckAgentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHealthchecksByIdHealthCheckAgentsError =
+  GetHealthchecksByIdHealthCheckAgentsErrors[keyof GetHealthchecksByIdHealthCheckAgentsErrors];
+
+export type GetHealthchecksByIdHealthCheckAgentsResponses = {
+  /**
+   * successful operation
+   */
+  200: HealthCheckAgentListResponse;
+};
+
+export type GetHealthchecksByIdHealthCheckAgentsResponse =
+  GetHealthchecksByIdHealthCheckAgentsResponses[keyof GetHealthchecksByIdHealthCheckAgentsResponses];
+
+export type DeleteHealthchecksByIdRelationshipsHealthCheckAgentsData = {
+  body: HealthCheckRelationHealthCheckAgents;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/healthchecks/{id}/relationships/healthCheckAgents';
+};
+
+export type DeleteHealthchecksByIdRelationshipsHealthCheckAgentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteHealthchecksByIdRelationshipsHealthCheckAgentsError =
+  DeleteHealthchecksByIdRelationshipsHealthCheckAgentsErrors[keyof DeleteHealthchecksByIdRelationshipsHealthCheckAgentsErrors];
+
+export type DeleteHealthchecksByIdRelationshipsHealthCheckAgentsResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteHealthchecksByIdRelationshipsHealthCheckAgentsResponse =
+  DeleteHealthchecksByIdRelationshipsHealthCheckAgentsResponses[keyof DeleteHealthchecksByIdRelationshipsHealthCheckAgentsResponses];
+
+export type GetHealthchecksByIdRelationshipsHealthCheckAgentsData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/healthchecks/{id}/relationships/healthCheckAgents';
+};
+
+export type GetHealthchecksByIdRelationshipsHealthCheckAgentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHealthchecksByIdRelationshipsHealthCheckAgentsError =
+  GetHealthchecksByIdRelationshipsHealthCheckAgentsErrors[keyof GetHealthchecksByIdRelationshipsHealthCheckAgentsErrors];
+
+export type GetHealthchecksByIdRelationshipsHealthCheckAgentsResponses = {
+  /**
+   * successful operation
+   */
+  200: HealthCheckRelationHealthCheckAgentsGetResponse;
+};
+
+export type GetHealthchecksByIdRelationshipsHealthCheckAgentsResponse =
+  GetHealthchecksByIdRelationshipsHealthCheckAgentsResponses[keyof GetHealthchecksByIdRelationshipsHealthCheckAgentsResponses];
+
+export type PatchHealthchecksByIdRelationshipsHealthCheckAgentsData = {
+  body: HealthCheckRelationHealthCheckAgents;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/healthchecks/{id}/relationships/healthCheckAgents';
+};
+
+export type PatchHealthchecksByIdRelationshipsHealthCheckAgentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchHealthchecksByIdRelationshipsHealthCheckAgentsError =
+  PatchHealthchecksByIdRelationshipsHealthCheckAgentsErrors[keyof PatchHealthchecksByIdRelationshipsHealthCheckAgentsErrors];
+
+export type PatchHealthchecksByIdRelationshipsHealthCheckAgentsResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchHealthchecksByIdRelationshipsHealthCheckAgentsResponse =
+  PatchHealthchecksByIdRelationshipsHealthCheckAgentsResponses[keyof PatchHealthchecksByIdRelationshipsHealthCheckAgentsResponses];
+
+export type PostHealthchecksByIdRelationshipsHealthCheckAgentsData = {
+  body: HealthCheckRelationHealthCheckAgents;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/healthchecks/{id}/relationships/healthCheckAgents';
+};
+
+export type PostHealthchecksByIdRelationshipsHealthCheckAgentsErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostHealthchecksByIdRelationshipsHealthCheckAgentsError =
+  PostHealthchecksByIdRelationshipsHealthCheckAgentsErrors[keyof PostHealthchecksByIdRelationshipsHealthCheckAgentsErrors];
+
+export type PostHealthchecksByIdRelationshipsHealthCheckAgentsResponses = {
   /**
    * successfully created
    */
   204: void;
 };
 
-export type PostHealthchecksByIdRelationshipsByRelationResponse =
-  PostHealthchecksByIdRelationshipsByRelationResponses[keyof PostHealthchecksByIdRelationshipsByRelationResponses];
+export type PostHealthchecksByIdRelationshipsHealthCheckAgentsResponse =
+  PostHealthchecksByIdRelationshipsHealthCheckAgentsResponses[keyof PostHealthchecksByIdRelationshipsHealthCheckAgentsResponses];
 
 export type DeleteHealthchecksByIdData = {
   body?: never;

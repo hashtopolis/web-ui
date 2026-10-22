@@ -353,6 +353,52 @@ describe('PreTasksDataSource', () => {
     });
   });
 
+  describe('cracker type filter', () => {
+    const typeFilter = jasmine.objectContaining({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: 1 });
+
+    it('filters the pretasks not part of the supertask by its type', async () => {
+      dataSource.setSuperTaskId(1);
+      dataSource.setReverseQuery(true);
+      dataSource.setCrackerBinaryTypeId(1);
+      await dataSource.loadAll();
+      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      expect((params as RequestParams).filter).toContain(typeFilter);
+    });
+
+    it('filters the reverse query of a supertask without pretasks', async () => {
+      deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {
+        if (schema === zSupertaskResponse) return MOCK_SUPERTASK_NO_PRETASKS;
+        if (schema === zPreTaskListResponse) return [MOCK_PRETASK];
+        return [];
+      });
+      dataSource.setSuperTaskId(2);
+      dataSource.setReverseQuery(true);
+      dataSource.setCrackerBinaryTypeId(1);
+      await dataSource.loadAll();
+      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      expect((params as RequestParams).filter).toContain(typeFilter);
+    });
+
+    it('does not filter the pretasks part of the supertask', async () => {
+      dataSource.setSuperTaskId(1);
+      dataSource.setReverseQuery(false);
+      dataSource.setCrackerBinaryTypeId(1);
+      await dataSource.loadAll();
+      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const filter: Filter[] = (params as RequestParams).filter ?? [];
+      expect(filter.some((f) => f.field === 'crackerBinaryTypeId')).toBeFalse();
+    });
+
+    it('does not filter without a type', async () => {
+      dataSource.setSuperTaskId(1);
+      dataSource.setReverseQuery(true);
+      await dataSource.loadAll();
+      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const filter: Filter[] = (params as RequestParams).filter ?? [];
+      expect(filter.some((f) => f.field === 'crackerBinaryTypeId')).toBeFalse();
+    });
+  });
+
   // loadAll() — supertask mode, NO pretasks assigned, reverseQuery=false
 
   describe('loadAll() — supertask mode (no assigned pretasks, reverseQuery=false)', () => {

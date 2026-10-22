@@ -6,7 +6,7 @@ import {
   zPreprocessorListResponse,
   zTaskResponse
 } from '@generated/api/zod';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -19,6 +19,11 @@ import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
 import { JTask } from '@models/task.model';
 
+import {
+  CrackerHashtypeSupportService,
+  SUPPORT_LOOKUP_FAILED,
+  buildUnsupportedHashtypeMessage
+} from '@services/crackers/cracker-hashtype-support.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -97,7 +102,14 @@ const MOCK_CRACKER_TYPES_RESPONSE = mockValidResponse(zCrackerBinaryTypeListResp
     {
       id: 10,
       type: 'crackerBinary',
-      attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
+      attributes: {
+        crackerBinaryTypeId: 1,
+        binaryName: 'hashcat',
+        version: '6.2.6',
+        downloadUrl: '',
+        filename: null,
+        accessGroupId: 1
+      }
     }
   ]
 });
@@ -107,12 +119,59 @@ const MOCK_CRACKERS_RESPONSE = mockValidResponse(zCrackerBinaryListResponse, {
     {
       id: 10,
       type: 'crackerBinary',
-      attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
+      attributes: {
+        crackerBinaryTypeId: 1,
+        binaryName: 'hashcat',
+        version: '6.2.6',
+        downloadUrl: '',
+        filename: null,
+        accessGroupId: 1
+      }
     }
   ]
 });
 
 const MOCK_CRACKERS_EMPTY_RESPONSE = mockValidResponse(zCrackerBinaryListResponse, { data: [] });
+
+function crackerAttributes(version: string) {
+  return {
+    crackerBinaryTypeId: 1,
+    binaryName: 'hashcat',
+    version,
+    downloadUrl: '',
+    filename: null,
+    accessGroupId: 1
+  };
+}
+
+const MOCK_CRACKER_TYPES_10_11_RESPONSE = mockValidResponse(zCrackerBinaryTypeListResponse, {
+  data: [
+    {
+      id: 1,
+      type: 'crackerBinaryType',
+      attributes: { typeName: 'hashcat', isChunkingAvailable: true },
+      relationships: {
+        crackerVersions: {
+          data: [
+            { type: 'crackerBinary', id: 10 },
+            { type: 'crackerBinary', id: 11 }
+          ]
+        }
+      }
+    }
+  ],
+  included: [
+    { id: 10, type: 'crackerBinary', attributes: crackerAttributes('6.2.6') },
+    { id: 11, type: 'crackerBinary', attributes: crackerAttributes('7.0.0') }
+  ]
+});
+
+const MOCK_CRACKERS_10_11_RESPONSE = mockValidResponse(zCrackerBinaryListResponse, {
+  data: [
+    { id: 10, type: 'crackerBinary', attributes: crackerAttributes('6.2.6') },
+    { id: 11, type: 'crackerBinary', attributes: crackerAttributes('7.0.0') }
+  ]
+});
 
 const MOCK_PREPROCESSORS_RESPONSE = mockValidResponse(zPreprocessorListResponse, {
   data: [
@@ -225,7 +284,14 @@ const TASK_GET_BODY = {
     {
       id: 10,
       type: 'crackerBinary',
-      attributes: { version: '6.2.6', binaryName: 'hashcat', crackerBinaryTypeId: 1, downloadUrl: '' }
+      attributes: {
+        version: '6.2.6',
+        binaryName: 'hashcat',
+        crackerBinaryTypeId: 1,
+        downloadUrl: '',
+        filename: null,
+        accessGroupId: 1
+      }
     },
     { id: 1, type: 'crackerBinaryType', attributes: { typeName: 'hashcat', isChunkingAvailable: true } }
   ]
@@ -300,6 +366,7 @@ describe('NewTasksComponent', () => {
   let globalServiceSpy: jasmine.SpyObj<GlobalService>;
   let dialogSpy: jasmine.SpyObj<MatDialog>;
   let routerSpy: jasmine.SpyObj<Router>;
+  let supportSpy: jasmine.SpyObj<CrackerHashtypeSupportService>;
   let activatedRoute: { params: Observable<Params>; data: Observable<unknown>; snapshot: { params: Params } };
 
   beforeEach(async () => {
@@ -314,7 +381,11 @@ describe('NewTasksComponent', () => {
       statustimer: 5
     } as unknown as UiSettings);
 
-    alertServiceSpy = jasmine.createSpyObj('AlertService', ['showErrorMessage', 'showSuccessMessage']);
+    alertServiceSpy = jasmine.createSpyObj('AlertService', [
+      'showErrorMessage',
+      'showSuccessMessage',
+      'showInfoMessage'
+    ]);
     globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create']);
     globalServiceSpy.getAll.and.callFake(buildGetAllCallFake());
     globalServiceSpy.create.and.returnValue(of(mockResponse()));
@@ -329,6 +400,9 @@ describe('NewTasksComponent', () => {
       snapshot: { params: {} }
     };
 
+    supportSpy = jasmine.createSpyObj('CrackerHashtypeSupportService', ['getSupportedCrackerBinaryIds']);
+    supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10, 11, 30])));
+
     await TestBed.configureTestingModule({
       declarations: [NewTasksComponent],
       providers: [
@@ -339,7 +413,8 @@ describe('NewTasksComponent', () => {
         { provide: AlertService, useValue: alertServiceSpy },
         { provide: GlobalService, useValue: globalServiceSpy },
         { provide: MatDialog, useValue: dialogSpy },
-        { provide: Router, useValue: routerSpy }
+        { provide: Router, useValue: routerSpy },
+        { provide: CrackerHashtypeSupportService, useValue: supportSpy }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
       // Angular 21 made TestBed rethrow application errors by default. Keep v20
@@ -551,6 +626,138 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       expect(component.form.controls.isArchived.value).toBe(false);
+    });
+
+    it('falls back to the latest accessible version when the copied one is not accessible', async () => {
+      // the copied task uses crackerBinaryId 10, the user can only see version 11
+      const onlyEleven = mockValidResponse(zCrackerBinaryListResponse, {
+        data: [
+          {
+            id: 11,
+            type: 'crackerBinary',
+            attributes: {
+              crackerBinaryTypeId: 1,
+              binaryName: 'hashcat',
+              version: '7.0.0',
+              downloadUrl: '',
+              filename: null,
+              accessGroupId: 1
+            }
+          }
+        ]
+      });
+      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.CRACKERS.URL]: of(onlyEleven) }));
+      await initComponent(fixture);
+      expect(component.form.controls.crackerBinaryId.value).toBe(11);
+      expect(alertServiceSpy.showInfoMessage).toHaveBeenCalledWith(
+        'The cracker version of the copied task is not accessible or does not support the hashtype of the hashlist, the latest supported version was selected instead.'
+      );
+    });
+
+    it('falls back to the default type when the cracker type of the copied task is not accessible', async () => {
+      // the copied task uses type 1, the user can only see type 3 with version 30
+      const onlyTypeThree = mockValidResponse(zCrackerBinaryTypeListResponse, {
+        data: [
+          {
+            id: 3,
+            type: 'crackerBinaryType',
+            attributes: { typeName: 'generic', isChunkingAvailable: true },
+            relationships: { crackerVersions: { data: [{ type: 'crackerBinary', id: 30 }] } }
+          }
+        ],
+        included: [
+          {
+            id: 30,
+            type: 'crackerBinary',
+            attributes: {
+              crackerBinaryTypeId: 3,
+              binaryName: 'generic',
+              version: '1.0',
+              downloadUrl: '',
+              filename: null,
+              accessGroupId: 1
+            }
+          }
+        ]
+      });
+      const versionThirty = mockValidResponse(zCrackerBinaryListResponse, {
+        data: [
+          {
+            id: 30,
+            type: 'crackerBinary',
+            attributes: {
+              crackerBinaryTypeId: 3,
+              binaryName: 'generic',
+              version: '1.0',
+              downloadUrl: '',
+              filename: null,
+              accessGroupId: 1
+            }
+          }
+        ]
+      });
+      globalServiceSpy.getAll.and.callFake(
+        buildGetAllCallFake({ [SERV.CRACKERS_TYPES.URL]: of(onlyTypeThree), [SERV.CRACKERS.URL]: of(versionThirty) })
+      );
+      await initComponent(fixture);
+      expect(component.form.controls.crackerBinaryTypeId.value).toBe(3);
+      expect(component.form.controls.crackerBinaryId.value).toBe(30);
+      expect(component.noCrackerVersionsAvailable).toBeFalse();
+      expect(alertServiceSpy.showInfoMessage).toHaveBeenCalledWith(
+        'The cracker version of the copied task is not accessible or does not support the hashtype of the hashlist, the latest supported version was selected instead.'
+      );
+    });
+
+    it('checks the copied version against the hashtype of the copied hashlist', async () => {
+      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([11])));
+      globalServiceSpy.getAll.and.callFake(
+        buildGetAllCallFake({
+          [SERV.CRACKERS_TYPES.URL]: of(MOCK_CRACKER_TYPES_10_11_RESPONSE),
+          [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_10_11_RESPONSE)
+        })
+      );
+
+      await initComponent(fixture);
+
+      expect(supportSpy.getSupportedCrackerBinaryIds).toHaveBeenCalledWith(0);
+      expect(component.form.controls.crackerBinaryId.value).toBe(11);
+      expect(alertServiceSpy.showInfoMessage).toHaveBeenCalledWith(
+        'The cracker version of the copied task is not accessible or does not support the hashtype of the hashlist, the latest supported version was selected instead.'
+      );
+    });
+
+    it('uses the hashtype of the copied task when its hashlist is not listed', async () => {
+      // the copied task's hashlist 1 is archived, only hashlist 2 (hashtype 1) is listed
+      const onlySecond = mockValidResponse(zHashlistListResponse, {
+        data: [
+          {
+            id: 2,
+            type: 'hashlist',
+            attributes: {
+              name: 'second-hashlist',
+              format: 0,
+              hashTypeId: 1,
+              hashCount: 0,
+              separator: null,
+              cracked: 0,
+              isSecret: false,
+              isHexSalt: false,
+              isSalted: false,
+              accessGroupId: 1,
+              notes: '',
+              useBrain: false,
+              brainFeatures: 0,
+              isArchived: false
+            }
+          }
+        ]
+      });
+      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.HASHLISTS.URL]: of(onlySecond) }));
+
+      await initComponent(fixture);
+
+      expect(supportSpy.getSupportedCrackerBinaryIds).toHaveBeenCalledWith(0);
+      expect(component.form.controls.hashlistId.value).toBe(1);
     });
 
     it('should extract task-specific fields via extractCopyData', async () => {
@@ -821,12 +1028,26 @@ describe('NewTasksComponent', () => {
           {
             id: 10,
             type: 'crackerBinary',
-            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.5', downloadUrl: '' }
+            attributes: {
+              crackerBinaryTypeId: 1,
+              binaryName: 'hashcat',
+              version: '6.2.5',
+              downloadUrl: '',
+              filename: null,
+              accessGroupId: 1
+            }
           },
           {
             id: 11,
             type: 'crackerBinary',
-            attributes: { crackerBinaryTypeId: 1, binaryName: 'hashcat', version: '6.2.6', downloadUrl: '' }
+            attributes: {
+              crackerBinaryTypeId: 1,
+              binaryName: 'hashcat',
+              version: '6.2.6',
+              downloadUrl: '',
+              filename: null,
+              accessGroupId: 1
+            }
           }
         ]
       });
@@ -857,6 +1078,272 @@ describe('NewTasksComponent', () => {
       expect(crackerCtrl.errors).toEqual({ required: true });
       expect(crackerCtrl.touched).toBe(true);
       expect(crackerCtrl.dirty).toBe(true);
+    });
+  });
+
+  describe('cracker binary placement', () => {
+    it('shows the cracker type and version right under the hashlist, outside the advanced settings', async () => {
+      await initComponent(fixture);
+      fixture.detectChanges();
+      const el: HTMLElement = fixture.nativeElement;
+      const hashlist = el.querySelector('[formcontrolname="hashlistId"]');
+      const type = el.querySelector('[formcontrolname="crackerBinaryTypeId"]');
+      const version = el.querySelector('[formcontrolname="crackerBinaryId"]');
+      const attackCmd = el.querySelector('[formcontrolname="attackCmd"]');
+      expect(hashlist && type && version && attackCmd)
+        .withContext('all controls rendered')
+        .toBeTruthy();
+      expect(type?.closest('mat-expansion-panel')).withContext('type not in advanced settings').toBeNull();
+      expect(version?.closest('mat-expansion-panel')).withContext('version not in advanced settings').toBeNull();
+      // document order: hashlist, cracker type, cracker version, attack command
+      const follows = (a: Element | null, b: Element | null) =>
+        !!a && !!b && (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+      expect(follows(hashlist, type)).toBeTrue();
+      expect(follows(type, version)).toBeTrue();
+      expect(follows(version, attackCmd)).toBeTrue();
+    });
+  });
+
+  describe('cracker access groups', () => {
+    const TYPES_WITH_EMPTY_TYPE = mockValidResponse(zCrackerBinaryTypeListResponse, {
+      data: [
+        {
+          id: 1,
+          type: 'crackerBinaryType',
+          attributes: { typeName: 'hashcat', isChunkingAvailable: true },
+          relationships: { crackerVersions: { data: [{ type: 'crackerBinary', id: 10 }] } }
+        },
+        {
+          id: 2,
+          type: 'crackerBinaryType',
+          attributes: { typeName: 'generic', isChunkingAvailable: true },
+          relationships: { crackerVersions: { data: [] } }
+        }
+      ],
+      included: [
+        {
+          id: 10,
+          type: 'crackerBinary',
+          attributes: {
+            crackerBinaryTypeId: 1,
+            binaryName: 'hashcat',
+            version: '6.2.6',
+            downloadUrl: '',
+            filename: null,
+            accessGroupId: 1
+          }
+        }
+      ]
+    });
+
+    it('defaults crackerBinaryId to null before options are loaded', () => {
+      component.buildForm();
+      expect(component.form.controls.crackerBinaryId.value).toBeNull();
+    });
+
+    it('hides cracker types without accessible versions', async () => {
+      globalServiceSpy.getAll.and.callFake(
+        buildGetAllCallFake({ [SERV.CRACKERS_TYPES.URL]: of(TYPES_WITH_EMPTY_TYPE) })
+      );
+      await initComponent(fixture);
+      expect(component.selectCrackertype.map((o) => o.id)).toEqual([1]);
+    });
+
+    it('flags that no cracker is available when all types are empty', async () => {
+      const noVersions = mockValidResponse(zCrackerBinaryTypeListResponse, {
+        data: [
+          {
+            id: 2,
+            type: 'crackerBinaryType',
+            attributes: { typeName: 'generic', isChunkingAvailable: true },
+            relationships: { crackerVersions: { data: [] } }
+          }
+        ]
+      });
+      globalServiceSpy.getAll.and.callFake(buildGetAllCallFake({ [SERV.CRACKERS_TYPES.URL]: of(noVersions) }));
+      await initComponent(fixture);
+      expect(component.selectCrackertype).toEqual([]);
+      expect(component.noCrackerVersionsAvailable).toBeTrue();
+      expect(component.form.controls.crackerBinaryId.value).toBeNull();
+      expect(component.form.valid).toBeFalse();
+    });
+  });
+
+  describe('hashtype support', () => {
+    beforeEach(() => {
+      globalServiceSpy.getAll.and.callFake(
+        buildGetAllCallFake({
+          [SERV.CRACKERS_TYPES.URL]: of(MOCK_CRACKER_TYPES_10_11_RESPONSE),
+          [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_10_11_RESPONSE)
+        })
+      );
+    });
+
+    async function selectHashlist(id: number | number[]): Promise<void> {
+      component.form.controls.hashlistId.setValue(id as number);
+      await fixture.whenStable();
+      fixture.detectChanges();
+    }
+
+    it('does not filter before a hashlist is selected', async () => {
+      await initComponent(fixture);
+
+      expect(supportSpy.getSupportedCrackerBinaryIds).not.toHaveBeenCalled();
+      expect(component.selectCrackerversions.map((o) => o.id)).toEqual([10, 11]);
+      expect(component.form.controls.crackerBinaryId.value).toBe(11);
+    });
+
+    it('falls back to the newest supported version', async () => {
+      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10])));
+      await initComponent(fixture);
+
+      await selectHashlist(2);
+
+      expect(supportSpy.getSupportedCrackerBinaryIds).toHaveBeenCalledWith(1);
+      expect(component.selectCrackerversions.map((o) => o.id)).toEqual([10]);
+      expect(component.form.controls.crackerBinaryId.value).toBe(10);
+      expect(component.unsupportedHashtypeMessage).toBeNull();
+    });
+
+    it('keeps the selected version when it supports the hashtype', async () => {
+      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10, 11])));
+      await initComponent(fixture);
+      component.form.controls.crackerBinaryId.setValue(10);
+
+      await selectHashlist(2);
+
+      expect(component.form.controls.crackerBinaryId.value).toBe(10);
+    });
+
+    it('blocks when no accessible version supports the hashtype', async () => {
+      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      await initComponent(fixture);
+
+      await selectHashlist(2);
+
+      expect(component.selectCrackertype).toEqual([]);
+      expect(component.selectCrackerversions).toEqual([]);
+      expect(component.form.controls.crackerBinaryId.value).toBeNull();
+      expect(component.form.controls.crackerBinaryId.errors).toEqual({ required: true });
+      expect(component.unsupportedHashtypeMessage).toBe(buildUnsupportedHashtypeMessage(1));
+      const el: HTMLElement = fixture.nativeElement;
+      expect(el.querySelector('[data-testid="unsupported-hashtype"]')).toBeTruthy();
+      expect(component.form.valid).toBeFalse();
+    });
+
+    it('shows no required hint on the selects the user opened before the block', async () => {
+      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      await initComponent(fixture);
+      component.form.controls.crackerBinaryTypeId.markAsTouched();
+      component.form.controls.crackerBinaryId.markAsTouched();
+
+      await selectHashlist(2);
+
+      expect(component.form.controls.crackerBinaryTypeId.touched).toBeFalse();
+      expect(component.form.controls.crackerBinaryId.touched).toBeFalse();
+    });
+
+    it('says the check failed when the support lookup failed', async () => {
+      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(SUPPORT_LOOKUP_FAILED));
+      await initComponent(fixture);
+
+      await selectHashlist(2);
+
+      expect(component.form.controls.crackerBinaryId.value).toBeNull();
+      expect(component.unsupportedHashtypeMessage).toBe('Could not check which cracker versions support hashtype 1.');
+    });
+
+    it('restores all versions when the hashlist is cleared', async () => {
+      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      await initComponent(fixture);
+      await selectHashlist(2);
+
+      await selectHashlist([]);
+
+      expect(component.unsupportedHashtypeMessage).toBeNull();
+      expect(component.selectCrackertype.map((o) => o.id)).toEqual([1]);
+      expect(component.form.controls.crackerBinaryId.value).toBe(11);
+    });
+
+    it('does not let the initial cracker load override a hashlist chosen before it finished', async () => {
+      const types = new Subject<ResponseWrapper>();
+      globalServiceSpy.getAll.and.callFake(
+        buildGetAllCallFake({
+          [SERV.CRACKERS_TYPES.URL]: types,
+          [SERV.CRACKERS.URL]: of(MOCK_CRACKERS_10_11_RESPONSE)
+        })
+      );
+      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10])));
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      component.form.controls.hashlistId.setValue(2);
+      types.next(MOCK_CRACKER_TYPES_10_11_RESPONSE);
+      types.complete();
+      await fixture.whenStable();
+
+      expect(component.selectCrackerversions.map((o) => o.id)).toEqual([10]);
+      expect(component.form.controls.crackerBinaryId.value).toBe(10);
+    });
+
+    it('blocks when loading the versions fails', async () => {
+      spyOn(console, 'error');
+      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10])));
+      await initComponent(fixture);
+      globalServiceSpy.getAll.and.callFake(
+        buildGetAllCallFake({ [SERV.CRACKERS.URL]: throwError(() => new Error('down')) })
+      );
+
+      await selectHashlist(2);
+
+      expect(component.selectCrackerversions).toEqual([]);
+      expect(component.form.controls.crackerBinaryId.value).toBeNull();
+      expect(component.form.controls.crackerBinaryId.valid).toBeFalse();
+    });
+
+    it('keeps the version pending while the support lookup runs', async () => {
+      const lookup = new Subject<Set<number>>();
+      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(lookup);
+      await initComponent(fixture);
+
+      component.form.controls.hashlistId.setValue(2);
+
+      expect(component.form.controls.crackerBinaryId.pending).toBeTrue();
+      expect(component.form.valid).toBeFalse();
+
+      lookup.next(new Set([10]));
+      lookup.complete();
+      await fixture.whenStable();
+
+      expect(component.form.controls.crackerBinaryId.pending).toBeFalse();
+      expect(component.form.controls.crackerBinaryId.valid).toBeTrue();
+    });
+
+    it('blocks without the required hint, the alert explains it', async () => {
+      supportSpy.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      await initComponent(fixture);
+
+      await selectHashlist(2);
+
+      expect(component.form.controls.crackerBinaryId.errors).toEqual({ required: true });
+      expect(component.form.controls.crackerBinaryId.touched).toBeFalse();
+    });
+
+    it('cancels the lookup of a previously selected hashlist', async () => {
+      const firstLookup = new Subject<Set<number>>();
+      supportSpy.getSupportedCrackerBinaryIds.and.callFake((hashTypeId: number) =>
+        hashTypeId === 0 ? firstLookup : of(new Set([10]))
+      );
+      await initComponent(fixture);
+
+      component.form.controls.hashlistId.setValue(1);
+      expect(firstLookup.observed).toBeTrue();
+      await selectHashlist(2);
+      firstLookup.next(new Set());
+
+      expect(firstLookup.observed).toBeFalse();
+      expect(component.unsupportedHashtypeMessage).toBeNull();
+      expect(component.form.controls.crackerBinaryId.value).toBe(10);
     });
   });
 

@@ -33,6 +33,8 @@ export type DataType =
   | 'health-checks'
   | 'health-check-agents'
   | 'logs'
+  | 'background-jobs'
+  | 'cracker-hashtypes'
   | 'permissions'
   | 'cracks'
   | 'vouchers'

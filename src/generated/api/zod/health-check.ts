@@ -1,5 +1,9 @@
 import * as z from 'zod';
 
+import { zCrackerBinaryResponse } from './cracker-binary';
+import { zHashTypeResponse } from './hash-type';
+import { zHealthCheckAgentListResponse } from './health-check-agent';
+
 export const zHealthCheckCreate = z.object({
   data: z.object({
     type: z.literal('healthCheck'),
@@ -114,8 +118,10 @@ export const zHealthCheckResponse = z.object({
           attributes: z.object({
             crackerBinaryTypeId: z.int(),
             version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
+            downloadUrl: z.string().nullable(),
+            binaryName: z.string(),
+            filename: z.string().nullable(),
+            accessGroupId: z.int()
           })
         }),
         z.object({
@@ -219,8 +225,10 @@ export const zHealthCheckPostPatchResponse = z.object({
           attributes: z.object({
             crackerBinaryTypeId: z.int(),
             version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
+            downloadUrl: z.string().nullable(),
+            binaryName: z.string(),
+            filename: z.string().nullable(),
+            accessGroupId: z.int()
           })
         }),
         z.object({
@@ -350,8 +358,10 @@ export const zHealthCheckListResponse = z.object({
           attributes: z.object({
             crackerBinaryTypeId: z.int(),
             version: z.string(),
-            downloadUrl: z.string(),
-            binaryName: z.string()
+            downloadUrl: z.string().nullable(),
+            binaryName: z.string(),
+            filename: z.string().nullable(),
+            accessGroupId: z.int()
           })
         }),
         z.object({
@@ -394,10 +404,42 @@ export const zHealthCheckCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
+export const zHealthCheckRelationCrackerBinary = z.object({
+  data: z.object({
+    type: z.literal('crackerBinary'),
+    id: z.int()
+  })
+});
+
+export const zHealthCheckRelationCrackerBinaryGetResponse = z.object({
+  data: z
+    .object({
+      type: z.literal('crackerBinary'),
+      id: z.int()
+    })
+    .nullable()
+});
+
+export const zHealthCheckRelationHashType = z.object({
+  data: z.object({
+    type: z.literal('hashType'),
+    id: z.int()
+  })
+});
+
+export const zHealthCheckRelationHashTypeGetResponse = z.object({
+  data: z
+    .object({
+      type: z.literal('hashType'),
+      id: z.int()
+    })
+    .nullable()
+});
+
 export const zHealthCheckRelationHealthCheckAgents = z.object({
   data: z.array(
     z.object({
-      type: z.literal('healthCheckAgents'),
+      type: z.literal('healthCheckAgent'),
       id: z.int()
     })
   )
@@ -406,7 +448,7 @@ export const zHealthCheckRelationHealthCheckAgents = z.object({
 export const zHealthCheckRelationHealthCheckAgentsGetResponse = z.object({
   data: z.array(
     z.object({
-      type: z.literal('healthCheckAgents'),
+      type: z.literal('healthCheckAgent'),
       id: z.int()
     })
   )
@@ -460,67 +502,133 @@ export const zGetHealthchecksCountQuery = z.object({
  */
 export const zGetHealthchecksCountResponse = zHealthCheckCountResponse;
 
-export const zGetHealthchecksByIdByRelationPath = z.object({
+export const zGetHealthchecksByIdCrackerBinaryPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetHealthchecksByIdByRelationResponse = zHealthCheckRelationHealthCheckAgentsGetResponse;
+export const zGetHealthchecksByIdCrackerBinaryResponse = zCrackerBinaryResponse;
 
-export const zDeleteHealthchecksByIdRelationshipsByRelationBody = zHealthCheckRelationHealthCheckAgents;
-
-export const zDeleteHealthchecksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
-});
-
-/**
- * successfully deleted
- */
-export const zDeleteHealthchecksByIdRelationshipsByRelationResponse = z.void();
-
-export const zGetHealthchecksByIdRelationshipsByRelationPath = z.object({
+export const zGetHealthchecksByIdRelationshipsCrackerBinaryPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetHealthchecksByIdRelationshipsByRelationResponse = zHealthCheckResponse;
+export const zGetHealthchecksByIdRelationshipsCrackerBinaryResponse = zHealthCheckRelationCrackerBinaryGetResponse;
 
-export const zPatchHealthchecksByIdRelationshipsByRelationBody = zHealthCheckRelationHealthCheckAgents;
+export const zPatchHealthchecksByIdRelationshipsCrackerBinaryBody = zHealthCheckRelationCrackerBinary;
 
-export const zPatchHealthchecksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchHealthchecksByIdRelationshipsCrackerBinaryPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchHealthchecksByIdRelationshipsByRelationResponse = z.void();
+export const zPatchHealthchecksByIdRelationshipsCrackerBinaryResponse = z.void();
 
-export const zPostHealthchecksByIdRelationshipsByRelationBody = zHealthCheckRelationHealthCheckAgents;
+export const zGetHealthchecksByIdHashTypePath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
 
-export const zPostHealthchecksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+/**
+ * successful operation
+ */
+export const zGetHealthchecksByIdHashTypeResponse = zHashTypeResponse;
+
+export const zGetHealthchecksByIdRelationshipsHashTypePath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHealthchecksByIdRelationshipsHashTypeResponse = zHealthCheckRelationHashTypeGetResponse;
+
+export const zPatchHealthchecksByIdRelationshipsHashTypeBody = zHealthCheckRelationHashType;
+
+export const zPatchHealthchecksByIdRelationshipsHashTypePath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchHealthchecksByIdRelationshipsHashTypeResponse = z.void();
+
+export const zGetHealthchecksByIdHealthCheckAgentsPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHealthchecksByIdHealthCheckAgentsResponse = zHealthCheckAgentListResponse;
+
+export const zDeleteHealthchecksByIdRelationshipsHealthCheckAgentsBody = zHealthCheckRelationHealthCheckAgents;
+
+export const zDeleteHealthchecksByIdRelationshipsHealthCheckAgentsPath = z.object({
+  id: z.int()
+});
+
+/**
+ * successfully deleted
+ */
+export const zDeleteHealthchecksByIdRelationshipsHealthCheckAgentsResponse = z.void();
+
+export const zGetHealthchecksByIdRelationshipsHealthCheckAgentsPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHealthchecksByIdRelationshipsHealthCheckAgentsResponse =
+  zHealthCheckRelationHealthCheckAgentsGetResponse;
+
+export const zPatchHealthchecksByIdRelationshipsHealthCheckAgentsBody = zHealthCheckRelationHealthCheckAgents;
+
+export const zPatchHealthchecksByIdRelationshipsHealthCheckAgentsPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchHealthchecksByIdRelationshipsHealthCheckAgentsResponse = z.void();
+
+export const zPostHealthchecksByIdRelationshipsHealthCheckAgentsBody = zHealthCheckRelationHealthCheckAgents;
+
+export const zPostHealthchecksByIdRelationshipsHealthCheckAgentsPath = z.object({
+  id: z.int()
 });
 
 /**
  * successfully created
  */
-export const zPostHealthchecksByIdRelationshipsByRelationResponse = z.void();
+export const zPostHealthchecksByIdRelationshipsHealthCheckAgentsResponse = z.void();
 
 export const zDeleteHealthchecksByIdPath = z.object({
   id: z.int()

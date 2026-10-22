@@ -1,5 +1,8 @@
 import * as z from 'zod';
 
+import { zAgentResponse } from './agent';
+import { zTaskResponse } from './task';
+
 export const zAgentAssignmentCreate = z.object({
   data: z.object({
     type: z.literal('agentAssignment'),
@@ -406,6 +409,22 @@ export const zAgentAssignmentCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
+export const zAgentAssignmentRelationAgent = z.object({
+  data: z.object({
+    type: z.literal('agent'),
+    id: z.int()
+  })
+});
+
+export const zAgentAssignmentRelationAgentGetResponse = z.object({
+  data: z
+    .object({
+      type: z.literal('agent'),
+      id: z.int()
+    })
+    .nullable()
+});
+
 export const zAgentAssignmentRelationTask = z.object({
   data: z.object({
     type: z.literal('task'),
@@ -414,10 +433,12 @@ export const zAgentAssignmentRelationTask = z.object({
 });
 
 export const zAgentAssignmentRelationTaskGetResponse = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('task'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zDeleteAgentassignmentsBody = zAgentAssignmentDeleteMultiple;
@@ -469,43 +490,75 @@ export const zGetAgentassignmentsCountQuery = z.object({
  */
 export const zGetAgentassignmentsCountResponse = zAgentAssignmentCountResponse;
 
-export const zGetAgentassignmentsByIdByRelationPath = z.object({
+export const zGetAgentassignmentsByIdAgentPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetAgentassignmentsByIdByRelationResponse = zAgentAssignmentRelationTaskGetResponse;
+export const zGetAgentassignmentsByIdAgentResponse = zAgentResponse;
 
-export const zGetAgentassignmentsByIdRelationshipsByRelationPath = z.object({
+export const zGetAgentassignmentsByIdRelationshipsAgentPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetAgentassignmentsByIdRelationshipsByRelationResponse = zAgentAssignmentResponse;
+export const zGetAgentassignmentsByIdRelationshipsAgentResponse = zAgentAssignmentRelationAgentGetResponse;
 
-export const zPatchAgentassignmentsByIdRelationshipsByRelationBody = zAgentAssignmentRelationTask;
+export const zPatchAgentassignmentsByIdRelationshipsAgentBody = zAgentAssignmentRelationAgent;
 
-export const zPatchAgentassignmentsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchAgentassignmentsByIdRelationshipsAgentPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchAgentassignmentsByIdRelationshipsByRelationResponse = z.void();
+export const zPatchAgentassignmentsByIdRelationshipsAgentResponse = z.void();
+
+export const zGetAgentassignmentsByIdTaskPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetAgentassignmentsByIdTaskResponse = zTaskResponse;
+
+export const zGetAgentassignmentsByIdRelationshipsTaskPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetAgentassignmentsByIdRelationshipsTaskResponse = zAgentAssignmentRelationTaskGetResponse;
+
+export const zPatchAgentassignmentsByIdRelationshipsTaskBody = zAgentAssignmentRelationTask;
+
+export const zPatchAgentassignmentsByIdRelationshipsTaskPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchAgentassignmentsByIdRelationshipsTaskResponse = z.void();
 
 export const zDeleteAgentassignmentsByIdPath = z.object({
   id: z.int()

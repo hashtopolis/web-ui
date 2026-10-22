@@ -21,7 +21,9 @@ import { AgentErrorTableCol } from '@components/tables/agent-error-table/agent-e
 import { AgentsStatusTableCol } from '@components/tables/agents-status-table/agents-status-table.constants';
 import { AgentsTableCol } from '@components/tables/agents-table/agents-table.constants';
 import { ApiTokensTableCol } from '@components/tables/api-tokens-table/api-tokens-table.constants';
+import { BackgroundJobsTableCol } from '@components/tables/background-jobs-table/background-jobs-table.constants';
 import { ChunksTableCol } from '@components/tables/chunks-table/chunks-table.constants';
+import { CrackerHashtypesTableCol } from '@components/tables/cracker-hashtypes-table/cracker-hashtypes-table.constants';
 import { CrackersTableCol } from '@components/tables/crackers-table/crackers-table.constants';
 import { CracksTableCol } from '@components/tables/cracks-table/cracks-table.constants';
 import { FilesAttackTableCol } from '@components/tables/files-attack-table/files-attack-table.constants';
@@ -480,6 +482,22 @@ const _uiConfigDefault = {
       },
       search: ''
     },
+    crackerHashtypesTable: {
+      page: DEFAULT_PAGE_SIZE,
+      columns: [
+        CrackerHashtypesTableCol.HASHTYPE,
+        CrackerHashtypesTableCol.DESCRIPTION,
+        CrackerHashtypesTableCol.SALTED,
+        CrackerHashtypesTableCol.SLOW_HASH
+      ],
+      order: {
+        id: CrackerHashtypesTableCol.HASHTYPE,
+        dataKey: 'id',
+        isSortable: true,
+        direction: TableSortDirection.ASC
+      },
+      search: ''
+    },
     preprocessorsTable: {
       page: DEFAULT_PAGE_SIZE,
       columns: [PreprocessorsTableCol.ID, PreprocessorsTableCol.NAME],
@@ -629,7 +647,12 @@ const _uiConfigDefault = {
     },
     supertasksTable: {
       page: DEFAULT_PAGE_SIZE,
-      columns: [SupertasksTableCol.ID, SupertasksTableCol.NAME, SupertasksTableCol.PRETASKS],
+      columns: [
+        SupertasksTableCol.ID,
+        SupertasksTableCol.NAME,
+        SupertasksTableCol.PRETASKS,
+        SupertasksTableCol.CRACKER_TYPE
+      ],
       order: {
         id: SupertasksTableCol.ID,
         dataKey: 'id',
@@ -747,6 +770,27 @@ const _uiConfigDefault = {
         dataKey: 'id',
         isSortable: true,
         direction: TableSortDirection.ASC
+      },
+      search: ''
+    },
+    backgroundJobsTable: {
+      page: DEFAULT_PAGE_SIZE,
+      columns: [
+        BackgroundJobsTableCol.ID,
+        BackgroundJobsTableCol.TYPE,
+        BackgroundJobsTableCol.STATUS,
+        BackgroundJobsTableCol.USER,
+        BackgroundJobsTableCol.CREATED,
+        BackgroundJobsTableCol.FINISHED,
+        BackgroundJobsTableCol.EXIT_CODE,
+        BackgroundJobsTableCol.MESSAGE,
+        BackgroundJobsTableCol.PAYLOAD
+      ],
+      order: {
+        id: BackgroundJobsTableCol.ID,
+        dataKey: 'id',
+        isSortable: true,
+        direction: TableSortDirection.DESC
       },
       search: ''
     },

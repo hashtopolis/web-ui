@@ -1,5 +1,8 @@
 import * as z from 'zod';
 
+import { zChunkResponse } from './chunk';
+import { zHashlistResponse } from './hashlist';
+
 export const zHashResourceObject = z.object({
   id: z.int(),
   type: z.literal('hash'),
@@ -298,6 +301,22 @@ export const zHashCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
+export const zHashRelationChunk = z.object({
+  data: z.object({
+    type: z.literal('chunk'),
+    id: z.int()
+  })
+});
+
+export const zHashRelationChunkGetResponse = z.object({
+  data: z
+    .object({
+      type: z.literal('chunk'),
+      id: z.int()
+    })
+    .nullable()
+});
+
 export const zHashRelationHashlist = z.object({
   data: z.object({
     type: z.literal('hashlist'),
@@ -306,10 +325,12 @@ export const zHashRelationHashlist = z.object({
 });
 
 export const zHashRelationHashlistGetResponse = z.object({
-  data: z.object({
-    type: z.literal('hashlist'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('hashlist'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zGetHashesQuery = z.object({
@@ -339,43 +360,75 @@ export const zGetHashesCountQuery = z.object({
  */
 export const zGetHashesCountResponse = zHashCountResponse;
 
-export const zGetHashesByIdByRelationPath = z.object({
+export const zGetHashesByIdChunkPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetHashesByIdByRelationResponse = zHashRelationHashlistGetResponse;
+export const zGetHashesByIdChunkResponse = zChunkResponse;
 
-export const zGetHashesByIdRelationshipsByRelationPath = z.object({
+export const zGetHashesByIdRelationshipsChunkPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetHashesByIdRelationshipsByRelationResponse = zHashResponse;
+export const zGetHashesByIdRelationshipsChunkResponse = zHashRelationChunkGetResponse;
 
-export const zPatchHashesByIdRelationshipsByRelationBody = zHashRelationHashlist;
+export const zPatchHashesByIdRelationshipsChunkBody = zHashRelationChunk;
 
-export const zPatchHashesByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchHashesByIdRelationshipsChunkPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchHashesByIdRelationshipsByRelationResponse = z.void();
+export const zPatchHashesByIdRelationshipsChunkResponse = z.void();
+
+export const zGetHashesByIdHashlistPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHashesByIdHashlistResponse = zHashlistResponse;
+
+export const zGetHashesByIdRelationshipsHashlistPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHashesByIdRelationshipsHashlistResponse = zHashRelationHashlistGetResponse;
+
+export const zPatchHashesByIdRelationshipsHashlistBody = zHashRelationHashlist;
+
+export const zPatchHashesByIdRelationshipsHashlistPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchHashesByIdRelationshipsHashlistResponse = z.void();
 
 export const zGetHashesByIdPath = z.object({
   id: z

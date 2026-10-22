@@ -1,4 +1,5 @@
 import type { ErrorResponse } from './common';
+import type { ConfigSectionResponse } from './config-section';
 
 export type ConfigResourceObject = {
   id: number;
@@ -472,7 +473,7 @@ export type ConfigRelationConfigSectionGetResponse = {
   data: {
     type: 'configSection';
     id: number;
-  };
+  } | null;
 };
 
 export type GetConfigsData = {
@@ -634,17 +635,16 @@ export type GetConfigsCountResponses = {
 
 export type GetConfigsCountResponse = GetConfigsCountResponses[keyof GetConfigsCountResponses];
 
-export type GetConfigsByIdByRelationData = {
+export type GetConfigsByIdConfigSectionData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/configs/{id}/{relation}';
+  url: '/api/v2/ui/configs/{id}/configSection';
 };
 
-export type GetConfigsByIdByRelationErrors = {
+export type GetConfigsByIdConfigSectionErrors = {
   /**
    * Invalid request
    */
@@ -663,71 +663,70 @@ export type GetConfigsByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetConfigsByIdByRelationError = GetConfigsByIdByRelationErrors[keyof GetConfigsByIdByRelationErrors];
+export type GetConfigsByIdConfigSectionError =
+  GetConfigsByIdConfigSectionErrors[keyof GetConfigsByIdConfigSectionErrors];
 
-export type GetConfigsByIdByRelationResponses = {
+export type GetConfigsByIdConfigSectionResponses = {
+  /**
+   * successful operation
+   */
+  200: ConfigSectionResponse;
+};
+
+export type GetConfigsByIdConfigSectionResponse =
+  GetConfigsByIdConfigSectionResponses[keyof GetConfigsByIdConfigSectionResponses];
+
+export type GetConfigsByIdRelationshipsConfigSectionData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/configs/{id}/relationships/configSection';
+};
+
+export type GetConfigsByIdRelationshipsConfigSectionErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetConfigsByIdRelationshipsConfigSectionError =
+  GetConfigsByIdRelationshipsConfigSectionErrors[keyof GetConfigsByIdRelationshipsConfigSectionErrors];
+
+export type GetConfigsByIdRelationshipsConfigSectionResponses = {
   /**
    * successful operation
    */
   200: ConfigRelationConfigSectionGetResponse;
 };
 
-export type GetConfigsByIdByRelationResponse =
-  GetConfigsByIdByRelationResponses[keyof GetConfigsByIdByRelationResponses];
+export type GetConfigsByIdRelationshipsConfigSectionResponse =
+  GetConfigsByIdRelationshipsConfigSectionResponses[keyof GetConfigsByIdRelationshipsConfigSectionResponses];
 
-export type GetConfigsByIdRelationshipsByRelationData = {
-  body?: never;
-  path: {
-    id: number;
-    relation: string;
-  };
-  query?: never;
-  url: '/api/v2/ui/configs/{id}/relationships/{relation}';
-};
-
-export type GetConfigsByIdRelationshipsByRelationErrors = {
-  /**
-   * Invalid request
-   */
-  400: ErrorResponse;
-  /**
-   * Authentication failed
-   */
-  401: ErrorResponse;
-  /**
-   * Permission denied
-   */
-  403: ErrorResponse;
-  /**
-   * Not Found
-   */
-  404: ErrorResponse;
-};
-
-export type GetConfigsByIdRelationshipsByRelationError =
-  GetConfigsByIdRelationshipsByRelationErrors[keyof GetConfigsByIdRelationshipsByRelationErrors];
-
-export type GetConfigsByIdRelationshipsByRelationResponses = {
-  /**
-   * successful operation
-   */
-  200: ConfigResponse;
-};
-
-export type GetConfigsByIdRelationshipsByRelationResponse =
-  GetConfigsByIdRelationshipsByRelationResponses[keyof GetConfigsByIdRelationshipsByRelationResponses];
-
-export type PatchConfigsByIdRelationshipsByRelationData = {
+export type PatchConfigsByIdRelationshipsConfigSectionData = {
   body: ConfigRelationConfigSection;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/configs/{id}/relationships/{relation}';
+  url: '/api/v2/ui/configs/{id}/relationships/configSection';
 };
 
-export type PatchConfigsByIdRelationshipsByRelationErrors = {
+export type PatchConfigsByIdRelationshipsConfigSectionErrors = {
   /**
    * Invalid request
    */
@@ -750,18 +749,18 @@ export type PatchConfigsByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchConfigsByIdRelationshipsByRelationError =
-  PatchConfigsByIdRelationshipsByRelationErrors[keyof PatchConfigsByIdRelationshipsByRelationErrors];
+export type PatchConfigsByIdRelationshipsConfigSectionError =
+  PatchConfigsByIdRelationshipsConfigSectionErrors[keyof PatchConfigsByIdRelationshipsConfigSectionErrors];
 
-export type PatchConfigsByIdRelationshipsByRelationResponses = {
+export type PatchConfigsByIdRelationshipsConfigSectionResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchConfigsByIdRelationshipsByRelationResponse =
-  PatchConfigsByIdRelationshipsByRelationResponses[keyof PatchConfigsByIdRelationshipsByRelationResponses];
+export type PatchConfigsByIdRelationshipsConfigSectionResponse =
+  PatchConfigsByIdRelationshipsConfigSectionResponses[keyof PatchConfigsByIdRelationshipsConfigSectionResponses];
 
 export type GetConfigsByIdData = {
   body?: never;

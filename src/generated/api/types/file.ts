@@ -1,3 +1,4 @@
+import type { AccessGroupResponse } from './access-group';
 import type { ErrorResponse } from './common';
 
 export type FileCreate = {
@@ -265,7 +266,7 @@ export type FileRelationAccessGroupGetResponse = {
   data: {
     type: 'accessGroup';
     id: number;
-  };
+  } | null;
 };
 
 export type DeleteFilesData = {
@@ -495,17 +496,16 @@ export type GetFilesCountResponses = {
 
 export type GetFilesCountResponse = GetFilesCountResponses[keyof GetFilesCountResponses];
 
-export type GetFilesByIdByRelationData = {
+export type GetFilesByIdAccessGroupData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/files/{id}/{relation}';
+  url: '/api/v2/ui/files/{id}/accessGroup';
 };
 
-export type GetFilesByIdByRelationErrors = {
+export type GetFilesByIdAccessGroupErrors = {
   /**
    * Invalid request
    */
@@ -524,70 +524,68 @@ export type GetFilesByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetFilesByIdByRelationError = GetFilesByIdByRelationErrors[keyof GetFilesByIdByRelationErrors];
+export type GetFilesByIdAccessGroupError = GetFilesByIdAccessGroupErrors[keyof GetFilesByIdAccessGroupErrors];
 
-export type GetFilesByIdByRelationResponses = {
+export type GetFilesByIdAccessGroupResponses = {
+  /**
+   * successful operation
+   */
+  200: AccessGroupResponse;
+};
+
+export type GetFilesByIdAccessGroupResponse = GetFilesByIdAccessGroupResponses[keyof GetFilesByIdAccessGroupResponses];
+
+export type GetFilesByIdRelationshipsAccessGroupData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/files/{id}/relationships/accessGroup';
+};
+
+export type GetFilesByIdRelationshipsAccessGroupErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetFilesByIdRelationshipsAccessGroupError =
+  GetFilesByIdRelationshipsAccessGroupErrors[keyof GetFilesByIdRelationshipsAccessGroupErrors];
+
+export type GetFilesByIdRelationshipsAccessGroupResponses = {
   /**
    * successful operation
    */
   200: FileRelationAccessGroupGetResponse;
 };
 
-export type GetFilesByIdByRelationResponse = GetFilesByIdByRelationResponses[keyof GetFilesByIdByRelationResponses];
+export type GetFilesByIdRelationshipsAccessGroupResponse =
+  GetFilesByIdRelationshipsAccessGroupResponses[keyof GetFilesByIdRelationshipsAccessGroupResponses];
 
-export type GetFilesByIdRelationshipsByRelationData = {
-  body?: never;
-  path: {
-    id: number;
-    relation: string;
-  };
-  query?: never;
-  url: '/api/v2/ui/files/{id}/relationships/{relation}';
-};
-
-export type GetFilesByIdRelationshipsByRelationErrors = {
-  /**
-   * Invalid request
-   */
-  400: ErrorResponse;
-  /**
-   * Authentication failed
-   */
-  401: ErrorResponse;
-  /**
-   * Permission denied
-   */
-  403: ErrorResponse;
-  /**
-   * Not Found
-   */
-  404: ErrorResponse;
-};
-
-export type GetFilesByIdRelationshipsByRelationError =
-  GetFilesByIdRelationshipsByRelationErrors[keyof GetFilesByIdRelationshipsByRelationErrors];
-
-export type GetFilesByIdRelationshipsByRelationResponses = {
-  /**
-   * successful operation
-   */
-  200: FileResponse;
-};
-
-export type GetFilesByIdRelationshipsByRelationResponse =
-  GetFilesByIdRelationshipsByRelationResponses[keyof GetFilesByIdRelationshipsByRelationResponses];
-
-export type PatchFilesByIdRelationshipsByRelationData = {
+export type PatchFilesByIdRelationshipsAccessGroupData = {
   body: FileRelationAccessGroup;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/files/{id}/relationships/{relation}';
+  url: '/api/v2/ui/files/{id}/relationships/accessGroup';
 };
 
-export type PatchFilesByIdRelationshipsByRelationErrors = {
+export type PatchFilesByIdRelationshipsAccessGroupErrors = {
   /**
    * Invalid request
    */
@@ -610,18 +608,18 @@ export type PatchFilesByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchFilesByIdRelationshipsByRelationError =
-  PatchFilesByIdRelationshipsByRelationErrors[keyof PatchFilesByIdRelationshipsByRelationErrors];
+export type PatchFilesByIdRelationshipsAccessGroupError =
+  PatchFilesByIdRelationshipsAccessGroupErrors[keyof PatchFilesByIdRelationshipsAccessGroupErrors];
 
-export type PatchFilesByIdRelationshipsByRelationResponses = {
+export type PatchFilesByIdRelationshipsAccessGroupResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchFilesByIdRelationshipsByRelationResponse =
-  PatchFilesByIdRelationshipsByRelationResponses[keyof PatchFilesByIdRelationshipsByRelationResponses];
+export type PatchFilesByIdRelationshipsAccessGroupResponse =
+  PatchFilesByIdRelationshipsAccessGroupResponses[keyof PatchFilesByIdRelationshipsAccessGroupResponses];
 
 export type DeleteFilesByIdData = {
   body?: never;

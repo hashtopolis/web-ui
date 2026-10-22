@@ -1,4 +1,5 @@
 import type { ErrorResponse } from './common';
+import type { PreTaskListResponse } from './pre-task';
 
 export type SupertaskCreate = {
   data: {
@@ -6,6 +7,7 @@ export type SupertaskCreate = {
     attributes: {
       pretasks: Array<number>;
       supertaskName: string;
+      crackerBinaryTypeId: number;
     };
   };
 };
@@ -49,6 +51,7 @@ export type SupertaskResponse = {
     type: 'supertask';
     attributes: {
       supertaskName: string;
+      crackerBinaryTypeId: number;
       amountPretasks?: number;
     };
     links: {
@@ -100,6 +103,7 @@ export type SupertaskSingleResponse = {
     type: 'supertask';
     attributes: {
       supertaskName: string;
+      crackerBinaryTypeId: number;
       amountPretasks?: number;
     };
     links: {
@@ -151,6 +155,7 @@ export type SupertaskPostPatchResponse = {
     type: 'supertask';
     attributes: {
       supertaskName: string;
+      crackerBinaryTypeId: number;
       amountPretasks?: number;
     };
     links: {
@@ -211,6 +216,7 @@ export type SupertaskListResponse = {
     type: 'supertask';
     attributes: {
       supertaskName: string;
+      crackerBinaryTypeId: number;
       amountPretasks?: number;
     };
     links: {
@@ -274,14 +280,14 @@ export type SupertaskCountResponse = {
 
 export type SupertaskRelationPretasks = {
   data: Array<{
-    type: 'pretasks';
+    type: 'preTask';
     id: number;
   }>;
 };
 
 export type SupertaskRelationPretasksGetResponse = {
   data: Array<{
-    type: 'pretasks';
+    type: 'preTask';
     id: number;
   }>;
 };
@@ -519,17 +525,16 @@ export type GetSupertasksCountResponses = {
 
 export type GetSupertasksCountResponse = GetSupertasksCountResponses[keyof GetSupertasksCountResponses];
 
-export type GetSupertasksByIdByRelationData = {
+export type GetSupertasksByIdPretasksData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/supertasks/{id}/{relation}';
+  url: '/api/v2/ui/supertasks/{id}/pretasks';
 };
 
-export type GetSupertasksByIdByRelationErrors = {
+export type GetSupertasksByIdPretasksErrors = {
   /**
    * Invalid request
    */
@@ -548,30 +553,28 @@ export type GetSupertasksByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetSupertasksByIdByRelationError =
-  GetSupertasksByIdByRelationErrors[keyof GetSupertasksByIdByRelationErrors];
+export type GetSupertasksByIdPretasksError = GetSupertasksByIdPretasksErrors[keyof GetSupertasksByIdPretasksErrors];
 
-export type GetSupertasksByIdByRelationResponses = {
+export type GetSupertasksByIdPretasksResponses = {
   /**
    * successful operation
    */
-  200: SupertaskRelationPretasksGetResponse;
+  200: PreTaskListResponse;
 };
 
-export type GetSupertasksByIdByRelationResponse =
-  GetSupertasksByIdByRelationResponses[keyof GetSupertasksByIdByRelationResponses];
+export type GetSupertasksByIdPretasksResponse =
+  GetSupertasksByIdPretasksResponses[keyof GetSupertasksByIdPretasksResponses];
 
-export type DeleteSupertasksByIdRelationshipsByRelationData = {
+export type DeleteSupertasksByIdRelationshipsPretasksData = {
   body: SupertaskRelationPretasks;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/supertasks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/supertasks/{id}/relationships/pretasks';
 };
 
-export type DeleteSupertasksByIdRelationshipsByRelationErrors = {
+export type DeleteSupertasksByIdRelationshipsPretasksErrors = {
   /**
    * Invalid request
    */
@@ -590,30 +593,29 @@ export type DeleteSupertasksByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type DeleteSupertasksByIdRelationshipsByRelationError =
-  DeleteSupertasksByIdRelationshipsByRelationErrors[keyof DeleteSupertasksByIdRelationshipsByRelationErrors];
+export type DeleteSupertasksByIdRelationshipsPretasksError =
+  DeleteSupertasksByIdRelationshipsPretasksErrors[keyof DeleteSupertasksByIdRelationshipsPretasksErrors];
 
-export type DeleteSupertasksByIdRelationshipsByRelationResponses = {
+export type DeleteSupertasksByIdRelationshipsPretasksResponses = {
   /**
    * successfully deleted
    */
   204: void;
 };
 
-export type DeleteSupertasksByIdRelationshipsByRelationResponse =
-  DeleteSupertasksByIdRelationshipsByRelationResponses[keyof DeleteSupertasksByIdRelationshipsByRelationResponses];
+export type DeleteSupertasksByIdRelationshipsPretasksResponse =
+  DeleteSupertasksByIdRelationshipsPretasksResponses[keyof DeleteSupertasksByIdRelationshipsPretasksResponses];
 
-export type GetSupertasksByIdRelationshipsByRelationData = {
+export type GetSupertasksByIdRelationshipsPretasksData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/supertasks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/supertasks/{id}/relationships/pretasks';
 };
 
-export type GetSupertasksByIdRelationshipsByRelationErrors = {
+export type GetSupertasksByIdRelationshipsPretasksErrors = {
   /**
    * Invalid request
    */
@@ -632,30 +634,29 @@ export type GetSupertasksByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetSupertasksByIdRelationshipsByRelationError =
-  GetSupertasksByIdRelationshipsByRelationErrors[keyof GetSupertasksByIdRelationshipsByRelationErrors];
+export type GetSupertasksByIdRelationshipsPretasksError =
+  GetSupertasksByIdRelationshipsPretasksErrors[keyof GetSupertasksByIdRelationshipsPretasksErrors];
 
-export type GetSupertasksByIdRelationshipsByRelationResponses = {
+export type GetSupertasksByIdRelationshipsPretasksResponses = {
   /**
    * successful operation
    */
-  200: SupertaskResponse;
+  200: SupertaskRelationPretasksGetResponse;
 };
 
-export type GetSupertasksByIdRelationshipsByRelationResponse =
-  GetSupertasksByIdRelationshipsByRelationResponses[keyof GetSupertasksByIdRelationshipsByRelationResponses];
+export type GetSupertasksByIdRelationshipsPretasksResponse =
+  GetSupertasksByIdRelationshipsPretasksResponses[keyof GetSupertasksByIdRelationshipsPretasksResponses];
 
-export type PatchSupertasksByIdRelationshipsByRelationData = {
+export type PatchSupertasksByIdRelationshipsPretasksData = {
   body: SupertaskRelationPretasks;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/supertasks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/supertasks/{id}/relationships/pretasks';
 };
 
-export type PatchSupertasksByIdRelationshipsByRelationErrors = {
+export type PatchSupertasksByIdRelationshipsPretasksErrors = {
   /**
    * Invalid request
    */
@@ -678,30 +679,29 @@ export type PatchSupertasksByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchSupertasksByIdRelationshipsByRelationError =
-  PatchSupertasksByIdRelationshipsByRelationErrors[keyof PatchSupertasksByIdRelationshipsByRelationErrors];
+export type PatchSupertasksByIdRelationshipsPretasksError =
+  PatchSupertasksByIdRelationshipsPretasksErrors[keyof PatchSupertasksByIdRelationshipsPretasksErrors];
 
-export type PatchSupertasksByIdRelationshipsByRelationResponses = {
+export type PatchSupertasksByIdRelationshipsPretasksResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchSupertasksByIdRelationshipsByRelationResponse =
-  PatchSupertasksByIdRelationshipsByRelationResponses[keyof PatchSupertasksByIdRelationshipsByRelationResponses];
+export type PatchSupertasksByIdRelationshipsPretasksResponse =
+  PatchSupertasksByIdRelationshipsPretasksResponses[keyof PatchSupertasksByIdRelationshipsPretasksResponses];
 
-export type PostSupertasksByIdRelationshipsByRelationData = {
+export type PostSupertasksByIdRelationshipsPretasksData = {
   body: SupertaskRelationPretasks;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/supertasks/{id}/relationships/{relation}';
+  url: '/api/v2/ui/supertasks/{id}/relationships/pretasks';
 };
 
-export type PostSupertasksByIdRelationshipsByRelationErrors = {
+export type PostSupertasksByIdRelationshipsPretasksErrors = {
   /**
    * Invalid request
    */
@@ -724,18 +724,18 @@ export type PostSupertasksByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PostSupertasksByIdRelationshipsByRelationError =
-  PostSupertasksByIdRelationshipsByRelationErrors[keyof PostSupertasksByIdRelationshipsByRelationErrors];
+export type PostSupertasksByIdRelationshipsPretasksError =
+  PostSupertasksByIdRelationshipsPretasksErrors[keyof PostSupertasksByIdRelationshipsPretasksErrors];
 
-export type PostSupertasksByIdRelationshipsByRelationResponses = {
+export type PostSupertasksByIdRelationshipsPretasksResponses = {
   /**
    * successfully created
    */
   204: void;
 };
 
-export type PostSupertasksByIdRelationshipsByRelationResponse =
-  PostSupertasksByIdRelationshipsByRelationResponses[keyof PostSupertasksByIdRelationshipsByRelationResponses];
+export type PostSupertasksByIdRelationshipsPretasksResponse =
+  PostSupertasksByIdRelationshipsPretasksResponses[keyof PostSupertasksByIdRelationshipsPretasksResponses];
 
 export type DeleteSupertasksByIdData = {
   body?: never;

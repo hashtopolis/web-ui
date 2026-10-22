@@ -1,5 +1,8 @@
 import * as z from 'zod';
 
+import { zAgentResponse } from './agent';
+import { zHealthCheckResponse } from './health-check';
+
 export const zHealthCheckAgentResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
@@ -224,6 +227,22 @@ export const zHealthCheckAgentCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
+export const zHealthCheckAgentRelationAgent = z.object({
+  data: z.object({
+    type: z.literal('agent'),
+    id: z.int()
+  })
+});
+
+export const zHealthCheckAgentRelationAgentGetResponse = z.object({
+  data: z
+    .object({
+      type: z.literal('agent'),
+      id: z.int()
+    })
+    .nullable()
+});
+
 export const zHealthCheckAgentRelationHealthCheck = z.object({
   data: z.object({
     type: z.literal('healthCheck'),
@@ -232,10 +251,12 @@ export const zHealthCheckAgentRelationHealthCheck = z.object({
 });
 
 export const zHealthCheckAgentRelationHealthCheckGetResponse = z.object({
-  data: z.object({
-    type: z.literal('healthCheck'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('healthCheck'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zGetHealthcheckagentsQuery = z.object({
@@ -265,43 +286,76 @@ export const zGetHealthcheckagentsCountQuery = z.object({
  */
 export const zGetHealthcheckagentsCountResponse = zHealthCheckAgentCountResponse;
 
-export const zGetHealthcheckagentsByIdByRelationPath = z.object({
+export const zGetHealthcheckagentsByIdAgentPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetHealthcheckagentsByIdByRelationResponse = zHealthCheckAgentRelationHealthCheckGetResponse;
+export const zGetHealthcheckagentsByIdAgentResponse = zAgentResponse;
 
-export const zGetHealthcheckagentsByIdRelationshipsByRelationPath = z.object({
+export const zGetHealthcheckagentsByIdRelationshipsAgentPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetHealthcheckagentsByIdRelationshipsByRelationResponse = zHealthCheckAgentResponse;
+export const zGetHealthcheckagentsByIdRelationshipsAgentResponse = zHealthCheckAgentRelationAgentGetResponse;
 
-export const zPatchHealthcheckagentsByIdRelationshipsByRelationBody = zHealthCheckAgentRelationHealthCheck;
+export const zPatchHealthcheckagentsByIdRelationshipsAgentBody = zHealthCheckAgentRelationAgent;
 
-export const zPatchHealthcheckagentsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchHealthcheckagentsByIdRelationshipsAgentPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchHealthcheckagentsByIdRelationshipsByRelationResponse = z.void();
+export const zPatchHealthcheckagentsByIdRelationshipsAgentResponse = z.void();
+
+export const zGetHealthcheckagentsByIdHealthCheckPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHealthcheckagentsByIdHealthCheckResponse = zHealthCheckResponse;
+
+export const zGetHealthcheckagentsByIdRelationshipsHealthCheckPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetHealthcheckagentsByIdRelationshipsHealthCheckResponse =
+  zHealthCheckAgentRelationHealthCheckGetResponse;
+
+export const zPatchHealthcheckagentsByIdRelationshipsHealthCheckBody = zHealthCheckAgentRelationHealthCheck;
+
+export const zPatchHealthcheckagentsByIdRelationshipsHealthCheckPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchHealthcheckagentsByIdRelationshipsHealthCheckResponse = z.void();
 
 export const zGetHealthcheckagentsByIdPath = z.object({
   id: z

@@ -20,16 +20,13 @@ export type FormRouteType = (typeof FormRouteType)[keyof typeof FormRouteType];
 
 export const FormRouteKind = {
   EditAgentBinary: 'editagentbinary',
-  EditCrackerVersion: 'editcrackerversion',
   EditHashtype: 'edithashtype',
   EditOther: 'editother',
   EditRule: 'editrule',
   EditWordlist: 'editwordlist',
   NewAccessGroups: 'newaccessgroups',
   NewAgentBinary: 'newagentbinary',
-  NewCrackerVersion: 'newcrackerversion',
-  NewGlobalPermissionsGroup: 'newglobalpermissionsgp',
-  NewHashtype: 'newhashtype'
+  NewGlobalPermissionsGroup: 'newglobalpermissionsgp'
 } as const;
 
 export type FormRouteKind = (typeof FormRouteKind)[keyof typeof FormRouteKind];

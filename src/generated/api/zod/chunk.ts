@@ -1,5 +1,8 @@
 import * as z from 'zod';
 
+import { zAgentResponse } from './agent';
+import { zTaskResponse } from './task';
+
 export const zChunkResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
@@ -286,6 +289,22 @@ export const zChunkCountResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
+export const zChunkRelationAgent = z.object({
+  data: z.object({
+    type: z.literal('agent'),
+    id: z.int()
+  })
+});
+
+export const zChunkRelationAgentGetResponse = z.object({
+  data: z
+    .object({
+      type: z.literal('agent'),
+      id: z.int()
+    })
+    .nullable()
+});
+
 export const zChunkRelationTask = z.object({
   data: z.object({
     type: z.literal('task'),
@@ -294,10 +313,12 @@ export const zChunkRelationTask = z.object({
 });
 
 export const zChunkRelationTaskGetResponse = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('task'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zGetChunksQuery = z.object({
@@ -327,43 +348,75 @@ export const zGetChunksCountQuery = z.object({
  */
 export const zGetChunksCountResponse = zChunkCountResponse;
 
-export const zGetChunksByIdByRelationPath = z.object({
+export const zGetChunksByIdAgentPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetChunksByIdByRelationResponse = zChunkRelationTaskGetResponse;
+export const zGetChunksByIdAgentResponse = zAgentResponse;
 
-export const zGetChunksByIdRelationshipsByRelationPath = z.object({
+export const zGetChunksByIdRelationshipsAgentPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetChunksByIdRelationshipsByRelationResponse = zChunkResponse;
+export const zGetChunksByIdRelationshipsAgentResponse = zChunkRelationAgentGetResponse;
 
-export const zPatchChunksByIdRelationshipsByRelationBody = zChunkRelationTask;
+export const zPatchChunksByIdRelationshipsAgentBody = zChunkRelationAgent;
 
-export const zPatchChunksByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchChunksByIdRelationshipsAgentPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchChunksByIdRelationshipsByRelationResponse = z.void();
+export const zPatchChunksByIdRelationshipsAgentResponse = z.void();
+
+export const zGetChunksByIdTaskPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetChunksByIdTaskResponse = zTaskResponse;
+
+export const zGetChunksByIdRelationshipsTaskPath = z.object({
+  id: z
+    .int()
+    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+/**
+ * successful operation
+ */
+export const zGetChunksByIdRelationshipsTaskResponse = zChunkRelationTaskGetResponse;
+
+export const zPatchChunksByIdRelationshipsTaskBody = zChunkRelationTask;
+
+export const zPatchChunksByIdRelationshipsTaskPath = z.object({
+  id: z.int()
+});
+
+/**
+ * Successfull operation
+ */
+export const zPatchChunksByIdRelationshipsTaskResponse = z.void();
 
 export const zGetChunksByIdPath = z.object({
   id: z

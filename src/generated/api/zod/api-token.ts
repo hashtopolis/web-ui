@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { zUserResponse } from './user';
+
 export const zApiTokenCreate = z.object({
   data: z.object({
     type: z.literal('apiToken'),
@@ -263,10 +265,12 @@ export const zApiTokenRelationUser = z.object({
 });
 
 export const zApiTokenRelationUserGetResponse = z.object({
-  data: z.object({
-    type: z.literal('user'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('user'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zDeleteApiTokensBody = zApiTokenDeleteMultiple;
@@ -317,43 +321,40 @@ export const zGetApiTokensCountQuery = z.object({
  */
 export const zGetApiTokensCountResponse = zApiTokenCountResponse;
 
-export const zGetApiTokensByIdByRelationPath = z.object({
+export const zGetApiTokensByIdUserPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetApiTokensByIdByRelationResponse = zApiTokenRelationUserGetResponse;
+export const zGetApiTokensByIdUserResponse = zUserResponse;
 
-export const zGetApiTokensByIdRelationshipsByRelationPath = z.object({
+export const zGetApiTokensByIdRelationshipsUserPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetApiTokensByIdRelationshipsByRelationResponse = zApiTokenResponse;
+export const zGetApiTokensByIdRelationshipsUserResponse = zApiTokenRelationUserGetResponse;
 
-export const zPatchApiTokensByIdRelationshipsByRelationBody = zApiTokenRelationUser;
+export const zPatchApiTokensByIdRelationshipsUserBody = zApiTokenRelationUser;
 
-export const zPatchApiTokensByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchApiTokensByIdRelationshipsUserPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchApiTokensByIdRelationshipsByRelationResponse = z.void();
+export const zPatchApiTokensByIdRelationshipsUserResponse = z.void();
 
 export const zDeleteApiTokensByIdPath = z.object({
   id: z.int()

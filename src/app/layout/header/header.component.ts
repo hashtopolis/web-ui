@@ -463,7 +463,7 @@ export class HeaderComponent implements OnInit {
         ]
       });
     }
-    if (this.configRoleWrapper.hasHashTypesRole('read')) {
+    if (this.configRoleWrapper.hasHashTypesRole('update')) {
       actions.push({
         label: HeaderMenuLabel.HASHTYPES,
         routerLink: ['config', 'hashtypes']
@@ -479,6 +479,12 @@ export class HeaderComponent implements OnInit {
       actions.push({
         label: HeaderMenuLabel.LOG,
         routerLink: ['config', 'log']
+      });
+    }
+    if (this.configRoleWrapper.hasBackgroundJobRole('read')) {
+      actions.push({
+        label: HeaderMenuLabel.BACKGROUND_JOBS,
+        routerLink: ['config', 'background-jobs']
       });
     }
     return {

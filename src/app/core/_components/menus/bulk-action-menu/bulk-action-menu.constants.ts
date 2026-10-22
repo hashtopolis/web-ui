@@ -14,6 +14,7 @@ export const BulkActionMenuLabel = {
   DELETE_PREPROCESSORS: 'Delete Preprocessors',
   DELETE_AGENTBINARIES: 'Delete Agent Binaries',
   DELETE_HEALTHCHECKS: 'Delete Health Checks',
+  DELETE_BACKGROUND_JOBS: 'Delete Background Jobs',
   DELETE_USERS: 'Delete Users',
   DELETE_ACCESSGROUPS: 'Delete Access Groups',
   DELETE_PERMISSIONS: 'Delete Permission Groups',
@@ -30,6 +31,7 @@ export const BulkActionMenuLabel = {
   UNASSIGN_AGENTS: 'Unassign agents',
   REMOVE_ACCESSGROUP_AGENTS: 'Remove agents',
   REMOVE_ACCESSGROUP_USERS: 'Remove users',
+  REMOVE_CRACKER_HASHTYPES: 'Remove hashtypes',
   ARCHIVE_PRETASKS: 'Archive Pretasks',
   UNASSIGN_PRETASKS: 'Unassign Pretasks'
 };

@@ -1,5 +1,7 @@
 import * as z from 'zod';
 
+import { zTaskResponse } from './task';
+
 export const zAgentErrorDeleteMultiple = z.object({
   data: z.array(
     z.object({
@@ -197,10 +199,12 @@ export const zAgentErrorRelationTask = z.object({
 });
 
 export const zAgentErrorRelationTaskGetResponse = z.object({
-  data: z.object({
-    type: z.literal('task'),
-    id: z.int()
-  })
+  data: z
+    .object({
+      type: z.literal('task'),
+      id: z.int()
+    })
+    .nullable()
 });
 
 export const zDeleteAgenterrorsBody = zAgentErrorDeleteMultiple;
@@ -237,43 +241,40 @@ export const zGetAgenterrorsCountQuery = z.object({
  */
 export const zGetAgenterrorsCountResponse = zAgentErrorCountResponse;
 
-export const zGetAgenterrorsByIdByRelationPath = z.object({
+export const zGetAgenterrorsByIdTaskPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetAgenterrorsByIdByRelationResponse = zAgentErrorRelationTaskGetResponse;
+export const zGetAgenterrorsByIdTaskResponse = zTaskResponse;
 
-export const zGetAgenterrorsByIdRelationshipsByRelationPath = z.object({
+export const zGetAgenterrorsByIdRelationshipsTaskPath = z.object({
   id: z
     .int()
     .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
-    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
-  relation: z.string()
+    .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
 });
 
 /**
  * successful operation
  */
-export const zGetAgenterrorsByIdRelationshipsByRelationResponse = zAgentErrorResponse;
+export const zGetAgenterrorsByIdRelationshipsTaskResponse = zAgentErrorRelationTaskGetResponse;
 
-export const zPatchAgenterrorsByIdRelationshipsByRelationBody = zAgentErrorRelationTask;
+export const zPatchAgenterrorsByIdRelationshipsTaskBody = zAgentErrorRelationTask;
 
-export const zPatchAgenterrorsByIdRelationshipsByRelationPath = z.object({
-  id: z.int(),
-  relation: z.string()
+export const zPatchAgenterrorsByIdRelationshipsTaskPath = z.object({
+  id: z.int()
 });
 
 /**
  * Successfull operation
  */
-export const zPatchAgenterrorsByIdRelationshipsByRelationResponse = z.void();
+export const zPatchAgenterrorsByIdRelationshipsTaskResponse = z.void();
 
 export const zDeleteAgenterrorsByIdPath = z.object({
   id: z.int()

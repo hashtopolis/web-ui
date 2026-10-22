@@ -14,7 +14,7 @@ import { RoleService } from '@services/roles/base/role.service';
 export class SupertasksRoleService extends RoleService {
   constructor(permissionService: PermissionService) {
     super(permissionService, {
-      create: [Perm.SuperTask.CREATE],
+      create: [Perm.SuperTask.CREATE, Perm.CrackerBinaryType.READ],
       read: [Perm.SuperTask.READ],
       edit: [Perm.SuperTask.UPDATE, Perm.Pretask.READ],
       delete: [Perm.SuperTask.DELETE],

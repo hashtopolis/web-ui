@@ -1,13 +1,32 @@
+import type { AccessGroupResponse } from './access-group';
 import type { ErrorResponse } from './common';
+import type { CrackerBinaryTypeResponse } from './cracker-binary-type';
+import type { HashTypeListResponse } from './hash-type';
+import type { TaskListResponse } from './task';
 
 export type CrackerBinaryCreate = {
   data: {
     type: 'crackerBinary';
     attributes: {
+      /**
+       * Source the 7z archive is uploaded from: inline (base64 archive data in sourceData), import (filename of a file in the import directory as sourceData) or url (http/https url in sourceData, fetched by the server). Mutually exclusive with downloadUrl.
+       */
+      sourceType?: 'inline' | 'import' | 'url' | null;
+      /**
+       * Source of the archive upload, depending on sourceType: base64 encoded archive data, filename of a file in the import directory or a http/https url to fetch the archive from.
+       */
+      sourceData?: string | null;
       crackerBinaryTypeId: number;
       version: string;
-      downloadUrl: string;
+      /**
+       * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+       */
+      downloadUrl?: string | null;
       binaryName: string;
+      /**
+       * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+       */
+      accessGroupId: number;
     };
   };
 };
@@ -16,8 +35,9 @@ export type CrackerBinaryPatch = {
   data: {
     type: 'crackerBinary';
     attributes: {
+      accessGroupId?: number;
       binaryName?: string;
-      downloadUrl?: string;
+      downloadUrl?: string | null;
       version?: string;
     };
   };
@@ -28,8 +48,9 @@ export type CrackerBinaryPatchMultiple = {
     id: number;
     type: 'crackerBinary';
     attributes: {
+      accessGroupId?: number;
       binaryName?: string;
-      downloadUrl?: string;
+      downloadUrl?: string | null;
       version?: string;
     };
   }>;
@@ -56,13 +77,34 @@ export type CrackerBinaryResponse = {
     attributes: {
       crackerBinaryTypeId: number;
       version: string;
-      downloadUrl: string;
+      /**
+       * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+       */
+      downloadUrl: string | null;
       binaryName: string;
+      /**
+       * Filename of the locally stored 7z archive, null when the binary is downloaded from the downloadUrl. Cannot be provided.
+       */
+      filename: string | null;
+      /**
+       * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+       */
+      accessGroupId: number;
     };
     links: {
       self: string;
     };
     relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: number;
+        } | null;
+      };
       crackerBinaryType: {
         links: {
           self: string;
@@ -72,6 +114,16 @@ export type CrackerBinaryResponse = {
           type: 'crackerBinaryType';
           id: number;
         } | null;
+      };
+      hashtypes: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'hashType';
+          id: number;
+        }>;
       };
       tasks: {
         links: {
@@ -92,6 +144,13 @@ export type CrackerBinaryResponse = {
         attributes: {
           typeName: string;
           isChunkingAvailable: boolean | null;
+        };
+      }
+    | {
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+          groupName: string;
         };
       }
     | {
@@ -121,6 +180,15 @@ export type CrackerBinaryResponse = {
           forcePipe: boolean;
           preprocessorId: number;
           preprocessorCommand: string;
+        };
+      }
+    | {
+        id: number;
+        type: 'hashType';
+        attributes: {
+          description: string;
+          isSalted: boolean;
+          isSlowHash: boolean;
         };
       }
   >;
@@ -140,13 +208,34 @@ export type CrackerBinaryPostPatchResponse = {
     attributes: {
       crackerBinaryTypeId: number;
       version: string;
-      downloadUrl: string;
+      /**
+       * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+       */
+      downloadUrl: string | null;
       binaryName: string;
+      /**
+       * Filename of the locally stored 7z archive, null when the binary is downloaded from the downloadUrl. Cannot be provided.
+       */
+      filename: string | null;
+      /**
+       * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+       */
+      accessGroupId: number;
     };
     links: {
       self: string;
     };
     relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: number;
+        } | null;
+      };
       crackerBinaryType: {
         links: {
           self: string;
@@ -156,6 +245,16 @@ export type CrackerBinaryPostPatchResponse = {
           type: 'crackerBinaryType';
           id: number;
         } | null;
+      };
+      hashtypes: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'hashType';
+          id: number;
+        }>;
       };
       tasks: {
         links: {
@@ -176,6 +275,13 @@ export type CrackerBinaryPostPatchResponse = {
         attributes: {
           typeName: string;
           isChunkingAvailable: boolean | null;
+        };
+      }
+    | {
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+          groupName: string;
         };
       }
     | {
@@ -205,6 +311,15 @@ export type CrackerBinaryPostPatchResponse = {
           forcePipe: boolean;
           preprocessorId: number;
           preprocessorCommand: string;
+        };
+      }
+    | {
+        id: number;
+        type: 'hashType';
+        attributes: {
+          description: string;
+          isSalted: boolean;
+          isSlowHash: boolean;
         };
       }
   >;
@@ -233,13 +348,34 @@ export type CrackerBinaryListResponse = {
     attributes: {
       crackerBinaryTypeId: number;
       version: string;
-      downloadUrl: string;
+      /**
+       * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+       */
+      downloadUrl: string | null;
       binaryName: string;
+      /**
+       * Filename of the locally stored 7z archive, null when the binary is downloaded from the downloadUrl. Cannot be provided.
+       */
+      filename: string | null;
+      /**
+       * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+       */
+      accessGroupId: number;
     };
     links: {
       self: string;
     };
     relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: number;
+        } | null;
+      };
       crackerBinaryType: {
         links: {
           self: string;
@@ -249,6 +385,16 @@ export type CrackerBinaryListResponse = {
           type: 'crackerBinaryType';
           id: number;
         } | null;
+      };
+      hashtypes: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'hashType';
+          id: number;
+        }>;
       };
       tasks: {
         links: {
@@ -269,6 +415,13 @@ export type CrackerBinaryListResponse = {
         attributes: {
           typeName: string;
           isChunkingAvailable: boolean | null;
+        };
+      }
+    | {
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+          groupName: string;
         };
       }
     | {
@@ -300,6 +453,15 @@ export type CrackerBinaryListResponse = {
           preprocessorCommand: string;
         };
       }
+    | {
+        id: number;
+        type: 'hashType';
+        attributes: {
+          description: string;
+          isSalted: boolean;
+          isSlowHash: boolean;
+        };
+      }
   >;
 };
 
@@ -326,16 +488,58 @@ export type CrackerBinaryCountResponse = {
   }>;
 };
 
+export type CrackerBinaryRelationCrackerBinaryType = {
+  data: {
+    type: 'crackerBinaryType';
+    id: number;
+  };
+};
+
+export type CrackerBinaryRelationCrackerBinaryTypeGetResponse = {
+  data: {
+    type: 'crackerBinaryType';
+    id: number;
+  } | null;
+};
+
+export type CrackerBinaryRelationAccessGroup = {
+  data: {
+    type: 'accessGroup';
+    id: number;
+  };
+};
+
+export type CrackerBinaryRelationAccessGroupGetResponse = {
+  data: {
+    type: 'accessGroup';
+    id: number;
+  } | null;
+};
+
 export type CrackerBinaryRelationTasks = {
   data: Array<{
-    type: 'tasks';
+    type: 'task';
     id: number;
   }>;
 };
 
 export type CrackerBinaryRelationTasksGetResponse = {
   data: Array<{
-    type: 'tasks';
+    type: 'task';
+    id: number;
+  }>;
+};
+
+export type CrackerBinaryRelationHashtypes = {
+  data: Array<{
+    type: 'hashType';
+    id: number;
+  }>;
+};
+
+export type CrackerBinaryRelationHashtypesGetResponse = {
+  data: Array<{
+    type: 'hashType';
     id: number;
   }>;
 };
@@ -412,9 +616,9 @@ export type GetCrackersData = {
       [key: string]: string;
     };
     /**
-     * Relationships to include in the response, comma seperated. Possible options: crackerBinaryType, tasks
+     * Relationships to include in the response, comma seperated. Possible options: crackerBinaryType, accessGroup, tasks, hashtypes
      */
-    include?: Array<'crackerBinaryType' | 'tasks'>;
+    include?: Array<'crackerBinaryType' | 'accessGroup' | 'tasks' | 'hashtypes'>;
   };
   url: '/api/v2/ui/crackers';
 };
@@ -567,17 +771,16 @@ export type GetCrackersCountResponses = {
 
 export type GetCrackersCountResponse = GetCrackersCountResponses[keyof GetCrackersCountResponses];
 
-export type GetCrackersByIdByRelationData = {
+export type GetCrackersByIdCrackerBinaryTypeData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/crackers/{id}/{relation}';
+  url: '/api/v2/ui/crackers/{id}/crackerBinaryType';
 };
 
-export type GetCrackersByIdByRelationErrors = {
+export type GetCrackersByIdCrackerBinaryTypeErrors = {
   /**
    * Invalid request
    */
@@ -596,71 +799,29 @@ export type GetCrackersByIdByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetCrackersByIdByRelationError = GetCrackersByIdByRelationErrors[keyof GetCrackersByIdByRelationErrors];
+export type GetCrackersByIdCrackerBinaryTypeError =
+  GetCrackersByIdCrackerBinaryTypeErrors[keyof GetCrackersByIdCrackerBinaryTypeErrors];
 
-export type GetCrackersByIdByRelationResponses = {
+export type GetCrackersByIdCrackerBinaryTypeResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryRelationTasksGetResponse;
+  200: CrackerBinaryTypeResponse;
 };
 
-export type GetCrackersByIdByRelationResponse =
-  GetCrackersByIdByRelationResponses[keyof GetCrackersByIdByRelationResponses];
+export type GetCrackersByIdCrackerBinaryTypeResponse =
+  GetCrackersByIdCrackerBinaryTypeResponses[keyof GetCrackersByIdCrackerBinaryTypeResponses];
 
-export type DeleteCrackersByIdRelationshipsByRelationData = {
-  body: CrackerBinaryRelationTasks;
-  path: {
-    id: number;
-    relation: string;
-  };
-  query?: never;
-  url: '/api/v2/ui/crackers/{id}/relationships/{relation}';
-};
-
-export type DeleteCrackersByIdRelationshipsByRelationErrors = {
-  /**
-   * Invalid request
-   */
-  400: ErrorResponse;
-  /**
-   * Authentication failed
-   */
-  401: ErrorResponse;
-  /**
-   * Permission denied
-   */
-  403: ErrorResponse;
-  /**
-   * Not Found
-   */
-  404: ErrorResponse;
-};
-
-export type DeleteCrackersByIdRelationshipsByRelationError =
-  DeleteCrackersByIdRelationshipsByRelationErrors[keyof DeleteCrackersByIdRelationshipsByRelationErrors];
-
-export type DeleteCrackersByIdRelationshipsByRelationResponses = {
-  /**
-   * successfully deleted
-   */
-  204: void;
-};
-
-export type DeleteCrackersByIdRelationshipsByRelationResponse =
-  DeleteCrackersByIdRelationshipsByRelationResponses[keyof DeleteCrackersByIdRelationshipsByRelationResponses];
-
-export type GetCrackersByIdRelationshipsByRelationData = {
+export type GetCrackersByIdRelationshipsCrackerBinaryTypeData = {
   body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/crackers/{id}/relationships/{relation}';
+  url: '/api/v2/ui/crackers/{id}/relationships/crackerBinaryType';
 };
 
-export type GetCrackersByIdRelationshipsByRelationErrors = {
+export type GetCrackersByIdRelationshipsCrackerBinaryTypeErrors = {
   /**
    * Invalid request
    */
@@ -679,30 +840,29 @@ export type GetCrackersByIdRelationshipsByRelationErrors = {
   404: ErrorResponse;
 };
 
-export type GetCrackersByIdRelationshipsByRelationError =
-  GetCrackersByIdRelationshipsByRelationErrors[keyof GetCrackersByIdRelationshipsByRelationErrors];
+export type GetCrackersByIdRelationshipsCrackerBinaryTypeError =
+  GetCrackersByIdRelationshipsCrackerBinaryTypeErrors[keyof GetCrackersByIdRelationshipsCrackerBinaryTypeErrors];
 
-export type GetCrackersByIdRelationshipsByRelationResponses = {
+export type GetCrackersByIdRelationshipsCrackerBinaryTypeResponses = {
   /**
    * successful operation
    */
-  200: CrackerBinaryResponse;
+  200: CrackerBinaryRelationCrackerBinaryTypeGetResponse;
 };
 
-export type GetCrackersByIdRelationshipsByRelationResponse =
-  GetCrackersByIdRelationshipsByRelationResponses[keyof GetCrackersByIdRelationshipsByRelationResponses];
+export type GetCrackersByIdRelationshipsCrackerBinaryTypeResponse =
+  GetCrackersByIdRelationshipsCrackerBinaryTypeResponses[keyof GetCrackersByIdRelationshipsCrackerBinaryTypeResponses];
 
-export type PatchCrackersByIdRelationshipsByRelationData = {
-  body: CrackerBinaryRelationTasks;
+export type PatchCrackersByIdRelationshipsCrackerBinaryTypeData = {
+  body: CrackerBinaryRelationCrackerBinaryType;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/crackers/{id}/relationships/{relation}';
+  url: '/api/v2/ui/crackers/{id}/relationships/crackerBinaryType';
 };
 
-export type PatchCrackersByIdRelationshipsByRelationErrors = {
+export type PatchCrackersByIdRelationshipsCrackerBinaryTypeErrors = {
   /**
    * Invalid request
    */
@@ -725,30 +885,110 @@ export type PatchCrackersByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PatchCrackersByIdRelationshipsByRelationError =
-  PatchCrackersByIdRelationshipsByRelationErrors[keyof PatchCrackersByIdRelationshipsByRelationErrors];
+export type PatchCrackersByIdRelationshipsCrackerBinaryTypeError =
+  PatchCrackersByIdRelationshipsCrackerBinaryTypeErrors[keyof PatchCrackersByIdRelationshipsCrackerBinaryTypeErrors];
 
-export type PatchCrackersByIdRelationshipsByRelationResponses = {
+export type PatchCrackersByIdRelationshipsCrackerBinaryTypeResponses = {
   /**
    * Successfull operation
    */
   204: void;
 };
 
-export type PatchCrackersByIdRelationshipsByRelationResponse =
-  PatchCrackersByIdRelationshipsByRelationResponses[keyof PatchCrackersByIdRelationshipsByRelationResponses];
+export type PatchCrackersByIdRelationshipsCrackerBinaryTypeResponse =
+  PatchCrackersByIdRelationshipsCrackerBinaryTypeResponses[keyof PatchCrackersByIdRelationshipsCrackerBinaryTypeResponses];
 
-export type PostCrackersByIdRelationshipsByRelationData = {
-  body: CrackerBinaryRelationTasks;
+export type GetCrackersByIdAccessGroupData = {
+  body?: never;
   path: {
     id: number;
-    relation: string;
   };
   query?: never;
-  url: '/api/v2/ui/crackers/{id}/relationships/{relation}';
+  url: '/api/v2/ui/crackers/{id}/accessGroup';
 };
 
-export type PostCrackersByIdRelationshipsByRelationErrors = {
+export type GetCrackersByIdAccessGroupErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetCrackersByIdAccessGroupError = GetCrackersByIdAccessGroupErrors[keyof GetCrackersByIdAccessGroupErrors];
+
+export type GetCrackersByIdAccessGroupResponses = {
+  /**
+   * successful operation
+   */
+  200: AccessGroupResponse;
+};
+
+export type GetCrackersByIdAccessGroupResponse =
+  GetCrackersByIdAccessGroupResponses[keyof GetCrackersByIdAccessGroupResponses];
+
+export type GetCrackersByIdRelationshipsAccessGroupData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/crackers/{id}/relationships/accessGroup';
+};
+
+export type GetCrackersByIdRelationshipsAccessGroupErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetCrackersByIdRelationshipsAccessGroupError =
+  GetCrackersByIdRelationshipsAccessGroupErrors[keyof GetCrackersByIdRelationshipsAccessGroupErrors];
+
+export type GetCrackersByIdRelationshipsAccessGroupResponses = {
+  /**
+   * successful operation
+   */
+  200: CrackerBinaryRelationAccessGroupGetResponse;
+};
+
+export type GetCrackersByIdRelationshipsAccessGroupResponse =
+  GetCrackersByIdRelationshipsAccessGroupResponses[keyof GetCrackersByIdRelationshipsAccessGroupResponses];
+
+export type PatchCrackersByIdRelationshipsAccessGroupData = {
+  body: CrackerBinaryRelationAccessGroup;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/crackers/{id}/relationships/accessGroup';
+};
+
+export type PatchCrackersByIdRelationshipsAccessGroupErrors = {
   /**
    * Invalid request
    */
@@ -771,18 +1011,441 @@ export type PostCrackersByIdRelationshipsByRelationErrors = {
   409: ErrorResponse;
 };
 
-export type PostCrackersByIdRelationshipsByRelationError =
-  PostCrackersByIdRelationshipsByRelationErrors[keyof PostCrackersByIdRelationshipsByRelationErrors];
+export type PatchCrackersByIdRelationshipsAccessGroupError =
+  PatchCrackersByIdRelationshipsAccessGroupErrors[keyof PatchCrackersByIdRelationshipsAccessGroupErrors];
 
-export type PostCrackersByIdRelationshipsByRelationResponses = {
+export type PatchCrackersByIdRelationshipsAccessGroupResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchCrackersByIdRelationshipsAccessGroupResponse =
+  PatchCrackersByIdRelationshipsAccessGroupResponses[keyof PatchCrackersByIdRelationshipsAccessGroupResponses];
+
+export type GetCrackersByIdTasksData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/crackers/{id}/tasks';
+};
+
+export type GetCrackersByIdTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetCrackersByIdTasksError = GetCrackersByIdTasksErrors[keyof GetCrackersByIdTasksErrors];
+
+export type GetCrackersByIdTasksResponses = {
+  /**
+   * successful operation
+   */
+  200: TaskListResponse;
+};
+
+export type GetCrackersByIdTasksResponse = GetCrackersByIdTasksResponses[keyof GetCrackersByIdTasksResponses];
+
+export type DeleteCrackersByIdRelationshipsTasksData = {
+  body: CrackerBinaryRelationTasks;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/crackers/{id}/relationships/tasks';
+};
+
+export type DeleteCrackersByIdRelationshipsTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteCrackersByIdRelationshipsTasksError =
+  DeleteCrackersByIdRelationshipsTasksErrors[keyof DeleteCrackersByIdRelationshipsTasksErrors];
+
+export type DeleteCrackersByIdRelationshipsTasksResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteCrackersByIdRelationshipsTasksResponse =
+  DeleteCrackersByIdRelationshipsTasksResponses[keyof DeleteCrackersByIdRelationshipsTasksResponses];
+
+export type GetCrackersByIdRelationshipsTasksData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/crackers/{id}/relationships/tasks';
+};
+
+export type GetCrackersByIdRelationshipsTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetCrackersByIdRelationshipsTasksError =
+  GetCrackersByIdRelationshipsTasksErrors[keyof GetCrackersByIdRelationshipsTasksErrors];
+
+export type GetCrackersByIdRelationshipsTasksResponses = {
+  /**
+   * successful operation
+   */
+  200: CrackerBinaryRelationTasksGetResponse;
+};
+
+export type GetCrackersByIdRelationshipsTasksResponse =
+  GetCrackersByIdRelationshipsTasksResponses[keyof GetCrackersByIdRelationshipsTasksResponses];
+
+export type PatchCrackersByIdRelationshipsTasksData = {
+  body: CrackerBinaryRelationTasks;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/crackers/{id}/relationships/tasks';
+};
+
+export type PatchCrackersByIdRelationshipsTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchCrackersByIdRelationshipsTasksError =
+  PatchCrackersByIdRelationshipsTasksErrors[keyof PatchCrackersByIdRelationshipsTasksErrors];
+
+export type PatchCrackersByIdRelationshipsTasksResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchCrackersByIdRelationshipsTasksResponse =
+  PatchCrackersByIdRelationshipsTasksResponses[keyof PatchCrackersByIdRelationshipsTasksResponses];
+
+export type PostCrackersByIdRelationshipsTasksData = {
+  body: CrackerBinaryRelationTasks;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/crackers/{id}/relationships/tasks';
+};
+
+export type PostCrackersByIdRelationshipsTasksErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostCrackersByIdRelationshipsTasksError =
+  PostCrackersByIdRelationshipsTasksErrors[keyof PostCrackersByIdRelationshipsTasksErrors];
+
+export type PostCrackersByIdRelationshipsTasksResponses = {
   /**
    * successfully created
    */
   204: void;
 };
 
-export type PostCrackersByIdRelationshipsByRelationResponse =
-  PostCrackersByIdRelationshipsByRelationResponses[keyof PostCrackersByIdRelationshipsByRelationResponses];
+export type PostCrackersByIdRelationshipsTasksResponse =
+  PostCrackersByIdRelationshipsTasksResponses[keyof PostCrackersByIdRelationshipsTasksResponses];
+
+export type GetCrackersByIdHashtypesData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/crackers/{id}/hashtypes';
+};
+
+export type GetCrackersByIdHashtypesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetCrackersByIdHashtypesError = GetCrackersByIdHashtypesErrors[keyof GetCrackersByIdHashtypesErrors];
+
+export type GetCrackersByIdHashtypesResponses = {
+  /**
+   * successful operation
+   */
+  200: HashTypeListResponse;
+};
+
+export type GetCrackersByIdHashtypesResponse =
+  GetCrackersByIdHashtypesResponses[keyof GetCrackersByIdHashtypesResponses];
+
+export type DeleteCrackersByIdRelationshipsHashtypesData = {
+  body: CrackerBinaryRelationHashtypes;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/crackers/{id}/relationships/hashtypes';
+};
+
+export type DeleteCrackersByIdRelationshipsHashtypesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type DeleteCrackersByIdRelationshipsHashtypesError =
+  DeleteCrackersByIdRelationshipsHashtypesErrors[keyof DeleteCrackersByIdRelationshipsHashtypesErrors];
+
+export type DeleteCrackersByIdRelationshipsHashtypesResponses = {
+  /**
+   * successfully deleted
+   */
+  204: void;
+};
+
+export type DeleteCrackersByIdRelationshipsHashtypesResponse =
+  DeleteCrackersByIdRelationshipsHashtypesResponses[keyof DeleteCrackersByIdRelationshipsHashtypesResponses];
+
+export type GetCrackersByIdRelationshipsHashtypesData = {
+  body?: never;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/crackers/{id}/relationships/hashtypes';
+};
+
+export type GetCrackersByIdRelationshipsHashtypesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetCrackersByIdRelationshipsHashtypesError =
+  GetCrackersByIdRelationshipsHashtypesErrors[keyof GetCrackersByIdRelationshipsHashtypesErrors];
+
+export type GetCrackersByIdRelationshipsHashtypesResponses = {
+  /**
+   * successful operation
+   */
+  200: CrackerBinaryRelationHashtypesGetResponse;
+};
+
+export type GetCrackersByIdRelationshipsHashtypesResponse =
+  GetCrackersByIdRelationshipsHashtypesResponses[keyof GetCrackersByIdRelationshipsHashtypesResponses];
+
+export type PatchCrackersByIdRelationshipsHashtypesData = {
+  body: CrackerBinaryRelationHashtypes;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/crackers/{id}/relationships/hashtypes';
+};
+
+export type PatchCrackersByIdRelationshipsHashtypesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PatchCrackersByIdRelationshipsHashtypesError =
+  PatchCrackersByIdRelationshipsHashtypesErrors[keyof PatchCrackersByIdRelationshipsHashtypesErrors];
+
+export type PatchCrackersByIdRelationshipsHashtypesResponses = {
+  /**
+   * Successfull operation
+   */
+  204: void;
+};
+
+export type PatchCrackersByIdRelationshipsHashtypesResponse =
+  PatchCrackersByIdRelationshipsHashtypesResponses[keyof PatchCrackersByIdRelationshipsHashtypesResponses];
+
+export type PostCrackersByIdRelationshipsHashtypesData = {
+  body: CrackerBinaryRelationHashtypes;
+  path: {
+    id: number;
+  };
+  query?: never;
+  url: '/api/v2/ui/crackers/{id}/relationships/hashtypes';
+};
+
+export type PostCrackersByIdRelationshipsHashtypesErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Resource already exists
+   */
+  409: ErrorResponse;
+};
+
+export type PostCrackersByIdRelationshipsHashtypesError =
+  PostCrackersByIdRelationshipsHashtypesErrors[keyof PostCrackersByIdRelationshipsHashtypesErrors];
+
+export type PostCrackersByIdRelationshipsHashtypesResponses = {
+  /**
+   * successfully created
+   */
+  204: void;
+};
+
+export type PostCrackersByIdRelationshipsHashtypesResponse =
+  PostCrackersByIdRelationshipsHashtypesResponses[keyof PostCrackersByIdRelationshipsHashtypesResponses];
 
 export type DeleteCrackersByIdData = {
   body?: never;
@@ -830,9 +1493,9 @@ export type GetCrackersByIdData = {
   };
   query?: {
     /**
-     * Relationships to include in the response, comma seperated. Possible options: crackerBinaryType, tasks
+     * Relationships to include in the response, comma seperated. Possible options: crackerBinaryType, accessGroup, tasks, hashtypes
      */
-    include?: Array<'crackerBinaryType' | 'tasks'>;
+    include?: Array<'crackerBinaryType' | 'accessGroup' | 'tasks' | 'hashtypes'>;
   };
   url: '/api/v2/ui/crackers/{id}';
 };
