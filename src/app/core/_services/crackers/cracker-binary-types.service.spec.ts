@@ -1,3 +1,4 @@
+import { Perm } from '@constants/userpermissions.config';
 import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 import { firstValueFrom, of, throwError } from 'rxjs';
 
@@ -6,6 +7,7 @@ import { TestBed } from '@angular/core/testing';
 import { CrackerBinaryTypesService, fallbackCrackerTypeName } from '@services/crackers/cracker-binary-types.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { PermissionService } from '@services/permission/permission.service';
 
 import { mockValidResponse } from '@src/app/testing/mock-response';
 
@@ -19,11 +21,20 @@ const TYPES = mockValidResponse(zCrackerBinaryTypeListResponse, {
 describe('CrackerBinaryTypesService', () => {
   let service: CrackerBinaryTypesService;
   let gs: jasmine.SpyObj<GlobalService>;
+  let granted: Set<string>;
 
   beforeEach(() => {
     gs = jasmine.createSpyObj('GlobalService', ['getAll']);
     gs.getAll.and.returnValue(of(TYPES));
-    TestBed.configureTestingModule({ providers: [{ provide: GlobalService, useValue: gs }] });
+    granted = new Set<string>([Perm.CrackerBinaryType.READ]);
+    const permissionService = jasmine.createSpyObj<PermissionService>('PermissionService', ['hasPermissionSync']);
+    permissionService.hasPermissionSync.and.callFake((key) => granted.has(key));
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: GlobalService, useValue: gs },
+        { provide: PermissionService, useValue: permissionService }
+      ]
+    });
     service = TestBed.inject(CrackerBinaryTypesService);
   });
 
@@ -78,5 +89,27 @@ describe('CrackerBinaryTypesService', () => {
 
     expect(await firstValueFrom(service.getTypeName(1))).toBe('Type #1');
     expect((await firstValueFrom(service.getTypeNames())).size).toBe(0);
+  });
+
+  it('gives no names without the type read permission and does not request them', async () => {
+    granted.clear();
+
+    expect((await firstValueFrom(service.getTypeNames())).size).toBe(0);
+    expect(gs.getAll).not.toHaveBeenCalled();
+  });
+
+  it('falls back for a type name without the type read permission', async () => {
+    granted.clear();
+
+    expect(await firstValueFrom(service.getTypeName(1))).toBe('Type #1');
+    expect(gs.getAll).not.toHaveBeenCalled();
+  });
+
+  it('still requests the types without the type read permission', async () => {
+    granted.clear();
+
+    await firstValueFrom(service.getTypes());
+
+    expect(gs.getAll).toHaveBeenCalledOnceWith(SERV.CRACKERS_TYPES);
   });
 });

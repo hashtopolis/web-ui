@@ -1,3 +1,4 @@
+import { Perm } from '@constants/userpermissions.config';
 import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 import { Observable, catchError, map, of, shareReplay } from 'rxjs';
 
@@ -10,6 +11,7 @@ import { ResponseWrapper } from '@models/response.model';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { PermissionService } from '@services/permission/permission.service';
 
 /** Id and name of a cracker binary type, without its versions */
 export interface CrackerBinaryTypeName {
@@ -33,6 +35,7 @@ export function fallbackCrackerTypeName(id: CrackerBinaryTypeId): string {
 })
 export class CrackerBinaryTypesService {
   private gs = inject(GlobalService);
+  private permissionService = inject(PermissionService);
 
   /** Cached list, null until the first request (and again after invalidate or a failed request) */
   private types$: Observable<CrackerBinaryTypeName[]> | null = null;
@@ -59,8 +62,14 @@ export class CrackerBinaryTypesService {
     return this.types$;
   }
 
-  /** Type names by id. A failed request gives an empty map, a name lookup must not fail a page. */
+  /**
+   * Type names by id. A failed request gives an empty map, a name lookup must not fail a page. Without the type read
+   * permission nothing is requested, the request would only fail and show the global error toast.
+   */
   getTypeNames(): Observable<ReadonlyMap<CrackerBinaryTypeId, string>> {
+    if (!this.permissionService.hasPermissionSync(Perm.CrackerBinaryType.READ)) {
+      return of(new Map<CrackerBinaryTypeId, string>());
+    }
     return this.getTypes().pipe(
       map((types) => new Map<CrackerBinaryTypeId, string>(types.map((type) => [type.id, type.typeName]))),
       catchError((error: unknown) => {
