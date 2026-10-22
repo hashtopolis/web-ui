@@ -20,14 +20,17 @@ describe('UISettingsUtilityClass — tableSettings backfill via schema', () => {
    */
   function makeStorage(stored: UIConfig): LocalStorageService<UIConfig> {
     return {
-      getItem: jasmine.createSpy('getItem').and.callFake((_key: string, schema?: z.ZodType<UIConfig>) => {
-        if (!schema) {
-          return stored;
-        }
-        const result = schema.safeParse(stored);
-        return result.success ? result.data : stored;
-      }),
-      setItem: jasmine.createSpy('setItem')
+      getItem: vi
+        .fn()
+        .mockName('getItem')
+        .mockImplementation((_key: string, schema?: z.ZodType<UIConfig>) => {
+          if (!schema) {
+            return stored;
+          }
+          const result = schema.safeParse(stored);
+          return result.success ? result.data : stored;
+        }),
+      setItem: vi.fn().mockName('setItem')
     } as unknown as LocalStorageService<UIConfig>;
   }
 
@@ -36,7 +39,7 @@ describe('UISettingsUtilityClass — tableSettings backfill via schema', () => {
   }
 
   it('backfills a missing default key so getTableSettings returns the default columns', () => {
-    const errorSpy = spyOn(console, 'error');
+    const errorSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
     const stored = cloneDefault();
     delete (stored.tableSettings as Record<string, unknown>)['apiTokensTable'];
 
@@ -69,13 +72,22 @@ describe('UISettingsUtilityClass — tableSettings backfill via schema', () => {
  */
 describe('UISettingsUtilityClass — concurrent holders', () => {
   /** Mock storage backed by one shared object, so two utilities see each other's writes. */
-  function makeSharedStorage(): { service: LocalStorageService<UIConfig>; read: () => UIConfig } {
+  function makeSharedStorage(): {
+    service: LocalStorageService<UIConfig>;
+    read: () => UIConfig;
+  } {
     let stored: UIConfig = JSON.parse(JSON.stringify(uiConfigDefault));
     const service = {
-      getItem: jasmine.createSpy('getItem').and.callFake(() => JSON.parse(JSON.stringify(stored))),
-      setItem: jasmine.createSpy('setItem').and.callFake((_key: string, value: UIConfig) => {
-        stored = JSON.parse(JSON.stringify(value));
-      })
+      getItem: vi
+        .fn()
+        .mockName('getItem')
+        .mockImplementation(() => JSON.parse(JSON.stringify(stored))),
+      setItem: vi
+        .fn()
+        .mockName('setItem')
+        .mockImplementation((_key: string, value: UIConfig) => {
+          stored = JSON.parse(JSON.stringify(value));
+        })
     } as unknown as LocalStorageService<UIConfig>;
     return { service, read: () => stored };
   }
@@ -90,7 +102,7 @@ describe('UISettingsUtilityClass — concurrent holders', () => {
     autoRefreshHolder.updateSettings({ refreshPage: true });
 
     expect((read().tableSettings['tasksTable'] as TableConfig).columns).toEqual([1, 2, 3]);
-    expect(read().refreshPage).toBeTrue();
+    expect(read().refreshPage).toBe(true);
   });
 
   it('does not revert a top-level setting when another holder writes table settings', () => {

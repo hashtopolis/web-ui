@@ -1,6 +1,7 @@
 import { Perm } from '@constants/userpermissions.config';
 import { zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 import { firstValueFrom, of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { TestBed } from '@angular/core/testing';
 
@@ -20,15 +21,19 @@ const TYPES = mockValidResponse(zCrackerBinaryTypeListResponse, {
 
 describe('CrackerBinaryTypesService', () => {
   let service: CrackerBinaryTypesService;
-  let gs: jasmine.SpyObj<GlobalService>;
+  let gs: MockedObject<GlobalService>;
   let granted: Set<string>;
 
   beforeEach(() => {
-    gs = jasmine.createSpyObj('GlobalService', ['getAll']);
-    gs.getAll.and.returnValue(of(TYPES));
+    gs = {
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    } as MockedObject<GlobalService>;
+    gs.getAll.mockReturnValue(of(TYPES));
     granted = new Set<string>([Perm.CrackerBinaryType.READ]);
-    const permissionService = jasmine.createSpyObj<PermissionService>('PermissionService', ['hasPermissionSync']);
-    permissionService.hasPermissionSync.and.callFake((key) => granted.has(key));
+    const permissionService = {
+      hasPermissionSync: vi.fn().mockName('PermissionService.hasPermissionSync')
+    };
+    permissionService.hasPermissionSync.mockImplementation((key) => granted.has(key));
     TestBed.configureTestingModule({
       providers: [
         { provide: GlobalService, useValue: gs },
@@ -42,7 +47,9 @@ describe('CrackerBinaryTypesService', () => {
     const first = await firstValueFrom(service.getTypes());
     const second = await firstValueFrom(service.getTypes());
 
-    expect(gs.getAll).toHaveBeenCalledOnceWith(SERV.CRACKERS_TYPES);
+    expect(gs.getAll).toHaveBeenCalledTimes(1);
+
+    expect(gs.getAll).toHaveBeenCalledWith(SERV.CRACKERS_TYPES);
     expect(first).toEqual([
       { id: 1, typeName: 'hashcat' },
       { id: 2, typeName: 'generic' }
@@ -59,12 +66,9 @@ describe('CrackerBinaryTypesService', () => {
   });
 
   it('retries after a failed request', async () => {
-    gs.getAll.and.returnValues(
-      throwError(() => new Error('down')),
-      of(TYPES)
-    );
+    gs.getAll.mockReturnValueOnce(throwError(() => new Error('down'))).mockReturnValueOnce(of(TYPES));
 
-    await expectAsync(firstValueFrom(service.getTypes())).toBeRejected();
+    await expect(firstValueFrom(service.getTypes())).rejects.toThrow();
     const types = await firstValueFrom(service.getTypes());
 
     expect(types.map((type) => type.id)).toEqual([1, 2]);
@@ -84,8 +88,8 @@ describe('CrackerBinaryTypesService', () => {
   });
 
   it('falls back when the request fails', async () => {
-    spyOn(console, 'error');
-    gs.getAll.and.returnValue(throwError(() => new Error('down')));
+    vi.spyOn(console, 'error').mockReturnValue(undefined);
+    gs.getAll.mockReturnValue(throwError(() => new Error('down')));
 
     expect(await firstValueFrom(service.getTypeName(1))).toBe('Type #1');
     expect((await firstValueFrom(service.getTypeNames())).size).toBe(0);
@@ -110,6 +114,8 @@ describe('CrackerBinaryTypesService', () => {
 
     await firstValueFrom(service.getTypes());
 
-    expect(gs.getAll).toHaveBeenCalledOnceWith(SERV.CRACKERS_TYPES);
+    expect(gs.getAll).toHaveBeenCalledTimes(1);
+
+    expect(gs.getAll).toHaveBeenCalledWith(SERV.CRACKERS_TYPES);
   });
 });

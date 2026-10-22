@@ -1,5 +1,6 @@
 import { BackgroundJobStatus } from '@constants/background-jobs.config';
 import { of, throwError } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -66,10 +67,12 @@ function job(overrides: Partial<JBackgroundJob> = {}): JBackgroundJob {
 describe('BackgroundJobsTableComponent', () => {
   let component: TestBackgroundJobsTableComponent;
   let fixture: ComponentFixture<TestBackgroundJobsTableComponent>;
-  let mockExportService: jasmine.SpyObj<ExportService>;
+  let mockExportService: MockedObject<ExportService>;
 
   beforeEach(async () => {
-    mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
+    mockExportService = {
+      handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
+    } as MockedObject<ExportService>;
 
     await TestBed.configureTestingModule({
       declarations: [TestBackgroundJobsTableComponent],
@@ -84,7 +87,9 @@ describe('BackgroundJobsTableComponent', () => {
     fixture = TestBed.createComponent(TestBackgroundJobsTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    component.table = jasmine.createSpyObj('HTTableComponent', ['reload']) as unknown as HTTableComponent<BaseModel>;
+    component.table = {
+      reload: vi.fn().mockName('HTTableComponent.reload')
+    } as unknown as HTTableComponent<BaseModel>;
   });
 
   function column(id: BackgroundJobsTableCol): HTTableColumn {
@@ -135,33 +140,41 @@ describe('BackgroundJobsTableComponent', () => {
     it('sorts newest first by default', () => {
       const settings = uiConfigDefault.tableSettings as unknown as Record<
         string,
-        { order: { id: number; direction: string } }
+        {
+          order: {
+            id: number;
+            direction: string;
+          };
+        }
       >;
       expect(settings['backgroundJobsTable'].order).toEqual(
-        jasmine.objectContaining({ id: BackgroundJobsTableCol.ID, direction: TableSortDirection.DESC })
+        expect.objectContaining({ id: BackgroundJobsTableCol.ID, direction: TableSortDirection.DESC })
       );
     });
   });
 
   describe('delete actions', () => {
-    let gs: { delete: jasmine.Spy; bulkDelete: jasmine.Spy };
-    let dialogOpen: jasmine.Spy;
-    let showSuccess: jasmine.Spy;
-    let showInfo: jasmine.Spy;
-    let reload: jasmine.Spy;
+    let gs: {
+      delete: Mock;
+      bulkDelete: Mock;
+    };
+    let dialogOpen: Mock;
+    let showSuccess: Mock;
+    let showInfo: Mock;
+    let reload: Mock;
 
     function confirmDialog(action: string, data: JBackgroundJob[]) {
-      dialogOpen.and.returnValue({ afterClosed: () => of({ action, data }) } as unknown as MatDialogRef<unknown>);
+      dialogOpen.mockReturnValue({ afterClosed: () => of({ action, data }) } as unknown as MatDialogRef<unknown>);
     }
 
     beforeEach(() => {
       gs = component['gs'] as unknown as typeof gs;
-      spyOn(gs, 'delete').and.returnValue(of({}));
-      spyOn(gs, 'bulkDelete').and.returnValue(of({}));
-      dialogOpen = spyOn(component.dialog, 'open');
-      showSuccess = spyOn(component['alertService'], 'showSuccessMessage');
-      showInfo = spyOn(component['alertService'], 'showInfoMessage');
-      reload = spyOn(component, 'reload');
+      vi.spyOn(gs, 'delete').mockReturnValue(of({}));
+      vi.spyOn(gs, 'bulkDelete').mockReturnValue(of({}));
+      dialogOpen = vi.spyOn(component.dialog, 'open').mockReturnValue(undefined as never);
+      showSuccess = vi.spyOn(component['alertService'], 'showSuccessMessage').mockReturnValue(undefined as never);
+      showInfo = vi.spyOn(component['alertService'], 'showInfoMessage').mockReturnValue(undefined as never);
+      reload = vi.spyOn(component, 'reload').mockReturnValue(undefined as never);
     });
 
     it('deletes a finished job after confirmation', () => {
@@ -188,7 +201,7 @@ describe('BackgroundJobsTableComponent', () => {
     it('delete error reloads and shows no success toast', () => {
       const row = job({ status: BackgroundJobStatus.PENDING });
       confirmDialog(RowActionMenuAction.DELETE, [row]);
-      gs.delete.and.returnValue(throwError(() => ({ status: 409 })));
+      gs.delete.mockReturnValue(throwError(() => ({ status: 409 })));
 
       component.rowActionClicked({ data: row, menuItem: { action: RowActionMenuAction.DELETE, label: '' } });
 
@@ -207,7 +220,7 @@ describe('BackgroundJobsTableComponent', () => {
         menuItem: { action: BulkActionMenuAction.DELETE, label: '' }
       });
 
-      const dialogData = dialogOpen.calls.mostRecent().args[1].data;
+      const dialogData = dialogOpen.mock.lastCall![1].data;
       expect(dialogData.rows).toEqual([done, pending]);
       expect(gs.bulkDelete).toHaveBeenCalledWith(SERV.BACKGROUND_JOBS, [done, pending]);
       expect(showSuccess).toHaveBeenCalledWith('Deleted 2 background jobs. 1 running jobs were skipped.');
@@ -236,7 +249,7 @@ describe('BackgroundJobsTableComponent', () => {
     it('bulk delete error reloads and shows no success toast', () => {
       const rows = [job({ id: 1 })];
       confirmDialog(BulkActionMenuAction.DELETE, rows);
-      gs.bulkDelete.and.returnValue(throwError(() => ({ status: 409 })));
+      gs.bulkDelete.mockReturnValue(throwError(() => ({ status: 409 })));
 
       component.bulkActionClicked({ data: rows, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } });
 
@@ -253,7 +266,7 @@ describe('BackgroundJobsTableComponent', () => {
     it('resumes auto-refresh on init when it is enabled in the settings', () => {
       const ds = mockDataSource();
       ds.autoRefreshService.refreshPage = true;
-      spyOn(ds, 'startAutoRefresh');
+      vi.spyOn(ds, 'startAutoRefresh').mockReturnValue(undefined as never);
 
       component.ngAfterViewInit();
 
@@ -262,7 +275,7 @@ describe('BackgroundJobsTableComponent', () => {
 
     it('does not start auto-refresh on init when it is disabled in the settings', () => {
       const ds = mockDataSource();
-      spyOn(ds, 'startAutoRefresh');
+      vi.spyOn(ds, 'startAutoRefresh').mockReturnValue(undefined as never);
 
       component.ngAfterViewInit();
 
@@ -271,7 +284,7 @@ describe('BackgroundJobsTableComponent', () => {
 
     it('stops auto-refresh when the table is destroyed', () => {
       const ds = mockDataSource();
-      spyOn(ds, 'stopAutoRefresh');
+      vi.spyOn(ds, 'stopAutoRefresh').mockReturnValue(undefined as never);
 
       fixture.destroy();
 

@@ -1,5 +1,6 @@
 import { zPreTaskListResponse } from '@generated/api/zod';
 import { Subject, of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -45,17 +46,24 @@ const PRETASKS = mockValidResponse(zPreTaskListResponse, {
 describe('NewSupertasksComponent', () => {
   let fixture: ComponentFixture<NewSupertasksComponent>;
   let component: NewSupertasksComponent;
-  let gs: jasmine.SpyObj<GlobalService>;
-  let router: jasmine.SpyObj<Router>;
-  let crackerBinaryTypes: jasmine.SpyObj<CrackerBinaryTypesService>;
+  let gs: MockedObject<GlobalService>;
+  let router: MockedObject<Router>;
+  let crackerBinaryTypes: MockedObject<CrackerBinaryTypesService>;
 
   beforeEach(async () => {
-    gs = jasmine.createSpyObj('GlobalService', ['getAll', 'create']);
-    gs.getAll.and.returnValue(of(PRETASKS));
-    gs.create.and.returnValue(of({} as ResponseWrapper));
-    router = jasmine.createSpyObj('Router', ['navigate']);
-    crackerBinaryTypes = jasmine.createSpyObj('CrackerBinaryTypesService', ['getTypes']);
-    crackerBinaryTypes.getTypes.and.returnValue(
+    gs = {
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      create: vi.fn().mockName('GlobalService.create')
+    } as MockedObject<GlobalService>;
+    gs.getAll.mockReturnValue(of(PRETASKS));
+    gs.create.mockReturnValue(of({} as ResponseWrapper));
+    router = {
+      navigate: vi.fn().mockName('Router.navigate')
+    } as MockedObject<Router>;
+    crackerBinaryTypes = {
+      getTypes: vi.fn().mockName('CrackerBinaryTypesService.getTypes')
+    } as MockedObject<CrackerBinaryTypesService>;
+    crackerBinaryTypes.getTypes.mockReturnValue(
       of([
         { id: 2, typeName: 'generic' },
         { id: 1, typeName: 'hashcat' }
@@ -68,8 +76,18 @@ describe('NewSupertasksComponent', () => {
         { provide: GlobalService, useValue: gs },
         { provide: Router, useValue: router },
         { provide: CrackerBinaryTypesService, useValue: crackerBinaryTypes },
-        { provide: AlertService, useValue: jasmine.createSpyObj('AlertService', ['showSuccessMessage']) },
-        { provide: AutoTitleService, useValue: jasmine.createSpyObj('AutoTitleService', ['set']) }
+        {
+          provide: AlertService,
+          useValue: {
+            showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage')
+          }
+        },
+        {
+          provide: AutoTitleService,
+          useValue: {
+            set: vi.fn().mockName('AutoTitleService.set')
+          }
+        }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
@@ -83,7 +101,7 @@ describe('NewSupertasksComponent', () => {
     expect(component.selectCrackerTypes.map((option) => option.id)).toEqual([2, 1]);
     expect(component.form.controls.crackerBinaryTypeId.value).toBe(1);
     expect(component.selectPretasks.map((option) => option.id)).toEqual([2]);
-    expect(component.isLoading).toBeFalse();
+    expect(component.isLoading).toBe(false);
   });
 
   it('clears the pretasks when the type changes', () => {
@@ -93,13 +111,18 @@ describe('NewSupertasksComponent', () => {
 
     expect(component.form.controls.pretasks.value).toEqual([]);
     expect(component.selectPretasks.map((option) => option.id)).toEqual([3]);
-    expect(component.form.valid).toBeFalse();
+    expect(component.form.valid).toBe(false);
   });
 
   it('keeps the pretasks when the type list is emitted again unchanged', () => {
     // the HTTP cache serves a stale list first and the fresh one afterwards, both preselect the same type
-    const types$ = new Subject<{ id: number; typeName: string }[]>();
-    crackerBinaryTypes.getTypes.and.returnValue(types$);
+    const types$ = new Subject<
+      {
+        id: number;
+        typeName: string;
+      }[]
+    >();
+    crackerBinaryTypes.getTypes.mockReturnValue(types$);
     fixture = TestBed.createComponent(NewSupertasksComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -132,6 +155,6 @@ describe('NewSupertasksComponent', () => {
     component.onSubmit();
 
     expect(gs.create).not.toHaveBeenCalled();
-    expect(component.form.controls.pretasks.touched).toBeTrue();
+    expect(component.form.controls.pretasks.touched).toBe(true);
   });
 });

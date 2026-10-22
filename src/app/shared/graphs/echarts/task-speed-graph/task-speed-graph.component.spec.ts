@@ -45,7 +45,11 @@ describe('TaskSpeedGraphComponent', () => {
 
   it('places the Max/Min markers on the true extremes with the shared unit', () => {
     const option = drawWith([speedStat(100, 5_000_000), speedStat(110, 800_000)]);
-    const markPoints = option.series[0].markPoint.data as { name: string; coord: [number, number]; value: string }[];
+    const markPoints = option.series[0].markPoint.data as {
+      name: string;
+      coord: [number, number];
+      value: string;
+    }[];
     const max = markPoints.find((point) => point.name === 'Max');
     const min = markPoints.find((point) => point.name === 'Min');
 
@@ -169,7 +173,11 @@ describe('TaskSpeedGraphComponent', () => {
 
   it('places both Max and Min markers on the sole point when there is only one sample', () => {
     const option = drawWith([speedStat(100, 5_000_000, 1)]);
-    const markPoints = option.series[0].markPoint.data as { name: string; coord: [number, number]; value: string }[];
+    const markPoints = option.series[0].markPoint.data as {
+      name: string;
+      coord: [number, number];
+      value: string;
+    }[];
     const max = markPoints.find((point) => point.name === 'Max');
     const min = markPoints.find((point) => point.name === 'Min');
 
@@ -221,7 +229,7 @@ describe('TaskSpeedGraphComponent', () => {
     drawWith([speedStat(100, 5_000_000)]);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const chart = (component as any).chart;
-    spyOn(chart, 'clear').and.callThrough();
+    vi.spyOn(chart, 'clear');
 
     component.speeds = [];
     component.ngOnChanges({ speeds: new SimpleChange([speedStat(100, 5_000_000)], [], false) });

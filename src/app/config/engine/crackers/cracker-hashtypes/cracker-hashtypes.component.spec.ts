@@ -1,5 +1,6 @@
 import { zCrackerBinaryRelationHashtypesGetResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -20,10 +21,13 @@ import { mockValidResponse } from '@src/app/testing/mock-response';
 
 @Component({ selector: 'app-cracker-hashtypes-table', template: '' })
 class StubCrackerHashtypesTableComponent {
-  @Input() crackerBinaryId: number;
-  @Input() editable = false;
-  @Output() hashtypesRemoved = new EventEmitter<void>();
-  reload = jasmine.createSpy('reload');
+  @Input()
+  crackerBinaryId: number;
+  @Input()
+  editable = false;
+  @Output()
+  hashtypesRemoved = new EventEmitter<void>();
+  reload = vi.fn().mockName('reload');
 }
 
 function assignedResponse(ids: number[]) {
@@ -35,8 +39,8 @@ function assignedResponse(ids: number[]) {
 describe('CrackerHashtypesComponent', () => {
   let fixture: ComponentFixture<CrackerHashtypesComponent>;
   let component: CrackerHashtypesComponent;
-  let gs: jasmine.SpyObj<GlobalService>;
-  let dialog: jasmine.SpyObj<MatDialog>;
+  let gs: MockedObject<GlobalService>;
+  let dialog: MockedObject<MatDialog>;
   /** Result the add dialog closes with */
   let dialogResult: boolean | undefined;
 
@@ -76,11 +80,15 @@ describe('CrackerHashtypesComponent', () => {
   }
 
   beforeEach(() => {
-    gs = jasmine.createSpyObj('GlobalService', ['getRelationshipLink']);
-    gs.getRelationshipLink.and.returnValue(of(assignedResponse([1000])));
+    gs = {
+      getRelationshipLink: vi.fn().mockName('GlobalService.getRelationshipLink')
+    } as MockedObject<GlobalService>;
+    gs.getRelationshipLink.mockReturnValue(of(assignedResponse([1000])));
     dialogResult = true;
-    dialog = jasmine.createSpyObj('MatDialog', ['open']);
-    dialog.open.and.callFake(
+    dialog = {
+      open: vi.fn().mockName('MatDialog.open')
+    } as MockedObject<MatDialog>;
+    dialog.open.mockImplementation(
       () => ({ afterClosed: () => of(dialogResult) }) as MatDialogRef<AddCrackerHashtypesDialogComponent, boolean>
     );
   });
@@ -93,7 +101,7 @@ describe('CrackerHashtypesComponent', () => {
         'determined by a background scan of the archive'
       );
       expect(openButton()).toBeNull();
-      expect(table().editable).toBeFalse();
+      expect(table().editable).toBe(false);
     });
 
     it('loads the ids of the assigned hashtypes', () => {
@@ -105,7 +113,7 @@ describe('CrackerHashtypesComponent', () => {
 
   describe('hashcat version without hashtypes', () => {
     beforeEach(async () => {
-      gs.getRelationshipLink.and.returnValue(of(assignedResponse([])));
+      gs.getRelationshipLink.mockReturnValue(of(assignedResponse([])));
       await setup({ isHashcat: true, canEdit: true });
     });
 
@@ -120,25 +128,25 @@ describe('CrackerHashtypesComponent', () => {
     beforeEach(async () => await setup({ isHashcat: false, canEdit: true }));
 
     it('passes an editable table and shows no scan note', () => {
-      expect(table().editable).toBeTrue();
+      expect(table().editable).toBe(true);
       expect(el().querySelector('[data-testid="hashcat-scan-note"]')).toBeNull();
     });
 
     it('opens the add dialog with the version, the assigned ids and the create permission', () => {
       openButton()?.click();
 
-      const [dialogComponent, config] = dialog.open.calls.mostRecent().args;
+      const [dialogComponent, config] = dialog.open.mock.lastCall!;
       expect(dialogComponent).toBe(AddCrackerHashtypesDialogComponent);
       expect(config?.data).toEqual({ crackerBinaryId: 12, assignedHashtypeIds: [1000], canCreate: false });
     });
 
     it('focuses the dialog itself, so the hashtype search does not open its options over the actions', () => {
       component.openAddDialog();
-      expect(dialog.open.calls.mostRecent().args[1]?.autoFocus).toBe('dialog');
+      expect(dialog.open.mock.lastCall![1]?.autoFocus).toBe('dialog');
     });
 
     it('reloads the table and the assigned ids after hashtypes were added', async () => {
-      gs.getRelationshipLink.and.returnValue(of(assignedResponse([0, 1000])));
+      gs.getRelationshipLink.mockReturnValue(of(assignedResponse([0, 1000])));
 
       component.openAddDialog();
       await fixture.whenStable();
@@ -149,7 +157,7 @@ describe('CrackerHashtypesComponent', () => {
 
     it('reloads nothing when the dialog was cancelled', () => {
       dialogResult = undefined;
-      gs.getRelationshipLink.calls.reset();
+      gs.getRelationshipLink.mockClear();
 
       component.openAddDialog();
 
@@ -158,7 +166,7 @@ describe('CrackerHashtypesComponent', () => {
     });
 
     it('reloads the assigned ids after the table removed hashtypes', async () => {
-      gs.getRelationshipLink.and.returnValue(of(assignedResponse([])));
+      gs.getRelationshipLink.mockReturnValue(of(assignedResponse([])));
 
       table().hashtypesRemoved.emit();
       await fixture.whenStable();
@@ -172,7 +180,7 @@ describe('CrackerHashtypesComponent', () => {
 
     it('lets the dialog create hashtypes', () => {
       component.openAddDialog();
-      expect((dialog.open.calls.mostRecent().args[1]?.data as AddCrackerHashtypesDialogData).canCreate).toBeTrue();
+      expect((dialog.open.mock.lastCall![1]?.data as AddCrackerHashtypesDialogData).canCreate).toBe(true);
     });
   });
 
@@ -181,7 +189,7 @@ describe('CrackerHashtypesComponent', () => {
 
     it('is read-only', () => {
       expect(openButton()).toBeNull();
-      expect(table().editable).toBeFalse();
+      expect(table().editable).toBe(false);
     });
   });
 });

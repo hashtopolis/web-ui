@@ -1,5 +1,6 @@
 import { ChunkState, ChunkStateLabels } from '@constants/chunks.config';
-import { Subject, of } from 'rxjs';
+import { Subject, firstValueFrom, of } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -21,11 +22,11 @@ import { HTTableComponent } from '@components/tables/ht-table/ht-table.component
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
 class MockDataSource {
-  loadAll = jasmine.createSpy('loadAll').and.callFake(() => {});
-  setColumns = jasmine.createSpy('setColumns');
-  clearFilter = jasmine.createSpy('clearFilter');
-  reload = jasmine.createSpy('reload');
-  setAgentId = jasmine.createSpy('setAgentId');
+  loadAll = vi.fn().mockName('loadAll');
+  setColumns = vi.fn().mockName('setColumns');
+  clearFilter = vi.fn().mockName('clearFilter');
+  reload = vi.fn().mockName('reload');
+  setAgentId = vi.fn().mockName('setAgentId');
   filterError$ = new Subject<string>();
   isDetail = false;
 }
@@ -50,13 +51,18 @@ class TestChunksTableComponent extends ChunksTableComponent {
 describe('ChunksTableComponent', () => {
   let component: TestChunksTableComponent;
   let fixture: ComponentFixture<TestChunksTableComponent>;
-  let mockChunkActionsService: jasmine.SpyObj<ChunkActionsService>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
+  let mockChunkActionsService: MockedObject<ChunkActionsService>;
+  let mockAlertService: MockedObject<AlertService>;
 
   beforeEach(async () => {
-    mockChunkActionsService = jasmine.createSpyObj('ChunkActionsService', ['resetChunk']);
-    mockChunkActionsService.resetChunk.and.returnValue(of(undefined));
-    mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+    mockChunkActionsService = {
+      resetChunk: vi.fn().mockName('ChunkActionsService.resetChunk')
+    } as MockedObject<ChunkActionsService>;
+    mockChunkActionsService.resetChunk.mockReturnValue(of(undefined));
+    mockAlertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    } as MockedObject<AlertService>;
 
     await TestBed.configureTestingModule({
       declarations: [TestChunksTableComponent],
@@ -72,10 +78,17 @@ describe('ChunksTableComponent', () => {
     fixture = TestBed.createComponent(TestChunksTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    component.table = { reload: jasmine.createSpy('reload') } as unknown as HTTableComponent<BaseModel>;
-    (component as unknown as { table: { reload: jasmine.Spy; clearFilterError: jasmine.Spy } }).table = {
-      clearFilterError: jasmine.createSpy('clearFilterError'),
-      reload: jasmine.createSpy('reload')
+    component.table = { reload: vi.fn().mockName('reload') } as unknown as HTTableComponent<BaseModel>;
+    (
+      component as unknown as {
+        table: {
+          reload: Mock;
+          clearFilterError: Mock;
+        };
+      }
+    ).table = {
+      clearFilterError: vi.fn().mockName('clearFilterError'),
+      reload: vi.fn().mockName('reload')
     };
   });
 
@@ -183,30 +196,26 @@ describe('ChunksTableComponent', () => {
       expect(taskColumn?.dataKey).toBe('taskName');
     });
 
-    it('should render TASK column routerLink with correct path and label', (done) => {
+    it('should render TASK column routerLink with correct path and label', async () => {
       const columns = component.getColumns();
       const taskColumn = columns.find((col) => col.id === ChunksTableCol.TASK);
       const chunk = { taskId: 5, task: { taskName: 'Test Task' } } as JChunk;
 
-      taskColumn?.routerLink!(chunk).subscribe((links) => {
-        expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 5, 'edit']);
-        expect(links[0].label).toBe('Test Task');
-        done();
-      });
+      const links = await firstValueFrom(taskColumn!.routerLink!(chunk));
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 5, 'edit']);
+      expect(links[0].label).toBe('Test Task');
     });
 
-    it('should render TASK column routerLink with taskId as label when taskName is undefined', (done) => {
+    it('should render TASK column routerLink with taskId as label when taskName is undefined', async () => {
       const columns = component.getColumns();
       const taskColumn = columns.find((col) => col.id === ChunksTableCol.TASK);
       const chunk = { taskId: 10, task: { taskName: undefined } } as unknown as JChunk;
 
-      taskColumn?.routerLink!(chunk).subscribe((links) => {
-        expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 10, 'edit']);
-        expect(links[0].label).toBeUndefined();
-        done();
-      });
+      const links = await firstValueFrom(taskColumn!.routerLink!(chunk));
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 10, 'edit']);
+      expect(links[0].label).toBeUndefined();
     });
 
     it('should include AGENT column with routerLink function', () => {
@@ -219,30 +228,26 @@ describe('ChunksTableComponent', () => {
       expect(agentColumn?.dataKey).toBe('agentName');
     });
 
-    it('should render AGENT column routerLink with correct path and label', (done) => {
+    it('should render AGENT column routerLink with correct path and label', async () => {
       const columns = component.getColumns();
       const agentColumn = columns.find((col) => col.id === ChunksTableCol.AGENT);
       const chunk = { agentId: 7, agentName: 'Test Agent' } as JChunk;
 
-      agentColumn?.routerLink!(chunk).subscribe((links) => {
-        expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 7, 'edit']);
-        expect(links[0].label).toBe('Test Agent');
-        done();
-      });
+      const links = await firstValueFrom(agentColumn!.routerLink!(chunk));
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 7, 'edit']);
+      expect(links[0].label).toBe('Test Agent');
     });
 
-    it('should render AGENT column routerLink with agentId as label when agentName is undefined', (done) => {
+    it('should render AGENT column routerLink with agentId as label when agentName is undefined', async () => {
       const columns = component.getColumns();
       const agentColumn = columns.find((col) => col.id === ChunksTableCol.AGENT);
       const chunk = { agentId: 3, agentName: undefined } as unknown as JChunk;
 
-      agentColumn?.routerLink!(chunk).subscribe((links) => {
-        expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 3, 'edit']);
-        expect(links[0].label).toBe('3');
-        done();
-      });
+      const links = await firstValueFrom(agentColumn!.routerLink!(chunk));
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 3, 'edit']);
+      expect(links[0].label).toBe('3');
     });
 
     it('should include DISPATCH_TIME column with render function', () => {
@@ -295,17 +300,15 @@ describe('ChunksTableComponent', () => {
       expect(crackedColumn?.dataKey).toBe('cracked');
     });
 
-    it('should render CRACKED column routerLink with correct path and label', (done) => {
+    it('should render CRACKED column routerLink with correct path and label', async () => {
       const columns = component.getColumns();
       const crackedColumn = columns.find((col) => col.id === ChunksTableCol.CRACKED);
       const chunk = { id: 9, taskId: 5, cracked: 100 } as JChunk;
 
-      crackedColumn?.routerLink!(chunk).subscribe((links) => {
-        expect(links.length).toBe(1);
-        expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'chunks', 9]);
-        expect(links[0].label).toBe('100');
-        done();
-      });
+      const links = await firstValueFrom(crackedColumn!.routerLink!(chunk));
+      expect(links.length).toBe(1);
+      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'chunks', 9]);
+      expect(links[0].label).toBe('100');
     });
   });
 
@@ -636,7 +639,7 @@ describe('ChunksTableComponent', () => {
   describe('filter', () => {
     it('should call dataSource.loadAll with filter when input has value', () => {
       component.selectedFilterColumn = { id: 1, dataKey: 'state', parent: undefined } as unknown as HTTableColumn;
-      component.mockDataSource.loadAll.calls.reset();
+      component.mockDataSource.loadAll.mockClear();
 
       component.filter('Running');
 
@@ -650,7 +653,7 @@ describe('ChunksTableComponent', () => {
 
     it('should call dataSource.loadAll without filter when input is empty string', () => {
       component.selectedFilterColumn = { id: 1, dataKey: 'state' } as unknown as HTTableColumn;
-      component.mockDataSource.loadAll.calls.reset();
+      component.mockDataSource.loadAll.mockClear();
 
       component.filter('');
 
@@ -658,8 +661,12 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should call dataSource.loadAll without filter when input is empty string and selectedFilterColumn is undefined', () => {
-      (component as unknown as { selectedFilterColumn: HTTableColumn | undefined }).selectedFilterColumn = undefined;
-      component.mockDataSource.loadAll.calls.reset();
+      (
+        component as unknown as {
+          selectedFilterColumn: HTTableColumn | undefined;
+        }
+      ).selectedFilterColumn = undefined;
+      component.mockDataSource.loadAll.mockClear();
 
       component.filter('');
 
@@ -672,7 +679,7 @@ describe('ChunksTableComponent', () => {
         dataKey: 'taskName',
         parent: 'task'
       } as unknown as HTTableColumn;
-      component.mockDataSource.loadAll.calls.reset();
+      component.mockDataSource.loadAll.mockClear();
 
       component.filter('test');
 
@@ -687,7 +694,7 @@ describe('ChunksTableComponent', () => {
 
   describe('handleBackendSqlFilter', () => {
     it('should call filter when event has value', () => {
-      const filterSpy = spyOn(component, 'filter');
+      const filterSpy = vi.spyOn(component, 'filter').mockReturnValue(undefined);
 
       component.handleBackendSqlFilter('test query');
 
@@ -695,7 +702,7 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should clear filter when event is empty string', () => {
-      component.mockDataSource.clearFilter.calls.reset();
+      component.mockDataSource.clearFilter.mockClear();
 
       component.handleBackendSqlFilter('');
 
@@ -703,7 +710,7 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should clear filter when event is only whitespace', () => {
-      component.mockDataSource.clearFilter.calls.reset();
+      component.mockDataSource.clearFilter.mockClear();
 
       component.handleBackendSqlFilter('   ');
 
@@ -711,7 +718,7 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should call filter when event is valid', () => {
-      const filterSpy = spyOn(component, 'filter');
+      const filterSpy = vi.spyOn(component, 'filter').mockReturnValue(undefined);
 
       component.handleBackendSqlFilter('some filter');
 
@@ -753,7 +760,15 @@ describe('ChunksTableComponent', () => {
 
       component.rowActionClicked(event);
 
-      expect((component as unknown as { table: { reload: jasmine.Spy } }).table.reload).toHaveBeenCalled();
+      expect(
+        (
+          component as unknown as {
+            table: {
+              reload: Mock;
+            };
+          }
+        ).table.reload
+      ).toHaveBeenCalled();
     });
 
     it('should handle in-progress chunk (state 2)', () => {

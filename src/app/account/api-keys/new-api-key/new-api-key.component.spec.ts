@@ -1,4 +1,5 @@
 import { of, throwError } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -25,13 +26,13 @@ describe('NewApiKeyComponent', () => {
   let component: NewApiKeyComponent;
   let fixture: ComponentFixture<NewApiKeyComponent>;
 
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockRouter: jasmine.SpyObj<Router>;
-  let mockAlert: jasmine.SpyObj<AlertService>;
-  let mockPermission: jasmine.SpyObj<PermissionService>;
-  let mockStore: jasmine.SpyObj<ApiKeyRevealStore>;
-  let mockTitle: jasmine.SpyObj<AutoTitleService>;
-  let deserializeSpy: jasmine.Spy;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockRouter: MockedObject<Router>;
+  let mockAlert: MockedObject<AlertService>;
+  let mockPermission: MockedObject<PermissionService>;
+  let mockStore: MockedObject<ApiKeyRevealStore>;
+  let mockTitle: MockedObject<AutoTitleService>;
+  let deserializeSpy: Mock;
 
   /** Token shape returned by the (stubbed) deserializer for the happy path. */
   const createdToken: JApiToken = {
@@ -45,17 +46,31 @@ describe('NewApiKeyComponent', () => {
   };
 
   beforeEach(async () => {
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['create']);
+    mockGlobalService = {
+      create: vi.fn().mockName('GlobalService.create')
+    } as MockedObject<GlobalService>;
     Object.defineProperty(mockGlobalService, 'userId', { value: 42, configurable: true });
-    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-    mockRouter.navigate.and.resolveTo(true);
-    mockAlert = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    mockPermission = jasmine.createSpyObj('PermissionService', ['loadPermissions']);
-    mockPermission.loadPermissions.and.returnValue(of<Permission>({ permJwtApiKeyRead: true }));
-    mockStore = jasmine.createSpyObj('ApiKeyRevealStore', ['set', 'consume']);
-    mockTitle = jasmine.createSpyObj('AutoTitleService', ['set']);
+    mockRouter = {
+      navigate: vi.fn().mockName('Router.navigate')
+    } as MockedObject<Router>;
+    mockRouter.navigate.mockResolvedValue(true);
+    mockAlert = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    } as MockedObject<AlertService>;
+    mockPermission = {
+      loadPermissions: vi.fn().mockName('PermissionService.loadPermissions')
+    } as MockedObject<PermissionService>;
+    mockPermission.loadPermissions.mockReturnValue(of<Permission>({ permJwtApiKeyRead: true }));
+    mockStore = {
+      set: vi.fn().mockName('ApiKeyRevealStore.set'),
+      consume: vi.fn().mockName('ApiKeyRevealStore.consume')
+    } as MockedObject<ApiKeyRevealStore>;
+    mockTitle = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    } as MockedObject<AutoTitleService>;
 
-    deserializeSpy = spyOn(JsonAPISerializer.prototype, 'deserialize').and.returnValue(createdToken);
+    deserializeSpy = vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockReturnValue(createdToken);
 
     await TestBed.configureTestingModule({
       declarations: [NewApiKeyComponent],
@@ -91,11 +106,11 @@ describe('NewApiKeyComponent', () => {
 
   it('stores the freshly minted token and navigates to the list on success', async () => {
     component.form.controls.scopes.setValue([Perm.JwtApiKey.READ]);
-    mockGlobalService.create.and.returnValue(of(mockResponse()));
+    mockGlobalService.create.mockReturnValue(of(mockResponse()));
 
     await component.onSubmit();
 
-    expect(mockGlobalService.create).toHaveBeenCalledWith(SERV.API_TOKENS, jasmine.objectContaining({ userId: 42 }));
+    expect(mockGlobalService.create).toHaveBeenCalledWith(SERV.API_TOKENS, expect.objectContaining({ userId: 42 }));
     expect(mockStore.set).toHaveBeenCalledWith('jwt-xyz');
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/account/api-keys']);
     expect(mockAlert.showSuccessMessage).toHaveBeenCalled();
@@ -103,7 +118,7 @@ describe('NewApiKeyComponent', () => {
 
   it('sends endValid as the exclusive next-day-midnight cutoff (not end-of-picked-day)', async () => {
     component.form.controls.scopes.setValue([Perm.JwtApiKey.READ]);
-    mockGlobalService.create.and.returnValue(of(mockResponse()));
+    mockGlobalService.create.mockReturnValue(of(mockResponse()));
 
     const pickedFrom = new Date(2026, 4, 10, 0, 0, 0, 0); // 2026-05-10 local
     const pickedUntil = new Date(2026, 4, 15, 0, 0, 0, 0); // 2026-05-15 local
@@ -115,13 +130,13 @@ describe('NewApiKeyComponent', () => {
     const expectedEndValid = unixTimestampFromDate(startOfNextDay(pickedUntil));
     expect(mockGlobalService.create).toHaveBeenCalledWith(
       SERV.API_TOKENS,
-      jasmine.objectContaining({ endValid: expectedEndValid })
+      expect.objectContaining({ endValid: expectedEndValid })
     );
   });
 
   it('sends startValid as start-of-day of the picked validFrom', async () => {
     component.form.controls.scopes.setValue([Perm.JwtApiKey.READ]);
-    mockGlobalService.create.and.returnValue(of(mockResponse()));
+    mockGlobalService.create.mockReturnValue(of(mockResponse()));
 
     const pickedFrom = new Date(2026, 4, 1, 9, 30); // 2026-05-01 09:30 local
     const pickedUntil = new Date(2026, 4, 15, 0, 0, 0, 0); // 2026-05-15 local
@@ -133,14 +148,14 @@ describe('NewApiKeyComponent', () => {
     const expectedStartValid = unixTimestampFromDate(startOfDay(pickedFrom));
     expect(mockGlobalService.create).toHaveBeenCalledWith(
       SERV.API_TOKENS,
-      jasmine.objectContaining({ startValid: expectedStartValid })
+      expect.objectContaining({ startValid: expectedStartValid })
     );
   });
 
   it('shows an error and navigates without storing when the response has no token', async () => {
     component.form.controls.scopes.setValue([Perm.JwtApiKey.READ]);
-    mockGlobalService.create.and.returnValue(of(mockResponse()));
-    deserializeSpy.and.returnValue({ ...createdToken, token: undefined });
+    mockGlobalService.create.mockReturnValue(of(mockResponse()));
+    deserializeSpy.mockReturnValue({ ...createdToken, token: undefined });
 
     await component.onSubmit();
 
@@ -155,7 +170,7 @@ describe('NewApiKeyComponent', () => {
     // defensive backstop just below it by forcing form.invalid to false.
     component.form.controls.scopes.setValue([Perm.JwtApiKey.READ]);
     component.form.controls.validFrom.setValue(null);
-    spyOnProperty(component.form, 'invalid', 'get').and.returnValue(false);
+    vi.spyOn(component.form, 'invalid', 'get').mockReturnValue(false);
 
     await component.onSubmit();
 
@@ -165,7 +180,7 @@ describe('NewApiKeyComponent', () => {
 
   it('shows an error and does not navigate when the POST fails', async () => {
     component.form.controls.scopes.setValue([Perm.JwtApiKey.READ]);
-    mockGlobalService.create.and.returnValue(throwError(() => new Error('boom')));
+    mockGlobalService.create.mockReturnValue(throwError(() => new Error('boom')));
 
     await component.onSubmit();
 
@@ -229,7 +244,7 @@ describe('NewApiKeyComponent', () => {
       component.form.controls.validFrom.setValue(new Date(2026, 4, 13, 0, 0, 0, 0));
       component.form.controls.validUntil.setValue(new Date(2026, 4, 11, 0, 0, 0, 0));
 
-      expect(component.form.errors?.['validityRange']).toBeTrue();
+      expect(component.form.errors?.['validityRange']).toBe(true);
     });
   });
 });

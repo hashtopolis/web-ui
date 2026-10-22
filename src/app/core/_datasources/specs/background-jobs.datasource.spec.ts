@@ -1,6 +1,6 @@
-/// <reference types="jasmine" />
 import { zBackgroundJobListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -43,36 +43,50 @@ const RESPONSE = mockValidResponse(zBackgroundJobListResponse, {
 
 describe('BackgroundJobsDataSource', () => {
   let dataSource: BackgroundJobsDataSource;
-  let gsSpy: jasmine.SpyObj<GlobalService>;
+  let gsSpy: MockedObject<GlobalService>;
 
   beforeEach(() => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll']);
-    gsSpy.getAll.and.returnValue(of(RESPONSE));
+    gsSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    } as MockedObject<GlobalService>;
+    gsSpy.getAll.mockReturnValue(of(RESPONSE));
 
-    const uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    uiServiceSpy.getUISettings.and.returnValue({});
-    const storageSpy = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
-    storageSpy.getItem.and.returnValue(null);
+    const uiServiceSpy = {
+      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+    };
+    uiServiceSpy.getUISettings.mockReturnValue({});
+    const storageSpy = {
+      getItem: vi.fn().mockName('LocalStorageService.getItem'),
+      setItem: vi.fn().mockName('LocalStorageService.setItem')
+    };
+    storageSpy.getItem.mockReturnValue(null);
 
     TestBed.configureTestingModule({
       providers: [
         { provide: GlobalService, useValue: gsSpy },
         {
           provide: ChangeDetectorRef,
-          useValue: jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges'])
+          useValue: {
+            markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
+            detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges')
+          }
         },
         { provide: UIConfigService, useValue: uiServiceSpy },
         {
           provide: AutoRefreshService,
-          useValue: jasmine.createSpyObj(
-            'AutoRefreshService',
-            ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'],
-            {
-              refresh$: of()
-            }
-          )
+          useValue: {
+            toggleAutoRefresh: vi.fn().mockName('AutoRefreshService.toggleAutoRefresh'),
+            startAutoRefresh: vi.fn().mockName('AutoRefreshService.startAutoRefresh'),
+            stopAutoRefresh: vi.fn().mockName('AutoRefreshService.stopAutoRefresh'),
+            refresh$: of()
+          }
         },
-        { provide: HttpCacheService, useValue: jasmine.createSpyObj('HttpCacheService', ['invalidate']) },
+        {
+          provide: HttpCacheService,
+          useValue: {
+            invalidate: vi.fn().mockName('HttpCacheService.invalidate')
+          }
+        },
         { provide: LocalStorageService, useValue: storageSpy }
       ]
     });
@@ -83,7 +97,7 @@ describe('BackgroundJobsDataSource', () => {
 
   it('requests SERV.BACKGROUND_JOBS with the user included', () => {
     dataSource.loadAll();
-    const [serviceConfig, params] = gsSpy.getAll.calls.mostRecent().args;
+    const [serviceConfig, params] = gsSpy.getAll.mock.lastCall!;
     expect(serviceConfig).toEqual(SERV.BACKGROUND_JOBS);
     expect((params as RequestParams).include).toContain('user');
   });

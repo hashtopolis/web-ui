@@ -1,10 +1,11 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { zAgentResponse, zGetBestTasksAgentResponse, zUserListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -39,7 +40,8 @@ import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response'
   standalone: false
 })
 export class MockAgentStatsComponent {
-  @Input() agent: unknown;
+  @Input()
+  agent: unknown;
 }
 
 @Component({
@@ -49,7 +51,8 @@ export class MockAgentStatsComponent {
   standalone: false
 })
 export class MockAgentEnvironmentComponent {
-  @Input() agent: unknown;
+  @Input()
+  agent: unknown;
 }
 
 @Component({
@@ -59,7 +62,8 @@ export class MockAgentEnvironmentComponent {
   standalone: false
 })
 export class MockChunksTableComponent {
-  @Input() chunks: unknown[];
+  @Input()
+  chunks: unknown[];
 }
 
 @Component({
@@ -69,8 +73,10 @@ export class MockChunksTableComponent {
   standalone: false
 })
 export class MockAgentStatGraphComponent {
-  @Input() statType: unknown;
-  @Input() agentStats: unknown[];
+  @Input()
+  statType: unknown;
+  @Input()
+  agentStats: unknown[];
 }
 
 @Component({
@@ -80,7 +86,8 @@ export class MockAgentStatGraphComponent {
   standalone: false
 })
 export class MockAgentErrorTableComponent {
-  @Input() agentId: number;
+  @Input()
+  agentId: number;
 }
 
 describe('EditAgentComponent', () => {
@@ -88,11 +95,11 @@ describe('EditAgentComponent', () => {
   let fixture: ComponentFixture<EditAgentComponent>;
 
   // Mocks
-  let alertServiceSpy: jasmine.SpyObj<AlertService>;
-  let globalServiceSpy: jasmine.SpyObj<GlobalService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let activatedRouteSpy: jasmine.SpyObj<ActivatedRoute>;
-  let agentRoleServiceSpy: jasmine.SpyObj<AgentRoleService>;
+  let alertServiceSpy: MockedObject<AlertService>;
+  let globalServiceSpy: MockedObject<GlobalService>;
+  let routerSpy: MockedObject<Router>;
+  let activatedRouteSpy: MockedObject<ActivatedRoute>;
+  let agentRoleServiceSpy: MockedObject<AgentRoleService>;
 
   const mockAgent = {
     id: 1,
@@ -162,34 +169,41 @@ describe('EditAgentComponent', () => {
   };
 
   beforeEach(async () => {
-    alertServiceSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    globalServiceSpy = jasmine.createSpyObj('GlobalService', [
-      'get',
-      'getAll',
-      'update',
-      'create',
-      'delete',
-      'ghelper',
-      'chelper'
-    ]);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    agentRoleServiceSpy = jasmine.createSpyObj('AgentRoleService', ['hasRole']);
-    activatedRouteSpy = jasmine.createSpyObj('ActivatedRoute', [], {
+    alertServiceSpy = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    } as MockedObject<AlertService>;
+    globalServiceSpy = {
+      get: vi.fn().mockName('GlobalService.get'),
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      update: vi.fn().mockName('GlobalService.update'),
+      create: vi.fn().mockName('GlobalService.create'),
+      delete: vi.fn().mockName('GlobalService.delete'),
+      ghelper: vi.fn().mockName('GlobalService.ghelper'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    } as MockedObject<GlobalService>;
+    routerSpy = {
+      navigate: vi.fn().mockName('Router.navigate')
+    } as MockedObject<Router>;
+    agentRoleServiceSpy = {
+      hasRole: vi.fn().mockName('AgentRoleService.hasRole')
+    } as MockedObject<AgentRoleService>;
+    activatedRouteSpy = {
       snapshot: {
         params: { id: '1' }
       }
-    });
+    } as unknown as MockedObject<ActivatedRoute>;
 
     // Default role service behavior
-    agentRoleServiceSpy.hasRole.and.returnValue(false);
+    agentRoleServiceSpy.hasRole.mockReturnValue(false);
 
     // Default service responses
-    globalServiceSpy.get.and.returnValue(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
-    globalServiceSpy.getAll.and.returnValue(of(mockValidResponse(zUserListResponse, { data: [mockUser] })));
-    globalServiceSpy.ghelper.and.returnValue(of(mockValidResponse(zGetBestTasksAgentResponse, { data: [] })));
-    globalServiceSpy.chelper.and.returnValue(of(mockResponse()));
-    globalServiceSpy.update.and.returnValue(of(mockResponse()));
-    globalServiceSpy.create.and.returnValue(of(mockResponse()));
+    globalServiceSpy.get.mockReturnValue(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
+    globalServiceSpy.getAll.mockReturnValue(of(mockValidResponse(zUserListResponse, { data: [mockUser] })));
+    globalServiceSpy.ghelper.mockReturnValue(of(mockValidResponse(zGetBestTasksAgentResponse, { data: [] })));
+    globalServiceSpy.chelper.mockReturnValue(of(mockResponse()));
+    globalServiceSpy.update.mockReturnValue(of(mockResponse()));
+    globalServiceSpy.create.mockReturnValue(of(mockResponse()));
 
     await TestBed.configureTestingModule({
       declarations: [
@@ -237,63 +251,56 @@ describe('EditAgentComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize forms on component creation', fakeAsync(() => {
+  it('should initialize forms on component creation', () => {
     fixture.detectChanges();
-    tick();
 
     expect(component.updateForm).toBeDefined();
     expect(component.updateAssignForm).toBeDefined();
-  }));
+  });
 
-  it('should load agent data on ngOnInit', fakeAsync(() => {
+  it('should load agent data on ngOnInit', async () => {
     fixture.detectChanges();
-    tick();
+    await fixture.whenStable();
 
-    expect((globalServiceSpy.get as jasmine.Spy).calls.argsFor(0)).toEqual([
-      SERV.AGENTS,
-      1,
-      {
-        include: ['agentStats', 'accessGroups'],
-        aggregate: [{ field: 'agent', values: ['crackingTime'] }]
-      }
-    ]);
+    expect(globalServiceSpy.get).toHaveBeenNthCalledWith(1, SERV.AGENTS, 1, {
+      include: ['agentStats', 'accessGroups'],
+      aggregate: [{ field: 'agent', values: ['crackingTime'] }]
+    });
     expect(component.showagent).toBeDefined();
-  }));
+  });
 
-  it('should populate form with agent data after loading', fakeAsync(() => {
+  it('should populate form with agent data after loading', async () => {
     fixture.detectChanges();
-    tick();
-    tick();
+    await fixture.whenStable();
 
     expect(component.updateForm.controls.agentName.value).toBe('Test Agent');
     expect(component.updateForm.controls.isActive.value).toBe(true);
     expect(component.updateForm.controls.userId.value).toBe(1);
-  }));
+  });
 
-  it('should load users on ngOnInit', fakeAsync(() => {
+  it('should load users on ngOnInit', async () => {
     fixture.detectChanges();
-    tick();
-    tick();
+    await fixture.whenStable();
 
     expect(globalServiceSpy.getAll).toHaveBeenCalledWith(SERV.USERS);
     expect(component.selectUsers).toBeDefined();
-  }));
+  });
 
-  it('should load tasks when user has readAssignment role', fakeAsync(() => {
+  it('should load tasks when user has readAssignment role', async () => {
     // Create new fixture with updated role service
-    agentRoleServiceSpy.hasRole.and.callFake((role: string) => role === 'readAssignment');
-    globalServiceSpy.ghelper.and.returnValue(of(mockValidResponse(zGetBestTasksAgentResponse, { data: [mockTask] })));
-    globalServiceSpy.get.and.returnValue(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
+    agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'readAssignment');
+    globalServiceSpy.ghelper.mockReturnValue(of(mockValidResponse(zGetBestTasksAgentResponse, { data: [mockTask] })));
+    globalServiceSpy.get.mockReturnValue(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
 
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    tick();
+    await fixture.whenStable();
 
     expect(globalServiceSpy.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getBestTasksAgent', { agent: 1 });
-  }));
+  });
 
-  it('should navigate to /not-found when agent ID is invalid', fakeAsync(() => {
+  it('should navigate to /not-found when agent ID is invalid', () => {
     // Reconfigure ActivatedRoute with invalid ID
     activatedRouteSpy.snapshot.params = {};
 
@@ -301,39 +308,37 @@ describe('EditAgentComponent', () => {
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    tick();
 
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/not-found']);
-  }));
+  });
 
-  it('should handle 404 error when loading agent fails', fakeAsync(() => {
+  it('should handle 404 error when loading agent fails', async () => {
     const error404 = { status: 404 };
-    globalServiceSpy.get.and.returnValue(throwError(() => error404));
+    globalServiceSpy.get.mockReturnValue(throwError(() => error404));
 
     fixture.detectChanges();
-    tick();
+    await fixture.whenStable();
 
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/not-found']);
-  }));
+  });
 
-  it('should handle 403 error when loading agent fails', fakeAsync(() => {
+  it('should handle 403 error when loading agent fails', async () => {
     const error403 = { status: 403 };
-    globalServiceSpy.get.and.returnValue(throwError(() => error403));
+    globalServiceSpy.get.mockReturnValue(throwError(() => error403));
 
     fixture.detectChanges();
-    tick();
+    await fixture.whenStable();
 
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/forbidden']);
-  }));
+  });
 
-  it('should submit form and update agent successfully', fakeAsync(() => {
-    agentRoleServiceSpy.hasRole.and.callFake((role: string) => role === 'update');
+  it('should submit form and update agent successfully', async () => {
+    agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update');
 
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    tick();
-    tick();
+    await fixture.whenStable();
 
     component.updateForm.patchValue({
       agentName: 'Updated Agent',
@@ -342,12 +347,11 @@ describe('EditAgentComponent', () => {
     });
 
     component.onSubmit();
-    tick();
 
     expect(globalServiceSpy.update).toHaveBeenCalledWith(
       SERV.AGENTS,
       1,
-      jasmine.objectContaining({
+      expect.objectContaining({
         agentName: 'Updated Agent',
         isActive: false,
         userId: 2
@@ -355,17 +359,16 @@ describe('EditAgentComponent', () => {
     );
     expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('Agent saved');
     expect(routerSpy.navigate).toHaveBeenCalledWith(['agents/show-agents']);
-  }));
+  });
 
-  it('should not submit form if it is invalid', fakeAsync(() => {
+  it('should not submit form if it is invalid', async () => {
     // Create fixture with 'update' role enabled so form controls are enabled and validators work
-    agentRoleServiceSpy.hasRole.and.callFake((role: string) => role === 'update');
+    agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update');
 
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    tick();
-    tick();
+    await fixture.whenStable();
 
     // Set agentName to empty string to trigger validation error
     component.updateForm.controls.agentName.setValue('');
@@ -374,21 +377,19 @@ describe('EditAgentComponent', () => {
     expect(component.updateForm.invalid).toBe(true);
 
     component.onSubmit();
-    tick();
 
     expect(globalServiceSpy.update).not.toHaveBeenCalled();
-  }));
+  });
 
-  it('should show error message when form submission fails', fakeAsync(() => {
+  it('should show error message when form submission fails', async () => {
     // Enable 'update' role so form controls are enabled
-    agentRoleServiceSpy.hasRole.and.callFake((role: string) => role === 'update');
-    globalServiceSpy.update.and.returnValue(throwError(() => new Error('Update failed')));
+    agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update');
+    globalServiceSpy.update.mockReturnValue(throwError(() => new Error('Update failed')));
 
     fixture = TestBed.createComponent(EditAgentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    tick();
-    tick();
+    await fixture.whenStable();
 
     component.updateForm.patchValue({
       agentName: 'Test',
@@ -401,35 +402,30 @@ describe('EditAgentComponent', () => {
     });
 
     component.onSubmit();
-    tick();
 
     expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith('Error updating agent');
-  }));
+  });
 
-  it('should update assignment when task is changed', fakeAsync(() => {
+  it('should update assignment when task is changed', () => {
     fixture.detectChanges();
-    tick();
 
     component.updateAssignForm.patchValue({ taskId: 5 });
     component.onUpdateAssign(5);
-    tick();
 
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'assignAgent', {
       taskId: 5,
       agentId: 1
     });
-  }));
+  });
 
-  it('should delete assignment when task is set to null', fakeAsync(() => {
+  it('should delete assignment when task is set to null', () => {
     component.assignId = 10;
     fixture.detectChanges();
-    tick();
 
     component.onUpdateAssign(null);
-    tick();
 
     expect(globalServiceSpy.delete).toHaveBeenCalledWith(SERV.AGENT_ASSIGN, 10);
-  }));
+  });
 
   it('should render devices with count', () => {
     const result = component.renderDevices('RTX3080\nRTX3080\nRTX2060\nRTX3080');
@@ -483,35 +479,33 @@ describe('EditAgentComponent', () => {
     });
   });
 
-  it('should handle error when loading agent', fakeAsync(() => {
+  it('should handle error when loading agent', async () => {
     const error = { status: 500 };
-    globalServiceSpy.get.and.returnValues(
-      throwError(() => error),
-      of(mockValidResponse(zAgentResponse, { data: mockAgent }))
-    );
+    globalServiceSpy.get
+      .mockReturnValueOnce(throwError(() => error))
+      .mockReturnValueOnce(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
 
     fixture.detectChanges();
-    tick();
-    tick();
+    await fixture.whenStable();
 
     expect(component.showagent).toBeDefined();
     expect(component.selectUserAgps).toEqual([]);
-  }));
+  });
 
-  it('should not load tasks when readAssignment role is not enabled', fakeAsync(() => {
+  it('should not load tasks when readAssignment role is not enabled', async () => {
     fixture.detectChanges();
-    tick();
+    await fixture.whenStable();
 
     expect(globalServiceSpy.ghelper).not.toHaveBeenCalled();
-  }));
+  });
 
-  it('should handle other errors when loading agent', fakeAsync(() => {
+  it('should handle other errors when loading agent', async () => {
     const errorOther = { status: 400 };
-    globalServiceSpy.get.and.returnValue(throwError(() => errorOther));
+    globalServiceSpy.get.mockReturnValue(throwError(() => errorOther));
 
     fixture.detectChanges();
-    tick();
+    await fixture.whenStable();
 
     expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith('Error loading agent details');
-  }));
+  });
 });

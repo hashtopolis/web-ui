@@ -1,10 +1,11 @@
 import { HttpHeaderName } from '@constants/http.config';
 import { zConfigResponse, zGetAccessGroupsHelperApiResponse, zHashTypeListResponse } from '@generated/api/zod';
 import { concat, of, throwError } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -94,21 +95,38 @@ describe('NewHashlistComponent', () => {
   let component: NewHashlistComponent;
   let fixture: ComponentFixture<NewHashlistComponent>;
 
-  let gsSpy: jasmine.SpyObj<GlobalService>;
-  let uploadSpy: jasmine.SpyObj<UploadTUSService>;
-  let alertSpy: jasmine.SpyObj<AlertService>;
-  let titleSpy: jasmine.SpyObj<AutoTitleService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let dialogSpy: jasmine.SpyObj<MatDialog>;
+  let gsSpy: MockedObject<GlobalService>;
+  let uploadSpy: MockedObject<UploadTUSService>;
+  let alertSpy: MockedObject<AlertService>;
+  let titleSpy: MockedObject<AutoTitleService>;
+  let routerSpy: MockedObject<Router>;
+  let dialogSpy: MockedObject<MatDialog>;
 
   beforeEach(async () => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'ghelper', 'chelper']);
+    gsSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      get: vi.fn().mockName('GlobalService.get'),
+      create: vi.fn().mockName('GlobalService.create'),
+      ghelper: vi.fn().mockName('GlobalService.ghelper'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    } as MockedObject<GlobalService>;
     Object.defineProperty(gsSpy, 'userId', { get: () => 1 });
-    uploadSpy = jasmine.createSpyObj('UploadTUSService', ['uploadFile']);
-    alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    titleSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+    uploadSpy = {
+      uploadFile: vi.fn().mockName('UploadTUSService.uploadFile')
+    } as MockedObject<UploadTUSService>;
+    alertSpy = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    } as MockedObject<AlertService>;
+    titleSpy = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    } as MockedObject<AutoTitleService>;
+    routerSpy = {
+      navigate: vi.fn().mockName('Router.navigate')
+    } as MockedObject<Router>;
+    dialogSpy = {
+      open: vi.fn().mockName('MatDialog.open')
+    } as MockedObject<MatDialog>;
 
     await TestBed.configureTestingModule({
       declarations: [NewHashlistComponent, PageSubTitleComponent],
@@ -134,13 +152,15 @@ describe('NewHashlistComponent', () => {
   });
 
   beforeEach(() => {
-    gsSpy.ghelper.and.returnValue(of(mockAccessGroups));
-    gsSpy.chelper.and.returnValue(of({ meta: [] }));
-    gsSpy.getAll.withArgs(SERV.HASHTYPES).and.returnValue(of(mockHashtypes));
-    (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, 66).and.returnValue(of(mockConfigs));
-    dialogSpy.open.and.returnValue({
+    gsSpy.ghelper.mockReturnValue(of(mockAccessGroups));
+    gsSpy.chelper.mockReturnValue(of({ meta: [] }));
+    vi.when(gsSpy.getAll).calledWith(SERV.HASHTYPES).thenReturn(of(mockHashtypes));
+    vi.when(gsSpy.get as Mock)
+      .calledWith(SERV.CONFIGS, 66)
+      .thenReturn(of(mockConfigs));
+    vi.mocked(dialogSpy.open, { partial: true }).mockReturnValue({
       afterClosed: () => of(true)
-    } as MatDialogRef<unknown>);
+    });
 
     fixture = TestBed.createComponent(NewHashlistComponent);
     component = fixture.componentInstance;
@@ -158,13 +178,13 @@ describe('NewHashlistComponent', () => {
       expect(component.hashtypes.length).toBe(3);
       expect(component.selectAccessgroup.length).toBe(2);
       expect(component.selectHashtypes.length).toBe(3);
-      expect(component.isLoadingAccessGroups).toBeFalse();
-      expect(component.isLoadingHashtypes).toBeFalse();
+      expect(component.isLoadingAccessGroups).toBe(false);
+      expect(component.isLoadingHashtypes).toBe(false);
     });
 
     it('should load config and set brainenabled, keeping useBrain false by default', () => {
       expect(component.brainenabled).toBe(1);
-      expect(component.form.controls.useBrain.value).toBeFalse();
+      expect(component.form.controls.useBrain.value).toBe(false);
     });
 
     it('should auto-select the first access group when accessGroupId is null', () => {
@@ -198,12 +218,12 @@ describe('NewHashlistComponent', () => {
       expect(component.fileName).toBe('hashes.txt');
       expect(component.selectedFiles).toBe(fileList);
     });
-    it('should keep submit button enabled when form is invalid', fakeAsync(() => {
-      expect(component.form.invalid).toBeTrue();
+    it('should keep submit button enabled when form is invalid', () => {
+      expect(component.form.invalid).toBe(true);
 
       let buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
       let button = buttonDebugEl.query(By.css('button'));
-      expect(button.nativeElement.disabled).toBeFalse();
+      expect(button.nativeElement.disabled).toBe(false);
 
       component.form.patchValue({
         name: 'test',
@@ -216,20 +236,18 @@ describe('NewHashlistComponent', () => {
 
       component.form.updateValueAndValidity();
       fixture.detectChanges();
-      tick();
-      fixture.detectChanges();
 
-      expect(component.form.valid).toBeTrue();
+      expect(component.form.valid).toBe(true);
 
       // Re-query the button to get the updated DOM
       buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
       button = buttonDebugEl.query(By.css('button'));
-      expect(button.nativeElement.disabled).toBeFalse();
-    }));
+      expect(button.nativeElement.disabled).toBe(false);
+    });
   });
 
   describe('Form submission', () => {
-    it('should call uploadFile and update progress', fakeAsync(() => {
+    it('should call uploadFile and update progress', () => {
       const file = new File(['file contents'], 'hashes.txt', { type: 'text/plain' });
 
       // Use DataTransfer to get real FileList
@@ -246,11 +264,9 @@ describe('NewHashlistComponent', () => {
         sourceType: 'upload'
       });
 
-      uploadSpy.uploadFile.and.returnValue(of(0, 50, 100));
+      uploadSpy.uploadFile.mockReturnValue(of(0, 50, 100));
 
       component.onSubmit();
-
-      tick();
 
       const expectedPayload = {
         ...component.form.value,
@@ -264,9 +280,9 @@ describe('NewHashlistComponent', () => {
 
       expect(component.uploadProgress).toBe(100);
       expect(component.isCreatingLoading).toBe(false);
-    }));
+    });
 
-    it('should show the backend error message when the upload/creation fails', fakeAsync(() => {
+    it('should show the backend error message when the upload/creation fails', () => {
       const file = new File(['file contents'], 'hashes.txt', { type: 'text/plain' });
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
@@ -280,22 +296,21 @@ describe('NewHashlistComponent', () => {
         sourceType: 'upload'
       });
 
-      uploadSpy.uploadFile.and.returnValue(
+      uploadSpy.uploadFile.mockReturnValue(
         throwError(() => ({ status: 400, error: { title: 'The hashlist contains too many lines.' } }))
       );
 
       component.onSubmit();
-      tick();
 
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith(
         'Failed to create Hashlist: The hashlist contains too many lines.'
       );
       expect(component.uploadProgress).toBe(0);
       expect(component.isCreatingLoading).toBe(false);
-    }));
+    });
 
-    it('should submit form with "paste" sourceType and base64-encode sourceData', fakeAsync(() => {
-      gsSpy.create.and.returnValue(of(mockResponse()));
+    it('should submit form with "paste" sourceType and base64-encode sourceData', async () => {
+      gsSpy.create.mockReturnValue(of(mockResponse()));
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '0',
@@ -304,22 +319,21 @@ describe('NewHashlistComponent', () => {
         sourceType: 'paste',
         sourceData: 'some data'
       });
-      component.onSubmit();
-      tick();
+      await component.onSubmit();
 
       const expectedEncoded = btoa('some data');
       expect(gsSpy.create).toHaveBeenCalledWith(
-        jasmine.anything(),
-        jasmine.objectContaining({ sourceData: expectedEncoded }),
-        jasmine.anything()
+        expect.anything(),
+        expect.objectContaining({ sourceData: expectedEncoded }),
+        expect.anything()
       );
       expect(component.form.controls.sourceData.value).toBe('some data');
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('New Hashlist created');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/hashlist']);
-    }));
+    });
 
-    it('should surface the backend error and skip the global dialog when "import" creation fails', fakeAsync(() => {
-      gsSpy.create.and.returnValue(
+    it('should surface the backend error and skip the global dialog when "import" creation fails', async () => {
+      gsSpy.create.mockReturnValue(
         throwError(() => ({ status: 400, error: { title: 'Hashlist has too many lines!' } }))
       );
       component.form.patchValue({
@@ -331,28 +345,26 @@ describe('NewHashlistComponent', () => {
         sourceData: 'valid-1-line.txt'
       });
 
-      component.onSubmit();
-      tick();
+      await component.onSubmit();
 
       // The component handles the error itself, so it tells the interceptor to skip the modal.
-      const httpOptions = gsSpy.create.calls.mostRecent().args[2];
+      const httpOptions = gsSpy.create.mock.lastCall![2];
       expect(httpOptions?.headers?.get(HttpHeaderName.SKIP_ERROR_DIALOG)).toBe('true');
 
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('Failed to create Hashlist: Hashlist has too many lines!');
       expect(routerSpy.navigate).not.toHaveBeenCalled();
       expect(component.isCreatingLoading).toBe(false);
-    }));
+    });
 
-    it('should skip the global error dialog when loading server import files', fakeAsync(() => {
+    it('should skip the global error dialog when loading server import files', () => {
       component.loadServerFiles();
-      tick();
 
       // loadServerFiles shows its own toast on failure, so it tells the interceptor to skip the modal.
-      const call = gsSpy.chelper.calls.mostRecent();
-      expect(call.args[1]).toBe('importFile');
-      const httpOptions = call.args[4];
+      const call = gsSpy.chelper.mock.lastCall!;
+      expect(call[1]).toBe('importFile');
+      const httpOptions = call[4];
       expect(httpOptions?.headers?.get(HttpHeaderName.SKIP_ERROR_DIALOG)).toBe('true');
-    }));
+    });
   });
 
   it('should NOT submit if sourceType is upload and no file selected', () => {
@@ -408,7 +420,7 @@ describe('NewHashlistComponent', () => {
       expect(modeSelect).not.toBeNull();
     });
 
-    it('should NOT show brain section when brain is globally disabled', fakeAsync(() => {
+    it('should NOT show brain section when brain is globally disabled', () => {
       const disabledConfig: ResponseWrapper = mockValidResponse(zConfigResponse, {
         data: {
           id: 66,
@@ -416,18 +428,18 @@ describe('NewHashlistComponent', () => {
           attributes: { configSectionId: 1, item: 'Enable Brain', value: '0' }
         }
       });
-      (gsSpy.get as jasmine.Spy).withArgs(SERV.CONFIGS, 66).and.returnValue(of(disabledConfig));
+      vi.when(gsSpy.get as Mock)
+        .calledWith(SERV.CONFIGS, 66)
+        .thenReturn(of(disabledConfig));
 
       fixture = TestBed.createComponent(NewHashlistComponent);
       component = fixture.componentInstance;
-      fixture.detectChanges();
-      tick();
       fixture.detectChanges();
 
       expect(component.brainenabled).toBe(0);
       const checkbox = fixture.debugElement.query(By.css('input-check[formcontrolname="useBrain"]'));
       expect(checkbox).toBeNull();
-    }));
+    });
   });
 
   describe('Access group scoping', () => {
@@ -441,31 +453,30 @@ describe('NewHashlistComponent', () => {
     // Regression guard for the stale-while-revalidate bug: HttpCacheInterceptor serves a stale
     // cached value first, then the revalidated fresh one (concat(of(stale), revalidate())).
     // firstValueFrom took the stale list; the fix uses lastValueFrom, which resolves on the fresh one.
-    it('uses the revalidated (fresh) emission, not the stale-while-revalidate cache hit', fakeAsync(async () => {
+    it('uses the revalidated (fresh) emission, not the stale-while-revalidate cache hit', async () => {
       const stale: ResponseWrapper = mockResponse({ data: [], meta: [{ file: 'cached.txt' }] });
       const fresh: ResponseWrapper = mockResponse({
         data: [],
         meta: [{ file: 'cached.txt' }, { file: 'added-after-login.txt' }]
       });
-      gsSpy.chelper.and.returnValue(concat(of(stale), of(fresh)));
+      gsSpy.chelper.mockReturnValue(concat(of(stale), of(fresh)));
 
       await component.loadServerFiles();
-      tick();
 
       expect(component.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
       expect(component.serverFileOptions.map((o) => o.name)).toEqual(['cached.txt', 'added-after-login.txt']);
-    }));
+    });
   });
 
   describe('Deprecated format handling', () => {
     it('should return true for deprecated formats 1 (HCCAPX/PMKID) and 2 (Binary)', () => {
-      expect(component.isFormatDeprecated(1)).toBeTrue();
-      expect(component.isFormatDeprecated(2)).toBeTrue();
-      expect(component.isFormatDeprecated(0)).toBeFalse();
-      expect(component.isFormatDeprecated(3)).toBeFalse();
+      expect(component.isFormatDeprecated(1)).toBe(true);
+      expect(component.isFormatDeprecated(2)).toBe(true);
+      expect(component.isFormatDeprecated(0)).toBe(false);
+      expect(component.isFormatDeprecated(3)).toBe(false);
     });
 
-    it('should disable submit button when deprecated format is selected', fakeAsync(() => {
+    it('should disable submit button when deprecated format is selected', () => {
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '2500',
@@ -475,15 +486,13 @@ describe('NewHashlistComponent', () => {
       });
       component.form.updateValueAndValidity();
       fixture.detectChanges();
-      tick();
-      fixture.detectChanges();
 
       const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
       const button = buttonDebugEl.query(By.css('button'));
-      expect(button.nativeElement.disabled).toBeTrue();
-    }));
+      expect(button.nativeElement.disabled).toBe(true);
+    });
 
-    it('should enable submit button when non-deprecated format is selected', fakeAsync(() => {
+    it('should enable submit button when non-deprecated format is selected', () => {
       component.form.patchValue({
         name: 'Test Hashlist',
         hashTypeId: '0',
@@ -493,12 +502,10 @@ describe('NewHashlistComponent', () => {
       });
       component.form.updateValueAndValidity();
       fixture.detectChanges();
-      tick();
-      fixture.detectChanges();
 
       const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
       const button = buttonDebugEl.query(By.css('button'));
-      expect(button.nativeElement.disabled).toBeFalse();
-    }));
+      expect(button.nativeElement.disabled).toBe(false);
+    });
   });
 });

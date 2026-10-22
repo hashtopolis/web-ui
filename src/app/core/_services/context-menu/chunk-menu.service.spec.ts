@@ -1,3 +1,5 @@
+import type { MockedObject } from 'vitest';
+
 import { JChunk } from '@models/chunk.model';
 
 import { ChunkContextMenuService } from '@services/context-menu/chunk-menu.service';
@@ -8,7 +10,7 @@ import { RowActionMenuLabel } from '@components/menus/row-action-menu/row-action
 
 describe('ChunkContextMenuService', () => {
   let contextMenuService: ChunkContextMenuService;
-  let permissionServiceSpy: jasmine.SpyObj<PermissionService>;
+  let permissionServiceSpy: MockedObject<PermissionService>;
 
   const buildChunk = (isRunning: boolean): JChunk =>
     ({
@@ -38,8 +40,10 @@ describe('ChunkContextMenuService', () => {
   };
 
   beforeEach(() => {
-    permissionServiceSpy = jasmine.createSpyObj('PermissionService', ['hasAllPermissionsSync']);
-    permissionServiceSpy.hasAllPermissionsSync.and.returnValue(true);
+    permissionServiceSpy = {
+      hasAllPermissionsSync: vi.fn().mockName('PermissionService.hasAllPermissionsSync')
+    } as MockedObject<PermissionService>;
+    permissionServiceSpy.hasAllPermissionsSync.mockReturnValue(true);
     contextMenuService = new ChunkContextMenuService(permissionServiceSpy).addContextMenu();
   });
 

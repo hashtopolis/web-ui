@@ -1,4 +1,5 @@
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -42,8 +43,8 @@ type DeleteMethods = {
 describe('CrackersTableComponent', () => {
   let component: TestCrackersTableComponent;
   let fixture: ComponentFixture<TestCrackersTableComponent>;
-  let gs: jasmine.SpyObj<GlobalService>;
-  let crackerBinaryTypes: jasmine.SpyObj<CrackerBinaryTypesService>;
+  let gs: MockedObject<GlobalService>;
+  let crackerBinaryTypes: MockedObject<CrackerBinaryTypesService>;
 
   const crackerType = {
     id: 3,
@@ -53,10 +54,15 @@ describe('CrackersTableComponent', () => {
   } as JCrackerBinaryType;
 
   beforeEach(async () => {
-    gs = jasmine.createSpyObj('GlobalService', ['delete', 'bulkDelete']);
-    gs.delete.and.returnValue(of({}));
-    gs.bulkDelete.and.returnValue(of({}));
-    crackerBinaryTypes = jasmine.createSpyObj('CrackerBinaryTypesService', ['invalidate']);
+    gs = {
+      delete: vi.fn().mockName('GlobalService.delete'),
+      bulkDelete: vi.fn().mockName('GlobalService.bulkDelete')
+    } as MockedObject<GlobalService>;
+    gs.delete.mockReturnValue(of({}));
+    gs.bulkDelete.mockReturnValue(of({}));
+    crackerBinaryTypes = {
+      invalidate: vi.fn().mockName('CrackerBinaryTypesService.invalidate')
+    } as MockedObject<CrackerBinaryTypesService>;
 
     await TestBed.configureTestingModule({
       declarations: [TestCrackersTableComponent],
@@ -67,7 +73,10 @@ describe('CrackersTableComponent', () => {
         { provide: CrackerBinaryTypesService, useValue: crackerBinaryTypes },
         {
           provide: AlertService,
-          useValue: jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage'])
+          useValue: {
+            showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+            showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+          }
         }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -76,7 +85,9 @@ describe('CrackersTableComponent', () => {
     fixture = TestBed.createComponent(TestCrackersTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    component.table = jasmine.createSpyObj('HTTableComponent', ['reload']) as unknown as HTTableComponent<BaseModel>;
+    component.table = {
+      reload: vi.fn().mockName('HTTableComponent.reload')
+    } as unknown as HTTableComponent<BaseModel>;
   });
 
   it('invalidates the cracker types after deleting one', () => {

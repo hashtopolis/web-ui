@@ -1,5 +1,6 @@
 import { zCrackerBinaryListResponse, zHashlistListResponse, zSupertaskResponse } from '@generated/api/zod';
 import { Observable, Subject, of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -73,21 +74,29 @@ const NTLM_HASHLISTS = mockValidResponse(zHashlistListResponse, {
 describe('ApplyHashlistComponent', () => {
   let fixture: ComponentFixture<ApplyHashlistComponent>;
   let component: ApplyHashlistComponent;
-  let gs: jasmine.SpyObj<GlobalService>;
+  let gs: MockedObject<GlobalService>;
   let responses: Record<string, ResponseWrapper>;
-  let support: jasmine.SpyObj<CrackerHashtypeSupportService>;
-  let crackerBinaryTypes: jasmine.SpyObj<CrackerBinaryTypesService>;
+  let support: MockedObject<CrackerHashtypeSupportService>;
+  let crackerBinaryTypes: MockedObject<CrackerBinaryTypesService>;
 
   beforeEach(async () => {
-    gs = jasmine.createSpyObj('GlobalService', ['get', 'getAll', 'chelper']);
-    gs.get.and.callFake((): Observable<ResponseWrapper> => of(SUPERTASK));
-    gs.getAll.and.callFake((config: ServiceConfig): Observable<ResponseWrapper> => of(responses[config.URL]));
+    gs = {
+      get: vi.fn().mockName('GlobalService.get'),
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    } as MockedObject<GlobalService>;
+    gs.get.mockImplementation((): Observable<ResponseWrapper> => of(SUPERTASK));
+    gs.getAll.mockImplementation((config: ServiceConfig): Observable<ResponseWrapper> => of(responses[config.URL]));
 
-    support = jasmine.createSpyObj('CrackerHashtypeSupportService', ['getSupportedCrackerBinaryIds']);
-    support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10, 11])));
+    support = {
+      getSupportedCrackerBinaryIds: vi.fn().mockName('CrackerHashtypeSupportService.getSupportedCrackerBinaryIds')
+    } as MockedObject<CrackerHashtypeSupportService>;
+    support.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([10, 11])));
 
-    crackerBinaryTypes = jasmine.createSpyObj('CrackerBinaryTypesService', ['getTypeName']);
-    crackerBinaryTypes.getTypeName.and.returnValue(of('hashcat'));
+    crackerBinaryTypes = {
+      getTypeName: vi.fn().mockName('CrackerBinaryTypesService.getTypeName')
+    } as MockedObject<CrackerBinaryTypesService>;
+    crackerBinaryTypes.getTypeName.mockReturnValue(of('hashcat'));
 
     responses = {
       [SERV.HASHLISTS.URL]: NTLM_HASHLISTS,
@@ -101,10 +110,23 @@ describe('ApplyHashlistComponent', () => {
         { provide: ActivatedRoute, useValue: { params: of({ id: 5 }) } },
         {
           provide: AlertService,
-          useValue: jasmine.createSpyObj('AlertService', ['showErrorMessage', 'showSuccessMessage'])
+          useValue: {
+            showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage'),
+            showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage')
+          }
         },
-        { provide: AutoTitleService, useValue: jasmine.createSpyObj('AutoTitleService', ['set']) },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        {
+          provide: AutoTitleService,
+          useValue: {
+            set: vi.fn().mockName('AutoTitleService.set')
+          }
+        },
+        {
+          provide: Router,
+          useValue: {
+            navigate: vi.fn().mockName('Router.navigate')
+          }
+        },
         { provide: CrackerHashtypeSupportService, useValue: support },
         { provide: CrackerBinaryTypesService, useValue: crackerBinaryTypes }
       ],
@@ -119,24 +141,24 @@ describe('ApplyHashlistComponent', () => {
   }
 
   function versionsRequest(): RequestParams {
-    const call = gs.getAll.calls.all().find((c) => (c.args[0] as ServiceConfig).URL === SERV.CRACKERS.URL);
-    return call?.args[1] as RequestParams;
+    const call = gs.getAll.mock.calls.find((c) => (c[0] as ServiceConfig).URL === SERV.CRACKERS.URL);
+    return call?.[1] as RequestParams;
   }
 
   it('shows the supertask and its type read-only and selects the newest version of the type', () => {
     create();
 
-    expect(gs.get.calls.mostRecent().args.slice(0, 2)).toEqual([SERV.SUPER_TASKS, 5]);
+    expect(gs.get.mock.lastCall!.slice(0, 2)).toEqual([SERV.SUPER_TASKS, 5]);
     expect(crackerBinaryTypes.getTypeName).toHaveBeenCalledWith(1);
     expect(component.form.controls.supertaskName.value).toBe('BF set');
-    expect(component.form.controls.supertaskName.disabled).toBeTrue();
+    expect(component.form.controls.supertaskName.disabled).toBe(true);
     expect(component.form.controls.crackerBinaryType.value).toBe('hashcat');
-    expect(component.form.controls.crackerBinaryType.disabled).toBeTrue();
+    expect(component.form.controls.crackerBinaryType.disabled).toBe(true);
     expect(versionsRequest().filter).toEqual([{ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: 1 }]);
-    expect(gs.getAll.calls.all().some((c) => (c.args[0] as ServiceConfig).URL === SERV.CRACKERS_TYPES.URL)).toBeFalse();
+    expect(gs.getAll.mock.calls.some((c) => (c[0] as ServiceConfig).URL === SERV.CRACKERS_TYPES.URL)).toBe(false);
     expect(component.selectCrackerversions.map((o) => o.id)).toEqual([10, 11]);
     expect(component.form.controls.crackerBinaryId.value).toBe(11);
-    expect(component.noCrackerVersionsAvailable).toBeFalse();
+    expect(component.noCrackerVersionsAvailable).toBe(false);
   });
 
   it('flags when the type has no accessible version', () => {
@@ -144,21 +166,21 @@ describe('ApplyHashlistComponent', () => {
     expect(() => create()).not.toThrow();
     expect(component.selectCrackerversions).toEqual([]);
     expect(component.form.controls.crackerBinaryId.value).toBeNull();
-    expect(component.noCrackerVersionsAvailable).toBeTrue();
+    expect(component.noCrackerVersionsAvailable).toBe(true);
     expect(component.unsupportedHashtypeMessage).toBeNull();
   });
 
   it('fails closed when loading the supertask fails', () => {
-    spyOn(console, 'error');
-    gs.get.and.returnValue(throwError(() => new Error('down')));
+    vi.spyOn(console, 'error').mockReturnValue(undefined);
+    gs.get.mockReturnValue(throwError(() => new Error('down')));
     create();
 
     component.handleChangeHashlist(1);
     component.onSubmit();
 
-    expect(component.form.controls.crackerBinaryId.pending).toBeFalse();
+    expect(component.form.controls.crackerBinaryId.pending).toBe(false);
     expect(component.form.controls.crackerBinaryId.value).toBeNull();
-    expect(component.noCrackerVersionsAvailable).toBeTrue();
+    expect(component.noCrackerVersionsAvailable).toBe(true);
     expect(gs.chelper).not.toHaveBeenCalled();
   });
 
@@ -171,7 +193,7 @@ describe('ApplyHashlistComponent', () => {
   });
 
   it('submits the selected version of the supertask', () => {
-    gs.chelper.and.returnValue(of({}) as unknown as ReturnType<GlobalService['chelper']>);
+    gs.chelper.mockReturnValue(of({}) as unknown as ReturnType<GlobalService['chelper']>);
     create();
     component.form.controls.hashlistId.setValue(1);
 
@@ -186,16 +208,16 @@ describe('ApplyHashlistComponent', () => {
 
   it('stops the loading spinner when creating the supertask fails', () => {
     create();
-    gs.chelper.and.returnValue(throwError(() => new Error('rejected')));
+    gs.chelper.mockReturnValue(throwError(() => new Error('rejected')));
     component.form.controls.hashlistId.setValue(1);
     component.onSubmit();
     expect(gs.chelper).toHaveBeenCalled();
-    expect(component.isCreatingLoading).toBeFalse();
+    expect(component.isCreatingLoading).toBe(false);
   });
 
   describe('hashtype support', () => {
     it('offers only the versions supporting the hashtype of the selected hashlist', () => {
-      support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10])));
+      support.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([10])));
       create();
 
       component.handleChangeHashlist(1);
@@ -209,7 +231,7 @@ describe('ApplyHashlistComponent', () => {
     it('keeps the selected version when it is still supported', () => {
       create();
       component.form.controls.crackerBinaryId.setValue(10);
-      support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10, 11])));
+      support.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([10, 11])));
 
       component.handleChangeHashlist(1);
 
@@ -217,7 +239,7 @@ describe('ApplyHashlistComponent', () => {
     });
 
     it('blocks when no version of the type supports the hashtype', () => {
-      support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      support.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set<number>()));
       create();
       component.form.controls.hashlistId.setValue(1, { emitEvent: false });
 
@@ -228,23 +250,23 @@ describe('ApplyHashlistComponent', () => {
       expect(component.selectCrackerversions).toEqual([]);
       expect(component.form.controls.crackerBinaryId.value).toBeNull();
       expect(component.unsupportedHashtypeMessage).toBe(buildUnsupportedHashtypeMessage(1000));
-      expect(component.noCrackerVersionsAvailable).toBeFalse();
+      expect(component.noCrackerVersionsAvailable).toBe(false);
       expect(fixture.nativeElement.querySelector('[data-testid="unsupported-hashtype"]')).toBeTruthy();
       expect(gs.chelper).not.toHaveBeenCalled();
     });
 
     it('shows no required hint on a version select the user opened before the block', () => {
-      support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set<number>()));
+      support.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set<number>()));
       create();
       component.form.controls.crackerBinaryId.markAsTouched();
 
       component.handleChangeHashlist(1);
 
-      expect(component.form.controls.crackerBinaryId.touched).toBeFalse();
+      expect(component.form.controls.crackerBinaryId.touched).toBe(false);
     });
 
     it('says the check failed when the support lookup failed', () => {
-      support.getSupportedCrackerBinaryIds.and.returnValue(of(SUPPORT_LOOKUP_FAILED));
+      support.getSupportedCrackerBinaryIds.mockReturnValue(of(SUPPORT_LOOKUP_FAILED));
       create();
 
       component.handleChangeHashlist(1);
@@ -257,24 +279,24 @@ describe('ApplyHashlistComponent', () => {
 
     it('applies a hashlist chosen before the versions loaded once they arrive', () => {
       const versionsResponse = new Subject<ResponseWrapper>();
-      gs.getAll.and.callFake((config: ServiceConfig): Observable<ResponseWrapper> =>
+      gs.getAll.mockImplementation((config: ServiceConfig): Observable<ResponseWrapper> =>
         config.URL === SERV.CRACKERS.URL ? versionsResponse : of(responses[config.URL])
       );
-      support.getSupportedCrackerBinaryIds.and.returnValue(of(new Set([10])));
+      support.getSupportedCrackerBinaryIds.mockReturnValue(of(new Set([10])));
       create();
 
       component.form.controls.hashlistId.setValue(1);
-      expect(component.form.controls.crackerBinaryId.pending).toBeTrue();
+      expect(component.form.controls.crackerBinaryId.pending).toBe(true);
       versionsResponse.next(VERSIONS_10_11);
 
       expect(component.selectCrackerversions.map((o) => o.id)).toEqual([10]);
       expect(component.form.controls.crackerBinaryId.value).toBe(10);
-      expect(component.form.controls.crackerBinaryId.pending).toBeFalse();
+      expect(component.form.controls.crackerBinaryId.pending).toBe(false);
     });
 
     it('fails closed when loading the versions fails', () => {
-      spyOn(console, 'error');
-      gs.getAll.and.callFake((config: ServiceConfig): Observable<ResponseWrapper> =>
+      vi.spyOn(console, 'error').mockReturnValue(undefined);
+      gs.getAll.mockImplementation((config: ServiceConfig): Observable<ResponseWrapper> =>
         config.URL === SERV.CRACKERS.URL ? throwError(() => new Error('down')) : of(responses[config.URL])
       );
 
@@ -282,35 +304,35 @@ describe('ApplyHashlistComponent', () => {
       component.handleChangeHashlist(1);
       component.onSubmit();
 
-      expect(component.form.controls.crackerBinaryId.pending).toBeFalse();
+      expect(component.form.controls.crackerBinaryId.pending).toBe(false);
       expect(component.form.controls.crackerBinaryId.value).toBeNull();
-      expect(component.noCrackerVersionsAvailable).toBeTrue();
+      expect(component.noCrackerVersionsAvailable).toBe(true);
       expect(gs.chelper).not.toHaveBeenCalled();
     });
 
     it('keeps the version pending while the support lookup runs', () => {
       const lookup = new Subject<Set<number>>();
-      support.getSupportedCrackerBinaryIds.and.returnValue(lookup);
+      support.getSupportedCrackerBinaryIds.mockReturnValue(lookup);
       create();
 
       component.handleChangeHashlist(1);
-      expect(component.form.controls.crackerBinaryId.pending).toBeTrue();
+      expect(component.form.controls.crackerBinaryId.pending).toBe(true);
 
       lookup.next(new Set([10]));
-      expect(component.form.controls.crackerBinaryId.pending).toBeFalse();
+      expect(component.form.controls.crackerBinaryId.pending).toBe(false);
       expect(component.form.controls.crackerBinaryId.value).toBe(10);
     });
 
     it('cancels the lookup of a previously selected hashlist', () => {
       const firstLookup = new Subject<Set<number>>();
-      support.getSupportedCrackerBinaryIds.and.returnValue(firstLookup);
+      support.getSupportedCrackerBinaryIds.mockReturnValue(firstLookup);
       create();
 
       component.handleChangeHashlist(1);
-      expect(firstLookup.observed).toBeTrue();
+      expect(firstLookup.observed).toBe(true);
       component.handleChangeHashlist(null);
 
-      expect(firstLookup.observed).toBeFalse();
+      expect(firstLookup.observed).toBe(false);
       expect(component.selectCrackerversions.map((o) => o.id)).toEqual([10, 11]);
     });
   });

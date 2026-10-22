@@ -1,5 +1,6 @@
 import { zCrackerBinaryResponse, zGetAccessGroupsHelperApiResponse } from '@generated/api/zod';
 import { Subject, of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { HttpErrorResponse, provideHttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
@@ -24,10 +25,14 @@ import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response'
 
 @Component({ selector: 'app-cracker-hashtypes', template: '' })
 class StubCrackerHashtypesComponent {
-  @Input() crackerBinaryId: number;
-  @Input() isHashcat = false;
-  @Input() canEdit = false;
-  @Input() canCreateHashtypes = false;
+  @Input()
+  crackerBinaryId: number;
+  @Input()
+  isHashcat = false;
+  @Input()
+  canEdit = false;
+  @Input()
+  canCreateHashtypes = false;
 }
 
 const ACCESS_GROUPS_RESPONSE = mockValidResponse(zGetAccessGroupsHelperApiResponse, {
@@ -53,15 +58,19 @@ function fileList(name: string): FileList {
 describe('CrackerVersionFormComponent', () => {
   let fixture: ComponentFixture<CrackerVersionFormComponent>;
   let component: CrackerVersionFormComponent;
-  let gs: jasmine.SpyObj<GlobalService>;
-  let tus: jasmine.SpyObj<UploadTUSService>;
-  let router: jasmine.SpyObj<Router>;
-  let alert: jasmine.SpyObj<AlertService>;
-  let roles: jasmine.SpyObj<CrackerBinaryRoleService>;
-  let confirm: jasmine.SpyObj<ConfirmDialogService>;
-  let hashtypeRoles: jasmine.SpyObj<HashTypesRoleService>;
-  let routeData: { type: string };
-  let routeParams: { id: string };
+  let gs: MockedObject<GlobalService>;
+  let tus: MockedObject<UploadTUSService>;
+  let router: MockedObject<Router>;
+  let alert: MockedObject<AlertService>;
+  let roles: MockedObject<CrackerBinaryRoleService>;
+  let confirm: MockedObject<ConfirmDialogService>;
+  let hashtypeRoles: MockedObject<HashTypesRoleService>;
+  let routeData: {
+    type: string;
+  };
+  let routeParams: {
+    id: string;
+  };
 
   async function setup(): Promise<void> {
     await TestBed.configureTestingModule({
@@ -96,27 +105,42 @@ describe('CrackerVersionFormComponent', () => {
   }
 
   beforeEach(() => {
-    gs = jasmine.createSpyObj('GlobalService', [
-      'ghelper',
-      'chelper',
-      'get',
-      'create',
-      'update',
-      'delete',
-      'downloadFromUrl'
-    ]);
-    tus = jasmine.createSpyObj('UploadTUSService', ['uploadFile']);
-    router = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
-    alert = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage', 'showInfoMessage']);
-    roles = jasmine.createSpyObj('CrackerBinaryRoleService', ['hasRole']);
-    confirm = jasmine.createSpyObj('ConfirmDialogService', ['confirmDeletion']);
-    roles.hasRole.and.returnValue(true);
-    hashtypeRoles = jasmine.createSpyObj('HashTypesRoleService', ['hasRole']);
-    hashtypeRoles.hasRole.and.returnValue(true);
-    gs.ghelper.and.returnValue(of(ACCESS_GROUPS_RESPONSE));
-    gs.chelper.and.returnValue(of(IMPORT_FILES_RESPONSE));
-    gs.create.and.returnValue(of(mockResponse()));
-    router.navigate.and.resolveTo(true);
+    gs = {
+      ghelper: vi.fn().mockName('GlobalService.ghelper'),
+      chelper: vi.fn().mockName('GlobalService.chelper'),
+      get: vi.fn().mockName('GlobalService.get'),
+      create: vi.fn().mockName('GlobalService.create'),
+      update: vi.fn().mockName('GlobalService.update'),
+      delete: vi.fn().mockName('GlobalService.delete'),
+      downloadFromUrl: vi.fn().mockName('GlobalService.downloadFromUrl')
+    } as MockedObject<GlobalService>;
+    tus = {
+      uploadFile: vi.fn().mockName('UploadTUSService.uploadFile')
+    } as MockedObject<UploadTUSService>;
+    router = {
+      navigate: vi.fn().mockName('Router.navigate'),
+      navigateByUrl: vi.fn().mockName('Router.navigateByUrl')
+    } as MockedObject<Router>;
+    alert = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage'),
+      showInfoMessage: vi.fn().mockName('AlertService.showInfoMessage')
+    } as MockedObject<AlertService>;
+    roles = {
+      hasRole: vi.fn().mockName('CrackerBinaryRoleService.hasRole')
+    } as MockedObject<CrackerBinaryRoleService>;
+    confirm = {
+      confirmDeletion: vi.fn().mockName('ConfirmDialogService.confirmDeletion')
+    } as MockedObject<ConfirmDialogService>;
+    roles.hasRole.mockReturnValue(true);
+    hashtypeRoles = {
+      hasRole: vi.fn().mockName('HashTypesRoleService.hasRole')
+    } as MockedObject<HashTypesRoleService>;
+    hashtypeRoles.hasRole.mockReturnValue(true);
+    gs.ghelper.mockReturnValue(of(ACCESS_GROUPS_RESPONSE));
+    gs.chelper.mockReturnValue(of(IMPORT_FILES_RESPONSE));
+    gs.create.mockReturnValue(of(mockResponse()));
+    router.navigate.mockResolvedValue(true);
   });
 
   describe('create mode', () => {
@@ -149,7 +173,7 @@ describe('CrackerVersionFormComponent', () => {
           accessGroupId: 4,
           downloadUrl: 'https://e.com/h.7z'
         },
-        jasmine.anything()
+        expect.anything()
       );
       expect(alert.showSuccessMessage).toHaveBeenCalledWith('Cracker version created!');
       expect(router.navigate).toHaveBeenCalledWith(['/config/engine/crackers']);
@@ -160,8 +184,8 @@ describe('CrackerVersionFormComponent', () => {
       component.form.controls.source.setValue(CrackerSource.SERVER_DOWNLOAD);
       component.form.controls.sourceUrl.setValue('https://e.com/h.7z');
       await component.onSubmit();
-      expect(gs.create.calls.mostRecent().args[1]).toEqual(
-        jasmine.objectContaining({ sourceType: 'url', sourceData: 'https://e.com/h.7z' })
+      expect(gs.create.mock.lastCall![1]).toEqual(
+        expect.objectContaining({ sourceType: 'url', sourceData: 'https://e.com/h.7z' })
       );
     });
 
@@ -172,50 +196,47 @@ describe('CrackerVersionFormComponent', () => {
       fillCommon();
       component.form.controls.importFile.setValue('hashcat-7.1.2.7z');
       await component.onSubmit();
-      expect(gs.create.calls.mostRecent().args[1]).toEqual(
-        jasmine.objectContaining({ sourceType: 'import', sourceData: 'hashcat-7.1.2.7z' })
+      expect(gs.create.mock.lastCall![1]).toEqual(
+        expect.objectContaining({ sourceType: 'import', sourceData: 'hashcat-7.1.2.7z' })
       );
     });
 
     it('uploads via TUS under a stable generated name, then creates and redirects', async () => {
-      tus.uploadFile.and.returnValue(of(50, 100));
+      tus.uploadFile.mockReturnValue(of(50, 100));
       fillCommon();
       component.form.controls.source.setValue(CrackerSource.UPLOAD);
       component.form.controls.file.setValue(fileList('my hashcat.7z'));
       await component.onSubmit();
-      const [file, name, service, form, redirect] = tus.uploadFile.calls.mostRecent().args;
+      const [file, name, service, form, redirect] = tus.uploadFile.mock.lastCall!;
       expect(file.name).toBe('my hashcat.7z');
       expect(name).toBe(`cracker-3-${file.lastModified}-${file.size}.7z`);
       expect(service).toBe(SERV.CRACKERS);
-      expect(form).withContext('the component creates the version itself').toBeNull();
+      expect(form, 'the component creates the version itself').toBeNull();
       expect(redirect).toBeNull();
       expect(gs.create).toHaveBeenCalledWith(
         SERV.CRACKERS,
-        jasmine.objectContaining({ sourceType: 'import', sourceData: name }),
-        jasmine.anything()
+        expect.objectContaining({ sourceType: 'import', sourceData: name }),
+        expect.anything()
       );
       expect(component.uploadProgress).toBe(100);
       expect(router.navigate).toHaveBeenCalledWith(['/config/engine/crackers']);
     });
 
     it('reuses the upload name when the same file is submitted again', async () => {
-      tus.uploadFile.and.returnValues(
-        throwError(() => new Error('connection lost')),
-        of(100)
-      );
+      tus.uploadFile.mockReturnValueOnce(throwError(() => new Error('connection lost'))).mockReturnValueOnce(of(100));
       fillCommon();
       component.form.controls.source.setValue(CrackerSource.UPLOAD);
       component.form.controls.file.setValue(fileList('h.7z'));
       await component.onSubmit();
       await component.onSubmit();
-      const names = tus.uploadFile.calls.allArgs().map((args) => args[1]);
+      const names = tus.uploadFile.mock.calls.map((args) => args[1]);
       expect(names[0]).toBe(names[1]);
-      expect(gs.create.calls.mostRecent().args[1]).toEqual(jasmine.objectContaining({ sourceData: names[1] }));
+      expect(gs.create.mock.lastCall![1]).toEqual(expect.objectContaining({ sourceData: names[1] }));
     });
 
     it('does not create the version when the page is left during the upload', async () => {
       const progress = new Subject<number>();
-      tus.uploadFile.and.returnValue(progress);
+      tus.uploadFile.mockReturnValue(progress);
       fillCommon();
       component.form.controls.source.setValue(CrackerSource.UPLOAD);
       component.form.controls.file.setValue(fileList('h.7z'));
@@ -230,8 +251,8 @@ describe('CrackerVersionFormComponent', () => {
     });
 
     it('keeps the user on the page when the create after an upload fails', async () => {
-      tus.uploadFile.and.returnValue(of(100));
-      gs.create.and.returnValue(
+      tus.uploadFile.mockReturnValue(of(100));
+      gs.create.mockReturnValue(
         throwError(
           () =>
             new HttpErrorResponse({ status: 400, error: { title: 'The provided archive is not a valid 7z archive!' } })
@@ -245,12 +266,12 @@ describe('CrackerVersionFormComponent', () => {
         'Failed to create cracker version: The provided archive is not a valid 7z archive! The uploaded archive remains in the server import directory.'
       );
       expect(router.navigate).not.toHaveBeenCalled();
-      expect(component.isSubmitting).toBeFalse();
+      expect(component.isSubmitting).toBe(false);
       expect(component.form.controls.binaryName.value).toBe('hashcat');
     });
 
     it('does not mention the import directory when the upload itself fails', async () => {
-      tus.uploadFile.and.returnValue(throwError(() => new Error('connection lost')));
+      tus.uploadFile.mockReturnValue(throwError(() => new Error('connection lost')));
       fillCommon();
       component.form.controls.source.setValue(CrackerSource.UPLOAD);
       component.form.controls.file.setValue(fileList('h.7z'));
@@ -263,7 +284,7 @@ describe('CrackerVersionFormComponent', () => {
       fillCommon();
       component.form.controls.downloadUrl.setValue('https://e.com/h.7z');
       await component.onSubmit();
-      expect(component.isSubmitting).toBeTrue();
+      expect(component.isSubmitting).toBe(true);
       await component.onSubmit();
       expect(gs.create).toHaveBeenCalledTimes(1);
     });
@@ -273,7 +294,7 @@ describe('CrackerVersionFormComponent', () => {
       component.form.controls.source.setValue(CrackerSource.UPLOAD);
       fixture.detectChanges();
       const input: HTMLInputElement | null = fixture.nativeElement.querySelector('input[type="file"]');
-      expect(input).withContext('file input rendered').not.toBeNull();
+      expect(input, 'file input rendered').not.toBeNull();
       expect(input?.getAttribute('accept') ?? '').toBe('');
     });
 
@@ -286,7 +307,7 @@ describe('CrackerVersionFormComponent', () => {
     });
 
     it('shows the backend reason when a direct create fails', async () => {
-      gs.create.and.returnValue(
+      gs.create.mockReturnValue(
         throwError(() => new HttpErrorResponse({ status: 400, error: { title: 'Failed to download the archive' } }))
       );
       fillCommon();
@@ -301,7 +322,7 @@ describe('CrackerVersionFormComponent', () => {
     it('does not submit an invalid form', async () => {
       await component.onSubmit();
       expect(gs.create).not.toHaveBeenCalled();
-      expect(component.form.touched).toBeTrue();
+      expect(component.form.touched).toBe(true);
     });
 
     it('does not send the old source field after switching source', async () => {
@@ -311,7 +332,7 @@ describe('CrackerVersionFormComponent', () => {
       component.form.controls.source.setValue(CrackerSource.EXTERNAL_LINK);
       component.form.controls.downloadUrl.setValue('https://e.com/h.7z');
       await component.onSubmit();
-      const payload = gs.create.calls.mostRecent().args[1];
+      const payload = gs.create.mock.lastCall![1];
       expect(payload['sourceType']).toBeUndefined();
       expect(payload['sourceData']).toBeUndefined();
     });
@@ -329,7 +350,7 @@ describe('CrackerVersionFormComponent', () => {
     beforeEach(async () => {
       routeData = { type: 'create' };
       routeParams = { id: '3' };
-      gs.ghelper.and.returnValue(of(mockValidResponse(zGetAccessGroupsHelperApiResponse, { data: [] })));
+      gs.ghelper.mockReturnValue(of(mockValidResponse(zGetAccessGroupsHelperApiResponse, { data: [] })));
       await setup();
     });
 
@@ -369,25 +390,25 @@ describe('CrackerVersionFormComponent', () => {
     beforeEach(async () => {
       routeData = { type: 'edit' };
       routeParams = { id: '12' };
-      gs.get.and.returnValue(of(binaryResponse('hashcat-7.1.2.7z')));
-      gs.update.and.returnValue(of({}));
+      gs.get.mockReturnValue(of(binaryResponse('hashcat-7.1.2.7z')));
+      gs.update.mockReturnValue(of({}));
       await setup();
     });
 
     it('shows the read-only hashtypes section of a hashcat version', () => {
       const section = hashtypesSection();
       expect(section?.crackerBinaryId).toBe(12);
-      expect(section?.isHashcat).toBeTrue();
-      expect(section?.canEdit).toBeTrue();
+      expect(section?.isHashcat).toBe(true);
+      expect(section?.canEdit).toBe(true);
     });
 
     it('loads the binary with its type and shows the title', () => {
-      const [serviceConfig, id] = gs.get.calls.mostRecent().args;
+      const [serviceConfig, id] = gs.get.mock.lastCall!;
       expect(serviceConfig).toBe(SERV.CRACKERS);
       expect(id).toBe(12);
       expect(component.pageTitle).toBe('Edit hashcat version 7.1.2');
       expect(component.form.controls.accessGroupId.value).toBe(7);
-      expect(component.form.pristine).toBeTrue();
+      expect(component.form.pristine).toBe(true);
     });
 
     it('shows downloadUrl read-only with filename and a download button', () => {
@@ -413,27 +434,27 @@ describe('CrackerVersionFormComponent', () => {
     });
 
     it('downloads the archive under its filename', async () => {
-      gs.downloadFromUrl.and.returnValue(of(undefined));
+      gs.downloadFromUrl.mockReturnValue(of(undefined));
       await component.onDownload();
       expect(gs.downloadFromUrl).toHaveBeenCalledWith(
         'http://localhost:8080/api/download.php/crackerBinary/12',
         'hashcat-7.1.2.7z',
-        jasmine.anything()
+        expect.anything()
       );
     });
 
     it('explains a missing archive on 404', async () => {
-      gs.downloadFromUrl.and.returnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
+      gs.downloadFromUrl.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
       await component.onDownload();
       expect(alert.showErrorMessage).toHaveBeenCalledWith(
         'The archive of this cracker version is not present on the server.'
       );
-      expect(component.isDownloading).toBeFalse();
+      expect(component.isDownloading).toBe(false);
     });
 
     it('deletes after confirmation and returns to the list', () => {
-      confirm.confirmDeletion.and.returnValue(of(true));
-      gs.delete.and.returnValue(of({}));
+      confirm.confirmDeletion.mockReturnValue(of(true));
+      gs.delete.mockReturnValue(of({}));
       component.onDelete();
       expect(confirm.confirmDeletion).toHaveBeenCalledWith('Cracker version', 'hashcat 7.1.2');
       expect(gs.delete).toHaveBeenCalledWith(SERV.CRACKERS, 12);
@@ -445,8 +466,8 @@ describe('CrackerVersionFormComponent', () => {
     beforeEach(async () => {
       routeData = { type: 'edit' };
       routeParams = { id: '12' };
-      gs.get.and.returnValue(of(binaryResponse(null)));
-      gs.update.and.returnValue(of({}));
+      gs.get.mockReturnValue(of(binaryResponse(null)));
+      gs.update.mockReturnValue(of({}));
       await setup();
     });
 
@@ -463,14 +484,14 @@ describe('CrackerVersionFormComponent', () => {
     beforeEach(async () => {
       routeData = { type: 'edit' };
       routeParams = { id: '12' };
-      roles.hasRole.and.callFake((role: string) => role !== 'update');
-      gs.get.and.returnValue(of(binaryResponse('hashcat-7.1.2.7z')));
+      roles.hasRole.mockImplementation((role: string) => role !== 'update');
+      gs.get.mockReturnValue(of(binaryResponse('hashcat-7.1.2.7z')));
       await setup();
     });
 
     it('is read-only but still offers the download', () => {
       const el: HTMLElement = fixture.nativeElement;
-      expect(component.form.disabled).toBeTrue();
+      expect(component.form.disabled).toBe(true);
       expect(el.querySelector('[data-testid="submit-button-crackerVersion"]')).toBeNull();
       expect(el.querySelector('[data-testid="delete-button"]')).toBeNull();
       expect(el.querySelector('[data-testid="download-button"]')).toBeTruthy();
@@ -481,17 +502,17 @@ describe('CrackerVersionFormComponent', () => {
     beforeEach(async () => {
       routeData = { type: 'edit' };
       routeParams = { id: '12' };
-      gs.get.and.returnValue(of(binaryResponse(null, 'generic')));
+      gs.get.mockReturnValue(of(binaryResponse(null, 'generic')));
       await setup();
     });
 
     it('shows the editable hashtypes section', () => {
-      expect(component.isHashcat).toBeFalse();
-      expect(hashtypesSection()?.isHashcat).toBeFalse();
+      expect(component.isHashcat).toBe(false);
+      expect(hashtypesSection()?.isHashcat).toBe(false);
     });
 
     it('passes the hashtype create permission to the section', () => {
-      expect(hashtypesSection()?.canCreateHashtypes).toBeTrue();
+      expect(hashtypesSection()?.canCreateHashtypes).toBe(true);
       expect(hashtypeRoles.hasRole).toHaveBeenCalledWith('create');
     });
   });
@@ -500,14 +521,14 @@ describe('CrackerVersionFormComponent', () => {
     beforeEach(async () => {
       routeData = { type: 'edit' };
       routeParams = { id: '12' };
-      hashtypeRoles.hasRole.and.callFake((role: string) => role !== 'create');
-      gs.get.and.returnValue(of(binaryResponse(null, 'generic')));
+      hashtypeRoles.hasRole.mockImplementation((role: string) => role !== 'create');
+      gs.get.mockReturnValue(of(binaryResponse(null, 'generic')));
       await setup();
     });
 
     it('shows the section without the create permission', () => {
       expect(hashtypesSection()).not.toBeNull();
-      expect(hashtypesSection()?.canCreateHashtypes).toBeFalse();
+      expect(hashtypesSection()?.canCreateHashtypes).toBe(false);
     });
   });
 
@@ -515,8 +536,8 @@ describe('CrackerVersionFormComponent', () => {
     beforeEach(async () => {
       routeData = { type: 'edit' };
       routeParams = { id: '12' };
-      hashtypeRoles.hasRole.and.returnValue(false);
-      gs.get.and.returnValue(of(binaryResponse(null)));
+      hashtypeRoles.hasRole.mockReturnValue(false);
+      gs.get.mockReturnValue(of(binaryResponse(null)));
       await setup();
     });
 
@@ -529,7 +550,7 @@ describe('CrackerVersionFormComponent', () => {
     it('redirects to /not-found on 404', async () => {
       routeData = { type: 'edit' };
       routeParams = { id: '12' };
-      gs.get.and.returnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
+      gs.get.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
       await setup();
       expect(router.navigateByUrl).toHaveBeenCalledWith('/not-found');
     });

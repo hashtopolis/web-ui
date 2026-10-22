@@ -14,6 +14,8 @@ Checklist from #842. The upgrade pinned old behaviour wherever a default changed
 - Router `paramsInheritanceStrategy` `'always'`: nested routes inherit parent `data` (`roleName`)
 - Specs: `provideDisabledMaterialAnimations()`, `provideRouter([])` + `RouterLink` + `provideLocationMocks()`, no `withXhr()`
 - CI lints whole changed files: old lint debt comes along
+- Specs run on Vitest with jsdom: no layout, use vi.useFakeTimers instead of fakeAsync
+- Fake timers: `await vi.advanceTimersByTimeAsync(ms)`, not the sync variant (it skips promise / RxJS microtasks); real waits: `wait()` from `@src/app/testing/wait`
 - `.npmrc` 14-day `min-release-age`: versions trail latest
 - CLI 22: chunk merging on (`NG_BUILD_OPTIMIZE_CHUNKS=false`), `PORT` env wins in `ng serve`
 
@@ -21,13 +23,13 @@ Checklist from #842. The upgrade pinned old behaviour wherever a default changed
 
 - [ ] OnPush instead of `Eager` (144 components)
 - [ ] Remove suppressed `nullishCoalescingNotNullable` / `optionalChainNotNullable` (`tsconfig.app.json`, `tsconfig.spec.json`)
-- [ ] Zoneless (after OnPush; 18 specs with `fakeAsync`)
+- [ ] Zoneless (after OnPush)
 - [ ] Standalone components (154 `standalone: false`, 38 NgModules): `@angular/core:standalone-migration`
 - [ ] Signal inputs / outputs / queries: `@angular/core:signal-input-migration`, `output-migration`, `signal-queries-migration`
 - [ ] `inject()` in services (42) and `auth.guard.ts`, `chunks.component.ts`: `@angular/core:inject-migration`
 - [ ] Functional interceptors (3) and `CanDeactivateFn` for `pendingchanges.guard.ts`
 - [ ] Native file download, then drop `withXhr()`
-- [ ] Karma to Vitest: `ng update @angular/cli --name migrate-karma-to-vitest`
+- [x] Karma to Vitest: `ng update @angular/cli --name migrate-karma-to-vitest`
 - [ ] Signal forms (public since 22) for new forms
 - [ ] TypeScript 7 once `@angular/compiler-cli` allows it
 

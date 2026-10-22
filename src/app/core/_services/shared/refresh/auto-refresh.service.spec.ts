@@ -1,12 +1,12 @@
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 import { AlertService } from '@services/shared/alert.service';
 import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 const mockLocalStorageService = {
-  getItem: jasmine.createSpy('getItem'),
-  setItem: jasmine.createSpy('setItem')
+  getItem: vi.fn().mockName('getItem'),
+  setItem: vi.fn().mockName('setItem')
 };
 
 /**
@@ -15,20 +15,27 @@ const mockLocalStorageService = {
 describe('AutoRefreshService', () => {
   let service: AutoRefreshService;
 
-  const refreshIntervalSeconds = 5; // 5 seconds for testing (virtual time for fakeAsync)
+  const refreshIntervalSeconds = 5; // 5 seconds for testing (virtual time via fake timers)
   const refreshIntervalMs = refreshIntervalSeconds * 1000;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
         AutoRefreshService,
         { provide: LocalStorageService, useValue: mockLocalStorageService },
-        { provide: AlertService, useValue: { showSuccessMessage: jasmine.createSpy() } }
+        { provide: AlertService, useValue: { showSuccessMessage: vi.fn() } }
       ]
     });
     service = TestBed.inject(AutoRefreshService);
 
-    spyOn(service.uiSettings, 'getSetting').and.callFake(<T>(key: string) => {
+    vi.spyOn(service.uiSettings, 'getSetting').mockImplementation(<T>(key: string) => {
       if (key === 'refreshInterval') return refreshIntervalSeconds as unknown as T;
       if (key === 'refreshPage') return true as unknown as T;
       return null as unknown as T;
@@ -39,53 +46,53 @@ describe('AutoRefreshService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should emit refresh$ immediately when called startAutoRefresh with immediate=true', fakeAsync(() => {
+  it('should emit refresh$ immediately when called startAutoRefresh with immediate=true', async () => {
     let emittedCount = 0;
     service.refresh$.subscribe(() => emittedCount++);
     service.startAutoRefresh({ immediate: true });
 
-    tick(0); // Advance virtual time to trigger immediate emission
+    await vi.advanceTimersByTimeAsync(0); // Advance virtual time to trigger immediate emission
     expect(emittedCount).toBe(1); // first emission happens immediately
 
-    tick(refreshIntervalMs - 1); // just before interval
+    await vi.advanceTimersByTimeAsync(refreshIntervalMs - 1); // just before interval
     expect(emittedCount).toBe(1); // no second emission yet
 
-    tick(2); // just after interval
+    await vi.advanceTimersByTimeAsync(2); // just after interval
     expect(emittedCount).toBe(2); // second emission
 
     service.stopAutoRefresh();
 
-    tick(refreshIntervalMs); // another interval
+    await vi.advanceTimersByTimeAsync(refreshIntervalMs); // another interval
     expect(emittedCount).toBe(2); // no more emissions after stop
-  }));
+  });
 
-  it('should emit refresh$ after the correct interval when called startAutoRefresh with immediate=false', fakeAsync(() => {
+  it('should emit refresh$ after the correct interval when called startAutoRefresh with immediate=false', async () => {
     let emittedCount = 0;
     service.refresh$.subscribe(() => emittedCount++);
     service.startAutoRefresh({ immediate: false });
 
-    tick(0); // Advance virtual time
+    await vi.advanceTimersByTimeAsync(0); // Advance virtual time
     expect(emittedCount).toBe(0); // nothing emitted yet
 
-    tick(refreshIntervalMs - 1); // just before interval
+    await vi.advanceTimersByTimeAsync(refreshIntervalMs - 1); // just before interval
     expect(emittedCount).toBe(0); // still nothing
 
-    tick(2); // just after interval
+    await vi.advanceTimersByTimeAsync(2); // just after interval
     expect(emittedCount).toBe(1); // now emitted
 
-    tick(refreshIntervalMs); // another interval
+    await vi.advanceTimersByTimeAsync(refreshIntervalMs); // another interval
     expect(emittedCount).toBe(2); // second emission
 
     service.stopAutoRefresh();
 
-    tick(refreshIntervalMs); // another interval
+    await vi.advanceTimersByTimeAsync(refreshIntervalMs); // another interval
     expect(emittedCount).toBe(2); // no more emissions after stop
-  }));
+  });
 
-  it('toggleAutoRefresh should update settings, call AlertService, and start/stop refresh timer', fakeAsync(() => {
+  it('toggleAutoRefresh should update settings, call AlertService, and start/stop refresh timer', async () => {
     // Spy on methods
-    const updateSettings = spyOn(service.uiSettings, 'updateSettings');
-    const showSucessMessage = TestBed.inject(AlertService).showSuccessMessage as jasmine.Spy;
+    const updateSettings = vi.spyOn(service.uiSettings, 'updateSettings').mockReturnValue(undefined as never);
+    const showSucessMessage = vi.mocked(TestBed.inject(AlertService).showSuccessMessage);
 
     let emittedCount = 0;
     service.refresh$.subscribe(() => emittedCount++);
@@ -95,13 +102,13 @@ describe('AutoRefreshService', () => {
     expect(updateSettings).toHaveBeenCalledWith({ refreshPage: true });
     expect(showSucessMessage).toHaveBeenCalledWith('Autoreload is enabled');
 
-    tick(refreshIntervalMs - 1); // just before interval
+    await vi.advanceTimersByTimeAsync(refreshIntervalMs - 1); // just before interval
     expect(emittedCount).toBe(0); // no emission yet
 
-    tick(2); // just after interva
+    await vi.advanceTimersByTimeAsync(2); // just after interva
     expect(emittedCount).toBe(1); // first emission
 
-    tick(refreshIntervalMs); // next interval
+    await vi.advanceTimersByTimeAsync(refreshIntervalMs); // next interval
     expect(emittedCount).toBe(2); // second emission
 
     // Toggle OFF
@@ -109,7 +116,7 @@ describe('AutoRefreshService', () => {
     expect(updateSettings).toHaveBeenCalledWith({ refreshPage: false });
     expect(showSucessMessage).toHaveBeenCalledWith('Autoreload is paused');
 
-    tick(refreshIntervalMs); // next interval
+    await vi.advanceTimersByTimeAsync(refreshIntervalMs); // next interval
     expect(emittedCount).toBe(2); // ensure no more emissions
-  }));
+  });
 });

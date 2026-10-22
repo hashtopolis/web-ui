@@ -1,6 +1,6 @@
 import { concat, of } from 'rxjs';
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -25,23 +25,26 @@ import { mockResponse } from '@src/app/testing/mock-response';
 
 // Mock services
 class MockUploadTUSService {
-  uploadFile = jasmine.createSpy('uploadFile').and.returnValue(of(100));
+  uploadFile = vi.fn().mockName('uploadFile').mockReturnValue(of(100));
 }
 
 class MockGlobalService {
-  getAll = jasmine.createSpy('getAll').and.returnValue(of(mockResponse()));
-  ghelper = jasmine.createSpy('ghelper').and.returnValue(of(mockResponse()));
-  create = jasmine.createSpy('create').and.returnValue(of({}));
-  chelper = jasmine.createSpy('chelper').and.returnValue(of(mockResponse({ data: [], meta: [] })));
+  getAll = vi.fn().mockName('getAll').mockReturnValue(of(mockResponse()));
+  ghelper = vi.fn().mockName('ghelper').mockReturnValue(of(mockResponse()));
+  create = vi.fn().mockName('create').mockReturnValue(of({}));
+  chelper = vi
+    .fn()
+    .mockName('chelper')
+    .mockReturnValue(of(mockResponse({ data: [], meta: [] })));
   userId = 1;
 }
 
 class MockAlertService {
-  showSuccessMessage = jasmine.createSpy('showSuccessMessage');
-  showErrorMessage = jasmine.createSpy('showErrorMessage');
+  showSuccessMessage = vi.fn().mockName('showSuccessMessage');
+  showErrorMessage = vi.fn().mockName('showErrorMessage');
 }
 class MockRouter {
-  navigate = jasmine.createSpy('navigate');
+  navigate = vi.fn().mockName('navigate');
 }
 
 describe('NewFilesComponent', () => {
@@ -121,7 +124,7 @@ describe('NewFilesComponent', () => {
         expect(form.get(key)).toBeTruthy();
       });
       expect(form.controls.filename.value).toBe('');
-      expect(form.controls.isSecret.value).toBeTrue();
+      expect(form.controls.isSecret.value).toBe(true);
       expect(form.controls.fileType.value).toBe(expectedFileType);
       expect(form.controls.accessGroupId.value).toBe(1);
       expect(form.controls.sourceType.value).toBe('import');
@@ -136,7 +139,7 @@ describe('NewFilesComponent', () => {
     component.selectedFiles = null;
 
     // Spy on the method
-    spyOn(component, 'onuploadFile').and.callThrough();
+    vi.spyOn(component, 'onuploadFile');
 
     // Find the custom button
     const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="button-submit-upload"]'));
@@ -179,7 +182,7 @@ describe('NewFilesComponent', () => {
 
       // Check progress and loading state
       expect(component.uploadProgress).toBe(100);
-      expect(component.isCreatingLoading).toBeFalse();
+      expect(component.isCreatingLoading).toBe(false);
 
       // Alert should not show error
       expect(alert.showErrorMessage).not.toHaveBeenCalled();
@@ -240,8 +243,8 @@ describe('NewFilesComponent', () => {
 
       const result = transformSelectOptions(deserialized, ACCESS_GROUP_FIELD_MAPPING);
       expect(result.length).toBe(2);
-      expect(result[0]).toEqual(jasmine.objectContaining({ id: 1, name: 'Group A' }));
-      expect(result[1]).toEqual(jasmine.objectContaining({ id: 3, name: 'Group C' }));
+      expect(result[0]).toEqual(expect.objectContaining({ id: 1, name: 'Group A' }));
+      expect(result[1]).toEqual(expect.objectContaining({ id: 3, name: 'Group C' }));
     });
 
     it('should populate dropdown with only user-scoped groups, not the full set', async () => {
@@ -260,7 +263,7 @@ describe('NewFilesComponent', () => {
       fixture = TestBed.createComponent(NewFilesComponent);
       component = fixture.componentInstance;
 
-      spyOn(component, 'loadData').and.callFake(async () => {
+      vi.spyOn(component, 'loadData').mockImplementation(async () => {
         component.selectAccessgroup = userScopedGroups;
         component.isLoading = false;
       });
@@ -284,17 +287,16 @@ describe('NewFilesComponent', () => {
     // Regression guard for the stale-while-revalidate bug: HttpCacheInterceptor serves a stale
     // cached value first, then the revalidated fresh one (concat(of(stale), revalidate())).
     // firstValueFrom took the stale list; the fix uses lastValueFrom, which resolves on the fresh one.
-    it('uses the revalidated (fresh) emission, not the stale-while-revalidate cache hit', fakeAsync(async () => {
+    it('uses the revalidated (fresh) emission, not the stale-while-revalidate cache hit', async () => {
       const comp = setup('wordlist-new');
       const gs = TestBed.inject(GlobalService) as unknown as MockGlobalService;
       const stale = mockResponse({ data: [], meta: [{ file: 'cached.txt' }] });
       const fresh = mockResponse({ data: [], meta: [{ file: 'cached.txt' }, { file: 'added-after-login.txt' }] });
-      (gs.chelper as jasmine.Spy).and.returnValue(concat(of(stale), of(fresh)));
+      gs.chelper.mockReturnValue(concat(of(stale), of(fresh)));
 
       await comp.loadServerFiles();
-      tick();
 
       expect(comp.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
-    }));
+    });
   });
 });

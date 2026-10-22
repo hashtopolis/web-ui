@@ -1,3 +1,5 @@
+import type { Mock, MockedObject } from 'vitest';
+
 import { BaseModel } from '@models/base.model';
 
 import { AuthService } from '@services/access/auth.service';
@@ -10,16 +12,18 @@ import { HeaderMenuAction, HeaderMenuLabel } from '@src/app/layout/header/header
 
 interface TestableHeader {
   menuItemClicked(event: ActionMenuEvent<BaseModel | undefined>): void;
-  authService: jasmine.SpyObj<AuthService>;
-  rebuildMenu: jasmine.Spy;
+  authService: MockedObject<AuthService>;
+  rebuildMenu: Mock;
 }
 
 function makeComponent() {
-  const mockAuthService = jasmine.createSpyObj<AuthService>('AuthService', ['logOut']);
+  const mockAuthService = {
+    logOut: vi.fn().mockName('AuthService.logOut')
+  } as MockedObject<AuthService>;
 
   const component = Object.create(HeaderComponent.prototype) as TestableHeader;
   component['authService'] = mockAuthService;
-  component['rebuildMenu'] = jasmine.createSpy('rebuildMenu');
+  component['rebuildMenu'] = vi.fn().mockName('rebuildMenu');
 
   return { component, mockAuthService };
 }
@@ -39,7 +43,7 @@ describe('HeaderComponent logout', () => {
 
     component.menuItemClicked(logoutEvent);
 
-    expect(mockAuthService.logOut).toHaveBeenCalledOnceWith();
+    expect(mockAuthService.logOut).toHaveBeenCalledExactlyOnceWith();
   });
 
   it('does not rebuild the menu on logout', () => {
@@ -61,20 +65,24 @@ describe('HeaderComponent logout', () => {
 
 describe('HeaderComponent config menu', () => {
   function configMenu(backgroundJobRead: boolean, hashtypeRoles: string[] = []) {
-    const wrapper = jasmine.createSpyObj<ConfigRoleWrapperService>('ConfigRoleWrapperService', [
-      'hasSettingsRole',
-      'hasHashTypesRole',
-      'hasHealthCheckRole',
-      'hasLogRole',
-      'hasNotificationRole',
-      'hasBackgroundJobRole'
-    ]);
-    wrapper.hasLogRole.and.returnValue(true);
-    wrapper.hasHashTypesRole.and.callFake((role: string) => hashtypeRoles.includes(role));
-    wrapper.hasBackgroundJobRole.and.callFake((role: string) => role === 'read' && backgroundJobRead);
+    const wrapper = {
+      hasSettingsRole: vi.fn().mockName('ConfigRoleWrapperService.hasSettingsRole'),
+      hasHashTypesRole: vi.fn().mockName('ConfigRoleWrapperService.hasHashTypesRole'),
+      hasHealthCheckRole: vi.fn().mockName('ConfigRoleWrapperService.hasHealthCheckRole'),
+      hasLogRole: vi.fn().mockName('ConfigRoleWrapperService.hasLogRole'),
+      hasNotificationRole: vi.fn().mockName('ConfigRoleWrapperService.hasNotificationRole'),
+      hasBackgroundJobRole: vi.fn().mockName('ConfigRoleWrapperService.hasBackgroundJobRole')
+    } as MockedObject<ConfigRoleWrapperService>;
+    wrapper.hasLogRole.mockReturnValue(true);
+    wrapper.hasHashTypesRole.mockImplementation((role: string) => hashtypeRoles.includes(role));
+    wrapper.hasBackgroundJobRole.mockImplementation((role: string) => role === 'read' && backgroundJobRead);
 
     const component = Object.create(HeaderComponent.prototype) as HeaderComponent;
-    (component as unknown as { configRoleWrapper: ConfigRoleWrapperService }).configRoleWrapper = wrapper;
+    (
+      component as unknown as {
+        configRoleWrapper: ConfigRoleWrapperService;
+      }
+    ).configRoleWrapper = wrapper;
     return component.getConfigMenu().actions[0];
   }
 

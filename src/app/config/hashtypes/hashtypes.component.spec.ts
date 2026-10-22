@@ -9,10 +9,14 @@ import { HashtypesComponent } from '@src/app/config/hashtypes/hashtypes.componen
 
 @Component({ selector: 'app-page', template: '<ng-content></ng-content>', standalone: false })
 class StubPageComponent {
-  @Input() title: string;
-  @Input() actionTitle?: string;
-  @Input() actionLink?: string;
-  @Input() showAction?: boolean;
+  @Input()
+  title: string;
+  @Input()
+  actionTitle?: string;
+  @Input()
+  actionLink?: string;
+  @Input()
+  showAction?: boolean;
 }
 
 @Component({ selector: 'app-table', template: '<ng-content></ng-content>', standalone: false })
@@ -25,12 +29,19 @@ describe('HashtypesComponent', () => {
   let fixture: ComponentFixture<HashtypesComponent>;
 
   beforeEach(async () => {
-    const roles = jasmine.createSpyObj('HashTypesRoleService', ['hasRole']);
-    roles.hasRole.and.returnValue(true);
+    const roles = {
+      hasRole: vi.fn().mockName('HashTypesRoleService.hasRole')
+    };
+    roles.hasRole.mockReturnValue(true);
     await TestBed.configureTestingModule({
       declarations: [HashtypesComponent, StubPageComponent, StubTableComponent, StubHashtypesTableComponent],
       providers: [
-        { provide: AutoTitleService, useValue: jasmine.createSpyObj('AutoTitleService', ['set']) },
+        {
+          provide: AutoTitleService,
+          useValue: {
+            set: vi.fn().mockName('AutoTitleService.set')
+          }
+        },
         { provide: HashTypesRoleService, useValue: roles }
       ]
     }).compileComponents();

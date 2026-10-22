@@ -1,7 +1,7 @@
-/// <reference types="jasmine" />
 import { HashListFormat } from '@constants/hashlist.config';
 import { zHashlistListResponse } from '@generated/api/zod';
-import { EMPTY, of, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -94,29 +94,42 @@ const MOCK_SUPERHASHLIST_NO_HASHTYPE: JHashlist = {
 
 describe('SuperHashlistsDataSource', () => {
   let dataSource: SuperHashlistsDataSource;
-  let gsSpy: jasmine.SpyObj<GlobalService>;
-  let _deserializeSpy: jasmine.Spy;
+  let gsSpy: MockedObject<GlobalService>;
+  let _deserializeSpy: Mock;
 
   beforeEach(() => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll']);
+    gsSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    } as MockedObject<GlobalService>;
 
-    const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges']);
-    const uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    uiServiceSpy.getUISettings.and.returnValue({});
-    const autoRefreshSpy = jasmine.createSpyObj(
-      'AutoRefreshService',
-      ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'],
-      { refresh$: of() }
-    );
-    const cacheSpy = jasmine.createSpyObj('HttpCacheService', ['invalidate']);
-    const storageSpy = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
-    storageSpy.getItem.and.returnValue(null);
+    const cdrSpy = {
+      markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
+      detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges')
+    };
+    const uiServiceSpy = {
+      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+    };
+    uiServiceSpy.getUISettings.mockReturnValue({});
+    const autoRefreshSpy = {
+      toggleAutoRefresh: vi.fn().mockName('AutoRefreshService.toggleAutoRefresh'),
+      startAutoRefresh: vi.fn().mockName('AutoRefreshService.startAutoRefresh'),
+      stopAutoRefresh: vi.fn().mockName('AutoRefreshService.stopAutoRefresh'),
+      refresh$: of()
+    };
+    const cacheSpy = {
+      invalidate: vi.fn().mockName('HttpCacheService.invalidate')
+    };
+    const storageSpy = {
+      getItem: vi.fn().mockName('LocalStorageService.getItem'),
+      setItem: vi.fn().mockName('LocalStorageService.setItem')
+    };
+    storageSpy.getItem.mockReturnValue(null);
 
-    gsSpy.getAll.and.returnValue(of(mockResponse()));
+    gsSpy.getAll.mockReturnValue(of(mockResponse()));
 
-    _deserializeSpy = spyOn(JsonAPISerializer.prototype, 'deserialize').and.callFake(
-      (_body: unknown, _schema?: unknown) => [MOCK_SUPERHASHLIST]
-    );
+    _deserializeSpy = vi
+      .spyOn(JsonAPISerializer.prototype, 'deserialize')
+      .mockImplementation((_body: unknown, _schema?: unknown) => [MOCK_SUPERHASHLIST]);
 
     TestBed.configureTestingModule({
       providers: [
@@ -133,35 +146,33 @@ describe('SuperHashlistsDataSource', () => {
     dataSource = new SuperHashlistsDataSource(injector);
   });
 
-  afterEach(() => TestBed.resetTestingModule());
-
   // loadAll()
 
   describe('loadAll()', () => {
     it('should call service.getAll with SERV.HASHLISTS', () => {
       dataSource.loadAll();
-      const [serviceConfig] = gsSpy.getAll.calls.mostRecent().args;
+      const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HASHLISTS);
     });
 
     it('should include hashType and hashlists in request params', () => {
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).include).toContain('hashType');
       expect((params as RequestParams).include).toContain('hashlists');
     });
 
     it('should filter by format === SUPERHASHLIST (3)', () => {
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'format', operator: FilterType.EQUAL, value: HashListFormat.SUPERHASHLIST })
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'format', operator: FilterType.EQUAL, value: HashListFormat.SUPERHASHLIST })
       );
     });
 
     it('should deserialize the response with zHashlistListResponse', () => {
       dataSource.loadAll();
-      expect(_deserializeSpy).toHaveBeenCalledWith(jasmine.anything(), zHashlistListResponse);
+      expect(_deserializeSpy).toHaveBeenCalledWith(expect.anything(), zHashlistListResponse);
     });
 
     it('should populate data with the deserialized super hashlists', () => {
@@ -176,7 +187,7 @@ describe('SuperHashlistsDataSource', () => {
     });
 
     it('should set hashTypeDescription to undefined when hashType is null', () => {
-      _deserializeSpy.and.returnValue([MOCK_SUPERHASHLIST_NO_HASHTYPE]);
+      _deserializeSpy.mockReturnValue([MOCK_SUPERHASHLIST_NO_HASHTYPE]);
       dataSource.loadAll();
       expect(dataSource.getOriginalData()[0].hashTypeDescription).toBeUndefined();
     });
@@ -190,13 +201,13 @@ describe('SuperHashlistsDataSource', () => {
     });
 
     it('should set totalItems from meta.page.total_elements', () => {
-      gsSpy.getAll.and.returnValue(of(mockResponse({ meta: { page: { total_elements: 2 } } })));
+      gsSpy.getAll.mockReturnValue(of(mockResponse({ meta: { page: { total_elements: 2 } } })));
       dataSource.loadAll();
       expect(dataSource.totalItems).toBe(2);
     });
 
     it('should extract the page[after] cursor from links.next', () => {
-      gsSpy.getAll.and.returnValue(
+      gsSpy.getAll.mockReturnValue(
         of(
           mockResponse({
             meta: { page: { total_elements: 10 } },
@@ -224,8 +235,10 @@ describe('SuperHashlistsDataSource', () => {
     it('should append a query filter when provided', () => {
       const query: Filter = { field: 'name', operator: FilterType.ICONTAINS, value: 'sha1' };
       dataSource.loadAll(query);
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'name', value: 'sha1' }));
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'name', value: 'sha1' })
+      );
     });
 
     it('should persist the query as _currentFilter', () => {
@@ -237,20 +250,22 @@ describe('SuperHashlistsDataSource', () => {
     it('should reuse _currentFilter on a subsequent call without query', () => {
       const query: Filter = { field: 'name', operator: FilterType.ICONTAINS, value: 'sha1' };
       dataSource.loadAll(query);
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'name', value: 'sha1' }));
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'name', value: 'sha1' })
+      );
     });
 
     it('should set loading to false after a successful response', () => {
       dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
 
     it('should call handleFilterError and return empty data when request fails', () => {
-      gsSpy.getAll.and.returnValue(throwError(() => new Error('backend error')));
-      const handleFilterErrorSpy = spyOn(dataSource as never, 'handleFilterError').and.callThrough();
+      gsSpy.getAll.mockReturnValue(throwError(() => new Error('backend error')));
+      const handleFilterErrorSpy = vi.spyOn(dataSource as never, 'handleFilterError');
 
       dataSource.loadAll();
 
@@ -259,9 +274,9 @@ describe('SuperHashlistsDataSource', () => {
     });
 
     it('should set loading to false even when request fails', () => {
-      gsSpy.getAll.and.returnValue(throwError(() => new Error('backend error')));
+      gsSpy.getAll.mockReturnValue(throwError(() => new Error('backend error')));
       dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
   });
 
@@ -270,10 +285,10 @@ describe('SuperHashlistsDataSource', () => {
   describe('setIsArchived()', () => {
     it('should store the isArchived value', () => {
       dataSource.setIsArchived(true);
-      expect(dataSource['isArchived']).toBeTrue();
+      expect(dataSource['isArchived']).toBe(true);
 
       dataSource.setIsArchived(false);
-      expect(dataSource['isArchived']).toBeFalse();
+      expect(dataSource['isArchived']).toBe(false);
     });
   });
 
@@ -287,7 +302,7 @@ describe('SuperHashlistsDataSource', () => {
     });
 
     it('should call loadAll()', () => {
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       dataSource.reload();
       expect(gsSpy.getAll).toHaveBeenCalled();
     });
@@ -307,7 +322,7 @@ describe('SuperHashlistsDataSource', () => {
 
     it('should reset index to 0 and reload data', () => {
       dataSource.index = 5;
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
 
       dataSource.clearFilter();
 
@@ -319,12 +334,12 @@ describe('SuperHashlistsDataSource', () => {
       const query: Filter = { field: 'name', operator: FilterType.ICONTAINS, value: 'sha1' };
       dataSource.loadAll(query);
 
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       dataSource.clearFilter();
 
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
-      expect(filter.some((f: Filter) => f.field === 'name')).toBeFalse();
+      expect(filter.some((f: Filter) => f.field === 'name')).toBe(false);
     });
   });
 });

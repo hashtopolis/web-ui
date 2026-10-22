@@ -22,30 +22,16 @@
               "browser": ""
             },
             "index": "src/index.html",
-            "polyfills": [
-              "src/polyfills.ts"
-            ],
+            "polyfills": ["src/polyfills.ts"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "crossOrigin": "use-credentials",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
-            "styles": [
-              "src/styles/tailwind.css",
-              "src/styles/styles.scss"
-            ],
+            "assets": ["src/favicon.ico", "src/assets"],
+            "styles": ["src/styles/tailwind.css", "src/styles/styles.scss"],
             "stylePreprocessorOptions": {
-              "includePaths": [
-                "node_modules",
-                "."
-              ]
+              "includePaths": ["node_modules", "."]
             },
-            "scripts": [
-              "src/assets/optparse/optparse.1.1.1.js",
-              "src/assets/optparse/optparse.hashtopolis.1.1.1.js"
-            ],
+            "scripts": ["src/assets/optparse/optparse.1.1.1.js", "src/assets/optparse/optparse.hashtopolis.1.1.1.js"],
             "browser": "src/main.ts"
           },
           "configurations": {
@@ -75,6 +61,16 @@
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
+            },
+            "testing": {
+              "aot": false,
+              "optimization": false,
+              "extractLicenses": false,
+              "polyfills": ["zone.js", "zone.js/testing", "reflect-metadata"],
+              "styles": ["src/styles/styles.scss"],
+              "stylePreprocessorOptions": {
+                "includePaths": ["src/styles", "node_modules", "."]
+              }
             }
           },
           "defaultConfiguration": "production"
@@ -95,44 +91,28 @@
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "main": "src/test.ts",
-            "polyfills": ["src/polyfills.ts"],
             "tsConfig": "tsconfig.spec.json",
-            "karmaConfig": "karma.conf.js",
-            "inlineStyleLanguage": "scss",
-            "stylePreprocessorOptions": {
-              "includePaths": ["src/styles", "node_modules", "."]
-            },
-            "assets": [
-              "src/styles/styles.scss"
-            ],
-            "styles": [
-              "src/styles/styles.scss"
-            ],
-            "scripts": [
-              "src/assets/optparse/optparse.1.1.1.js",
-              "src/assets/optparse/optparse.hashtopolis.1.1.1.js"
-            ]
+            "coverageReporters": ["html", "text-summary"],
+            "providersFile": "src/test-providers.ts",
+            "setupFiles": ["src/test-setup.ts"],
+            "runnerConfig": true,
+            "buildTarget": ":build:testing",
+            "runner": "vitest"
           }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }
     }
   },
   "cli": {
-    "schematicCollections": [
-      "@angular-eslint/schematics"
-    ],
+    "schematicCollections": ["@angular-eslint/schematics"],
     "analytics": false
   },
   "schematics": {

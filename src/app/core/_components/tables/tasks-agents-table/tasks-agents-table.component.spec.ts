@@ -1,10 +1,11 @@
-import { Subject, of } from 'rxjs';
+import { Subject, firstValueFrom, of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 
 import { BaseModel } from '@models/base.model';
 
@@ -40,13 +41,19 @@ class MockTasksAgentsDataSource {
  * Helpers to open a dialog and simulate its close result.
  */
 function openDialogAndClose(
-  mockDialog: jasmine.SpyObj<MatDialog>,
+  mockDialog: MockedObject<MatDialog>,
   triggerFn: () => void
-): Subject<{ action: string; data: JAgent[] } | null> {
-  const afterClosedSubject = new Subject<{ action: string; data: JAgent[] } | null>();
-  mockDialog.open.and.returnValue({
+): Subject<{
+  action: string;
+  data: JAgent[];
+} | null> {
+  const afterClosedSubject = new Subject<{
+    action: string;
+    data: JAgent[];
+  } | null>();
+  vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
     afterClosed: () => afterClosedSubject.asObservable()
-  } as MatDialogRef<unknown>);
+  });
   triggerFn();
   return afterClosedSubject;
 }
@@ -62,18 +69,30 @@ class TestTasksAgentsTableComponent extends TasksAgentsTableComponent {
 describe('TasksAgentsTableComponent', () => {
   let component: TestTasksAgentsTableComponent;
   let fixture: ComponentFixture<TestTasksAgentsTableComponent>;
-  let mockExportService: jasmine.SpyObj<ExportService>;
-  let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
-  let mockDialog: jasmine.SpyObj<MatDialog>;
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
+  let mockExportService: MockedObject<ExportService>;
+  let mockHTTable: MockedObject<HTTableComponent<BaseModel>>;
+  let mockDialog: MockedObject<MatDialog>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockAlertService: MockedObject<AlertService>;
 
   beforeEach(async () => {
-    mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
-    mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
-    mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['delete', 'bulkDelete']);
-    mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+    mockExportService = {
+      handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
+    } as MockedObject<ExportService>;
+    mockHTTable = {
+      reload: vi.fn().mockName('HTTableComponent.reload')
+    } as MockedObject<HTTableComponent<BaseModel>>;
+    mockDialog = {
+      open: vi.fn().mockName('MatDialog.open')
+    } as MockedObject<MatDialog>;
+    mockGlobalService = {
+      delete: vi.fn().mockName('GlobalService.delete'),
+      bulkDelete: vi.fn().mockName('GlobalService.bulkDelete')
+    } as MockedObject<GlobalService>;
+    mockAlertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    } as MockedObject<AlertService>;
 
     await TestBed.configureTestingModule({
       declarations: [TestTasksAgentsTableComponent],
@@ -134,18 +153,14 @@ describe('TasksAgentsTableComponent', () => {
       expect(speedColumn.icon!(idle)).toEqual({ name: '' });
     });
 
-    it('should link to the current chunk', (done) => {
-      column(TasksAgentsTableCol.CURRENT_CHUNK).routerLink!(working).subscribe((links) => {
-        expect(links).toEqual([{ routerLink: ['/tasks', 'chunks', 289, 'view'], label: 289 }]);
-        done();
-      });
+    it('should link to the current chunk', async () => {
+      const links = await firstValueFrom(column(TasksAgentsTableCol.CURRENT_CHUNK).routerLink!(working));
+      expect(links).toEqual([{ routerLink: ['/tasks', 'chunks', 289, 'view'], label: 289 }]);
     });
 
-    it('should render no chunk link when the agent has no chunk', (done) => {
-      column(TasksAgentsTableCol.CURRENT_CHUNK).routerLink!(idle).subscribe((links) => {
-        expect(links).toEqual([]);
-        done();
-      });
+    it('should render no chunk link when the agent has no chunk', async () => {
+      const links = await firstValueFrom(column(TasksAgentsTableCol.CURRENT_CHUNK).routerLink!(idle));
+      expect(links).toEqual([]);
     });
 
     it('should render the time spent on the task', () => {
@@ -170,19 +185,19 @@ describe('TasksAgentsTableComponent', () => {
     });
 
     it('should export the aggregate values', async () => {
-      await expectAsync(column(TasksAgentsTableCol.TASK_SPEED).export!(working)).toBeResolvedTo('1200');
-      await expectAsync(column(TasksAgentsTableCol.CURRENT_CHUNK).export!(working)).toBeResolvedTo('289');
-      await expectAsync(column(TasksAgentsTableCol.TIME_SPENT).export!(working)).toBeResolvedTo('30');
-      await expectAsync(column(TasksAgentsTableCol.SEARCHED).export!(working)).toBeResolvedTo('0.25');
-      await expectAsync(column(TasksAgentsTableCol.CRACKED).export!(working)).toBeResolvedTo('2');
+      await expect(column(TasksAgentsTableCol.TASK_SPEED).export!(working)).resolves.toEqual('1200');
+      await expect(column(TasksAgentsTableCol.CURRENT_CHUNK).export!(working)).resolves.toEqual('289');
+      await expect(column(TasksAgentsTableCol.TIME_SPENT).export!(working)).resolves.toEqual('30');
+      await expect(column(TasksAgentsTableCol.SEARCHED).export!(working)).resolves.toEqual('0.25');
+      await expect(column(TasksAgentsTableCol.CRACKED).export!(working)).resolves.toEqual('2');
     });
 
     it('should export placeholders when the aggregates are missing', async () => {
-      await expectAsync(column(TasksAgentsTableCol.TASK_SPEED).export!(idle)).toBeResolvedTo('-');
-      await expectAsync(column(TasksAgentsTableCol.CURRENT_CHUNK).export!(idle)).toBeResolvedTo('');
-      await expectAsync(column(TasksAgentsTableCol.TIME_SPENT).export!(idle)).toBeResolvedTo('-');
-      await expectAsync(column(TasksAgentsTableCol.SEARCHED).export!(idle)).toBeResolvedTo('0');
-      await expectAsync(column(TasksAgentsTableCol.CRACKED).export!(idle)).toBeResolvedTo('-');
+      await expect(column(TasksAgentsTableCol.TASK_SPEED).export!(idle)).resolves.toEqual('-');
+      await expect(column(TasksAgentsTableCol.CURRENT_CHUNK).export!(idle)).resolves.toEqual('');
+      await expect(column(TasksAgentsTableCol.TIME_SPENT).export!(idle)).resolves.toEqual('-');
+      await expect(column(TasksAgentsTableCol.SEARCHED).export!(idle)).resolves.toEqual('0');
+      await expect(column(TasksAgentsTableCol.CRACKED).export!(idle)).resolves.toEqual('-');
     });
   });
 
@@ -194,7 +209,7 @@ describe('TasksAgentsTableComponent', () => {
 
       component.exportActionClicked(event);
 
-      expect(mockExportService.handleExportAction).toHaveBeenCalledOnceWith(
+      expect(mockExportService.handleExportAction).toHaveBeenCalledExactlyOnceWith(
         event,
         component.tableColumns,
         TasksAgentsTableColumnLabel,
@@ -225,7 +240,10 @@ describe('TasksAgentsTableComponent', () => {
   // ─── Unassign agent (row action) ─────────────────────────────────────────────
 
   describe('rowActionUnassign (via UNASSIGN row action)', () => {
-    function triggerConfirmedUnassign(agent: JAgent): Subject<{ action: string; data: JAgent[] } | null> {
+    function triggerConfirmedUnassign(agent: JAgent): Subject<{
+      action: string;
+      data: JAgent[];
+    } | null> {
       const subject = openDialogAndClose(mockDialog, () =>
         component.rowActionClicked({
           data: agent,
@@ -237,25 +255,25 @@ describe('TasksAgentsTableComponent', () => {
     }
 
     it('should call gs.delete with SERV.AGENT_ASSIGN and the assignment ID when the agent has one', () => {
-      mockGlobalService.delete.and.returnValue(of({}));
+      mockGlobalService.delete.mockReturnValue(of({}));
       const agent = { id: 1, agentName: 'A1', assignmentId: 42 } as JAgent;
 
       triggerConfirmedUnassign(agent);
 
-      expect(mockGlobalService.delete).toHaveBeenCalledOnceWith(SERV.AGENT_ASSIGN, 42);
+      expect(mockGlobalService.delete).toHaveBeenCalledExactlyOnceWith(SERV.AGENT_ASSIGN, 42);
     });
 
     it('should show a success message, reload the table, and emit assignedAgentsChanged after a successful unassign', () => {
-      mockGlobalService.delete.and.returnValue(of({}));
+      mockGlobalService.delete.mockReturnValue(of({}));
       const agent = { id: 1, agentName: 'A1', assignmentId: 42 } as JAgent;
       let emitted = false;
       component.assignedAgentsChanged.subscribe(() => (emitted = true));
 
       triggerConfirmedUnassign(agent);
 
-      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledOnceWith('Successfully unassigned agent!');
+      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledExactlyOnceWith('Successfully unassigned agent!');
       expect(mockHTTable.reload).toHaveBeenCalledTimes(1);
-      expect(emitted).toBeTrue();
+      expect(emitted).toBe(true);
     });
 
     it('should show an error message and NOT call the API when the agent has no assignment ID', () => {
@@ -264,7 +282,7 @@ describe('TasksAgentsTableComponent', () => {
       triggerConfirmedUnassign(agent);
 
       expect(mockGlobalService.delete).not.toHaveBeenCalled();
-      expect(mockAlertService.showErrorMessage).toHaveBeenCalledOnceWith('Failed to unassign agent!');
+      expect(mockAlertService.showErrorMessage).toHaveBeenCalledExactlyOnceWith('Failed to unassign agent!');
     });
 
     it('should NOT call the API when the confirmation dialog is dismissed', () => {
@@ -285,7 +303,10 @@ describe('TasksAgentsTableComponent', () => {
   // ─── Unassign agents (bulk action) ───────────────────────────────────────────
 
   describe('bulkActionUnassign (via UNASSIGN bulk action)', () => {
-    function triggerConfirmedBulkUnassign(agents: JAgent[]): Subject<{ action: string; data: JAgent[] } | null> {
+    function triggerConfirmedBulkUnassign(agents: JAgent[]): Subject<{
+      action: string;
+      data: JAgent[];
+    } | null> {
       const subject = openDialogAndClose(mockDialog, () =>
         component.bulkActionClicked({
           data: agents,
@@ -297,7 +318,7 @@ describe('TasksAgentsTableComponent', () => {
     }
 
     it('should call gs.bulkDelete with SERV.AGENT_ASSIGN and the assignment IDs of the assigned agents', () => {
-      mockGlobalService.bulkDelete.and.returnValue(of({}));
+      mockGlobalService.bulkDelete.mockReturnValue(of({}));
       const agents = [
         { id: 1, agentName: 'A1', assignmentId: 42 },
         { id: 2, agentName: 'A2', assignmentId: 43 }
@@ -305,25 +326,25 @@ describe('TasksAgentsTableComponent', () => {
 
       triggerConfirmedBulkUnassign(agents);
 
-      expect(mockGlobalService.bulkDelete).toHaveBeenCalledOnceWith(SERV.AGENT_ASSIGN, [{ id: 42 }, { id: 43 }]);
+      expect(mockGlobalService.bulkDelete).toHaveBeenCalledExactlyOnceWith(SERV.AGENT_ASSIGN, [{ id: 42 }, { id: 43 }]);
     });
 
     it('should show a success message, reload the data source, and emit assignedAgentsChanged after a successful bulk unassign', () => {
-      mockGlobalService.bulkDelete.and.returnValue(of({}));
-      spyOn(component.dataSource, 'reload');
+      mockGlobalService.bulkDelete.mockReturnValue(of({}));
+      vi.spyOn(component.dataSource, 'reload').mockReturnValue(undefined);
       const agents = [{ id: 1, agentName: 'A1', assignmentId: 42 }] as JAgent[];
       let emitted = false;
       component.assignedAgentsChanged.subscribe(() => (emitted = true));
 
       triggerConfirmedBulkUnassign(agents);
 
-      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledOnceWith('Successfully unassigned agents!');
+      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledExactlyOnceWith('Successfully unassigned agents!');
       expect(component.dataSource.reload).toHaveBeenCalledTimes(1);
-      expect(emitted).toBeTrue();
+      expect(emitted).toBe(true);
     });
 
     it('should show an error message per agent and exclude them from the bulkDelete request when some agents have no assignment ID', () => {
-      mockGlobalService.bulkDelete.and.returnValue(of({}));
+      mockGlobalService.bulkDelete.mockReturnValue(of({}));
       const agents = [
         { id: 1, agentName: 'A1', assignmentId: 42 },
         { id: 2, agentName: 'A2' }
@@ -331,8 +352,8 @@ describe('TasksAgentsTableComponent', () => {
 
       triggerConfirmedBulkUnassign(agents);
 
-      expect(mockAlertService.showErrorMessage).toHaveBeenCalledOnceWith('Failed to unassign agent!A2');
-      expect(mockGlobalService.bulkDelete).toHaveBeenCalledOnceWith(SERV.AGENT_ASSIGN, [{ id: 42 }]);
+      expect(mockAlertService.showErrorMessage).toHaveBeenCalledExactlyOnceWith('Failed to unassign agent!A2');
+      expect(mockGlobalService.bulkDelete).toHaveBeenCalledExactlyOnceWith(SERV.AGENT_ASSIGN, [{ id: 42 }]);
     });
 
     it('should NOT call the API when none of the agents have an assignment ID', () => {
@@ -341,7 +362,7 @@ describe('TasksAgentsTableComponent', () => {
       triggerConfirmedBulkUnassign(agents);
 
       expect(mockGlobalService.bulkDelete).not.toHaveBeenCalled();
-      expect(mockAlertService.showErrorMessage).toHaveBeenCalledOnceWith('Failed to unassign agent!A1');
+      expect(mockAlertService.showErrorMessage).toHaveBeenCalledExactlyOnceWith('Failed to unassign agent!A1');
     });
 
     it('should NOT call the API when the confirmation dialog is dismissed', () => {

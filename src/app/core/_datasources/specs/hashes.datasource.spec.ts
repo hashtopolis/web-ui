@@ -1,7 +1,7 @@
-/// <reference types="jasmine" />
 import { HashListFormat } from '@constants/hashlist.config';
 import { zGetCracksOfTaskHelperResponse, zHashListResponse, zHashlistResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -78,7 +78,7 @@ const MOCK_HASHES: JHash[] = [
 
 describe('HashesDataSource', () => {
   let dataSource: HashesDataSource;
-  let gsSpy: jasmine.SpyObj<GlobalService>;
+  let gsSpy: MockedObject<GlobalService>;
 
   // The hashlist returned when a `hashlists` load resolves the record; reassign per test.
   let resolvedHashlist: JHashlist;
@@ -86,25 +86,40 @@ describe('HashesDataSource', () => {
   beforeEach(() => {
     resolvedHashlist = MOCK_PLAIN_HASHLIST;
 
-    gsSpy = jasmine.createSpyObj('GlobalService', ['get', 'getAll', 'ghelper']);
+    gsSpy = {
+      get: vi.fn().mockName('GlobalService.get'),
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      ghelper: vi.fn().mockName('GlobalService.ghelper')
+    } as MockedObject<GlobalService>;
 
-    const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges']);
-    const uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    uiServiceSpy.getUISettings.and.returnValue({});
-    const autoRefreshSpy = jasmine.createSpyObj(
-      'AutoRefreshService',
-      ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'],
-      { refresh$: of() }
-    );
-    const cacheSpy = jasmine.createSpyObj('HttpCacheService', ['invalidate']);
-    const storageSpy = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
-    storageSpy.getItem.and.returnValue(null);
+    const cdrSpy = {
+      markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
+      detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges')
+    };
+    const uiServiceSpy = {
+      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+    };
+    uiServiceSpy.getUISettings.mockReturnValue({});
+    const autoRefreshSpy = {
+      toggleAutoRefresh: vi.fn().mockName('AutoRefreshService.toggleAutoRefresh'),
+      startAutoRefresh: vi.fn().mockName('AutoRefreshService.startAutoRefresh'),
+      stopAutoRefresh: vi.fn().mockName('AutoRefreshService.stopAutoRefresh'),
+      refresh$: of()
+    };
+    const cacheSpy = {
+      invalidate: vi.fn().mockName('HttpCacheService.invalidate')
+    };
+    const storageSpy = {
+      getItem: vi.fn().mockName('LocalStorageService.getItem'),
+      setItem: vi.fn().mockName('LocalStorageService.setItem')
+    };
+    storageSpy.getItem.mockReturnValue(null);
 
-    gsSpy.get.and.returnValue(of(mockResponse()));
-    gsSpy.getAll.and.returnValue(of(mockResponse()));
-    gsSpy.ghelper.and.returnValue(of(mockResponse()));
+    gsSpy.get.mockReturnValue(of(mockResponse()));
+    gsSpy.getAll.mockReturnValue(of(mockResponse()));
+    gsSpy.ghelper.mockReturnValue(of(mockResponse()));
 
-    spyOn(JsonAPISerializer.prototype, 'deserialize').and.callFake((_body: unknown, schema?: unknown) => {
+    vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockImplementation((_body: unknown, schema?: unknown) => {
       if (schema === zHashlistResponse) return resolvedHashlist;
       if (schema === zHashListResponse || schema === zGetCracksOfTaskHelperResponse) return MOCK_HASHES;
       return [];
@@ -124,8 +139,6 @@ describe('HashesDataSource', () => {
     const injector = TestBed.inject(Injector);
     dataSource = new HashesDataSource(injector);
   });
-
-  afterEach(() => TestBed.resetTestingModule());
 
   // setters
 
@@ -153,7 +166,7 @@ describe('HashesDataSource', () => {
     it('should first resolve the hashlist record via service.get including its members', () => {
       dataSource.loadAll();
 
-      const [serviceConfig, entityId, params] = gsSpy.get.calls.mostRecent().args;
+      const [serviceConfig, entityId, params] = gsSpy.get.mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HASHLISTS);
       expect(entityId).toBe(5);
       expect((params as RequestParams).include).toContain('hashlists');
@@ -162,15 +175,15 @@ describe('HashesDataSource', () => {
     it('should fetch hashes filtered by hashlistId EQUAL the hashlist id', () => {
       dataSource.loadAll();
 
-      const [serviceConfig, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [serviceConfig, params] = gsSpy.getAll.mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HASHES);
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'hashlistId', operator: FilterType.EQUAL, value: 5 })
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'hashlistId', operator: FilterType.EQUAL, value: 5 })
       );
     });
 
     it('should populate hashes and totalItems from the hashes response', () => {
-      gsSpy.getAll.and.returnValue(of(mockResponse({ meta: { page: { total_elements: 12 } } })));
+      gsSpy.getAll.mockReturnValue(of(mockResponse({ meta: { page: { total_elements: 12 } } })));
 
       dataSource.loadAll();
 
@@ -183,17 +196,17 @@ describe('HashesDataSource', () => {
       const query: Filter = { field: 'hash', operator: FilterType.ICONTAINS, value: 'aa' };
       dataSource.loadAll(query);
 
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(jasmine.objectContaining({ field: 'hash', value: 'aa' }));
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(expect.objectContaining({ field: 'hash', value: 'aa' }));
     });
 
     it('should add isCracked=true when filterParam is "cracked"', () => {
       dataSource.setFilterParam('cracked');
       dataSource.loadAll();
 
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'isCracked', operator: FilterType.EQUAL, value: true })
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'isCracked', operator: FilterType.EQUAL, value: true })
       );
     });
 
@@ -201,23 +214,23 @@ describe('HashesDataSource', () => {
       dataSource.setFilterParam('uncracked');
       dataSource.loadAll();
 
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'isCracked', operator: FilterType.EQUAL, value: false })
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'isCracked', operator: FilterType.EQUAL, value: false })
       );
     });
 
     it('should not add an isCracked filter when filterParam is unset', () => {
       dataSource.loadAll();
 
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
-      expect(filter.some((f: Filter) => f.field === 'isCracked')).toBeFalse();
+      expect(filter.some((f: Filter) => f.field === 'isCracked')).toBe(false);
     });
 
     it('should stop loading after a successful response', () => {
       dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
   });
 
@@ -233,10 +246,10 @@ describe('HashesDataSource', () => {
     it('should fetch hashes filtered by hashlistId IN the member ids', () => {
       dataSource.loadAll();
 
-      const [serviceConfig, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [serviceConfig, params] = gsSpy.getAll.mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HASHES);
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({
           field: 'hashlistId',
           operator: FilterType.IN,
           value: [MOCK_MEMBER_A.id, MOCK_MEMBER_B.id]
@@ -247,10 +260,10 @@ describe('HashesDataSource', () => {
     it('should NOT filter by the superhashlist id itself (regression for empty hashes)', () => {
       dataSource.loadAll();
 
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
-      expect(filter).not.toContain(
-        jasmine.objectContaining({ field: 'hashlistId', operator: FilterType.EQUAL, value: 77 })
+      expect(filter).not.toContainEqual(
+        expect.objectContaining({ field: 'hashlistId', operator: FilterType.EQUAL, value: 77 })
       );
     });
 
@@ -264,10 +277,10 @@ describe('HashesDataSource', () => {
       dataSource.setFilterParam('cracked');
       dataSource.loadAll();
 
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
-      expect(filter).toContain(jasmine.objectContaining({ field: 'hashlistId', operator: FilterType.IN }));
-      expect(filter).toContain(jasmine.objectContaining({ field: 'isCracked', value: true }));
+      expect(filter).toContainEqual(expect.objectContaining({ field: 'hashlistId', operator: FilterType.IN }));
+      expect(filter).toContainEqual(expect.objectContaining({ field: 'isCracked', value: true }));
     });
   });
 
@@ -295,7 +308,7 @@ describe('HashesDataSource', () => {
 
     it('should stop loading', () => {
       dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
   });
 
@@ -315,10 +328,10 @@ describe('HashesDataSource', () => {
 
     it('should filter by chunkId EQUAL the id', () => {
       dataSource.loadAll();
-      const [serviceConfig, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [serviceConfig, params] = gsSpy.getAll.mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HASHES);
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'chunkId', operator: FilterType.EQUAL, value: 9 })
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'chunkId', operator: FilterType.EQUAL, value: 9 })
       );
     });
   });
@@ -336,7 +349,7 @@ describe('HashesDataSource', () => {
 
       expect(gsSpy.get).not.toHaveBeenCalled();
       expect(gsSpy.getAll).not.toHaveBeenCalled();
-      const [serviceConfig, helper, payload] = gsSpy.ghelper.calls.mostRecent().args;
+      const [serviceConfig, helper, payload] = gsSpy.ghelper.mock.lastCall!;
       expect(serviceConfig).toEqual(SERV.HELPER);
       expect(helper).toBe('getCracksOfTask');
       expect(payload).toEqual({ task: 3 });
@@ -357,20 +370,20 @@ describe('HashesDataSource', () => {
     });
 
     it('should stop loading and leave data untouched when the hashlist lookup fails', () => {
-      gsSpy.get.and.returnValue(throwError(() => new Error('backend error')));
+      gsSpy.get.mockReturnValue(throwError(() => new Error('backend error')));
 
       dataSource.loadAll();
 
       expect(dataSource.getOriginalData().length).toBe(0);
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
 
     it('should stop loading when the hashes request fails', () => {
-      gsSpy.getAll.and.returnValue(throwError(() => new Error('backend error')));
+      gsSpy.getAll.mockReturnValue(throwError(() => new Error('backend error')));
 
       dataSource.loadAll();
 
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
   });
 
@@ -390,7 +403,7 @@ describe('HashesDataSource', () => {
     it('should trigger a fresh load', () => {
       dataSource.setId(9);
       dataSource.setDataType('chunks');
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
 
       dataSource.reload();
 

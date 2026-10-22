@@ -14,7 +14,10 @@ function isTableConfig(value: number[] | TableConfig): value is TableConfig {
  * Collects all tables from uiConfigDefault that have a single sort `order`
  * object (not an array). This covers the standard case used by most tables.
  */
-function getTablesWithSortOrder(): Array<{ name: string; config: TableConfig }> {
+function getTablesWithSortOrder(): Array<{
+  name: string;
+  config: TableConfig;
+}> {
   return Object.entries(uiConfigDefault.tableSettings)
     .filter(([, cfg]) => isTableConfig(cfg) && !Array.isArray(cfg.order))
     .map(([name, cfg]) => ({ name, config: cfg as TableConfig }));

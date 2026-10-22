@@ -1,6 +1,8 @@
 import { zConfigListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -23,20 +25,34 @@ import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response'
 describe('FormConfigComponent', () => {
   let component: FormConfigComponent;
   let fixture: ComponentFixture<FormConfigComponent>;
-  let globalService: jasmine.SpyObj<GlobalService>;
-  let alertService: jasmine.SpyObj<AlertService>;
-  let uiConfigService: jasmine.SpyObj<UIConfigService>;
-  let notificationRoleService: jasmine.SpyObj<NotificationsRoleService>;
+  let globalService: MockedObject<GlobalService>;
+  let alertService: MockedObject<AlertService>;
+  let uiConfigService: MockedObject<UIConfigService>;
+  let notificationRoleService: MockedObject<NotificationsRoleService>;
   let activatedRoute: Partial<ActivatedRoute>;
 
   beforeEach(async () => {
-    const globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'update']);
-    alertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    const autoTitleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    uiConfigService = jasmine.createSpyObj('UIConfigService', ['onUpdatingCheck']);
-    notificationRoleService = jasmine.createSpyObj('NotificationsRoleService', ['hasRole']);
-    const cookieServiceSpy = jasmine.createSpyObj('CookieService', ['getCookie']);
-    cookieServiceSpy.getCookie.and.returnValue('0');
+    const globalServiceSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      update: vi.fn().mockName('GlobalService.update')
+    };
+    alertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    } as MockedObject<AlertService>;
+    const autoTitleServiceSpy = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    };
+    uiConfigService = {
+      onUpdatingCheck: vi.fn().mockName('UIConfigService.onUpdatingCheck')
+    } as MockedObject<UIConfigService>;
+    notificationRoleService = {
+      hasRole: vi.fn().mockName('NotificationsRoleService.hasRole')
+    } as MockedObject<NotificationsRoleService>;
+    const cookieServiceSpy = {
+      getCookie: vi.fn().mockName('CookieService.getCookie')
+    };
+    cookieServiceSpy.getCookie.mockReturnValue('0');
 
     activatedRoute = {
       data: of({
@@ -59,11 +75,12 @@ describe('FormConfigComponent', () => {
         { provide: ActivatedRoute, useValue: activatedRoute },
         JsonAPISerializer,
         MetadataService
-      ]
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
-    globalService = TestBed.inject(GlobalService) as jasmine.SpyObj<GlobalService>;
-    globalService.getAll.and.returnValue(of(mockResponse()));
+    globalService = TestBed.inject(GlobalService) as MockedObject<GlobalService>;
+    globalService.getAll.mockReturnValue(of(mockResponse()));
 
     fixture = TestBed.createComponent(FormConfigComponent);
     component = fixture.componentInstance;
@@ -90,7 +107,7 @@ describe('FormConfigComponent', () => {
       ]
     });
 
-    globalService.getAll.and.returnValue(of(mockApiResponse));
+    globalService.getAll.mockReturnValue(of(mockApiResponse));
 
     component.formMetadata = [
       {
@@ -129,7 +146,7 @@ describe('FormConfigComponent', () => {
       ]
     });
 
-    globalService.getAll.and.returnValue(of(mockApiResponse));
+    globalService.getAll.mockReturnValue(of(mockApiResponse));
 
     component.formMetadata = [
       {
@@ -175,7 +192,7 @@ describe('FormConfigComponent', () => {
       ]
     });
 
-    globalService.getAll.and.returnValue(of(mockApiResponse));
+    globalService.getAll.mockReturnValue(of(mockApiResponse));
 
     component.formMetadata = [
       {
@@ -221,7 +238,7 @@ describe('FormConfigComponent', () => {
       ]
     });
 
-    globalService.getAll.and.returnValue(of(mockApiResponse));
+    globalService.getAll.mockReturnValue(of(mockApiResponse));
 
     component.formMetadata = [
       {
@@ -262,11 +279,11 @@ describe('FormConfigComponent', () => {
       ]
     });
 
-    globalService.getAll.and.returnValue(of(mockApiResponse));
+    globalService.getAll.mockReturnValue(of(mockApiResponse));
 
     component.loadEdit();
 
-    expect(component.isloaded).toBeTrue();
+    expect(component.isloaded).toBe(true);
     expect(component.formIds).toEqual({
       hashcatBrainEnable: 11,
       timefmt: 12
@@ -288,7 +305,7 @@ describe('FormConfigComponent', () => {
       hashcatBrainEnable: 22
     };
 
-    globalService.update.and.returnValue(of({} as object));
+    globalService.update.mockReturnValue(of({} as object));
 
     component.onFormSubmit({
       serverLogLevel: 30,
@@ -296,7 +313,7 @@ describe('FormConfigComponent', () => {
     });
 
     expect(globalService.update).toHaveBeenCalledTimes(2);
-    expect(globalService.update.calls.allArgs()).toEqual([
+    expect(globalService.update.mock.calls).toEqual([
       [SERV.CONFIGS, 21, { item: 'serverLogLevel', value: '30' }],
       [SERV.CONFIGS, 22, { item: 'hashcatBrainEnable', value: '0' }]
     ]);
@@ -318,18 +335,17 @@ describe('FormConfigComponent', () => {
       chunktime: 3
     };
 
-    globalService.update.and.returnValue(of({} as object));
+    globalService.update.mockReturnValue(of({} as object));
 
     component.onFormSubmit({ chunktime: 800, ruleSplitAlways: 0 });
 
     // The field with an id still saves...
-    expect(globalService.update).toHaveBeenCalledTimes(1);
-    expect(globalService.update).toHaveBeenCalledWith(SERV.CONFIGS, 3, { item: 'chunktime', value: '800' });
+    expect(globalService.update).toHaveBeenCalledExactlyOnceWith(SERV.CONFIGS, 3, { item: 'chunktime', value: '800' });
     // ...the one without an id is never PATCHed with an undefined id...
     expect(globalService.update).not.toHaveBeenCalledWith(
       SERV.CONFIGS,
       undefined as unknown as number,
-      jasmine.objectContaining({ item: 'ruleSplitAlways' })
+      expect.objectContaining({ item: 'ruleSplitAlways' })
     );
     // ...and the user is told it could not be saved.
     expect(alertService.showErrorMessage).toHaveBeenCalledWith(
@@ -366,7 +382,7 @@ describe('FormConfigComponent', () => {
       serverLogLevel: 21
     };
 
-    globalService.update.and.returnValue(throwError(() => new Error('update failed')));
+    globalService.update.mockReturnValue(throwError(() => new Error('update failed')));
 
     component.onFormSubmit({ serverLogLevel: 30 });
 
@@ -375,11 +391,11 @@ describe('FormConfigComponent', () => {
   });
 
   it('should add the notifications menu item when user has read role', () => {
-    notificationRoleService.hasRole.and.returnValue(true);
+    notificationRoleService.hasRole.mockReturnValue(true);
     component['menuItems'] = [];
 
     component.ngOnInit();
 
-    expect(component['menuItems'].some((item) => item.label === 'Notifications')).toBeTrue();
+    expect(component['menuItems'].some((item) => item.label === 'Notifications')).toBe(true);
   });
 });

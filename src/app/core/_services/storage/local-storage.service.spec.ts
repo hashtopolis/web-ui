@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 // Side-effect: replaces window.localStorage with the typed wrapper so setItem/getItem
 // work correctly in tests (same as the import in main.ts).
@@ -34,17 +34,23 @@ describe('LocalStorageService', () => {
     expect(retrievedValue).toBe(value);
   });
 
-  it('should remove data from local storage after expiration', fakeAsync(() => {
-    const key = 'testKey';
-    const value = 'testValue';
+  it('should remove data from local storage after expiration', () => {
+    // Expiry is checked against Date.now(), so only the clock needs to be fake.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      const key = 'testKey';
+      const value = 'testValue';
 
-    service.setItem(key, value, 1); // Set with 1-millisecond expiration
+      service.setItem(key, value, 1); // Set with 1-millisecond expiration
 
-    tick(2);
+      vi.setSystemTime(Date.now() + 2);
 
-    const retrievedValue = service.getItem(key);
-    expect(retrievedValue).toBeNull();
-  }));
+      const retrievedValue = service.getItem(key);
+      expect(retrievedValue).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 
   it('should remove data from local storage when explicitly removed', () => {
     const key = 'testKey';
@@ -140,7 +146,7 @@ describe('LocalStorageService', () => {
 
     it('setItem should refuse to write and log error when value fails schema', () => {
       const key = 'schemaWriteInvalid';
-      spyOn(console, 'error');
+      vi.spyOn(console, 'error').mockReturnValue(undefined);
 
       service.setItem(key, { name: 999, count: 'bad' }, 1000, testSchema);
 
@@ -180,10 +186,16 @@ describe('LocalStorageService', () => {
 
   describe('defaultValue reference isolation', () => {
     const pointSchema = z.object({ x: z.number(), y: z.number() });
-    let svc: LocalStorageService<{ x: number; y: number }>;
+    let svc: LocalStorageService<{
+      x: number;
+      y: number;
+    }>;
 
     beforeEach(() => {
-      svc = TestBed.inject(LocalStorageService) as unknown as LocalStorageService<{ x: number; y: number }>;
+      svc = TestBed.inject(LocalStorageService) as unknown as LocalStorageService<{
+        x: number;
+        y: number;
+      }>;
     });
 
     afterEach(() => svc.removeItem('__pt__'));
@@ -199,7 +211,14 @@ describe('LocalStorageService', () => {
 
     it('should not share the defaultValue reference when schema validation fails', () => {
       const def = { x: 1, y: 2 };
-      svc.setItem('__pt__', { x: 'bad', y: 'bad' } as unknown as { x: number; y: number }, 1000);
+      svc.setItem(
+        '__pt__',
+        { x: 'bad', y: 'bad' } as unknown as {
+          x: number;
+          y: number;
+        },
+        1000
+      );
 
       const result = svc.getItem('__pt__', pointSchema, def);
       result.x = 99;
@@ -207,15 +226,20 @@ describe('LocalStorageService', () => {
       expect(def.x).toBe(1); // original must not be mutated
     });
 
-    it('should not share the defaultValue reference when data has expired', fakeAsync(() => {
-      const def = { x: 1, y: 2 };
-      svc.setItem('__pt__', { x: 5, y: 6 }, 1);
-      tick(2);
+    it('should not share the defaultValue reference when data has expired', () => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      try {
+        const def = { x: 1, y: 2 };
+        svc.setItem('__pt__', { x: 5, y: 6 }, 1);
+        vi.setSystemTime(Date.now() + 2);
 
-      const result = svc.getItem('__pt__', pointSchema, def);
-      result.x = 99;
+        const result = svc.getItem('__pt__', pointSchema, def);
+        result.x = 99;
 
-      expect(def.x).toBe(1); // original must not be mutated
-    }));
+        expect(def.x).toBe(1); // original must not be mutated
+      } finally {
+        vi.useRealTimers();
+      }
+    });
   });
 });

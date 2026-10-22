@@ -1,10 +1,11 @@
-import { Observable, Subject, of, throwError } from 'rxjs';
+import { Observable, Subject, firstValueFrom, of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 
 import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
@@ -47,13 +48,19 @@ class TestAccessGroupsAgentsTableComponent extends AccessGroupsAgentsTableCompon
  */
 function openDialogAndClose(
   component: TestAccessGroupsAgentsTableComponent,
-  mockDialog: jasmine.SpyObj<MatDialog>,
+  mockDialog: MockedObject<MatDialog>,
   triggerFn: () => void
-): Subject<{ action: string; data: JAgent[] } | null> {
-  const afterClosedSubject = new Subject<{ action: string; data: JAgent[] } | null>();
-  mockDialog.open.and.returnValue({
+): Subject<{
+  action: string;
+  data: JAgent[];
+} | null> {
+  const afterClosedSubject = new Subject<{
+    action: string;
+    data: JAgent[];
+  } | null>();
+  vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
     afterClosed: () => afterClosedSubject.asObservable()
-  } as MatDialogRef<unknown>);
+  });
   triggerFn();
   return afterClosedSubject;
 }
@@ -61,18 +68,29 @@ function openDialogAndClose(
 describe('AccessGroupsAgentsTableComponent', () => {
   let component: TestAccessGroupsAgentsTableComponent;
   let fixture: ComponentFixture<TestAccessGroupsAgentsTableComponent>;
-  let mockDialog: jasmine.SpyObj<MatDialog>;
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
-  let mockExportService: jasmine.SpyObj<ExportService>;
-  let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
+  let mockDialog: MockedObject<MatDialog>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockAlertService: MockedObject<AlertService>;
+  let mockExportService: MockedObject<ExportService>;
+  let mockHTTable: MockedObject<HTTableComponent<BaseModel>>;
 
   beforeEach(async () => {
-    mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['deleteRelationships']);
-    mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
-    mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
+    mockDialog = {
+      open: vi.fn().mockName('MatDialog.open')
+    } as MockedObject<MatDialog>;
+    mockGlobalService = {
+      deleteRelationships: vi.fn().mockName('GlobalService.deleteRelationships')
+    } as MockedObject<GlobalService>;
+    mockAlertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    } as MockedObject<AlertService>;
+    mockExportService = {
+      handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
+    } as MockedObject<ExportService>;
+    mockHTTable = {
+      reload: vi.fn().mockName('HTTableComponent.reload')
+    } as MockedObject<HTTableComponent<BaseModel>>;
 
     await TestBed.configureTestingModule({
       declarations: [TestAccessGroupsAgentsTableComponent],
@@ -108,14 +126,14 @@ describe('AccessGroupsAgentsTableComponent', () => {
 
     it('ID column should be sortable and searchable', () => {
       const col = component.tableColumns.find((c) => c.id === AccessGroupsAgentsTableCol.ID)!;
-      expect(col.isSortable).toBeTrue();
-      expect(col.isSearchable).toBeTrue();
+      expect(col.isSortable).toBe(true);
+      expect(col.isSearchable).toBe(true);
     });
 
     it('NAME column should be sortable and searchable', () => {
       const col = component.tableColumns.find((c) => c.id === AccessGroupsAgentsTableCol.NAME)!;
-      expect(col.isSortable).toBeTrue();
-      expect(col.isSearchable).toBeTrue();
+      expect(col.isSortable).toBe(true);
+      expect(col.isSearchable).toBe(true);
     });
   });
 
@@ -127,20 +145,16 @@ describe('AccessGroupsAgentsTableComponent', () => {
       idCol = component.tableColumns.find((c) => c.id === AccessGroupsAgentsTableCol.ID)!;
     });
 
-    it('should link to the agent edit page', (done) => {
+    it('should link to the agent edit page', async () => {
       const agent = { id: 42, agentName: 'Agent42' } as JAgent;
-      idCol.routerLink!(agent).subscribe((links) => {
-        expect(links[0].routerLink).toEqual(['/agents', 42, 'edit']);
-        done();
-      });
+      const links = await firstValueFrom(idCol.routerLink!(agent));
+      expect(links[0].routerLink).toEqual(['/agents', 42, 'edit']);
     });
 
-    it('should use the agent numeric ID as the link label (as string)', (done) => {
+    it('should use the agent numeric ID as the link label (as string)', async () => {
       const agent = { id: 42, agentName: 'Agent42' } as JAgent;
-      idCol.routerLink!(agent).subscribe((links) => {
-        expect(links[0].label).toBe('42');
-        done();
-      });
+      const links = await firstValueFrom(idCol.routerLink!(agent));
+      expect(links[0].label).toBe('42');
     });
   });
 
@@ -152,30 +166,24 @@ describe('AccessGroupsAgentsTableComponent', () => {
       nameCol = component.tableColumns.find((c) => c.id === AccessGroupsAgentsTableCol.NAME)!;
     });
 
-    it('should link to the agent detail/edit page using the agent name as label', (done) => {
+    it('should link to the agent detail/edit page using the agent name as label', async () => {
       const agent = { id: 7, agentName: 'TestAgent', isTrusted: false } as JAgent;
-      nameCol.routerLink!(agent).subscribe((links) => {
-        expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 7, 'edit']);
-        expect(links[0].label).toBe('TestAgent');
-        done();
-      });
+      const links = await firstValueFrom(nameCol.routerLink!(agent));
+      expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 7, 'edit']);
+      expect(links[0].label).toBe('TestAgent');
     });
 
-    it('should show a trusted-agent icon when the agent is trusted', (done) => {
+    it('should show a trusted-agent icon when the agent is trusted', async () => {
       const trustedAgent = { id: 7, agentName: 'TrustedAgent', isTrusted: true } as JAgent;
-      nameCol.routerLink!(trustedAgent).subscribe((links) => {
-        expect(links[0].icon?.faIcon).toBeTruthy();
-        expect(links[0].icon?.tooltip).toBe('Trusted Agent');
-        done();
-      });
+      const links = await firstValueFrom(nameCol.routerLink!(trustedAgent));
+      expect(links[0].icon?.faIcon).toBeTruthy();
+      expect(links[0].icon?.tooltip).toBe('Trusted Agent');
     });
 
-    it('should NOT show a trusted-agent icon when the agent is not trusted', (done) => {
+    it('should NOT show a trusted-agent icon when the agent is not trusted', async () => {
       const agent = { id: 8, agentName: 'RegularAgent', isTrusted: false } as JAgent;
-      nameCol.routerLink!(agent).subscribe((links) => {
-        expect(links[0].icon?.faIcon).toBeUndefined();
-        done();
-      });
+      const links = await firstValueFrom(nameCol.routerLink!(agent));
+      expect(links[0].icon?.faIcon).toBeUndefined();
     });
   });
 
@@ -184,9 +192,9 @@ describe('AccessGroupsAgentsTableComponent', () => {
   describe('rowActionClicked', () => {
     it('should open a confirmation dialog for the DELETE action', () => {
       const afterClosedSubject = new Subject<null>();
-      mockDialog.open.and.returnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => afterClosedSubject.asObservable()
-      } as MatDialogRef<unknown>);
+      });
 
       const agent = { id: 5, agentName: 'AgentX' } as JAgent;
       component.rowActionClicked({ data: agent, menuItem: { action: RowActionMenuAction.DELETE, label: '' } });
@@ -196,14 +204,20 @@ describe('AccessGroupsAgentsTableComponent', () => {
 
     it('should include the agent name in the confirmation dialog body', () => {
       const afterClosedSubject = new Subject<null>();
-      mockDialog.open.and.returnValue({
+      vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
         afterClosed: () => afterClosedSubject.asObservable()
-      } as MatDialogRef<unknown>);
+      });
 
       const agent = { id: 5, agentName: 'AgentX' } as JAgent;
       component.rowActionClicked({ data: agent, menuItem: { action: RowActionMenuAction.DELETE, label: '' } });
 
-      const dialogData = (mockDialog.open.calls.mostRecent().args[1] as { data: { body: string } }).data;
+      const dialogData = (
+        mockDialog.open.mock.lastCall![1] as {
+          data: {
+            body: string;
+          };
+        }
+      ).data;
       expect(dialogData.body).toContain('AgentX');
     });
 
@@ -227,7 +241,14 @@ describe('AccessGroupsAgentsTableComponent', () => {
         component.bulkActionClicked({ data: agents, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
 
-      const dialogData = (mockDialog.open.calls.mostRecent().args[1] as { data: { title: string; body: string } }).data;
+      const dialogData = (
+        mockDialog.open.mock.lastCall![1] as {
+          data: {
+            title: string;
+            body: string;
+          };
+        }
+      ).data;
       expect(dialogData.title).toContain('2');
       expect(dialogData.title).toContain('agents');
       subject.complete();
@@ -239,7 +260,13 @@ describe('AccessGroupsAgentsTableComponent', () => {
         component.bulkActionClicked({ data: agents, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
 
-      const dialogData = (mockDialog.open.calls.mostRecent().args[1] as { data: { title: string } }).data;
+      const dialogData = (
+        mockDialog.open.mock.lastCall![1] as {
+          data: {
+            title: string;
+          };
+        }
+      ).data;
       expect(dialogData.title).not.toContain('agents');
       expect(dialogData.title).toContain('agent');
       subject.complete();
@@ -251,8 +278,14 @@ describe('AccessGroupsAgentsTableComponent', () => {
         component.bulkActionClicked({ data: agents, menuItem: { action: BulkActionMenuAction.DELETE, label: '' } })
       );
 
-      const dialogData = (mockDialog.open.calls.mostRecent().args[1] as { data: { warn: boolean } }).data;
-      expect(dialogData.warn).toBeTrue();
+      const dialogData = (
+        mockDialog.open.mock.lastCall![1] as {
+          data: {
+            warn: boolean;
+          };
+        }
+      ).data;
+      expect(dialogData.warn).toBe(true);
       subject.complete();
     });
   });
@@ -269,8 +302,11 @@ describe('AccessGroupsAgentsTableComponent', () => {
     function triggerConfirmedRemoval(
       agents: JAgent[],
       apiResponse$: Observable<object | never>
-    ): Subject<{ action: string; data: JAgent[] } | null> {
-      mockGlobalService.deleteRelationships.and.returnValue(apiResponse$);
+    ): Subject<{
+      action: string;
+      data: JAgent[];
+    } | null> {
+      mockGlobalService.deleteRelationships.mockReturnValue(apiResponse$);
       component.accessgroupId = GROUP_ID;
 
       const subject = openDialogAndClose(component, mockDialog, () =>
@@ -283,7 +319,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
     it('should call the API with the correct access group ID and agent IDs mapped as AGENTMEMBER relationships', () => {
       triggerConfirmedRemoval(agents, of({}));
 
-      expect(mockGlobalService.deleteRelationships).toHaveBeenCalledOnceWith(
+      expect(mockGlobalService.deleteRelationships).toHaveBeenCalledExactlyOnceWith(
         SERV.ACCESS_GROUPS,
         GROUP_ID,
         RelationshipType.AGENTMEMBER,
@@ -302,13 +338,13 @@ describe('AccessGroupsAgentsTableComponent', () => {
 
       triggerConfirmedRemoval(agents, of({}));
 
-      expect(emitted).toBeTrue();
+      expect(emitted).toBe(true);
     });
 
     it('should show a success alert mentioning the number of removed agents', () => {
       triggerConfirmedRemoval(agents, of({}));
 
-      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledOnceWith(jasmine.stringMatching(/2.*agent/i));
+      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledExactlyOnceWith(expect.stringMatching(/2.*agent/i));
     });
 
     it('should NOT emit agentsRemoved when the API call fails', () => {
@@ -320,7 +356,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
         throwError(() => new Error('server error'))
       );
 
-      expect(emitted).toBeFalse();
+      expect(emitted).toBe(false);
     });
 
     it('should show an error alert when the API call fails', () => {
@@ -333,7 +369,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
     });
 
     it('should NOT call the API when the confirmation dialog is dismissed', () => {
-      mockGlobalService.deleteRelationships.and.returnValue(of({}));
+      mockGlobalService.deleteRelationships.mockReturnValue(of({}));
       component.accessgroupId = GROUP_ID;
 
       const subject = openDialogAndClose(component, mockDialog, () =>
@@ -350,7 +386,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
 
   describe('table reload after removal', () => {
     it('should trigger a table reload after a successful removal', () => {
-      mockGlobalService.deleteRelationships.and.returnValue(of({}));
+      mockGlobalService.deleteRelationships.mockReturnValue(of({}));
       component.accessgroupId = 99;
 
       const agents = [{ id: 1, agentName: 'A1' }] as JAgent[];
@@ -363,7 +399,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
     });
 
     it('should NOT trigger a table reload when the API call fails', () => {
-      mockGlobalService.deleteRelationships.and.returnValue(throwError(() => new Error('fail')));
+      mockGlobalService.deleteRelationships.mockReturnValue(throwError(() => new Error('fail')));
       component.accessgroupId = 99;
 
       const agents = [{ id: 1, agentName: 'A1' }] as JAgent[];
@@ -389,7 +425,12 @@ describe('AccessGroupsAgentsTableComponent', () => {
       );
 
       const dialogData = (
-        mockDialog.open.calls.mostRecent().args[1] as { data: { listAttribute: string; rows: JAgent[] } }
+        mockDialog.open.mock.lastCall![1] as {
+          data: {
+            listAttribute: string;
+            rows: JAgent[];
+          };
+        }
       ).data;
       expect(dialogData.listAttribute).toBe('agentName');
       expect(dialogData.rows).toEqual(agents);
@@ -407,7 +448,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
 
       component.exportActionClicked(event);
 
-      expect(mockExportService.handleExportAction).toHaveBeenCalledOnceWith(
+      expect(mockExportService.handleExportAction).toHaveBeenCalledExactlyOnceWith(
         event,
         component.tableColumns,
         AccessGroupsAgentsTableColumnLabel,

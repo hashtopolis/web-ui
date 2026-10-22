@@ -1,8 +1,9 @@
 import { zGlobalPermissionGroupListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
@@ -21,9 +22,9 @@ describe('NewUserComponent', () => {
   let component: NewUserComponent;
   let fixture: ComponentFixture<NewUserComponent>;
 
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockRouter: jasmine.SpyObj<Router>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockRouter: MockedObject<Router>;
+  let mockAlertService: MockedObject<AlertService>;
 
   const mockPermissionResponse: ResponseWrapper = mockValidResponse(zGlobalPermissionGroupListResponse, {
     data: [
@@ -47,9 +48,17 @@ describe('NewUserComponent', () => {
   });
 
   beforeEach(async () => {
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['getAll', 'create']);
-    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-    mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+    mockGlobalService = {
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      create: vi.fn().mockName('GlobalService.create')
+    } as MockedObject<GlobalService>;
+    mockRouter = {
+      navigate: vi.fn().mockName('Router.navigate')
+    } as MockedObject<Router>;
+    mockAlertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    } as MockedObject<AlertService>;
 
     await TestBed.configureTestingModule({
       declarations: [NewUserComponent],
@@ -64,7 +73,7 @@ describe('NewUserComponent', () => {
   });
 
   beforeEach(() => {
-    mockGlobalService.getAll.and.returnValue(of(mockPermissionResponse));
+    mockGlobalService.getAll.mockReturnValue(of(mockPermissionResponse));
     fixture = TestBed.createComponent(NewUserComponent);
     component = fixture.componentInstance;
     fixture.detectChanges(); // triggers ngOnInit and loads permissions
@@ -75,27 +84,25 @@ describe('NewUserComponent', () => {
     expect(component.newUserForm).toBeTruthy();
   });
 
-  it('should load permission groups and map to select options', fakeAsync(() => {
-    mockGlobalService.getAll.and.returnValue(of(mockPermissionResponse));
+  it('should load permission groups and map to select options', async () => {
+    mockGlobalService.getAll.mockReturnValue(of(mockPermissionResponse));
 
-    component.loadPermissionGroups();
-    tick();
+    await component.loadPermissionGroups();
 
     expect(mockGlobalService.getAll).toHaveBeenCalled();
     expect(component.selectGlobalPermissionGroups.length).toBe(2);
-    expect(component.loadingPermissionGroups).toBeFalse();
-  }));
+    expect(component.loadingPermissionGroups).toBe(false);
+  });
 
-  it('should show error message if loading permission groups fails', fakeAsync(() => {
+  it('should show error message if loading permission groups fails', async () => {
     // Simulate an error response
-    mockGlobalService.getAll.and.returnValue(throwError(() => new Error('Network error')));
+    mockGlobalService.getAll.mockReturnValue(throwError(() => new Error('Network error')));
 
-    component.loadPermissionGroups();
-    tick();
+    await component.loadPermissionGroups();
 
     expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('Error fetching permission groups');
-    expect(component.loadingPermissionGroups).toBeFalse();
-  }));
+    expect(component.loadingPermissionGroups).toBe(false);
+  });
 
   // Tests related to form submission
   it('should not submit if form is invalid', async () => {
@@ -107,7 +114,7 @@ describe('NewUserComponent', () => {
   it('should mark username as invalid with a minlength error when shorter than 2 characters', () => {
     const username = component.newUserForm.controls.username;
     username.setValue('a');
-    expect(username.invalid).toBeTrue();
+    expect(username.invalid).toBe(true);
     expect(username.errors?.['minlength']).toBeTruthy();
   });
 
@@ -138,7 +145,7 @@ describe('NewUserComponent', () => {
     component.newUserForm.updateValueAndValidity();
 
     // Simulate successful create
-    mockGlobalService.create.and.returnValue(of(mockResponse()));
+    mockGlobalService.create.mockReturnValue(of(mockResponse()));
 
     await component.onSubmit();
 
@@ -162,12 +169,12 @@ describe('NewUserComponent', () => {
     });
     component.newUserForm.updateValueAndValidity();
 
-    mockGlobalService.create.and.returnValue(of(mockResponse()));
+    mockGlobalService.create.mockReturnValue(of(mockResponse()));
 
     await component.onSubmit();
 
-    const payload = mockGlobalService.create.calls.mostRecent().args[1] as Record<string, unknown>;
-    expect(Number.isInteger(payload['sessionLifetime'])).toBeTrue();
+    const payload = mockGlobalService.create.mock.lastCall![1] as Record<string, unknown>;
+    expect(Number.isInteger(payload['sessionLifetime'])).toBe(true);
   });
 
   it('should show error if create fails', async () => {
@@ -179,7 +186,7 @@ describe('NewUserComponent', () => {
     });
 
     // Simulate create failure
-    mockGlobalService.create.and.returnValue(throwError(() => new Error('Create failed')));
+    mockGlobalService.create.mockReturnValue(throwError(() => new Error('Create failed')));
 
     await component.onSubmit();
     expect(mockAlertService.showErrorMessage).toHaveBeenCalledWith('Error creating user');
@@ -214,6 +221,6 @@ describe('NewUserComponent', () => {
     const buttonDebugEl = fixture.debugElement.query(By.css('[data-testid="submit-button"]'));
     expect(buttonDebugEl).toBeTruthy();
     const buttonEl: HTMLButtonElement = buttonDebugEl.nativeElement;
-    expect(buttonEl.disabled).toBeFalse();
+    expect(buttonEl.disabled).toBe(false);
   });
 });

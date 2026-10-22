@@ -1,10 +1,11 @@
 import { HttpHeaderName } from '@constants/http.config';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -21,6 +22,7 @@ import { ConfigService } from '@services/shared/config.service';
 import { StaticChunkingMode } from '@src/app/core/_constants/tasks.config';
 import { EditTasksComponent } from '@src/app/tasks/edit-tasks/edit-tasks.component';
 import { mockResponse } from '@src/app/testing/mock-response';
+import { wait } from '@src/app/testing/wait';
 
 const API_ENDPOINT = 'http://localhost:8080/api/v2';
 
@@ -69,33 +71,50 @@ describe('EditTasksComponent', () => {
   let fixture: ComponentFixture<EditTasksComponent>;
   let httpMock: HttpTestingController;
 
-  let titleServiceSpy: jasmine.SpyObj<AutoTitleService>;
-  let alertServiceSpy: jasmine.SpyObj<AlertService>;
-  let globalServiceSpy: jasmine.SpyObj<GlobalService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let confirmDialogSpy: jasmine.SpyObj<ConfirmDialogService>;
-  let roleServiceSpy: jasmine.SpyObj<TasksRoleService>;
-  let configServiceSpy: jasmine.SpyObj<ConfigService>;
+  let titleServiceSpy: MockedObject<AutoTitleService>;
+  let alertServiceSpy: MockedObject<AlertService>;
+  let globalServiceSpy: MockedObject<GlobalService>;
+  let routerSpy: MockedObject<Router>;
+  let confirmDialogSpy: MockedObject<ConfirmDialogService>;
+  let roleServiceSpy: MockedObject<TasksRoleService>;
+  let configServiceSpy: MockedObject<ConfigService>;
 
   beforeEach(async () => {
-    spyOn(console, 'error');
-    spyOn(console, 'warn');
+    vi.spyOn(console, 'error').mockReturnValue(undefined);
+    vi.spyOn(console, 'warn').mockReturnValue(undefined);
 
-    titleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    alertServiceSpy = jasmine.createSpyObj('AlertService', [
-      'showErrorMessage',
-      'showSuccessMessage',
-      'showInfoMessage'
-    ]);
-    globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'update', 'chelper']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
-    routerSpy.navigate.and.returnValue(Promise.resolve(true));
-    routerSpy.navigateByUrl.and.returnValue(Promise.resolve(true));
-    confirmDialogSpy = jasmine.createSpyObj('ConfirmDialogService', ['confirmYesNo']);
-    roleServiceSpy = jasmine.createSpyObj('TasksRoleService', ['hasRole']);
-    roleServiceSpy.hasRole.and.returnValue(false);
-    configServiceSpy = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
-    configServiceSpy.getEndpoint.and.returnValue(API_ENDPOINT);
+    titleServiceSpy = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    } as MockedObject<AutoTitleService>;
+    alertServiceSpy = {
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage'),
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showInfoMessage: vi.fn().mockName('AlertService.showInfoMessage')
+    } as MockedObject<AlertService>;
+    globalServiceSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      get: vi.fn().mockName('GlobalService.get'),
+      create: vi.fn().mockName('GlobalService.create'),
+      update: vi.fn().mockName('GlobalService.update'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    } as MockedObject<GlobalService>;
+    routerSpy = {
+      navigate: vi.fn().mockName('Router.navigate'),
+      navigateByUrl: vi.fn().mockName('Router.navigateByUrl')
+    } as MockedObject<Router>;
+    routerSpy.navigate.mockResolvedValue(true);
+    routerSpy.navigateByUrl.mockResolvedValue(true);
+    confirmDialogSpy = {
+      confirmYesNo: vi.fn().mockName('ConfirmDialogService.confirmYesNo')
+    } as MockedObject<ConfirmDialogService>;
+    roleServiceSpy = {
+      hasRole: vi.fn().mockName('TasksRoleService.hasRole')
+    } as MockedObject<TasksRoleService>;
+    roleServiceSpy.hasRole.mockReturnValue(false);
+    configServiceSpy = {
+      getEndpoint: vi.fn().mockName('ConfigService.getEndpoint')
+    } as MockedObject<ConfigService>;
+    configServiceSpy.getEndpoint.mockReturnValue(API_ENDPOINT);
 
     await TestBed.configureTestingModule({
       declarations: [EditTasksComponent],
@@ -140,51 +159,48 @@ describe('EditTasksComponent', () => {
   }
 
   describe('Component initialization', () => {
-    it('should create', fakeAsync(() => {
+    it('should create', () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
 
       expect(component).toBeTruthy();
-    }));
+    });
 
-    it('should set page title to "Edit Task"', fakeAsync(() => {
+    it('should set page title to "Edit Task"', () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
 
       expect(titleServiceSpy.set).toHaveBeenCalledWith(['Edit Task']);
-    }));
+    });
 
-    it('should define updateForm with all expected controls', fakeAsync(() => {
+    it('should define updateForm with all expected controls', () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
 
       expect(component.updateForm.get('taskId')).toBeDefined();
       expect(component.updateForm.get('totalNumberOfChunks')).toBeDefined();
       expect(component.updateForm.get('updateData.taskName')).toBeDefined();
       expect(component.updateForm.get('updateData.attackCmd')).toBeDefined();
       expect(component.updateForm.get('updateData.notes')).toBeDefined();
-    }));
+    });
   });
 
   describe('ngOnInit', () => {
-    it('should set isLoading to false after task loads successfully', fakeAsync(() => {
+    it('should set isLoading to false after task loads successfully', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
+      await wait();
 
-      expect(component.isLoading).toBeFalse();
-    }));
+      expect(component.isLoading).toBe(false);
+    });
 
-    it('should populate form with task data from response', fakeAsync(() => {
+    it('should populate form with task data from response', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
+      await wait();
 
       expect(component.updateForm.getRawValue()).toEqual(
-        jasmine.objectContaining({
+        expect.objectContaining({
           taskId: 1,
           forcePipe: 'No',
           staticChunks: 'No',
@@ -196,16 +212,16 @@ describe('EditTasksComponent', () => {
           totalNumberOfChunks: 5
         })
       );
-    }));
+    });
 
-    it('should populate updateData sub-form from task attributes', fakeAsync(() => {
+    it('should populate updateData sub-form from task attributes', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
+      await wait();
 
       const updateData = component.updateForm.getRawValue()['updateData'];
       expect(updateData).toEqual(
-        jasmine.objectContaining({
+        expect.objectContaining({
           taskName: 'Test Task',
           attackCmd: '-a 0 #HL# rockyou.txt',
           notes: 'Test notes',
@@ -214,12 +230,12 @@ describe('EditTasksComponent', () => {
           priority: 1
         })
       );
-    }));
+    });
 
-    it('should set component time/speed properties from task data', fakeAsync(() => {
+    it('should set component time/speed properties from task data', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
+      await wait();
 
       expect(component.ctimespent).toBe(120);
       expect(component.currenspeed).toBe(500);
@@ -227,17 +243,17 @@ describe('EditTasksComponent', () => {
       expect(component.cprogress).toBe(10);
       expect(component.tkeyspace).toBe(1000);
       expect(component.taskWrapperId).toBe(2);
-    }));
+    });
 
-    it('should set chunkview to 0 for edit-task route', fakeAsync(() => {
+    it('should set chunkview to 0 for edit-task route', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
+      await wait();
 
       expect(component.chunkview).toBe(0);
-    }));
+    });
 
-    it('should show forcePipe as "Yes" when task.forcePipe is true', fakeAsync(() => {
+    it('should show forcePipe as "Yes" when task.forcePipe is true', async () => {
       const response = mockResponse({
         data: {
           ...(mockTaskResponse().data as object),
@@ -250,12 +266,12 @@ describe('EditTasksComponent', () => {
 
       initComponent();
       respondToTaskRequest(response);
-      tick();
+      await wait();
 
       expect(component.updateForm.getRawValue()['forcePipe']).toBe('Yes');
-    }));
+    });
 
-    it('should show skipKeyspace value when it is greater than 0', fakeAsync(() => {
+    it('should show skipKeyspace value when it is greater than 0', async () => {
       const response = mockResponse({
         data: {
           ...(mockTaskResponse().data as object),
@@ -268,12 +284,12 @@ describe('EditTasksComponent', () => {
 
       initComponent();
       respondToTaskRequest(response);
-      tick();
+      await wait();
 
       expect(component.updateForm.getRawValue()['skipKeyspace']).toBe(500);
-    }));
+    });
 
-    function loadWithStaticChunks(staticChunks: number): string {
+    async function loadWithStaticChunks(staticChunks: number): Promise<string> {
       const response = mockResponse({
         data: {
           ...(mockTaskResponse().data as object),
@@ -286,29 +302,29 @@ describe('EditTasksComponent', () => {
 
       initComponent();
       respondToTaskRequest(response);
-      tick();
+      await wait();
 
       return component.updateForm.getRawValue()['staticChunks'];
     }
 
-    it('should label staticChunks=0 as "No"', fakeAsync(() => {
-      expect(loadWithStaticChunks(StaticChunkingMode.NONE)).toBe('No');
-    }));
+    it('should label staticChunks=0 as "No"', async () => {
+      expect(await loadWithStaticChunks(StaticChunkingMode.NONE)).toBe('No');
+    });
 
-    it('should label staticChunks=1 with the fixed chunk size', fakeAsync(() => {
-      expect(loadWithStaticChunks(StaticChunkingMode.FIXED_CHUNK_SIZE)).toBe(
+    it('should label staticChunks=1 with the fixed chunk size', async () => {
+      expect(await loadWithStaticChunks(StaticChunkingMode.FIXED_CHUNK_SIZE)).toBe(
         `Fixed chunksize: ${(1000).toLocaleString()}`
       );
-    }));
+    });
 
-    it('should label staticChunks=2 with the fixed number of chunks', fakeAsync(() => {
-      expect(loadWithStaticChunks(StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS)).toBe(
+    it('should label staticChunks=2 with the fixed number of chunks', async () => {
+      expect(await loadWithStaticChunks(StaticChunkingMode.FIXED_NUMBER_OF_CHUNKS)).toBe(
         `Fixed number of chunks: ${(1000).toLocaleString()}`
       );
-    }));
+    });
 
-    it('should render the static chunking field in the task information form', fakeAsync(() => {
-      loadWithStaticChunks(StaticChunkingMode.FIXED_CHUNK_SIZE);
+    it('should render the static chunking field in the task information form', async () => {
+      await loadWithStaticChunks(StaticChunkingMode.FIXED_CHUNK_SIZE);
       fixture.detectChanges();
 
       const field: HTMLElement | null = fixture.nativeElement.querySelector(
@@ -316,243 +332,235 @@ describe('EditTasksComponent', () => {
       );
 
       expect(field?.getAttribute('title')).toBe('Use static chunking');
-    }));
+    });
 
-    it('should navigate to /not-found on 404 error', fakeAsync(() => {
+    it('should navigate to /not-found on 404 error', async () => {
       initComponent();
       const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/'));
       req.flush('Not Found', { status: 404, statusText: 'Not Found' });
-      tick();
+      await wait();
 
       expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/not-found');
-    }));
+    });
 
-    it('should navigate to /forbidden on 403 error', fakeAsync(() => {
+    it('should navigate to /forbidden on 403 error', async () => {
       initComponent();
       const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/'));
       req.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
-      tick();
+      await wait();
 
       expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/forbidden');
-    }));
+    });
 
-    it('should show error message on 500 without redirect', fakeAsync(() => {
+    it('should show error message on 500 without redirect', async () => {
       initComponent();
       const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && r.params.has('include'));
       expect(req.request.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
       req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
-      tick();
+      await wait();
 
       const retryReq = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && !r.params.has('include'));
       expect(retryReq.request.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
       retryReq.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
-      tick();
+      await wait();
 
       expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
-      expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith(jasmine.stringContaining('Error loading task'));
-      expect(component.isLoading).toBeFalse();
-    }));
+      expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith(expect.stringContaining('Error loading task'));
+      expect(component.isLoading).toBe(false);
+    });
 
-    it('should retry without includes on 500 and succeed', fakeAsync(() => {
+    it('should retry without includes on 500 and succeed', async () => {
       initComponent();
       const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && r.params.has('include'));
       expect(req.request.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
       req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
-      tick();
+      await wait();
 
       const retryReq = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && !r.params.has('include'));
       expect(retryReq.request.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
       retryReq.flush(mockTaskResponse());
-      tick();
+      await wait();
 
-      expect(component.isLoading).toBeFalse();
+      expect(component.isLoading).toBe(false);
       expect(component.tkeyspace).toBe(1000);
-    }));
+    });
 
-    it('should show generic error message on non-HTTP error', fakeAsync(() => {
+    it('should show generic error message on non-HTTP error', async () => {
       initComponent();
       const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/'));
       expect(req.request.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
       req.error(new ProgressEvent('error'));
-      tick();
+      await wait();
 
       expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith('Error loading task.');
-      expect(component.isLoading).toBeFalse();
-    }));
+      expect(component.isLoading).toBe(false);
+    });
   });
 
   describe('isReadOnly', () => {
-    it('should be true when "edit" role is not present', fakeAsync(() => {
-      roleServiceSpy.hasRole.and.returnValue(false);
+    it('should be true when "edit" role is not present', () => {
+      roleServiceSpy.hasRole.mockReturnValue(false);
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
 
-      expect(component.isReadOnly).toBeTrue();
-    }));
+      expect(component.isReadOnly).toBe(true);
+    });
 
-    it('should be false when "edit" role is present', fakeAsync(() => {
-      roleServiceSpy.hasRole.and.callFake((role: string) => role === 'edit');
+    it('should be false when "edit" role is present', () => {
+      roleServiceSpy.hasRole.mockImplementation((role: string) => role === 'edit');
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
 
-      expect(component.isReadOnly).toBeFalse();
-    }));
+      expect(component.isReadOnly).toBe(false);
+    });
   });
 
   describe('onSubmit', () => {
     beforeEach(() => {
-      roleServiceSpy.hasRole.and.callFake((role: string) => role === 'edit');
+      roleServiceSpy.hasRole.mockImplementation((role: string) => role === 'edit');
     });
 
-    it('should call gs.update and navigate when form is valid and attackCmd unchanged', fakeAsync(() => {
-      globalServiceSpy.update.and.returnValue(of({}));
+    it('should call gs.update and navigate when form is valid and attackCmd unchanged', async () => {
+      globalServiceSpy.update.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
+      await wait();
 
       component.onSubmit();
-      tick();
 
       expect(globalServiceSpy.update).toHaveBeenCalledWith(
         SERV.TASKS,
         1,
-        jasmine.objectContaining({ taskName: 'Test Task', attackCmd: '-a 0 #HL# rockyou.txt' })
+        expect.objectContaining({ taskName: 'Test Task', attackCmd: '-a 0 #HL# rockyou.txt' })
       );
       expect(routerSpy.navigate).toHaveBeenCalledWith(['tasks/show-tasks']);
-    }));
+    });
 
-    it('should show success message after successful update', fakeAsync(() => {
-      globalServiceSpy.update.and.returnValue(of({}));
+    it('should show success message after successful update', async () => {
+      globalServiceSpy.update.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
+      await wait();
 
       component.onSubmit();
-      tick();
+      await wait();
 
       expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('Task data has been updated successfully.');
-    }));
+    });
 
-    it('should open confirm dialog when attackCmd is changed', fakeAsync(() => {
-      confirmDialogSpy.confirmYesNo.and.returnValue(of(false));
-      globalServiceSpy.update.and.returnValue(of({}));
+    it('should open confirm dialog when attackCmd is changed', async () => {
+      confirmDialogSpy.confirmYesNo.mockReturnValue(of(false));
+      globalServiceSpy.update.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
+      await wait();
 
       component.updateForm.get('updateData.attackCmd')?.setValue('-a 3 #HL#');
       component.onSubmit();
-      tick();
 
-      expect(confirmDialogSpy.confirmYesNo).toHaveBeenCalledWith('Update task data', jasmine.any(String));
-    }));
+      expect(confirmDialogSpy.confirmYesNo).toHaveBeenCalledWith('Update task data', expect.any(String));
+    });
 
-    it('should call gs.update after confirming attackCmd change', fakeAsync(() => {
-      confirmDialogSpy.confirmYesNo.and.returnValue(of(true));
-      globalServiceSpy.update.and.returnValue(of({}));
+    it('should call gs.update after confirming attackCmd change', async () => {
+      confirmDialogSpy.confirmYesNo.mockReturnValue(of(true));
+      globalServiceSpy.update.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
+      await wait();
 
       component.updateForm.get('updateData.attackCmd')?.setValue('-a 3 #HL#');
       component.onSubmit();
-      tick();
 
       expect(globalServiceSpy.update).toHaveBeenCalled();
-    }));
+    });
 
-    it('should show info message when attackCmd change is cancelled', fakeAsync(() => {
-      confirmDialogSpy.confirmYesNo.and.returnValue(of(false));
+    it('should show info message when attackCmd change is cancelled', async () => {
+      confirmDialogSpy.confirmYesNo.mockReturnValue(of(false));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
+      await wait();
 
       component.updateForm.get('updateData.attackCmd')?.setValue('-a 3 #HL#');
       component.onSubmit();
-      tick();
 
       expect(globalServiceSpy.update).not.toHaveBeenCalled();
       expect(alertServiceSpy.showInfoMessage).toHaveBeenCalledWith('Task Information has not been updated');
-    }));
+    });
 
-    it('should mark form as touched when form is invalid', fakeAsync(() => {
+    it('should mark form as touched when form is invalid', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
+      await wait();
 
       component.updateForm.get('updateData.attackCmd')?.setValue('');
-      const markAllAsTouchedSpy = spyOn(component.updateForm, 'markAllAsTouched');
-      const updateValueAndValiditySpy = spyOn(component.updateForm, 'updateValueAndValidity');
+      const markAllAsTouchedSpy = vi.spyOn(component.updateForm, 'markAllAsTouched').mockReturnValue(undefined);
+      const updateValueAndValiditySpy = vi
+        .spyOn(component.updateForm, 'updateValueAndValidity')
+        .mockReturnValue(undefined);
 
       component.onSubmit();
 
       expect(markAllAsTouchedSpy).toHaveBeenCalled();
       expect(updateValueAndValiditySpy).toHaveBeenCalled();
       expect(globalServiceSpy.update).not.toHaveBeenCalled();
-    }));
+    });
   });
 
   describe('purgeTask', () => {
-    it('should call chelper and show success message on confirmation', fakeAsync(() => {
-      confirmDialogSpy.confirmYesNo.and.returnValue(of(true));
-      globalServiceSpy.chelper.and.returnValue(of({}));
+    it('should call chelper and show success message on confirmation', () => {
+      confirmDialogSpy.confirmYesNo.mockReturnValue(of(true));
+      globalServiceSpy.chelper.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
 
       component.purgeTask();
-      tick();
 
       expect(globalServiceSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'purgeTask', { taskId: 1 });
       expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('Purged task id 1');
-    }));
+    });
 
-    it('should show info message when purge is cancelled', fakeAsync(() => {
-      confirmDialogSpy.confirmYesNo.and.returnValue(of(false));
+    it('should show info message when purge is cancelled', () => {
+      confirmDialogSpy.confirmYesNo.mockReturnValue(of(false));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
 
       component.purgeTask();
 
       expect(globalServiceSpy.chelper).not.toHaveBeenCalled();
       expect(alertServiceSpy.showInfoMessage).toHaveBeenCalledWith('Purge was cancelled');
-    }));
+    });
   });
 
   describe('onChunkViewChange', () => {
-    it('should set chunkview to the event value', fakeAsync(() => {
+    it('should set chunkview to the event value', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
+      await wait();
 
       component.onChunkViewChange({ value: 1 } as MatButtonToggleChange);
 
       expect(component.chunkview).toBe(1);
-    }));
+    });
 
-    it('should switch chunkview back to 0', fakeAsync(() => {
+    it('should switch chunkview back to 0', async () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
+      await wait();
 
       component.onChunkViewChange({ value: 1 } as MatButtonToggleChange);
       component.onChunkViewChange({ value: 0 } as MatButtonToggleChange);
 
       expect(component.chunkview).toBe(0);
-    }));
+    });
   });
 
   describe('ngOnDestroy', () => {
-    it('should destroy without errors', fakeAsync(() => {
+    it('should destroy without errors', () => {
       initComponent();
       respondToTaskRequest(mockTaskResponse());
-      tick();
 
       expect(() => fixture.destroy()).not.toThrow();
-    }));
+    });
   });
 });
 
@@ -561,33 +569,50 @@ describe('EditTasksComponent (edit-task-cAll route)', () => {
   let fixture: ComponentFixture<EditTasksComponent>;
   let httpMock: HttpTestingController;
 
-  let titleServiceSpy: jasmine.SpyObj<AutoTitleService>;
-  let alertServiceSpy: jasmine.SpyObj<AlertService>;
-  let globalServiceSpy: jasmine.SpyObj<GlobalService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let confirmDialogSpy: jasmine.SpyObj<ConfirmDialogService>;
-  let roleServiceSpy: jasmine.SpyObj<TasksRoleService>;
-  let configServiceSpy: jasmine.SpyObj<ConfigService>;
+  let titleServiceSpy: MockedObject<AutoTitleService>;
+  let alertServiceSpy: MockedObject<AlertService>;
+  let globalServiceSpy: MockedObject<GlobalService>;
+  let routerSpy: MockedObject<Router>;
+  let confirmDialogSpy: MockedObject<ConfirmDialogService>;
+  let roleServiceSpy: MockedObject<TasksRoleService>;
+  let configServiceSpy: MockedObject<ConfigService>;
 
   beforeEach(async () => {
-    spyOn(console, 'error');
-    spyOn(console, 'warn');
+    vi.spyOn(console, 'error').mockReturnValue(undefined);
+    vi.spyOn(console, 'warn').mockReturnValue(undefined);
 
-    titleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    alertServiceSpy = jasmine.createSpyObj('AlertService', [
-      'showErrorMessage',
-      'showSuccessMessage',
-      'showInfoMessage'
-    ]);
-    globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll', 'get', 'create', 'update', 'chelper']);
-    routerSpy = jasmine.createSpyObj('Router', ['navigate', 'navigateByUrl']);
-    routerSpy.navigate.and.returnValue(Promise.resolve(true));
-    routerSpy.navigateByUrl.and.returnValue(Promise.resolve(true));
-    confirmDialogSpy = jasmine.createSpyObj('ConfirmDialogService', ['confirmYesNo']);
-    roleServiceSpy = jasmine.createSpyObj('TasksRoleService', ['hasRole']);
-    roleServiceSpy.hasRole.and.returnValue(false);
-    configServiceSpy = jasmine.createSpyObj('ConfigService', ['getEndpoint']);
-    configServiceSpy.getEndpoint.and.returnValue(API_ENDPOINT);
+    titleServiceSpy = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    } as MockedObject<AutoTitleService>;
+    alertServiceSpy = {
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage'),
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showInfoMessage: vi.fn().mockName('AlertService.showInfoMessage')
+    } as MockedObject<AlertService>;
+    globalServiceSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      get: vi.fn().mockName('GlobalService.get'),
+      create: vi.fn().mockName('GlobalService.create'),
+      update: vi.fn().mockName('GlobalService.update'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    } as MockedObject<GlobalService>;
+    routerSpy = {
+      navigate: vi.fn().mockName('Router.navigate'),
+      navigateByUrl: vi.fn().mockName('Router.navigateByUrl')
+    } as MockedObject<Router>;
+    routerSpy.navigate.mockResolvedValue(true);
+    routerSpy.navigateByUrl.mockResolvedValue(true);
+    confirmDialogSpy = {
+      confirmYesNo: vi.fn().mockName('ConfirmDialogService.confirmYesNo')
+    } as MockedObject<ConfirmDialogService>;
+    roleServiceSpy = {
+      hasRole: vi.fn().mockName('TasksRoleService.hasRole')
+    } as MockedObject<TasksRoleService>;
+    roleServiceSpy.hasRole.mockReturnValue(false);
+    configServiceSpy = {
+      getEndpoint: vi.fn().mockName('ConfigService.getEndpoint')
+    } as MockedObject<ConfigService>;
+    configServiceSpy.getEndpoint.mockReturnValue(API_ENDPOINT);
 
     await TestBed.configureTestingModule({
       declarations: [EditTasksComponent],
@@ -619,15 +644,15 @@ describe('EditTasksComponent (edit-task-cAll route)', () => {
     httpMock.verify();
   });
 
-  it('should set chunkview to 1 for edit-task-cAll route', fakeAsync(() => {
+  it('should set chunkview to 1 for edit-task-cAll route', async () => {
     fixture = TestBed.createComponent(EditTasksComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
 
     const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && r.params.has('include'));
     req.flush(mockTaskResponse());
-    tick();
+    await wait();
 
     expect(component.chunkview).toBe(1);
-  }));
+  });
 });

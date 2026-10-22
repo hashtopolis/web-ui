@@ -1,5 +1,6 @@
 import { zGlobalPermissionGroupResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -26,21 +27,28 @@ const MOCK_GPG: JGlobalPermissionGroup = {
 describe('EditGlobalpermissionsgroupsComponent', () => {
   let component: EditGlobalpermissionsgroupsComponent;
   let fixture: ComponentFixture<EditGlobalpermissionsgroupsComponent>;
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
-  let mockAutoTitleService: jasmine.SpyObj<AutoTitleService>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockAlertService: MockedObject<AlertService>;
+  let mockAutoTitleService: MockedObject<AutoTitleService>;
 
   beforeEach(async () => {
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['get', 'update']);
-    mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage']);
-    mockAutoTitleService = jasmine.createSpyObj('AutoTitleService', ['set']);
+    mockGlobalService = {
+      get: vi.fn().mockName('GlobalService.get'),
+      update: vi.fn().mockName('GlobalService.update')
+    } as MockedObject<GlobalService>;
+    mockAlertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage')
+    } as MockedObject<AlertService>;
+    mockAutoTitleService = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    } as MockedObject<AutoTitleService>;
 
-    mockGlobalService.get.and.returnValue(of(mockResponse()));
-    mockGlobalService.update.and.returnValue(of({}));
+    mockGlobalService.get.mockReturnValue(of(mockResponse()));
+    mockGlobalService.update.mockReturnValue(of({}));
 
     // JsonAPISerializer is used with `new` inside the component — spy on the
     // prototype to avoid coupling tests to the real JSON:API parsing logic.
-    spyOn(JsonAPISerializer.prototype, 'deserialize').and.callFake((_body: unknown, schema?: unknown) => {
+    vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockImplementation((_body: unknown, schema?: unknown) => {
       if (schema === zGlobalPermissionGroupResponse) return MOCK_GPG;
       return MOCK_GPG;
     });
@@ -86,10 +94,10 @@ describe('EditGlobalpermissionsgroupsComponent', () => {
   describe('loadData()', () => {
     it('should call gs.get with the correct endpoint and ID', () => {
       expect(mockGlobalService.get).toHaveBeenCalled();
-      const [config, id, params] = mockGlobalService.get.calls.mostRecent().args;
+      const [config, id, params] = mockGlobalService.get.mock.lastCall!;
       expect(config).toEqual(SERV.ACCESS_PERMISSIONS_GROUPS);
       expect(id).toBe(1);
-      expect(params).toEqual(jasmine.objectContaining({ include: ['userMembers'] }));
+      expect(params).toEqual(expect.objectContaining({ include: ['userMembers'] }));
     });
 
     it('should store the deserialized group in editedGPG', () => {
@@ -107,7 +115,7 @@ describe('EditGlobalpermissionsgroupsComponent', () => {
     describe('when the form is valid', () => {
       it('should call gs.update with the correct endpoint and ID', () => {
         component.onSubmit();
-        expect(mockGlobalService.update).toHaveBeenCalledOnceWith(
+        expect(mockGlobalService.update).toHaveBeenCalledExactlyOnceWith(
           SERV.ACCESS_PERMISSIONS_GROUPS,
           component.editedGPGIndex,
           component.updateForm.value
@@ -121,7 +129,7 @@ describe('EditGlobalpermissionsgroupsComponent', () => {
 
       it('should set processing to false after the update completes', () => {
         component.onSubmit();
-        expect(component.processing).toBeFalse();
+        expect(component.processing).toBe(false);
       });
     });
 
@@ -138,7 +146,7 @@ describe('EditGlobalpermissionsgroupsComponent', () => {
 
       it('should mark all form controls as touched so validation messages become visible', () => {
         component.onSubmit();
-        expect(component.updateForm.touched).toBeTrue();
+        expect(component.updateForm.touched).toBe(true);
       });
     });
   });
