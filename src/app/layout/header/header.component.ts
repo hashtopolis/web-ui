@@ -2,7 +2,6 @@ import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { BaseModel } from '@models/base.model';
-import { UIConfig } from '@models/config-ui.model';
 import { BuiltInTheme } from '@models/config-ui.model';
 
 import { AuthService } from '@services/access/auth.service';
@@ -24,14 +23,13 @@ import { UserRoleWrapperService } from '@services/roles/user/user-role-wrapper.s
 import { AlertService } from '@services/shared/alert.service';
 import { RuntimeThemeOption, ThemeCatalogService } from '@services/shared/theme-catalog.service';
 import { ThemeService } from '@services/shared/theme.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
 
 import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/action-menu.model';
 
 import { EasterEggService } from '@src/app/core/_services/shared/easter-egg.service';
 import { HeaderMenuAction, HeaderMenuLabel } from '@src/app/layout/header/header.constants';
 import { MainMenuItem } from '@src/app/layout/header/header.model';
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { environment } from '@src/environments/environment';
 
 @Component({
@@ -41,7 +39,6 @@ import { environment } from '@src/environments/environment';
 })
 export class HeaderComponent implements OnInit {
   private authService = inject(AuthService);
-  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private themes = inject(ThemeService);
   private themeCatalog = inject(ThemeCatalogService);
   private permissionService = inject(PermissionService);
@@ -63,7 +60,7 @@ export class HeaderComponent implements OnInit {
   private apiTokensRoleService = inject(ApiTokensRoleService);
 
   private destroyRef = inject(DestroyRef);
-  protected uiSettings: UISettingsUtilityClass;
+  protected uiSettings = inject(UiSettingsService);
   private username = '';
   isDarkMode = false;
   currentTheme: string = BuiltInTheme.LIGHT;
@@ -78,7 +75,6 @@ export class HeaderComponent implements OnInit {
 
   constructor() {
     this.isAuth();
-    this.uiSettings = new UISettingsUtilityClass(this.storage, this.themes);
   }
 
   isAuth(): void {

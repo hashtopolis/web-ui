@@ -15,7 +15,6 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { ApiKeyDetailComponent } from '@src/app/account/api-keys/api-key-detail/api-key-detail.component';
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('ApiKeyDetailComponent', () => {
@@ -57,7 +56,6 @@ describe('ApiKeyDetailComponent', () => {
     mockRoute = { snapshot: { params: {} } };
 
     spyOn(JsonAPISerializer.prototype, 'deserialize').and.returnValue(loadedToken);
-    spyOn(UISettingsUtilityClass.prototype, 'getSetting').and.returnValue(undefined);
 
     await TestBed.configureTestingModule({
       declarations: [ApiKeyDetailComponent],

@@ -3,7 +3,7 @@ import { sortingSchema, uiConfigSchema, uisSettingsSchema } from '@models/config
 
 describe('uiConfigSchema', () => {
   // Use a deep copy to avoid interference from other tests that mutate the
-  // shared `uiConfigDefault` object (e.g. UISettingsUtilityClass.updateSettings).
+  // shared `uiConfigDefault` object (e.g. UiSettingsService.updateSettings).
   let defaults: typeof uiConfigDefault;
 
   beforeEach(() => {

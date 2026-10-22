@@ -18,7 +18,6 @@ import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { InputModule } from '@src/app/shared/input/input.module';
 import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 describe('UiSettingsComponent', () => {
   let component: UiSettingsComponent;
@@ -90,9 +89,13 @@ describe('UiSettingsComponent', () => {
   });
 
   it('should call updateForm and patch form values', () => {
-    component.util = {
-      uiConfig: { dateFmt: 'dd/MM/yyyy', timeFmt: '24h', layout: 'fixed', theme: 'dark' }
-    } as UISettingsUtilityClass;
+    spyOn(component.util, 'config').and.returnValue({
+      ...uiConfigDefault,
+      dateFmt: 'dd/MM/yyyy',
+      timeFmt: '24h',
+      layout: 'fixed',
+      theme: 'dark'
+    } as UIConfig);
 
     component.loadSettings();
 
