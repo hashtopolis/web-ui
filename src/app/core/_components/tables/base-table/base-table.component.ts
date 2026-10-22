@@ -3,6 +3,7 @@ import { Observable, of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   DestroyRef,
@@ -54,6 +55,7 @@ import { formatPercentage } from '@src/app/shared/utils/util';
 @Component({
   selector: 'app-base-table',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class BaseTableComponent {

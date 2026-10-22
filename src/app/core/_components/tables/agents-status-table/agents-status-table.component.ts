@@ -1,6 +1,6 @@
 import { catchError, forkJoin } from 'rxjs';
 
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
@@ -43,6 +43,7 @@ export type STATCALCULATION = (typeof STATCALCULATION)[keyof typeof STATCALCULAT
 @Component({
   selector: 'app-agents-status-table',
   templateUrl: './agents-status-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class AgentsStatusTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {

@@ -1,6 +1,6 @@
 import { DateFormat, Setting, TimeFormat, dateFormats, layouts, themes, timeFormats } from '@constants/settings.config';
 
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 
 import { UIConfig } from '@models/config-ui.model';
 import { BuiltInTheme } from '@models/config-ui.model';
@@ -18,6 +18,7 @@ import { TimePrecision, dateTimeFormat, formatDate } from '@src/app/shared/utils
   selector: 'app-ui-settings',
   templateUrl: './ui-settings.component.html',
   styleUrls: ['./ui-settings.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class UiSettingsComponent implements OnInit {

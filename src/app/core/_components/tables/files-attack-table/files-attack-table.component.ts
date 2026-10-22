@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { FileType, JFile } from '@models/file.model';
 
@@ -25,6 +25,7 @@ interface PrepareAttackResult {
 @Component({
   selector: 'app-files-attack-table',
   templateUrl: './files-attack-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class FilesAttackTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

@@ -3,7 +3,16 @@ import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod';
 import { finalize } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectorRef, Component, DestroyRef, Input, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  Input,
+  OnInit,
+  ViewChild,
+  inject
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -32,6 +41,7 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
 @Component({
   selector: 'app-edit-supertasks',
   templateUrl: './edit-supertasks.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class EditSupertasksComponent implements OnInit {

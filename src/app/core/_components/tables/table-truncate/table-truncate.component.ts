@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 
 import { BaseModel, DynamicModel } from '@models/base.model';
 
@@ -14,6 +14,7 @@ export const TABLE_TRUNCATE_MAX_LENGTH = 64;
   selector: 'table-truncate',
   templateUrl: './table-truncate.component.html',
   styleUrls: ['./table-truncate.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class TableTruncateComponent implements OnInit {

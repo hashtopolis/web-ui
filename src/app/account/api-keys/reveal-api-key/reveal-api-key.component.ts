@@ -1,5 +1,5 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { AlertService } from '@services/shared/alert.service';
@@ -11,6 +11,7 @@ export interface RevealApiKeyDialogData {
 @Component({
   selector: 'app-reveal-api-key-dialog',
   templateUrl: './reveal-api-key.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class RevealApiKeyDialogComponent {

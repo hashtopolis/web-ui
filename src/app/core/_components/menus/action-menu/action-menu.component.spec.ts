@@ -1,22 +1,27 @@
 /// <reference types="jasmine" />
-import { Component } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
-import { Router, NavigationEnd } from '@angular/router';
-import { Subject } from 'rxjs';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { Subject } from 'rxjs';
 
-import { ActionMenuComponent } from './action-menu.component';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { NavigationEnd, Router } from '@angular/router';
+
+import { UIConfig } from '@models/config-ui.model';
+
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
-import { UIConfig } from '@models/config-ui.model';
+
+import { ActionMenuComponent } from './action-menu.component';
+
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 @Component({
   template: '<action-menu [actionMenuItems]="[]" label="Test"></action-menu>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 class TestHostComponent {}
@@ -38,15 +43,9 @@ describe('ActionMenuComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [ActionMenuComponent],
-      imports: [
-        NoopAnimationsModule,
-        MatMenuModule,
-        MatButtonModule,
-        MatIconModule,
-        MatDividerModule,
-        FontAwesomeModule
-      ],
+      imports: [MatMenuModule, MatButtonModule, MatIconModule, MatDividerModule, FontAwesomeModule],
       providers: [
+        provideDisabledMaterialAnimations(),
         { provide: Router, useValue: routerSpy },
         { provide: LocalStorageService, useValue: storageSpy }
       ]
@@ -93,66 +92,99 @@ describe('ActionMenuComponent', () => {
 
     it('should be active when currentUrl matches routerLinkAdd', () => {
       component.currentUrl = ['agents', 'new-agent'];
-      component.actionMenuItems = [[{
-        label: 'Agents',
-        routerLink: ['agents', 'show-agents'],
-        routerLinkAdd: ['agents', 'new-agent']
-      }]];
+      component.actionMenuItems = [
+        [
+          {
+            label: 'Agents',
+            routerLink: ['agents', 'show-agents'],
+            routerLinkAdd: ['agents', 'new-agent']
+          }
+        ]
+      ];
       component.checkIsActive();
       expect(component.isActive).toBeTrue();
     });
 
     it('should NOT be active when routerLink matches but routerLinkAdd does not', () => {
       component.currentUrl = ['agents', 'something-else'];
-      component.actionMenuItems = [[{
-        label: 'Agents',
-        routerLink: ['agents', 'show-agents'],
-        routerLinkAdd: ['agents', 'new-agent']
-      }]];
+      component.actionMenuItems = [
+        [
+          {
+            label: 'Agents',
+            routerLink: ['agents', 'show-agents'],
+            routerLinkAdd: ['agents', 'new-agent']
+          }
+        ]
+      ];
       component.checkIsActive();
       expect(component.isActive).toBeFalse();
     });
 
     it('should be active when currentUrl matches an activeRoute', () => {
       component.currentUrl = ['config', 'task-chunk'];
-      component.actionMenuItems = [[{
-        label: 'Settings',
-        routerLink: ['config', 'agent'],
-        activeRoutes: [['config', 'task-chunk'], ['config', 'hch']]
-      }]];
+      component.actionMenuItems = [
+        [
+          {
+            label: 'Settings',
+            routerLink: ['config', 'agent'],
+            activeRoutes: [
+              ['config', 'task-chunk'],
+              ['config', 'hch']
+            ]
+          }
+        ]
+      ];
       component.checkIsActive();
       expect(component.isActive).toBeTrue();
     });
 
     it('should be active when currentUrl matches second activeRoute', () => {
       component.currentUrl = ['config', 'hch'];
-      component.actionMenuItems = [[{
-        label: 'Settings',
-        routerLink: ['config', 'agent'],
-        activeRoutes: [['config', 'task-chunk'], ['config', 'hch']]
-      }]];
+      component.actionMenuItems = [
+        [
+          {
+            label: 'Settings',
+            routerLink: ['config', 'agent'],
+            activeRoutes: [
+              ['config', 'task-chunk'],
+              ['config', 'hch']
+            ]
+          }
+        ]
+      ];
       component.checkIsActive();
       expect(component.isActive).toBeTrue();
     });
 
     it('should NOT be active when currentUrl does not match any activeRoute', () => {
       component.currentUrl = ['config', 'something-else'];
-      component.actionMenuItems = [[{
-        label: 'Settings',
-        routerLink: ['config', 'agent'],
-        activeRoutes: [['config', 'task-chunk'], ['config', 'hch']]
-      }]];
+      component.actionMenuItems = [
+        [
+          {
+            label: 'Settings',
+            routerLink: ['config', 'agent'],
+            activeRoutes: [
+              ['config', 'task-chunk'],
+              ['config', 'hch']
+            ]
+          }
+        ]
+      ];
       component.checkIsActive();
       expect(component.isActive).toBeFalse();
     });
 
     it('should be active when currentUrl matches a 3-segment activeRoute', () => {
       component.currentUrl = ['tasks', 'import-supertasks', 'wrbulk'];
-      component.actionMenuItems = [[{
-        label: 'Supertask Builder',
-        routerLink: ['tasks', 'import-supertasks', 'masks'],
-        activeRoutes: [['tasks', 'import-supertasks', 'wrbulk']]
-      }]];
+      component.actionMenuItems = [
+        [
+          {
+            label: 'Supertask Builder',
+            routerLink: ['tasks', 'import-supertasks', 'masks'],
+            activeRoutes: [['tasks', 'import-supertasks', 'wrbulk']]
+          }
+        ]
+      ];
       component.checkIsActive();
       expect(component.isActive).toBeTrue();
     });

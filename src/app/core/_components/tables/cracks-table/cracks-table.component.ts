@@ -1,6 +1,6 @@
 import { Observable, catchError, forkJoin, of } from 'rxjs';
 
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { BaseModel, DynamicModel } from '@models/base.model';
@@ -28,6 +28,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 @Component({
   selector: 'app-cracks-table',
   templateUrl: './cracks-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class CracksTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

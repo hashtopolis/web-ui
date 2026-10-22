@@ -2,6 +2,7 @@ import { Subject, Subscription, takeUntil } from 'rxjs';
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   EventEmitter,
@@ -28,6 +29,7 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
   selector: 'app-dynamic-form',
   templateUrl: 'dynamicform.component.html',
   styleUrls: ['./dynamicform.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {

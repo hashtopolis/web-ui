@@ -20,6 +20,7 @@ import type { TopLevelFormatterParams } from 'echarts/types/dist/shared';
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   Input,
@@ -81,6 +82,7 @@ use([
 
 @Component({
   selector: 'app-task-speed-graph',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div #chart style="height: 310px;"></div>`
 })
 export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {

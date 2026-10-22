@@ -1,4 +1,4 @@
-import { HealthCheckStatus } from 'src/app/core/_models/health-check.model';
+import { HealthCheckStatus } from '@src/app/core/_models/health-check.model';
 
 export enum HealthChecksTableCol {
   ID,

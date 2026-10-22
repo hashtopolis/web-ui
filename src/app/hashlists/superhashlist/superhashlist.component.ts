@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 
 import { RoleService } from '@services/roles/base/role.service';
 import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlist-role.service';
@@ -7,6 +7,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 @Component({
   selector: 'app-superhashlist',
   templateUrl: './superhashlist.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class SuperhashlistComponent implements OnInit {

@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
@@ -21,6 +21,7 @@ import { ConfigService } from '@src/app/core/_services/shared/config.service';
 // Create a test implementation of BaseTableComponent
 @Component({
   selector: 'app-test-table',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<div>Test Table</div>'
 })
 class TestTableComponent extends BaseTableComponent {

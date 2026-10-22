@@ -1,6 +1,6 @@
 import { Observable, catchError, forkJoin, of } from 'rxjs';
 
-import { AfterViewInit, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
@@ -37,6 +37,7 @@ import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks
 @Component({
   selector: 'app-tasks-table',
   templateUrl: './tasks-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class TasksTableComponent extends BaseTableComponent implements OnInit, OnDestroy, AfterViewInit {

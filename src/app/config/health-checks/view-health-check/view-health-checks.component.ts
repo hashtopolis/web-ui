@@ -1,6 +1,6 @@
 import { zHealthCheckResponse } from '@generated/api/zod';
 
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
@@ -21,6 +21,7 @@ import { TimePrecision, formatUnixTimestamp } from '@src/app/shared/utils/dateti
 @Component({
   selector: 'app-view-health-checks',
   templateUrl: './view-health-checks.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class ViewHealthChecksComponent implements OnInit {
