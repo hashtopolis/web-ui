@@ -21,7 +21,7 @@
 }
 
 .snackbar-error {
-  --mat-snack-bar-container-color: color-mix(in oklch, var(--destructive) 16%, var(--well));
+  --mat-snack-bar-container-color: color-mix(in oklab, var(--destructive) 16%, var(--well));
   --mat-snack-bar-supporting-text-color: var(--destructive);
 
   .mdc-snackbar__surface {
@@ -30,7 +30,7 @@
 }
 
 .snackbar-success {
-  --mat-snack-bar-container-color: color-mix(in oklch, var(--success) 22%, var(--well));
+  --mat-snack-bar-container-color: color-mix(in oklab, var(--success) 22%, var(--well));
   --mat-snack-bar-supporting-text-color: var(--success);
 
   .mdc-snackbar__surface {
@@ -39,7 +39,7 @@
 }
 
 .snackbar-info {
-  --mat-snack-bar-container-color: color-mix(in oklch, var(--info) 16%, var(--well));
+  --mat-snack-bar-container-color: color-mix(in oklab, var(--info) 16%, var(--well));
   --mat-snack-bar-supporting-text-color: var(--info);
 
   .mdc-snackbar__surface {
