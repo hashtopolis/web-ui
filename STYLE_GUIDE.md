@@ -663,12 +663,14 @@ if (!result.success) {
 | ------------------ | -------------------------------------- | ----------------------------- |
 | `theme`            | `theme.service.ts`                     | inline `z.string().min(1)`    |
 | `userData`         | `auth.service.ts` (JWT token + expiry) | `_models/user-data.schema.ts` |
-| `ui-config`        | `shared/utils/config.ts`               | `_models/config-ui.schema.ts` |
+| `ui-config`        | `shared/ui-settings.service.ts`        | `_models/config-ui.schema.ts` |
 | `uis`              | cached server settings                 | `uisSettingsSchema`           |
 | `user_permissions` | `permission/permission.service.ts`     | validated, 15-min TTL         |
 
 `ui-config` holds theme, layout, time format, `refreshPage`, `refreshInterval`, and
-per-table `tableSettings`.
+per-table `tableSettings`. Read and write it only through the injected `UiSettingsService`, never
+through `LocalStorageService` directly: the service holds the single in-memory copy, so a
+direct write would be overwritten by its next update.
 
 **Conventions.**
 

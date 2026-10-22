@@ -23,7 +23,7 @@ import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
 import { JChunk } from '@models/chunk.model';
-import { TableSettingsKey, UIConfig } from '@models/config-ui.model';
+import { TableSettingsKey } from '@models/config-ui.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
@@ -39,7 +39,7 @@ import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 import { UIConfigService } from '@services/shared/storage.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
 
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
@@ -47,7 +47,6 @@ import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-t
 import { BaseDataSource } from '@datasources/base.datasource';
 
 import { JAgentErrors } from '@src/app/core/_models/agent-errors.model';
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { TimePrecision } from '@src/app/shared/utils/datetime';
 import { formatPercentage } from '@src/app/shared/utils/util';
 
@@ -62,7 +61,6 @@ export class BaseTableComponent {
   protected cs = inject(ConfigService);
   protected clipboard = inject(Clipboard);
   protected router = inject(Router);
-  protected settingsService = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   protected sanitizer = inject(DomSanitizer);
   protected alertService = inject(AlertService);
   protected uiService = inject(UIConfigService);
@@ -85,15 +83,12 @@ export class BaseTableComponent {
   @Input() hasTemperatureInformation = true;
 
   protected destroyRef = inject(DestroyRef);
-  protected uiSettings: UISettingsUtilityClass;
+  protected uiSettings = inject(UiSettingsService);
   protected dateTimeFormat: string;
   protected columnLabels: Record<string, string> = {};
   protected contextMenuService: ContextMenuService;
 
   constructor() {
-    const settingsService = this.settingsService;
-
-    this.uiSettings = new UISettingsUtilityClass(settingsService);
     this.dateTimeFormat = this.uiSettings.getDateTimeFormat(TimePrecision.SECONDS);
   }
 

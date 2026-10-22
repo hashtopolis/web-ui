@@ -21,11 +21,11 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, SortDirection } from '@angular/material/sort';
 
 import { BaseModel } from '@models/base.model';
-import { Sorting, TableSettingsKey, UIConfig } from '@models/config-ui.model';
+import { Sorting, TableSettingsKey } from '@models/config-ui.model';
 import { JHash } from '@models/hash.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuComponent } from '@components/menus/bulk-action-menu/bulk-action-menu.component';
@@ -44,8 +44,6 @@ import {
 } from '@components/tables/ht-table/ht-table.models';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
@@ -99,7 +97,6 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewInit, OnDestroy {
   dialog = inject(MatDialog);
   private cd = inject(ChangeDetectorRef);
-  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /** Stringified column enum IDs for mat-table binding, built by {@link setDisplayedColumns}. */
@@ -232,7 +229,7 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   /** Fetches user customizations */
   @Output() backendSqlFilter: EventEmitter<string> = new EventEmitter();
 
-  private uiSettings: UISettingsUtilityClass;
+  private uiSettings = inject(UiSettingsService);
   private destroyRef = inject(DestroyRef);
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
@@ -261,7 +258,6 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   filterError: string | null = null;
 
   ngOnInit(): void {
-    this.uiSettings = new UISettingsUtilityClass(this.storage);
     const displayedColumns = this.uiSettings.getTableSettings(this.name);
     const tableSettings = this.uiSettings.getTableConfig(this.name);
 

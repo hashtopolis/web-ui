@@ -7,7 +7,7 @@ import { AfterViewInit, Component, ElementRef, OnInit, PLATFORM_ID, inject } fro
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 
-import { Layout, UIConfig } from '@models/config-ui.model';
+import { Layout } from '@models/config-ui.model';
 import { UiSettings, uisSettingsSchema } from '@models/config-ui.schema';
 import { UserData, userDataSchema } from '@models/user-data.schema';
 
@@ -19,12 +19,11 @@ import { CookieService } from '@services/shared/cookies.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { ThemeCatalogService } from '@services/shared/theme-catalog.service';
 import { ThemeService } from '@services/shared/theme.service';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
 import '@services/storage/local-storage';
-import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { TimeoutDialogComponent } from '@src/app/shared/dialog/timeout/timeout-dialog.component';
 import { DialogData } from '@src/app/shared/dialog/timeout/timeout-dialog.model';
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 @Component({
   selector: 'app-root',
@@ -40,7 +39,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   private keepalive = inject(Keepalive);
   private router = inject(Router);
   private idle = inject(Idle);
-  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private themeService = inject(ThemeService);
   private themeCatalog = inject(ThemeCatalogService);
   screen = inject(BreakpointService);
@@ -56,7 +54,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   timeoutMax = this.onTimeout();
   idleTime: number = this.onTimeout();
   showingModal = false;
-  uiSettings: UISettingsUtilityClass;
+  uiSettings = inject(UiSettingsService);
   isLogged: boolean;
 
   private dialogRef: MatDialogRef<TimeoutDialogComponent> | null = null;
@@ -133,7 +131,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
     });
     this.authService.checkStatus();
-    this.uiSettings = new UISettingsUtilityClass(this.storage, this.themeService);
   }
 
   ngAfterViewInit() {
@@ -153,18 +150,16 @@ export class AppComponent implements OnInit, AfterViewInit {
    */
   private setBodyClasses(): void {
     const classes: string[] = [];
-    if (this.uiSettings) {
-      const layout = this.uiSettings.getSetting('layout');
-      if (layout === Layout.FIXED) {
-        classes.push('fixed-width-layout');
-      } else if (layout === Layout.FULL) {
-        classes.push('full-width-layout');
-      }
+    const layout = this.uiSettings.getSetting('layout');
+    if (layout === Layout.FIXED) {
+      classes.push('fixed-width-layout');
+    } else if (layout === Layout.FULL) {
+      classes.push('full-width-layout');
+    }
 
-      const theme = this.uiSettings.getSetting('theme');
-      if (theme) {
-        classes.push(`${theme}-theme`);
-      }
+    const theme = this.uiSettings.getSetting('theme');
+    if (theme) {
+      classes.push(`${theme}-theme`);
     }
     if (classes) {
       this.elementRef.nativeElement.ownerDocument.body.className = classes.join(' ');
