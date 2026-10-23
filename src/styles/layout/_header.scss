@@ -121,7 +121,6 @@ body.fixed-width-layout .app-header__inner {
   &:hover:not(:disabled) {
     --mat-icon-button-icon-color: var(--heading-foreground);
     color: var(--heading-foreground);
-    background: var(--surface-soft);
 
     .mat-icon {
       color: var(--heading-foreground);

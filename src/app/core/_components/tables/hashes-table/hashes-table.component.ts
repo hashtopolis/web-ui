@@ -2,7 +2,6 @@ import { HashesViewType } from '@constants/hashes.config';
 
 import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 
-import { BaseModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
@@ -10,12 +9,10 @@ import { RowActionMenuAction } from '@components/menus/row-action-menu/row-actio
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import { HashesTableCol, HashesTableColColumnLabel } from '@components/tables/hashes-table/hashes-table.constants';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
-import { TABLE_TRUNCATE_MAX_LENGTH } from '@components/tables/table-truncate/table-truncate.component';
 
 import { HashesDataSource } from '@datasources/hashes.datasource';
 
 import { FilterType } from '@src/app/core/_models/request-params.model';
-import { ShowTruncatedDataDialogComponent } from '@src/app/shared/dialog/show-truncated-data.dialog/show-truncated-data.dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -74,8 +71,10 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'hash',
         isSortable: true,
         isSearchable: true,
-        isCopy: true,
-        truncate: (hash: JHash) => hash.hash.length > TABLE_TRUNCATE_MAX_LENGTH,
+        copy: { label: 'Hash value', value: (hash: JHash) => hash.hash },
+        truncate: {
+          dialogTitle: (hash: JHash) => (hash.hashlist?.name ? `Full hash for: ${hash.hashlist.name}` : 'Full hash')
+        },
         export: async (hash: JHash) => hash.hash + ''
       },
       {
@@ -133,22 +132,5 @@ export class HashesTableComponent extends BaseTableComponent implements OnInit, 
         // this.rowActionEdit(event.data);
         break;
     }
-  }
-
-  protected receiveCopyData(event: BaseModel) {
-    if (this.clipboard.copy(String((event as JHash).hash))) {
-      this.alertService.showSuccessMessage('Hash value successfully copied to clipboard.');
-    } else {
-      this.alertService.showErrorMessage('Could not copy hash value clipboard.');
-    }
-  }
-
-  showTruncatedData(event: JHash) {
-    this.dialog.open(ShowTruncatedDataDialogComponent, {
-      data: {
-        hashlistName: event.hashlist?.name,
-        unTruncatedText: event.hash
-      }
-    });
   }
 }

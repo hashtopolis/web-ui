@@ -9,7 +9,6 @@ import { ResponseWrapper } from '@models/response.model';
 
 import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
-import { ConfigTooltipsLevel, TooltipService } from '@services/shared/tooltip.service';
 
 import { fileFormat } from '@src/app/core/_constants/files.config';
 import { ACCESS_GROUP_FIELD_MAPPING, FieldMapping } from '@src/app/core/_constants/select.config';
@@ -110,12 +109,7 @@ export interface MetadataFormField {
   providedIn: 'root'
 })
 export class MetadataService {
-  private tooltip: ConfigTooltipsLevel;
   private gs = inject(GlobalService);
-
-  constructor(private tooltipService: TooltipService) {
-    this.tooltip = this.tooltipService.getConfigTooltips();
-  }
 
   // // // // // // // //
   // AUTH SECTION      //
@@ -822,12 +816,6 @@ export class MetadataService {
       validators: [Validators.required]
     }
   ];
-
-  // // // // // // // // //
-  // UI SETTINGS SECTION  //
-  // // // // // // // // //
-
-  uisettingsInfo = [{ title: 'UI Settings', subtitle: false }];
 
   getFormMetadata(formName: string): MetadataFormField[] {
     if (formName === 'editwordlist' || formName === 'editrule' || formName === 'editother') {

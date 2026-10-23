@@ -3,7 +3,7 @@ import { Observable, catchError, forkJoin, of } from 'rxjs';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { BaseModel, DynamicModel } from '@models/base.model';
+import { DynamicModel } from '@models/base.model';
 import { JHash } from '@models/hash.model';
 
 import { SERV } from '@services/main.config';
@@ -16,13 +16,11 @@ import { CracksTableCol, CracksTableColumnLabel } from '@components/tables/crack
 import { HTTableColumn, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
 import { DialogData } from '@components/tables/table-dialog/table-dialog.model';
-import { TABLE_TRUNCATE_MAX_LENGTH } from '@components/tables/table-truncate/table-truncate.component';
 
 import { CracksDataSource } from '@datasources/cracks.datasource';
 
 import { HashListFormatLabels } from '@src/app/core/_constants/hashlist.config';
 import { FilterType } from '@src/app/core/_models/request-params.model';
-import { ShowTruncatedDataDialogComponent } from '@src/app/shared/dialog/show-truncated-data.dialog/show-truncated-data.dialog.component';
 import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -90,8 +88,10 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
         dataKey: 'hash',
         isSortable: true,
         isSearchable: true,
-        isCopy: true,
-        truncate: (crack: JHash) => crack.hash.length > TABLE_TRUNCATE_MAX_LENGTH,
+        copy: { label: 'Hash value', value: (crack: JHash) => crack.hash },
+        truncate: {
+          dialogTitle: (crack: JHash) => (crack.hashlist?.name ? `Full hash for: ${crack.hashlist.name}` : 'Full hash')
+        },
         export: async (crack: JHash) => crack.hash
       },
       {
@@ -125,23 +125,6 @@ export class CracksTableComponent extends BaseTableComponent implements OnInit, 
           crack.hashlist?.format !== undefined ? HashListFormatLabels[crack.hashlist.format] : ''
       }
     ];
-  }
-
-  protected receiveCopyData(event: BaseModel) {
-    if (this.clipboard.copy(String((event as JHash).hash))) {
-      this.alertService.showSuccessMessage('Hash value successfully copied to clipboard.');
-    } else {
-      this.alertService.showErrorMessage('Could not copy hash value clipboard.');
-    }
-  }
-
-  showTruncatedData(event: JHash) {
-    this.dialog.open(ShowTruncatedDataDialogComponent, {
-      data: {
-        hashlistName: event.hashlist?.name,
-        unTruncatedText: event.hash
-      }
-    });
   }
 
   openDialog(data: DialogData<JHash>) {

@@ -27,7 +27,7 @@ import { TableSettingsKey, UIConfig } from '@models/config-ui.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
-import { JTask, JTaskWith, JTaskWrapperDisplay, TaskType } from '@models/task.model';
+import { JTaskWith, JTaskWrapperDisplay, TaskType } from '@models/task.model';
 import { JUser } from '@models/user.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
@@ -376,22 +376,6 @@ export class BaseTableComponent {
       links.push({
         routerLink: ['/tasks', 'show-tasks', model.taskId, 'edit'],
         label: idLink ? model.taskId.toString() : model.task?.taskName?.toString()
-      });
-    }
-    return of(links);
-  }
-
-  /* Render edit link for subtask
-   * @param model - agent or chunk to render tasl link for
-   * @param idLink - if true, the task ID will be used as label, otherwise the task name
-   * @return observable object containing a router link array
-   */
-  renderTaskLinkSubtasks(model: JTask, idLink: boolean = false): Observable<HTTableRouterLink[]> {
-    const links: HTTableRouterLink[] = [];
-    if (model) {
-      links.push({
-        routerLink: ['/tasks', 'show-tasks', model.id, 'edit'],
-        label: idLink ? model.id.toString() : model.taskName?.toString()
       });
     }
     return of(links);

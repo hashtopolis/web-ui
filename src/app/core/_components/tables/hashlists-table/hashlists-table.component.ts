@@ -36,7 +36,6 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
   dataSource: HashlistsDataSource;
   isArchived = false;
   selectedFilterColumn: HTTableColumn;
-  private viewReady = false;
 
   ngOnInit(): void {
     this.setColumnLabels(HashlistsTableColumnLabel);
@@ -56,7 +55,6 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
 
   ngAfterViewInit(): void {
     // Wait until paginator is defined
-    this.viewReady = true;
     this.dataSource.loadAll();
   }
 

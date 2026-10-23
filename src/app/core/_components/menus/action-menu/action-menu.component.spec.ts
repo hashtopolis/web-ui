@@ -1,5 +1,4 @@
 /// <reference types="jasmine" />
-import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,15 +10,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { ActionMenuComponent } from './action-menu.component';
-import { AutoTitleService } from '@services/shared/autotitle.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 import { UIConfig } from '@models/config-ui.model';
-
-@Component({
-  template: '<action-menu [actionMenuItems]="[]" label="Test"></action-menu>',
-  standalone: false
-})
-class TestHostComponent {}
 
 describe('ActionMenuComponent', () => {
   let component: ActionMenuComponent;
