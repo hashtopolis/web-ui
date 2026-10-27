@@ -1,5 +1,5 @@
 import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
-import { Observable } from 'rxjs';
+import { Observable, Subscriber } from 'rxjs';
 import * as tus from 'tus-js-client';
 
 import { HttpEvent, HttpEventType, HttpHeaders, HttpProgressEvent } from '@angular/common/http';
@@ -118,22 +118,7 @@ export class UploadTUSService {
           if (exist) {
             const progress = 100;
             observer.next(progress);
-            if (form !== null) {
-              this.gs.create(serviceConfig, form, this.skipErrorDialogHeaders).subscribe({
-                next: () => {
-                  if (redirect) {
-                    this.router.navigate(redirect);
-                  }
-                  observer.complete();
-                },
-                error: (createError) => {
-                  observer.next(0);
-                  observer.error(createError);
-                }
-              });
-            } else {
-              observer.complete();
-            }
+            this.createAfterUpload(observer, serviceConfig, form, redirect);
           } else {
             observer.next(0);
             observer.error(error);
@@ -145,33 +130,24 @@ export class UploadTUSService {
           observer.next(progress);
         },
         onSuccess: async () => {
-          if (form !== null) {
-            this.gs.create(serviceConfig, form, this.skipErrorDialogHeaders).subscribe({
-              next: () => {
-                if (redirect) {
-                  this.router.navigate(redirect);
-                }
-                observer.complete();
-              },
-              error: (createError) => {
-                observer.next(0);
-                observer.error(createError);
-              }
-            });
-          } else {
-            observer.complete();
-          }
+          this.createAfterUpload(observer, serviceConfig, form, redirect);
         }
       });
 
       this.tusUpload = upload;
 
-      checkPreviousuploads(upload).catch((error) => {
+      checkPreviousuploads(upload, () => observer.closed).catch((error) => {
         console.error(error);
       });
+
+      // Stop the upload when the subscriber unsubscribes, e.g. when the page is left. The upload is
+      // aborted without terminating it, so the server keeps the partial upload.
+      return () => {
+        void upload.abort();
+      };
     });
 
-    async function checkPreviousuploads(upload: tus.Upload) {
+    async function checkPreviousuploads(upload: tus.Upload, isUnsubscribed: () => boolean) {
       // Look for previous uploads of the same file
       const previousUploads = await upload.findPreviousUploads();
 
@@ -194,9 +170,55 @@ export class UploadTUSService {
         }
       }
 
+      // start() resets the aborted flag of tus, so an unsubscribe during the lookup above must
+      // prevent the start instead of relying on abort(). start() itself only awaits resolved
+      // promises before that reset, so an unsubscribe (a macrotask) cannot land in between.
+      if (isUnsubscribed()) {
+        return;
+      }
+
       // Start or continue the upload
       upload.start();
     }
+  }
+
+  /**
+   * Completes the upload, creating the resource and redirecting first when a form is given.
+   * @param observer - Observer of the upload.
+   * @param serviceConfig - Service (URL and Resource) for which the upload was made.
+   * @param form - Creation form, or null to only upload.
+   * @param redirect - Link to redirect to after the create.
+   */
+  private createAfterUpload(
+    observer: Subscriber<number>,
+    serviceConfig: ServiceConfig,
+    form: Record<string, unknown> | null,
+    redirect: string[] | null
+  ): void {
+    // tus reports the success of the last chunk right after its progress without checking for an
+    // abort, so a subscriber that unsubscribed on that progress must not get a create
+    if (observer.closed) {
+      return;
+    }
+    if (form === null) {
+      observer.complete();
+      return;
+    }
+    // Added to the observer, so unsubscribing cancels the create together with the upload
+    observer.add(
+      this.gs.create(serviceConfig, form, this.skipErrorDialogHeaders).subscribe({
+        next: () => {
+          if (redirect) {
+            this.router.navigate(redirect);
+          }
+          observer.complete();
+        },
+        error: (createError) => {
+          observer.next(0);
+          observer.error(createError);
+        }
+      })
+    );
   }
 
   /**
