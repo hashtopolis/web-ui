@@ -11,7 +11,6 @@ const themeSchema = z.string().min(1);
 /** Local-storage key the selected theme is persisted under. */
 export const THEME_STORAGE_KEY = 'theme';
 
-export type DetectedTheme = BuiltInTheme;
 export type ThemeLoader = () => Observable<string | null>;
 export type ThemeSaver = (theme: string | null) => void;
 
@@ -172,31 +171,6 @@ export class ThemeService {
    */
   get theme$(): Subject<string | null> {
     return this._theme;
-  }
-
-  /**
-   * @return `dark` if the user agent prefers dark color scheme, `light` otherwise
-   */
-  get detectedTheme(): DetectedTheme {
-    return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? BuiltInTheme.DARK
-      : BuiltInTheme.LIGHT;
-  }
-
-  /**
-   * @return an observable version of {@link detectedTheme} that automatically updates on changes, e.g. when the user
-   * changes their operating system theme preference, or it switches depending on day/night.
-   */
-  get detectedTheme$(): Observable<DetectedTheme> {
-    if (typeof window === 'undefined') {
-      return of(BuiltInTheme.LIGHT);
-    }
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    return fromEvent<MediaQueryListEvent>(mediaQuery, 'change').pipe(
-      map((event) => event.matches),
-      startWith(mediaQuery.matches),
-      map((matches) => (matches ? BuiltInTheme.DARK : BuiltInTheme.LIGHT))
-    );
   }
 
   /**

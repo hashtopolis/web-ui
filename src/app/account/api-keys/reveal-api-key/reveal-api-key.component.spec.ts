@@ -1,7 +1,7 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { AlertService } from '@services/shared/alert.service';
 
@@ -22,6 +22,7 @@ describe('RevealApiKeyDialogComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [RevealApiKeyDialogComponent],
+      imports: [MatDialogModule],
       providers: [
         { provide: Clipboard, useValue: mockClipboard },
         { provide: AlertService, useValue: mockAlert },
@@ -56,8 +57,13 @@ describe('RevealApiKeyDialogComponent', () => {
     expect(mockAlert.showErrorMessage).toHaveBeenCalled();
   });
 
-  it('closes the dialog when done() is called', () => {
-    component.done();
+  it('closes the dialog when Done is clicked', () => {
+    fixture.detectChanges();
+    const doneButton = [...fixture.nativeElement.querySelectorAll('button')].find(
+      (button: HTMLButtonElement) => button.textContent?.trim() === 'Done'
+    ) as HTMLButtonElement;
+
+    doneButton.click();
 
     expect(mockDialogRef.close).toHaveBeenCalled();
   });
