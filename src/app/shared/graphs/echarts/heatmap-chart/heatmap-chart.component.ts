@@ -161,7 +161,7 @@ export class HeatmapChartComponent implements OnChanges {
 
   weeks: number[] = Array.from({ length: 52 }, (_, i) => i);
   readonly days = Array.from({ length: 7 }, (_, i) => i);
-  readonly dayLabels = ['Mon', '', 'Wed', '', 'Fri', '', 'Sun'];
+  dayLabels: string[] = [];
   readonly legendAlphas = BUCKET_ALPHAS;
 
   private readonly monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -219,6 +219,10 @@ export class HeatmapChartComponent implements OnChanges {
     const totalCells = this.weeks.length * this.days.length;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
+    // The grid ends today, so the bottom row is today's weekday; label every other row from it
+    const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    this.dayLabels = this.days.map((row) => (row % 2 === 0 ? weekdays[(today.getDay() + row + 1) % 7] : ''));
 
     const cells: Cell[] = [];
     let maxValue = 0;
