@@ -77,6 +77,7 @@
           <mat-form-field subscriptSizing="dynamic" class="w-40 no-label-form-field">
             <mat-select
               [(ngModel)]="selectedFilterColumn"
+              [ngModelOptions]="{ standalone: true }"
               (selectionChange)="onFilterColumnChange()"
               placeholder="Column"
               aria-label="Filter by column"
