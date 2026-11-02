@@ -1,17 +1,25 @@
 import { HTTP_SKIP_CACHE_HEADER_CONFIG, HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
-import { Observable, mergeMap, of, throwError } from 'rxjs';
+import { Observable, filter, map, of } from 'rxjs';
 
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpEventType,
+  HttpHeaderResponse,
+  HttpHeaders,
+  HttpParams,
+  HttpResponse
+} from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
-import { FilePreviewPage } from '@models/file-preview.model';
+import { PREVIEW_LINE_FEED, PlainPreviewPage, splitPreviewLines, walkLines } from '@models/file-preview.model';
+import { JFile } from '@models/file.model';
 import { FileId } from '@models/id.types';
 
+import { GzPreviewReader } from '@services/files/gz-preview-reader';
+import { PreviewReader } from '@services/files/preview-reader';
+import { RangePreviewReader } from '@services/files/range-preview-reader';
 import { SERV } from '@services/main.config';
 import { ConfigService } from '@services/shared/config.service';
-
-/** Byte value of the line terminator pages are cut on. */
-const LINE_FEED = 0x0a;
 
 /** Options for a single preview page request. */
 export interface FilePreviewRequest {
@@ -53,26 +61,30 @@ export class FilePreviewService {
   private readonly http = inject(HttpClient);
   private readonly cs = inject(ConfigService);
 
-  /** Lenient decoder: a window can still cut a code point when a line is longer than the window. */
-  private readonly decoder = new TextDecoder('utf-8', { fatal: false });
+  /**
+   * Opens a reader on a stored file, picking the kind its format allows: a gzip-compressed file can
+   * only be decompressed from its first byte, so it gets a sequential reader that caches the
+   * compressed prefix fetched so far; any other file gets a seekable reader over byte windows.
+   *
+   * @param file - The file to read, whose `size` and `lineCount` drive the ranges that get requested.
+   * @returns The reader, owned by its caller — normally one preview dialog.
+   */
+  openReader(file: JFile): PreviewReader {
+    if (file.filename.toLowerCase().endsWith('.gz')) {
+      return new GzPreviewReader(this, file.id, file.size);
+    }
+    return new RangePreviewReader(this, file);
+  }
 
   /**
-   * Loads one page of a file.
+   * Fetches one byte range of a stored file.
    *
-   * @param request - Which file, where to read, and how much to read.
-   * @returns The whole lines the requested window yielded.
+   * @param fileId - File to read.
+   * @param start - First byte of the range.
+   * @param end - Last byte of the range, inclusive.
+   * @returns The bytes of the range, or an error when the server did not honour it.
    */
-  loadPage(request: FilePreviewRequest): Observable<FilePreviewPage> {
-    const { fileId, totalBytes, windowBytes } = request;
-
-    // An empty file has no range to request; the backend answers 416 for `bytes=0-0` on it.
-    if (totalBytes <= 0) {
-      return of(this.emptyPage(totalBytes));
-    }
-
-    const start = Math.min(Math.max(request.offset, 0), totalBytes - 1);
-    const end = Math.min(start + windowBytes - 1, totalBytes - 1);
-
+  fetchRange(fileId: FileId, start: number, end: number): Observable<Uint8Array> {
     const headers = new HttpHeaders({
       ...HTTP_SKIP_CACHE_HEADER_CONFIG,
       ...HTTP_SKIP_ERROR_HEADER_CONFIG,
@@ -83,37 +95,71 @@ export class FilePreviewService {
       .get(this.cs.getEndpoint() + SERV.GET_FILES.URL, {
         params: new HttpParams().set('file', fileId),
         headers,
-        responseType: 'arraybuffer'
+        responseType: 'arraybuffer',
+        observe: 'events',
+        // Progress reporting is what makes the response headers arrive as an event of their own.
+        reportProgress: true
       })
       .pipe(
-        mergeMap((buffer) => {
-          const bytes = new Uint8Array(buffer);
+        filter(
+          (event): event is HttpHeaderResponse | HttpResponse<ArrayBuffer> =>
+            event.type === HttpEventType.ResponseHeader || event.type === HttpEventType.Response
+        ),
+        map((event) => {
+          // The status arrives with the headers, long before a large body does. Refusing anything but
+          // partial content here aborts the download, rather than buffering a whole file that the
+          // server was asked for a slice of.
+          if (event.status !== 206) {
+            throw new Error('The server ignored the requested byte range.');
+          }
+          return event;
+        }),
+        filter((event): event is HttpResponse<ArrayBuffer> => event.type === HttpEventType.Response),
+        map((response) => {
+          const bytes = new Uint8Array(response.body ?? new ArrayBuffer(0));
           // A cache that answers a conditional range request with the whole representation instead of
           // the requested slice would shift every line number silently; refuse it rather than show it.
           if (bytes.length > end - start + 1) {
-            return throwError(() => new Error('The server returned more bytes than the requested range.'));
+            throw new Error('The server returned more bytes than the requested range.');
           }
-          return of(this.toPage(bytes, start, request));
+          return bytes;
         })
       );
   }
 
   /**
-   * Cuts a fetched window back to the whole lines it contains, at most `maxLines` of them.
+   * Loads one page of a plain file.
    *
-   * Lines are split on raw bytes before decoding: a `0x0A` byte is unambiguous in UTF-8, so cutting
-   * there cannot corrupt a multi-byte character the way cutting on an arbitrary byte would.
+   * @param request - Which file, where to read, and how much to read.
+   * @returns The whole lines the requested window yielded.
+   */
+  loadPage(request: FilePreviewRequest): Observable<PlainPreviewPage> {
+    const { fileId, totalBytes, windowBytes } = request;
+
+    // An empty file has no range to request; the backend answers 416 for `bytes=0-0` on it.
+    if (totalBytes <= 0) {
+      return of(this.emptyPage(totalBytes));
+    }
+
+    const start = Math.min(Math.max(request.offset, 0), totalBytes - 1);
+    const end = Math.min(start + windowBytes - 1, totalBytes - 1);
+
+    return this.fetchRange(fileId, start, end).pipe(map((bytes) => this.toPage(bytes, start, request)));
+  }
+
+  /**
+   * Cuts a fetched window back to the whole lines it contains, at most `maxLines` of them.
    *
    * @param bytes - The bytes the backend returned.
    * @param start - Offset the window was read from.
    * @param request - The request the window answers, for its total size and alignment flag.
    * @returns The resulting page.
    */
-  private toPage(bytes: Uint8Array, start: number, request: FilePreviewRequest): FilePreviewPage {
+  private toPage(bytes: Uint8Array, start: number, request: FilePreviewRequest): PlainPreviewPage {
     const { totalBytes, maxLines } = request;
 
     if (bytes.length === 0) {
-      return { ...this.emptyPage(totalBytes), startByte: start, endByte: start };
+      return { ...this.emptyPage(totalBytes), startByte: start, endByte: start, hasMore: start < totalBytes };
     }
 
     const isFinalWindow = start + bytes.length >= totalBytes;
@@ -122,7 +168,7 @@ export class FilePreviewService {
     // to the preceding page and is dropped so the first line shown is a whole one.
     let from = 0;
     if (!request.isLineAligned && start > 0) {
-      const firstBreak = bytes.indexOf(LINE_FEED);
+      const firstBreak = bytes.indexOf(PREVIEW_LINE_FEED);
       from = firstBreak === -1 ? bytes.length : firstBreak + 1;
     }
 
@@ -132,17 +178,7 @@ export class FilePreviewService {
       ({ from, lineCount } = this.lastLinesStart(bytes, maxLines, start > 0));
       to = bytes.length;
     } else {
-      // Walk line terminators until the page is full or the window runs out.
-      to = from;
-      lineCount = 0;
-      while (lineCount < maxLines) {
-        const breakAt = bytes.indexOf(LINE_FEED, to);
-        if (breakAt === -1) {
-          break;
-        }
-        to = breakAt + 1;
-        lineCount++;
-      }
+      ({ to, lineCount } = walkLines(bytes, from, maxLines));
 
       if (lineCount < maxLines && (isFinalWindow || lineCount === 0)) {
         // Either the file's last line carries no terminator, or no terminator turned up at all and the
@@ -153,12 +189,14 @@ export class FilePreviewService {
 
     const content = bytes.subarray(from, to);
     return {
-      lines: this.splitLines(content),
+      kind: 'plain',
+      lines: splitPreviewLines(content),
       startByte: start + from,
       endByte: start + to,
       totalBytes,
       hasPartialLine: lineCount === 0 && !isFinalWindow,
-      isBinary: content.includes(0)
+      isBinary: content.includes(0),
+      hasMore: start + to < totalBytes
     };
   }
 
@@ -178,11 +216,11 @@ export class FilePreviewService {
     mayStartMidLine: boolean
   ): { from: number; lineCount: number } {
     // A trailing terminator closes the final line rather than starting another one.
-    let cursor = bytes[bytes.length - 1] === LINE_FEED ? bytes.length - 2 : bytes.length - 1;
+    let cursor = bytes[bytes.length - 1] === PREVIEW_LINE_FEED ? bytes.length - 2 : bytes.length - 1;
     let lineCount = 0;
 
     while (lineCount < maxLines && cursor >= 0) {
-      const breakAt = bytes.lastIndexOf(LINE_FEED, cursor);
+      const breakAt = bytes.lastIndexOf(PREVIEW_LINE_FEED, cursor);
       if (breakAt === -1) {
         break;
       }
@@ -198,33 +236,20 @@ export class FilePreviewService {
     if (!mayStartMidLine) {
       return { from: 0, lineCount: lineCount + 1 };
     }
-    const firstBreak = bytes.indexOf(LINE_FEED);
+    const firstBreak = bytes.indexOf(PREVIEW_LINE_FEED);
     return { from: firstBreak === -1 ? bytes.length : firstBreak + 1, lineCount };
   }
 
-  /**
-   * Decodes a slice and splits it into display lines, tolerating both LF and CRLF terminators.
-   *
-   * @param content - Bytes spanning whole lines.
-   * @returns The lines, without their terminators.
-   */
-  private splitLines(content: Uint8Array): string[] {
-    const lines = this.decoder.decode(content).split('\n');
-    // A trailing terminator produces an empty final element that is not a line of its own.
-    if (lines.length > 0 && lines[lines.length - 1] === '') {
-      lines.pop();
-    }
-    return lines.map((line) => (line.endsWith('\r') ? line.slice(0, -1) : line));
-  }
-
-  private emptyPage(totalBytes: number): FilePreviewPage {
+  private emptyPage(totalBytes: number): PlainPreviewPage {
     return {
+      kind: 'plain',
       lines: [],
       startByte: 0,
       endByte: 0,
       totalBytes,
       hasPartialLine: false,
-      isBinary: false
+      isBinary: false,
+      hasMore: false
     };
   }
 }
