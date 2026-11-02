@@ -293,7 +293,7 @@
                 <table-truncate
                   [path]="tableColumn.dataKey!"
                   [text]="element"
-                  [dialogTitle]="$safeNavigationMigration(truncate.dialogTitle?.(element))"
+                  [dialogTitle]="truncate.dialogTitle?.(element)"
                 ></table-truncate>
               } @else {
                 <app-ht-table-link
