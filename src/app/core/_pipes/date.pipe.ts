@@ -1,10 +1,7 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
 
-import { UIConfig } from '@models/config-ui.model';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
 
-import { LocalStorageService } from '@services/storage/local-storage.service';
-
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { TimePrecision, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 /**
@@ -22,7 +19,7 @@ import { TimePrecision, formatUnixTimestamp } from '@src/app/shared/utils/dateti
   standalone: false
 })
 export class uiDatePipe implements PipeTransform {
-  private uiSettings = new UISettingsUtilityClass(inject<LocalStorageService<UIConfig>>(LocalStorageService));
+  private uiSettings = inject(UiSettingsService);
 
   transform(epoch: number | Date | string | null | undefined): string | null {
     if (epoch === undefined || epoch === null) return null;

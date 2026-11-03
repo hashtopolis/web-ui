@@ -1,7 +1,8 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
+
 import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-updated.component';
 
 describe('LastUpdatedComponent', () => {
@@ -11,23 +12,16 @@ describe('LastUpdatedComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LastUpdatedComponent],
-      providers: [ChangeDetectorRef]
-    })
-      // The component provides UISettingsUtilityClass itself, so the mock has to replace that
-      // provider rather than a module-level one.
-      .overrideComponent(LastUpdatedComponent, {
-        set: {
-          providers: [
-            {
-              provide: UISettingsUtilityClass,
-              useValue: {
-                getDateTimeFormat: jasmine.createSpy('getDateTimeFormat').and.returnValue('dd/MM/yyyy HH:mm:ss')
-              }
-            }
-          ]
+      providers: [
+        ChangeDetectorRef,
+        {
+          provide: UiSettingsService,
+          useValue: {
+            getDateTimeFormat: jasmine.createSpy('getDateTimeFormat').and.returnValue('dd/MM/yyyy HH:mm:ss')
+          }
         }
-      })
-      .compileComponents();
+      ]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(LastUpdatedComponent);
     component = fixture.componentInstance;

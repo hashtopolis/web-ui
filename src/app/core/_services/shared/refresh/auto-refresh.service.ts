@@ -1,13 +1,9 @@
 import { Subject, Subscription, timer } from 'rxjs';
 
-import { Injectable, OnDestroy } from '@angular/core';
-
-import { UIConfig } from '@models/config-ui.model';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 
 import { AlertService } from '@services/shared/alert.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
-
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
 
 /**
  * Service to manage auto-refresh functionality.
@@ -44,15 +40,10 @@ export class AutoRefreshService implements OnDestroy {
   /** Timestamp of the next scheduled refresh */
   nextRefreshTimestamp: number | undefined;
 
-  /** UI Settings Utility */
-  uiSettings: UISettingsUtilityClass;
+  /** UI settings holding the refresh interval and the auto-refresh flag */
+  uiSettings = inject(UiSettingsService);
 
-  constructor(
-    private localStorageService: LocalStorageService<UIConfig>,
-    private alertService: AlertService
-  ) {
-    this.uiSettings = new UISettingsUtilityClass(this.localStorageService);
-  }
+  constructor(private alertService: AlertService) {}
 
   /**
    * Get the current refresh interval from settings (in seconds).

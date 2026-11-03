@@ -10,6 +10,7 @@ import { TaskType } from '@models/task.model';
 import { PermissionService } from '@services/permission/permission.service';
 import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
 import { ThemeService } from '@services/shared/theme.service';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
 
 import { Perm } from '@src/app/core/_constants/userpermissions.config';
 import { PageTitle } from '@src/app/core/_decorators/autotitle';
@@ -19,8 +20,6 @@ import { ResponseWrapper } from '@src/app/core/_models/response.model';
 import { SERV } from '@src/app/core/_services/main.config';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
-import { LocalStorageService } from '@src/app/core/_services/storage/local-storage.service';
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { unixTimestampInPast } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -34,14 +33,12 @@ import { unixTimestampInPast } from '@src/app/shared/utils/datetime';
 export class HomeComponent implements OnInit, OnDestroy {
   private gs = inject(GlobalService);
   protected autoRefreshService = inject(AutoRefreshService);
-  private service = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private permissionService = inject(PermissionService);
   private themeService = inject(ThemeService);
 
   /**
    * Utility class for UI settings retrieval and updates.
    */
-  util: UISettingsUtilityClass;
 
   /** Whether dark mode is enabled */
   isDarkMode = false;
@@ -84,14 +81,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   );
 
   private destroyRef = inject(DestroyRef);
-  private uiSettings: UISettingsUtilityClass;
+  private uiSettings = inject(UiSettingsService);
   private pageReloadTimeout: NodeJS.Timeout;
 
   /** Auto-refresh subscription */
   private autoRefreshSubscription?: Subscription | undefined;
 
   constructor() {
-    this.uiSettings = new UISettingsUtilityClass(this.service);
     this.currentTheme = this.uiSettings.getSetting('theme') ?? BuiltInTheme.LIGHT;
     this.isDarkMode = this.themeService.isDark(this.currentTheme);
   }

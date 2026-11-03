@@ -8,7 +8,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
 import { BaseModel, DynamicModel } from '@models/base.model';
-import { DEFAULT_PAGE_SIZE, TableSortDirection, UIConfig } from '@models/config-ui.model';
+import { DEFAULT_PAGE_SIZE, TableSortDirection } from '@models/config-ui.model';
 import { Filter } from '@models/request-params.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -18,11 +18,9 @@ import { PermissionService } from '@services/permission/permission.service';
 import { HttpCacheService } from '@services/shared/http-cache.service';
 import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
 import { UIConfigService } from '@services/shared/storage.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { HTTableColumn, SortingColumn } from '@components/tables/ht-table/ht-table.models';
 
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { environment } from '@src/environments/environment';
 
 /**
@@ -98,7 +96,6 @@ export abstract class BaseDataSource<
   protected service: GlobalService;
   protected uiService: UIConfigService;
   protected permissionService: PermissionService;
-  public util: UISettingsUtilityClass;
   autoRefreshService: AutoRefreshService;
   private cacheService: HttpCacheService;
   private autoRefreshSubscription: Subscription;
@@ -115,10 +112,6 @@ export abstract class BaseDataSource<
     this.serializer = injector.get(JsonAPISerializer);
     this.autoRefreshService = injector.get(AutoRefreshService);
     this.cacheService = injector.get(HttpCacheService);
-
-    // Create util manually instead of injector.get
-    const localStorageService = injector.get(LocalStorageService<UIConfig>);
-    this.util = new UISettingsUtilityClass(localStorageService);
   }
 
   /**

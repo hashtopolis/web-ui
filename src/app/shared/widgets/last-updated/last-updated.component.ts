@@ -12,11 +12,8 @@ import {
 } from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
-import { UIConfig } from '@models/config-ui.model';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
 
-import { LocalStorageService } from '@services/storage/local-storage.service';
-
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { TimePrecision, formatDate } from '@src/app/shared/utils/datetime';
 
 /**
@@ -44,14 +41,7 @@ import { TimePrecision, formatDate } from '@src/app/shared/utils/datetime';
   templateUrl: './last-updated.component.html',
   styleUrls: ['./last-updated.component.scss'],
   host: { class: 'text-xs text-muted-foreground' },
-  imports: [MatProgressSpinner],
-  providers: [
-    {
-      provide: UISettingsUtilityClass,
-      useFactory: (storage: LocalStorageService<UIConfig>) => new UISettingsUtilityClass(storage),
-      deps: [LocalStorageService]
-    }
-  ]
+  imports: [MatProgressSpinner]
 })
 export class LastUpdatedComponent implements OnInit, OnDestroy, OnChanges {
   /** The actual last time data was loaded */
@@ -69,7 +59,7 @@ export class LastUpdatedComponent implements OnInit, OnDestroy, OnChanges {
   /** Subscription for interval timer */
   private timerSubscription?: Subscription;
 
-  private util = inject(UISettingsUtilityClass);
+  private util = inject(UiSettingsService);
   private cd = inject(ChangeDetectorRef);
 
   /** Returns the formatted last updated time according to UI settings */

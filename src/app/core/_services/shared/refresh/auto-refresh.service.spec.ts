@@ -1,11 +1,13 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 
+import { uiConfigDefault } from '@models/config-ui.model';
+
 import { AlertService } from '@services/shared/alert.service';
 import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 const mockLocalStorageService = {
-  getItem: jasmine.createSpy('getItem'),
+  getItem: jasmine.createSpy('getItem').and.callFake(() => structuredClone(uiConfigDefault)),
   setItem: jasmine.createSpy('setItem')
 };
 

@@ -4,7 +4,6 @@ import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 
-import { UIConfig } from '@models/config-ui.model';
 import { JHealthCheck } from '@models/health-check.model';
 import { ResponseWrapper } from '@models/response.model';
 import { zIdRouteParams } from '@models/routes.schema';
@@ -13,9 +12,8 @@ import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
 
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { TimePrecision, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 @Component({
@@ -30,7 +28,7 @@ export class ViewHealthChecksComponent implements OnInit {
   public healthc: JHealthCheck;
 
   //Date format
-  protected uiSettings: UISettingsUtilityClass;
+  protected uiSettings = inject(UiSettingsService);
   formatUnixTimestamp = formatUnixTimestamp;
   protected dateTimeFormat: string;
 
@@ -40,7 +38,6 @@ export class ViewHealthChecksComponent implements OnInit {
    * @param {ActivatedRoute} route - The activated route.
    * @param {GlobalService} gs - The global service.
    */
-  protected settingsService = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private destroyRef = inject(DestroyRef);
   private titleService = inject(AutoTitleService);
   private route = inject(ActivatedRoute);
@@ -56,7 +53,6 @@ export class ViewHealthChecksComponent implements OnInit {
    */
   onInitialize(): void {
     this.viewedHealthCIndex = zIdRouteParams.parse(this.route.snapshot.params).id;
-    this.uiSettings = new UISettingsUtilityClass(this.settingsService);
     this.dateTimeFormat = this.uiSettings.getDateTimeFormat(TimePrecision.SECONDS);
   }
 
