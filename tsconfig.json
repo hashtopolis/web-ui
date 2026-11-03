@@ -37,7 +37,6 @@
   "include": ["src/**/*.ts"],
   "exclude": ["src/assets/optparse/**/*.js"],
   "angularCompilerOptions": {
-    "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
