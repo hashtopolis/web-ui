@@ -111,7 +111,7 @@ export class NewHealthChecksComponent implements OnInit {
    * @param {string} id - The ID of the selected cracker binary type.
    * @returns {void}
    */
-  handleChangeBinary(id: string) {
+  handleChangeBinary(id: string): void {
     const filter = new Array<Filter>({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id });
     const params = { filter: filter };
     this.gs
@@ -130,7 +130,7 @@ export class NewHealthChecksComponent implements OnInit {
    *
    * @returns {void}
    */
-  onSubmit() {
+  onSubmit(): void {
     if (this.form.valid) {
       this.isCreatingLoading = true;
       const { checkType, hashtypeId, crackerBinaryId } = this.form.value;
@@ -146,7 +146,7 @@ export class NewHealthChecksComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.alert.showSuccessMessage('New Health Check created');
-          this.router.navigate(['/config/health-checks']);
+          void this.router.navigate(['/config/health-checks']);
           this.isCreatingLoading = false;
         });
     } else {
