@@ -7,7 +7,6 @@ import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.servic
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 
 import { JUser } from '@models/user.model';
 
@@ -81,7 +80,6 @@ export class AccountSettingsComponent implements OnInit {
   private datePipe = inject(uiDatePipe);
   private alert = inject(AlertService);
   private gs = inject(GlobalService);
-  private router = inject(Router);
 
   constructor() {
     this.titleService.set(['Account Settings']);

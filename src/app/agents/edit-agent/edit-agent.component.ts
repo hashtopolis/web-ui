@@ -23,7 +23,6 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { AgentRoleService } from '@services/roles/agents/agent-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UIConfigService } from '@services/shared/storage.service';
 
 import {
   EditAgentForm,
@@ -83,7 +82,6 @@ export class EditAgentComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
   private titleService = inject(AutoTitleService);
-  private uiService = inject(UIConfigService);
   private route = inject(ActivatedRoute);
   private alert = inject(AlertService);
   private gs = inject(GlobalService);

@@ -40,7 +40,6 @@ export class SuperHashlistsTableComponent extends BaseTableComponent implements 
     this.tableColumns = this.getColumns();
     this.dataSource = new SuperHashlistsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
-    this.dataSource.setIsArchived(this.isArchived);
     this.contextMenuService = new SuperHashListContextMenuService(this.permissionService).addContextMenu();
     // Setup filter error handling
     this.setupFilterErrorSubscription(this.dataSource);

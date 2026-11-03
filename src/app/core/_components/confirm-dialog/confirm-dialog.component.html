@@ -8,6 +8,8 @@
   <p>{{ data.message }}</p>
 </mat-dialog-content>
 <mat-dialog-actions align="end" class="dialog-actions--danger">
-  <button-submit type="cancel-dialog" [name]="data.cancelText || 'Cancel'" (click)="onCancel()"></button-submit>
-  <button-submit type="submit" [name]="data.confirmText || 'OK'" (click)="onConfirm()"></button-submit>
+  <button matButton="outlined" class="btn-submit" [mat-dialog-close]="false">{{ data.cancelText || 'Cancel' }}</button>
+  <button matButton="filled" class="btn-submit btn-submit--primary" [mat-dialog-close]="true">
+    {{ data.confirmText || 'OK' }}
+  </button>
 </mat-dialog-actions>

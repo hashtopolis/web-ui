@@ -1,4 +1,3 @@
-import { DateFormat } from '@constants/settings.config';
 import { fromEvent } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
@@ -108,10 +107,6 @@ export class UiSettingsService {
     }
     console.error(`Unexpected table configuration for key: ${key}`);
     return [];
-  }
-
-  getDateFormat(): DateFormat {
-    return this.state().dateFmt;
   }
 
   getTimeFormat(precision: TimePrecision): string {

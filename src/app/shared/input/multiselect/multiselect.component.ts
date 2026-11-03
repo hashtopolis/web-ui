@@ -78,9 +78,6 @@ export class InputMultiSelectComponent
   // Visual chips
   selectedItems: SelectOption<number>[] = [];
 
-  // Validation model (dummy, never displayed)
-  chipGridValidation: SelectOption<number>[] = [];
-
   readonly separatorKeysCodes: number[] = [COMMA, ENTER]; // ENTER and COMMA key codes
 
   private sanitizer = inject(DomSanitizer);
@@ -157,9 +154,6 @@ export class InputMultiSelectComponent
         this.selectedItems = [item];
       }
 
-      // Update validation array
-      this.chipGridValidation = [...this.selectedItems];
-
       this.updateAvailableItems();
       this.itemsSubject.next(this.availableItems);
 
@@ -177,7 +171,6 @@ export class InputMultiSelectComponent
     if (nextSelectedItems.length === this.selectedItems.length) return;
 
     this.selectedItems = nextSelectedItems;
-    this.chipGridValidation = [...this.selectedItems];
 
     this.updateAvailableItems();
     this.searchInputSubject.next(this.searchTerm);
@@ -372,7 +365,6 @@ export class InputMultiSelectComponent
     // Reset visual selection to reflect external form writes (e.g., reset())
     if (!newValue || (Array.isArray(newValue) && newValue.length === 0)) {
       this.selectedItems = [];
-      this.chipGridValidation = [];
       // Restore available items from the latest input set
       this.availableItems = [...this._items];
       this.itemsSubject.next(this.availableItems);
@@ -386,7 +378,6 @@ export class InputMultiSelectComponent
       this.selectedItems = ids
         .map((id) => this._items.find((item) => Number(item.id) === Number(id)))
         .filter((item): item is SelectOption<number> => item !== undefined);
-      this.chipGridValidation = [...this.selectedItems];
 
       // Remove selected items from available
       const selectedIds = new Set(ids.map((id) => Number(id)));

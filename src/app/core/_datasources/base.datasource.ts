@@ -89,8 +89,6 @@ export abstract class BaseDataSource<
    */
   protected originalData: T[] = [];
 
-  private readonly chunkTime: number = 600;
-
   public autoRefreshEnabled = false;
   lastUpdated: Date;
 
@@ -114,11 +112,6 @@ export abstract class BaseDataSource<
     this.serializer = injector.get(JsonAPISerializer);
     this.autoRefreshService = injector.get(AutoRefreshService);
     this.cacheService = injector.get(HttpCacheService);
-
-    const chunktime = this.uiService.getUISettings()?.chunktime;
-    if (chunktime !== undefined) {
-      this.chunkTime = chunktime;
-    }
   }
 
   /**

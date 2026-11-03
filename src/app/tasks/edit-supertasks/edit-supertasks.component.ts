@@ -43,7 +43,6 @@ export class EditSupertasksComponent implements OnInit {
 
   /** Form group for the new Supertask. */
   updateForm: FormGroup;
-  etForm: FormGroup; //estimation time form
   viewForm: FormGroup; //Supertask details
 
   /** List of Preconfigured Tasks. */
@@ -113,12 +112,6 @@ export class EditSupertasksComponent implements OnInit {
     // Form add pretasks
     this.updateForm = new FormGroup({
       pretasks: new FormControl('')
-    });
-
-    // Form calculate benchmark
-    this.etForm = new FormGroup({
-      benchmarka0: new FormControl(0),
-      benchmarka3: new FormControl(0)
     });
   }
 

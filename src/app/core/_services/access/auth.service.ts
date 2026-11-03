@@ -12,7 +12,7 @@ import {
   take,
   throwError
 } from 'rxjs';
-import { catchError, distinctUntilChanged, finalize, map, shareReplay, tap } from 'rxjs/operators';
+import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { EventEmitter, Injectable, Injector, Output } from '@angular/core';
@@ -251,7 +251,6 @@ export class AuthService {
   }
 
   private _authUser$ = new BehaviorSubject<AuthUser | null>(null);
-  authUser$ = this._authUser$.asObservable();
 
   private decodeJwt<T = JwtPayload>(token: string): T | null {
     if (!token) return null;
@@ -316,11 +315,6 @@ export class AuthService {
     if (stored?._token) return this.getCanonicalUsernameFromJwt(stored._token);
     return null;
   }
-
-  canonicalUsername$ = this.authUser$.pipe(
-    map((u) => u?.canonicalUsername ?? this.canonicalUsername),
-    distinctUntilChanged()
-  );
 
   setUserLoggedIn(userLoggedIn: boolean) {
     this.userLoggedIn.next(userLoggedIn);

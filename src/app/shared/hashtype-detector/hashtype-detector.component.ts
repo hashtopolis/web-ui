@@ -1,8 +1,6 @@
 import { findHashType } from 'hashtype-detector/dist/lib/es6/index';
 
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { ApplicationRef, Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 
 interface HashTypeOption {
@@ -29,13 +27,7 @@ export class HashtypeDetectorComponent implements OnInit {
   displayedColumns: string[] = ['id', 'description', 'example'];
   dataSource: MatTableDataSource<HashTypeOption>;
 
-  public dialogRef = inject<MatDialogRef<HashtypeDetectorComponent>>(MatDialogRef);
   private appRef = inject(ApplicationRef);
-  private breakpointObserver = inject(BreakpointObserver);
-
-  onClose(): void {
-    this.dialogRef.close();
-  }
 
   onSearch(val: string): void {
     const result = findHashType(val);

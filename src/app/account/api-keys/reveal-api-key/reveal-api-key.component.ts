@@ -1,6 +1,6 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { AlertService } from '@services/shared/alert.service';
 
@@ -16,7 +16,6 @@ export interface RevealApiKeyDialogData {
 export class RevealApiKeyDialogComponent {
   private clipboard = inject(Clipboard);
   private alert = inject(AlertService);
-  private dialogRef = inject(MatDialogRef<RevealApiKeyDialogComponent>);
 
   readonly token: string = inject<RevealApiKeyDialogData>(MAT_DIALOG_DATA).token;
 
@@ -27,9 +26,5 @@ export class RevealApiKeyDialogComponent {
     } else {
       this.alert.showErrorMessage('Could not copy to clipboard. Please copy manually.');
     }
-  }
-
-  done(): void {
-    this.dialogRef.close();
   }
 }
