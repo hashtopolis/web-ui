@@ -1,6 +1,6 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { of } from 'rxjs';
-import type { MockedObject } from 'vitest';
+import type { Mock, MockedObject } from 'vitest';
 
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
@@ -14,8 +14,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 
+import { UiSettings } from '@models/config-ui.schema';
+
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { AlertService } from '@services/shared/alert.service';
+import { UIConfigService } from '@services/shared/storage.service';
 
 import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
 import { SERV } from '@src/app/core/_services/main.config';
@@ -29,6 +32,8 @@ describe('AccountSettingsComponent', () => {
   let fixture: ComponentFixture<AccountSettingsComponent>;
 
   let alertSpy: MockedObject<AlertService>;
+  let deserializeSpy: Mock;
+  let uiSettings: Partial<UiSettings>;
 
   const userResponse = {
     type: 'user',
@@ -40,7 +45,7 @@ describe('AccountSettingsComponent', () => {
       isComputedPassword: true,
       lastLoginDate: 1752647017,
       registeredSince: 1744086356,
-      sessionLifetime: 3600,
+      sessionLifetime: 3 * 3600,
       globalPermissionGroupId: 1
     }
   };
@@ -88,8 +93,9 @@ describe('AccountSettingsComponent', () => {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
     } as MockedObject<AlertService>;
+    uiSettings = { maxSessionLength: 48 };
 
-    vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockReturnValue(mockUser);
+    deserializeSpy = vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockReturnValue(mockUser);
 
     await TestBed.configureTestingModule({
       declarations: [AccountSettingsComponent],
@@ -116,6 +122,10 @@ describe('AccountSettingsComponent', () => {
           provide: AlertService,
           useValue: alertSpy
         },
+        {
+          provide: UIConfigService,
+          useValue: { getUISettings: () => uiSettings }
+        },
         provideHttpClient(withInterceptorsFromDi())
       ]
     }).compileComponents();
@@ -135,6 +145,44 @@ describe('AccountSettingsComponent', () => {
       // loadUserSettings() is called in ngOnInit, so the form should already be populated.
       expect(component.form.controls.name.value).toBe('admin');
       expect(component.form.controls.email.value).toBe('admin@localhost');
+    });
+
+    it('preselects the session lifetime of the user', () => {
+      expect(component.form.controls.sessionLifetime.value).toBe(3 * 3600);
+    });
+
+    it('offers the presets up to the maximum and the current session lifetime', () => {
+      const names = component.sessionLifetimeOptions.map((option) => option.name);
+
+      expect(names).toStrictEqual(['2 hours', '3 hours', '4 hours', '8 hours', '12 hours', '1 day', '2 days']);
+    });
+
+    it('shows the preselected session lifetime in the select', async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const select = fixture.debugElement.query(By.css('[data-testid="input-session-lifetime"] mat-select'));
+
+      expect(select.nativeElement.textContent).toContain('3 hours');
+    });
+
+    it('caps the offered session lifetimes at the maximum session length', () => {
+      uiSettings = { maxSessionLength: 6 };
+      deserializeSpy.mockReturnValue({ ...mockUser, sessionLifetime: 24 * 3600 });
+
+      component['loadUserSettings']();
+
+      const names = component.sessionLifetimeOptions.map((option) => option.name);
+      expect(names).toStrictEqual(['2 hours', '4 hours', '6 hours']);
+    });
+
+    it('preselects the maximum when the stored session lifetime exceeds it', () => {
+      uiSettings = { maxSessionLength: 6 };
+      deserializeSpy.mockReturnValue({ ...mockUser, sessionLifetime: 24 * 3600 });
+
+      component['loadUserSettings']();
+
+      expect(component.form.controls.sessionLifetime.value).toBe(6 * 3600);
     });
 
     it('populates registeredSince as a formatted date', () => {
@@ -197,13 +245,33 @@ describe('AccountSettingsComponent', () => {
       btnDebugEl.nativeElement.click();
       fixture.detectChanges();
 
-      expect(component['gs'].uhelper).toHaveBeenCalledWith(
+      expect(component['gs'].uhelper).toHaveBeenCalledExactlyOnceWith(
         SERV.HELPER,
         Number(component['gs'].userId),
         'currentUser',
-        component.form.value
+        { email: 'test@example.com', sessionLifetime: 3 * 3600 }
       );
       expect(component['alert'].showSuccessMessage).toHaveBeenCalled();
+    });
+
+    it('requires a session lifetime', () => {
+      component.form.controls.sessionLifetime.patchValue(null);
+
+      expect(component.form.controls.sessionLifetime.hasError('required')).toBe(true);
+    });
+
+    it('submits the chosen session lifetime', () => {
+      const uhelperSpy = vi.spyOn(component['gs'], 'uhelper').mockReturnValue(of({}));
+      component.form.patchValue({ email: 'test@example.com', sessionLifetime: 8 * 3600 });
+
+      component.onSubmit();
+
+      expect(uhelperSpy).toHaveBeenCalledExactlyOnceWith(
+        SERV.HELPER,
+        Number(component['gs'].userId),
+        'currentUser',
+        expect.objectContaining({ sessionLifetime: 8 * 3600 })
+      );
     });
 
     it('does not submit form with invalid email', () => {
