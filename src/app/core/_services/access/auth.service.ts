@@ -51,9 +51,10 @@ export class AuthService {
 
   /**
    * How long before the access token expires the session is renewed. Wide enough to absorb a slow
-   * request and modest clock skew, short enough that a renewal is rare.
+   * request and modest clock skew, as at the shortest session length the refresh token expires
+   * together with the access token; short enough that a renewal is rare.
    */
-  private static readonly REFRESH_LEAD_TIME_MS = 60_000;
+  private static readonly REFRESH_LEAD_TIME_MS = 5 * 60_000;
 
   /** Name of the Web Lock that keeps two tabs from renewing the same single-use cookie at once. */
   private static readonly REFRESH_LOCK = 'hashtopolis-refresh-token';
