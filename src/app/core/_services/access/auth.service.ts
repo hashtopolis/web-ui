@@ -4,7 +4,6 @@ import {
   BehaviorSubject,
   Observable,
   ReplaySubject,
-  Subject,
   firstValueFrom,
   from,
   of,
@@ -47,7 +46,6 @@ export class AuthService {
   private logged = new ReplaySubject<boolean>(1);
   isLogged = this.logged.asObservable();
   redirectUrl = '';
-  private userLoggedIn = new Subject<boolean>();
   private refreshTimer: ReturnType<typeof setTimeout> | null = null;
   private endpoint = '/auth';
 
@@ -74,7 +72,6 @@ export class AuthService {
     private storage: LocalStorageService<AuthData>,
     private injector: Injector // Use injector to delay injection of PermissionService to avoid circular dependency
   ) {
-    this.userLoggedIn.next(false);
     if (this.logged) {
       this.userId = this.getUserId(this.token);
     }
@@ -314,14 +311,6 @@ export class AuthService {
     const stored: AuthData | null = this.storage.getItem(AuthService.STORAGE_KEY);
     if (stored?._token) return this.getCanonicalUsernameFromJwt(stored._token);
     return null;
-  }
-
-  setUserLoggedIn(userLoggedIn: boolean) {
-    this.userLoggedIn.next(userLoggedIn);
-  }
-
-  getUserLoggedIn(): Observable<boolean> {
-    return this.userLoggedIn.asObservable();
   }
 
   /**
