@@ -1,5 +1,5 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import type { Mock, MockedObject } from 'vitest';
 
 import { CommonModule } from '@angular/common';
@@ -14,8 +14,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 
+import { AuthData } from '@models/auth-user.model';
 import { UiSettings } from '@models/config-ui.schema';
 
+import { AuthService } from '@services/access/auth.service';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { AlertService } from '@services/shared/alert.service';
 import { UIConfigService } from '@services/shared/storage.service';
@@ -32,6 +34,7 @@ describe('AccountSettingsComponent', () => {
   let fixture: ComponentFixture<AccountSettingsComponent>;
 
   let alertSpy: MockedObject<AlertService>;
+  let authSpy: MockedObject<AuthService>;
   let deserializeSpy: Mock;
   let uiSettings: Partial<UiSettings>;
 
@@ -91,9 +94,16 @@ describe('AccountSettingsComponent', () => {
   beforeEach(async () => {
     alertSpy = {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
-      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage'),
+      showInfoMessage: vi.fn().mockName('AlertService.showInfoMessage')
     } as MockedObject<AlertService>;
     uiSettings = { maxSessionLength: 48 };
+
+    authSpy = {
+      refreshToken: vi.fn().mockName('AuthService.refreshToken'),
+      logOut: vi.fn().mockName('AuthService.logOut')
+    } as MockedObject<AuthService>;
+    authSpy.refreshToken.mockReturnValue(of({} as AuthData));
 
     deserializeSpy = vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockReturnValue(mockUser);
 
@@ -121,6 +131,10 @@ describe('AccountSettingsComponent', () => {
         {
           provide: AlertService,
           useValue: alertSpy
+        },
+        {
+          provide: AuthService,
+          useValue: authSpy
         },
         {
           provide: UIConfigService,
@@ -272,6 +286,36 @@ describe('AccountSettingsComponent', () => {
         'currentUser',
         expect.objectContaining({ sessionLifetime: 8 * 3600 })
       );
+    });
+
+    it('renews the session once the session lifetime changed', () => {
+      vi.spyOn(component['gs'], 'uhelper').mockReturnValue(of({}));
+      component.form.patchValue({ email: 'test@example.com', sessionLifetime: 8 * 3600 });
+
+      component.onSubmit();
+      component.onSubmit();
+
+      expect(authSpy.refreshToken).toHaveBeenCalledExactlyOnceWith({ force: true });
+    });
+
+    it('does not renew the session when the session lifetime is unchanged', () => {
+      vi.spyOn(component['gs'], 'uhelper').mockReturnValue(of({}));
+      component.form.patchValue({ email: 'changed@example.com' });
+
+      component.onSubmit();
+
+      expect(authSpy.refreshToken).not.toHaveBeenCalled();
+    });
+
+    it('tells the user and logs out when renewing the session fails', () => {
+      vi.spyOn(component['gs'], 'uhelper').mockReturnValue(of({}));
+      authSpy.refreshToken.mockReturnValue(throwError(() => new Error('Refresh token has expired')));
+      component.form.patchValue({ email: 'test@example.com', sessionLifetime: 8 * 3600 });
+
+      component.onSubmit();
+
+      expect(alertSpy.showInfoMessage).toHaveBeenCalledExactlyOnceWith('Session expired, please log in again.');
+      expect(authSpy.logOut).toHaveBeenCalledExactlyOnceWith();
     });
 
     it('does not submit form with invalid email', () => {

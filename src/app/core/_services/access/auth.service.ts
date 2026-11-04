@@ -321,21 +321,32 @@ export class AuthService {
    * attaches it and the backend answers with a rotated one. Calls share a single request, because
    * rotation makes each one consume the cookie it was sent with.
    *
+   * @param options.force - Renews even when another tab already did, e.g. so that a changed session
+   *   lifetime reaches the refresh token right away.
    * @returns The refreshed session data.
    */
-  refreshToken(): Observable<AuthData> {
-    if (this.refreshInFlight$) {
+  refreshToken(options: { force?: boolean } = {}): Observable<AuthData> {
+    const force = options.force ?? false;
+
+    if (this.refreshInFlight$ && !force) {
       return this.refreshInFlight$;
     }
 
-    this.refreshInFlight$ = from(this.refreshExclusively()).pipe(
+    // A forced renewal waits for one already under way, so the two never send the same cookie
+    const pending$: Observable<AuthData | null> = this.refreshInFlight$ ?? of(null);
+    const renewal$: Observable<AuthData> = pending$.pipe(
+      catchError(() => of(null)),
+      switchMap(() => from(this.refreshExclusively(force))),
       finalize(() => {
-        this.refreshInFlight$ = null;
+        if (this.refreshInFlight$ === renewal$) {
+          this.refreshInFlight$ = null;
+        }
       }),
       shareReplay({ bufferSize: 1, refCount: false })
     );
+    this.refreshInFlight$ = renewal$;
 
-    return this.refreshInFlight$;
+    return renewal$;
   }
 
   /**
@@ -347,9 +358,10 @@ export class AuthService {
    * service over one shared cookie, so without a lock two tabs renewing at the same moment would log
    * the user out of both.
    *
+   * @param force - Renews even when another tab already did.
    * @returns The refreshed session data.
    */
-  private async refreshExclusively(): Promise<AuthData> {
+  private async refreshExclusively(force: boolean): Promise<AuthData> {
     // Web Locks needs a secure context; where it is missing, fall back to renewing unsynchronised
     if (!navigator.locks) {
       return firstValueFrom(this.requestRefresh());
@@ -360,7 +372,7 @@ export class AuthService {
 
       /* A tab that held the lock first has already renewed and written the result to local storage,
          which every tab shares. Adopt that rather than spending the replacement cookie again. */
-      if (stored?._token && !this.isAccessTokenExpiring()) {
+      if (!force && stored?._token && !this.isAccessTokenExpiring()) {
         const expires = stored._expires instanceof Date ? stored._expires : new Date(stored._expires);
         return this.storeSession(stored._token, expires, stored.userId, stored.canonicalUsername);
       }
