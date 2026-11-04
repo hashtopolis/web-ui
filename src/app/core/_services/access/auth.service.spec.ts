@@ -381,6 +381,10 @@ describe('AuthService refresh token', () => {
     expect(service.isAccessTokenExpired()).toBe(false);
     expect(service.isAccessTokenExpiring()).toBe(true);
 
+    storage._store[AuthService.STORAGE_KEY] = storedSession(4 * 60_000);
+    expect(service.isAccessTokenExpired()).toBe(false);
+    expect(service.isAccessTokenExpiring()).toBe(true);
+
     storage._store[AuthService.STORAGE_KEY] = storedSession(3_600_000);
     expect(service.isAccessTokenExpired()).toBe(false);
     expect(service.isAccessTokenExpiring()).toBe(false);
