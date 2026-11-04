@@ -1,3 +1,8 @@
+import {
+  SESSION_LENGTH_FALLBACK_HOURS,
+  SESSION_LIFETIME_MIN_SECONDS,
+  SESSION_LIFETIME_PRESET_HOURS
+} from '@constants/session.config';
 import { map } from 'rxjs/operators';
 import { uiDatePipe } from 'src/app/core/_pipes/date.pipe';
 import { GlobalService } from 'src/app/core/_services/main.service';
@@ -10,11 +15,14 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { JUser } from '@models/user.model';
 
+import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
+import { UIConfigService } from '@services/shared/storage.service';
 
-import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { emailValidator } from '@src/app/core/_validators/email.validator';
 import { passwordMatchValidator } from '@src/app/core/_validators/password.validator';
+import { formatSessionLifetime } from '@src/app/shared/utils/datetime';
+import { SelectOption } from '@src/app/shared/utils/forms';
 import { zChangeOwnPasswordHelperApiResponse, zCurrentUserHelperApiResponse } from '@src/generated/api/zod';
 
 export interface UpdateUserPassword {
@@ -27,6 +35,7 @@ export interface AccSettingsForm {
   name: FormControl<string | null>;
   registeredSince: FormControl<string | null>;
   email: FormControl<string | null>;
+  sessionLifetime: FormControl<number | null>;
 }
 
 export interface AccChangePasswordForm {
@@ -44,6 +53,9 @@ export class AccountSettingsComponent implements OnInit {
   static readonly PWD_MIN = 4;
 
   pwdMin = AccountSettingsComponent.PWD_MIN;
+
+  /** Session lifetimes the user may choose from, in seconds. */
+  sessionLifetimeOptions: SelectOption<number>[] = [];
 
   pageTitle = 'Account Settings';
   pageSubtitlePassword = 'Password Update';
@@ -80,6 +92,7 @@ export class AccountSettingsComponent implements OnInit {
   private datePipe = inject(uiDatePipe);
   private alert = inject(AlertService);
   private gs = inject(GlobalService);
+  private uicService = inject(UIConfigService);
 
   constructor() {
     this.titleService.set(['Account Settings']);
@@ -100,11 +113,54 @@ export class AccountSettingsComponent implements OnInit {
    * Creates and configures basic controls
    */
   createForm(): void {
+    this.buildSessionLifetimeOptions(null);
     this.form = new FormGroup<AccSettingsForm>({
       name: new FormControl({ value: '', disabled: true }), // disabled, no validators needed
       registeredSince: new FormControl({ value: '', disabled: true }), // disabled, no validators needed
-      email: new FormControl('', [Validators.required, emailValidator])
+      email: new FormControl('', [Validators.required, emailValidator]),
+      sessionLifetime: new FormControl<number | null>(null, Validators.required)
     });
+  }
+
+  /**
+   * Offers the presets up to the maximum session lifetime, the maximum itself and the current
+   * session lifetime of the user.
+   *
+   * @param current - The current session lifetime of the user in seconds, if known.
+   */
+  private buildSessionLifetimeOptions(current: number | null): void {
+    const max = this.maxSessionLifetime();
+    const seconds = SESSION_LIFETIME_PRESET_HOURS.map((hours) => hours * 3600).filter((value) => value <= max);
+    seconds.push(max);
+
+    if (current !== null) {
+      seconds.push(current);
+    }
+
+    this.sessionLifetimeOptions = [...new Set(seconds)]
+      .sort((a, b) => a - b)
+      .map((value) => ({ id: value, name: formatSessionLifetime(value) }));
+  }
+
+  /**
+   * Longest session lifetime in seconds the server accepts, taken from the maxSessionLength setting.
+   */
+  private maxSessionLifetime(): number {
+    let hours = Math.trunc(this.uicService.getUISettings()?.maxSessionLength ?? 0);
+    if (hours < 1) {
+      hours = SESSION_LENGTH_FALLBACK_HOURS;
+    }
+
+    return Math.max(hours * 3600, SESSION_LIFETIME_MIN_SECONDS);
+  }
+
+  /**
+   * Bounds a session lifetime the way the server does when it issues a refresh token.
+   *
+   * @param seconds - A session lifetime in seconds.
+   */
+  private clampSessionLifetime(seconds: number): number {
+    return Math.min(Math.max(seconds, SESSION_LIFETIME_MIN_SECONDS), this.maxSessionLifetime());
   }
 
   createUpdatePassForm() {
@@ -147,8 +203,12 @@ export class AccountSettingsComponent implements OnInit {
   onSubmit() {
     if (this.form.valid) {
       this.isUpdatingLoading = true;
+      const payload = {
+        email: this.form.controls.email.value,
+        sessionLifetime: this.form.controls.sessionLifetime.value
+      };
       this.gs
-        .uhelper(SERV.HELPER, this.gs.userId!, 'currentUser', this.form.value)
+        .uhelper(SERV.HELPER, this.gs.userId!, 'currentUser', payload)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
@@ -221,11 +281,14 @@ export class AccountSettingsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((response) => {
         const user: JUser = new JsonAPISerializer().deserialize(response, zCurrentUserHelperApiResponse);
+        const sessionLifetime = user.sessionLifetime ? this.clampSessionLifetime(user.sessionLifetime) : null;
+        this.buildSessionLifetimeOptions(sessionLifetime);
 
         this.form.patchValue({
           name: user.name,
           registeredSince: this.datePipe.transform(user.registeredSince),
-          email: user.email ?? null
+          email: user.email ?? null,
+          sessionLifetime
         });
       });
   }
