@@ -1,5 +1,5 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { ComponentsModule } from 'src/app/shared/components.module';
@@ -18,8 +18,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
+import { AuthData } from '@models/auth-user.model';
 import { UiSettings } from '@models/config-ui.schema';
 
+import { AuthService } from '@services/access/auth.service';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { AlertService } from '@services/shared/alert.service';
 import { UIConfigService } from '@services/shared/storage.service';
@@ -32,6 +34,7 @@ describe('AccountSettingsComponent', () => {
   let fixture: ComponentFixture<AccountSettingsComponent>;
 
   let alertSpy: jasmine.SpyObj<AlertService>;
+  let authSpy: jasmine.SpyObj<AuthService>;
   let uiSettings: Partial<UiSettings>;
 
   const userResponse = {
@@ -88,8 +91,10 @@ describe('AccountSettingsComponent', () => {
   };
 
   beforeEach(async () => {
-    alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+    alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage', 'showInfoMessage']);
     uiSettings = { maxSessionLength: 48 };
+    authSpy = jasmine.createSpyObj<AuthService>('AuthService', ['refreshToken', 'logOut']);
+    authSpy.refreshToken.and.returnValue(of({} as AuthData));
 
     spyOn(JsonAPISerializer.prototype, 'deserialize').and.returnValue(mockUser);
 
@@ -118,6 +123,10 @@ describe('AccountSettingsComponent', () => {
         {
           provide: AlertService,
           useValue: alertSpy
+        },
+        {
+          provide: AuthService,
+          useValue: authSpy
         },
         {
           provide: UIConfigService,
@@ -269,6 +278,36 @@ describe('AccountSettingsComponent', () => {
 
       const payload = uhelperSpy.calls.mostRecent().args[3];
       expect(payload['sessionLifetime']).toBe(8 * 3600);
+    });
+
+    it('renews the session once the session lifetime changed', () => {
+      spyOn(component['gs'], 'uhelper').and.returnValue(of({}));
+      component.form.patchValue({ email: 'test@example.com', sessionLifetime: 8 * 3600 });
+
+      component.onSubmit();
+      component.onSubmit();
+
+      expect(authSpy.refreshToken).toHaveBeenCalledOnceWith({ force: true });
+    });
+
+    it('does not renew the session when the session lifetime is unchanged', () => {
+      spyOn(component['gs'], 'uhelper').and.returnValue(of({}));
+      component.form.patchValue({ email: 'changed@example.com' });
+
+      component.onSubmit();
+
+      expect(authSpy.refreshToken).not.toHaveBeenCalled();
+    });
+
+    it('tells the user and logs out when renewing the session fails', () => {
+      spyOn(component['gs'], 'uhelper').and.returnValue(of({}));
+      authSpy.refreshToken.and.returnValue(throwError(() => new Error('Refresh token has expired')));
+      component.form.patchValue({ email: 'test@example.com', sessionLifetime: 8 * 3600 });
+
+      component.onSubmit();
+
+      expect(alertSpy.showInfoMessage).toHaveBeenCalledWith('Session expired, please log in again.');
+      expect(authSpy.logOut).toHaveBeenCalled();
     });
 
     it('does not submit form with invalid email', () => {

@@ -15,6 +15,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { JUser } from '@models/user.model';
 
+import { AuthService } from '@services/access/auth.service';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { UIConfigService } from '@services/shared/storage.service';
@@ -57,6 +58,9 @@ export class AccountSettingsComponent implements OnInit {
   /** Session lifetimes the user may choose from, in seconds. */
   sessionLifetimeOptions: SelectOption<number>[] = [];
 
+  /** Session lifetime in effect on the server, in seconds, to tell whether a save changes it. */
+  private savedSessionLifetime: number | null = null;
+
   pageTitle = 'Account Settings';
   pageSubtitlePassword = 'Password Update';
 
@@ -93,6 +97,7 @@ export class AccountSettingsComponent implements OnInit {
   private alert = inject(AlertService);
   private gs = inject(GlobalService);
   private uicService = inject(UIConfigService);
+  private authService = inject(AuthService);
 
   constructor() {
     this.titleService.set(['Account Settings']);
@@ -214,6 +219,11 @@ export class AccountSettingsComponent implements OnInit {
           next: () => {
             this.alert.showSuccessMessage('User saved');
             this.isUpdatingLoading = false;
+
+            if (payload.sessionLifetime !== this.savedSessionLifetime) {
+              this.savedSessionLifetime = payload.sessionLifetime;
+              this.renewSession();
+            }
           },
           error: (err) => {
             console.error('Error updating user', err);
@@ -224,6 +234,19 @@ export class AccountSettingsComponent implements OnInit {
       this.form.markAllAsTouched();
       this.form.updateValueAndValidity();
     }
+  }
+
+  /**
+   * Renews the session, so its refresh token takes on the session lifetime just saved instead of
+   * keeping the one it was issued with. A failed renewal means the session has ended already.
+   */
+  private renewSession(): void {
+    this.authService.refreshToken({ force: true }).subscribe({
+      error: () => {
+        this.alert.showInfoMessage('Session expired, please log in again.');
+        this.authService.logOut();
+      }
+    });
   }
 
   /**
@@ -282,6 +305,7 @@ export class AccountSettingsComponent implements OnInit {
       .subscribe((response) => {
         const user: JUser = new JsonAPISerializer().deserialize(response, zCurrentUserHelperApiResponse);
         const sessionLifetime = user.sessionLifetime ? this.clampSessionLifetime(user.sessionLifetime) : null;
+        this.savedSessionLifetime = sessionLifetime;
         this.buildSessionLifetimeOptions(sessionLifetime);
 
         this.form.patchValue({
