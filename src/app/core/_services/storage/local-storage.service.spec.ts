@@ -2,10 +2,6 @@ import { z } from 'zod';
 
 import { TestBed } from '@angular/core/testing';
 
-// Side-effect: replaces window.localStorage with the typed wrapper so setItem/getItem
-// work correctly in tests (same as the import in main.ts).
-import '@services/storage/local-storage';
-
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 describe('LocalStorageService', () => {

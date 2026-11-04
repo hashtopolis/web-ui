@@ -6,6 +6,13 @@ import { runInThisContext } from 'node:vm';
 
 import { TestBed } from '@angular/core/testing';
 
+// Replace window.localStorage and window.sessionStorage with the typed wrapper and load its global
+// Storage type augmentation, as main.ts does for the app. Without this, both only took effect when an
+// included spec happened to import them (e.g. through AppComponent), so a single-spec run failed to
+// compile and ran against jsdom's native storage.
+import '@services/storage/local-storage';
+import '@services/storage/session-storage';
+
 // The jsdom run does not load the global `scripts` from angular.json, but the keyspace calculation
 // relies on the globals they declare (`parser`, `options`, `defaultOptions`). Run them as classic
 // scripts, in the angular.json order, so their top-level bindings become globals. The tests share

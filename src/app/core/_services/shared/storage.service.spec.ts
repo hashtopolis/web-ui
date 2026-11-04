@@ -2,9 +2,6 @@ import { of } from 'rxjs';
 
 import { TestBed } from '@angular/core/testing';
 
-// Side-effect import: ensures window.localStorage is our typed wrapper.
-import '@services/storage/local-storage';
-
 import { UiSettings, uisSettingsSchema } from '@models/config-ui.schema';
 
 import { GlobalService } from '@services/main.service';
