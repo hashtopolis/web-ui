@@ -501,7 +501,7 @@ export type GetConfigsData = {
      */
     'page[before]'?: string;
     /**
-     * Amout of data to retrieve inside a single page
+     * Amount of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**

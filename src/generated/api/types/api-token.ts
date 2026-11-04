@@ -5,7 +5,7 @@ export type ApiTokenCreate = {
   data: {
     type: 'apiToken';
     attributes: {
-      scopes: Array<number>;
+      scopes: Array<string>;
       startValid: number;
       endValid: number;
       userId?: number | null;
@@ -304,7 +304,7 @@ export type GetApiTokensData = {
      */
     'page[before]'?: string;
     /**
-     * Amout of data to retrieve inside a single page
+     * Amount of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
