@@ -2,11 +2,6 @@ import { z } from 'zod';
 
 import { TestBed } from '@angular/core/testing';
 
-// Side-effect: replaces window.sessionStorage with the TypedStorage wrapper.
-// Must run before any test touches sessionStorage so that setItem/getItem
-// handle JSON serialisation automatically.
-import '@services/storage/session-storage';
-
 import { SessionStorageService } from '@services/storage/session-storage.service';
 
 describe('SessionStorageService', () => {
