@@ -1,11 +1,12 @@
+import { of } from 'rxjs';
+
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 import { MatTooltip, MatTooltipModule } from '@angular/material/tooltip';
+import { By } from '@angular/platform-browser';
 
 import { FooterComponent } from '@src/app/layout/footer/footer.component';
-import { of } from 'rxjs';
 
 interface GitVersion {
   shortSHA: string;
