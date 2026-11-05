@@ -1,11 +1,7 @@
 import { zConfigListResponse } from '@generated/api/zod';
-import { VouchersTableComponent } from 'src/app/core/_components/tables/vouchers-table/vouchers-table.component';
-import { GlobalService } from 'src/app/core/_services/main.service';
-import { AutoTitleService } from 'src/app/core/_services/shared/autotitle.service';
-import { ConfigService } from 'src/app/core/_services/shared/config.service';
 
 import { Clipboard } from '@angular/cdk/clipboard';
-import { Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -16,14 +12,19 @@ import { SERV } from '@services/main.config';
 import { AlertService } from '@services/shared/alert.service';
 
 import { VoucherForm } from '@src/app/agents/new-agent/new-agent.form';
+import { VouchersTableComponent } from '@src/app/core/_components/tables/vouchers-table/vouchers-table.component';
 import { FilterType } from '@src/app/core/_models/request-params.model';
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
+import { GlobalService } from '@src/app/core/_services/main.service';
 import { RequestParamBuilder } from '@src/app/core/_services/params/builder-implementation.service';
+import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
+import { ConfigService } from '@src/app/core/_services/shared/config.service';
 import { environment } from '@src/environments/environment';
 
 @Component({
   selector: 'app-new-agent',
   templateUrl: './new-agent.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class NewAgentComponent implements OnInit {

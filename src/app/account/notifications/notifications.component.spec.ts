@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
@@ -10,6 +10,7 @@ import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.servi
 @Component({
   selector: 'app-table',
   template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true
 })
 class MockTableComponent {}
@@ -19,6 +20,7 @@ class MockTableComponent {}
 @Component({
   selector: 'app-page',
   template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true
 })
 class MockPageComponent {
@@ -32,6 +34,7 @@ class MockPageComponent {
 @Component({
   selector: 'app-notifications-table',
   template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true
 })
 class MockNotificationsTableComponent {}

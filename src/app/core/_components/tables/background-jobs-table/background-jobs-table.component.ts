@@ -6,7 +6,7 @@ import {
 } from '@constants/background-jobs.config';
 import { catchError } from 'rxjs';
 
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JBackgroundJob } from '@models/background-job.model';
@@ -36,6 +36,7 @@ const RUNNING_NOT_DELETABLE = 'Running jobs cannot be deleted.';
 @Component({
   selector: 'background-jobs-table',
   templateUrl: './background-jobs-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class BackgroundJobsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit, OnDestroy {

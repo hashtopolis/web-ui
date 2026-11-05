@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { DynamicModel } from '@models/base.model';
@@ -29,6 +29,7 @@ import { CrackerHashtypesDataSource } from '@datasources/cracker-hashtypes.datas
 @Component({
   selector: 'app-cracker-hashtypes-table',
   templateUrl: './cracker-hashtypes-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class CrackerHashtypesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

@@ -1,7 +1,7 @@
 import { zCrackerBinaryRelationHashtypesGetResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
 
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { provideRouter } from '@angular/router';
@@ -18,7 +18,7 @@ import {
 import { CrackerHashtypesComponent } from '@src/app/config/engine/crackers/cracker-hashtypes/cracker-hashtypes.component';
 import { mockValidResponse } from '@src/app/testing/mock-response';
 
-@Component({ selector: 'app-cracker-hashtypes-table', template: '' })
+@Component({ selector: 'app-cracker-hashtypes-table', changeDetection: ChangeDetectionStrategy.Eager, template: '' })
 class StubCrackerHashtypesTableComponent {
   @Input() crackerBinaryId: number;
   @Input() editable = false;

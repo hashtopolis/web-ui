@@ -1,4 +1,4 @@
-import { CUSTOM_ELEMENTS_SCHEMA, Component } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
@@ -10,6 +10,7 @@ import { HashlistComponent } from '@src/app/hashlists/hashlist/hashlist.componen
 @Component({
   selector: 'app-hashlists-table',
   template: '<table></table>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 class MockHashlistsTableComponent {

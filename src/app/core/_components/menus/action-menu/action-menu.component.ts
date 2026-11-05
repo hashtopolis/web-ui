@@ -5,6 +5,7 @@ import { faBook, faSquarePlus } from '@fortawesome/free-solid-svg-icons';
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   EventEmitter,
@@ -30,6 +31,7 @@ import { ActionMenuEvent, ActionMenuItem } from '@components/menus/action-menu/a
   selector: 'action-menu',
   templateUrl: './action-menu.component.html',
   styleUrls: ['./action-menu.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 /**

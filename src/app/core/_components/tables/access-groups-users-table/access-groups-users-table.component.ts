@@ -1,7 +1,7 @@
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JAgent } from '@models/agent.model';
@@ -29,6 +29,7 @@ import { RelationshipType, SERV } from '@src/app/core/_services/main.config';
 @Component({
   selector: 'access-groups-users-table',
   templateUrl: './access-groups-users-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class AccessGroupsUserTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

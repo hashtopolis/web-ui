@@ -6,6 +6,7 @@
         <mat-checkbox
           class="editable-checkbox"
           [ngModel]="parseCheckboxValue(checkbox.value)"
+          [ngModelOptions]="{ standalone: true }"
           [indeterminate]="!!checkbox.indeterminate"
           (change)="onEditableInputSaved($event.checked)"
           [disabled]="!!checkbox.disabled"

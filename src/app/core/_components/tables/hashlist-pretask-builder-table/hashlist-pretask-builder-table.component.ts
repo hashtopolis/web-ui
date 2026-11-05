@@ -3,7 +3,18 @@ import { zCrackerBinaryListResponse } from '@generated/api/zod';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
-import { Component, DestroyRef, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  inject
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PageEvent } from '@angular/material/paginator';
 
@@ -34,6 +45,7 @@ import { environment } from '@src/environments/environment';
   selector: 'app-hashlist-pretask-builder-table',
   templateUrl: './hashlist-pretask-builder-table.component.html',
   styleUrls: ['./hashlist-pretask-builder-table.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class HashlistPretaskBuilderTableComponent implements OnInit, OnDestroy {

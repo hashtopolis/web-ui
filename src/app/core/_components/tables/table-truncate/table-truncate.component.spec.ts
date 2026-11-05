@@ -3,13 +3,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { BaseModel } from '@models/base.model';
 
 import { TableTruncateComponent } from '@components/tables/table-truncate/table-truncate.component';
 
 import { ShowFullValueDialogComponent } from '@src/app/shared/dialog/show-full-value-dialog/show-full-value-dialog.component';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 describe('TableTruncateComponent', () => {
   let fixture: ComponentFixture<TableTruncateComponent>;
@@ -92,7 +92,8 @@ describe('TableTruncateComponent with a real dialog', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [TableTruncateComponent],
-      imports: [MatButtonModule, MatIconModule, MatDialogModule, NoopAnimationsModule, ShowFullValueDialogComponent]
+      imports: [MatButtonModule, MatIconModule, MatDialogModule, ShowFullValueDialogComponent],
+      providers: [provideDisabledMaterialAnimations()]
     }).compileComponents();
 
     fixture = TestBed.createComponent(TableTruncateComponent);
