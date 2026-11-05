@@ -14,7 +14,6 @@ import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import '@services/storage/local-storage';
 
 import { HashesViewType } from '@src/app/core/_constants/hashes.config';
 import { HashesComponent } from '@src/app/hashlists/hashes/hashes.component';
@@ -324,7 +323,7 @@ describe('HashesComponent', () => {
     });
   });
 
-  describe('Edge Cases', () => {
+  describe('edge Cases', () => {
     it('should parse the filter parameter appended to the id', () => {
       createComponent({ id: '12?uncracked' }, { kind: HashesRouteKind.TaskHashes });
 
