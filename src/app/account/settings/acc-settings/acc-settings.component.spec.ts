@@ -1,5 +1,5 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { SERV } from 'src/app/core/_services/main.config';
 import { GlobalService } from 'src/app/core/_services/main.service';
 import { ComponentsModule } from 'src/app/shared/components.module';
@@ -18,8 +18,13 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
+import { AuthData } from '@models/auth-user.model';
+import { UiSettings } from '@models/config-ui.schema';
+
+import { AuthService } from '@services/access/auth.service';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { AlertService } from '@services/shared/alert.service';
+import { UIConfigService } from '@services/shared/storage.service';
 
 import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
 import { mockResponse } from '@src/app/testing/mock-response';
@@ -29,6 +34,8 @@ describe('AccountSettingsComponent', () => {
   let fixture: ComponentFixture<AccountSettingsComponent>;
 
   let alertSpy: jasmine.SpyObj<AlertService>;
+  let authSpy: jasmine.SpyObj<AuthService>;
+  let uiSettings: Partial<UiSettings>;
 
   const userResponse = {
     type: 'user',
@@ -40,7 +47,7 @@ describe('AccountSettingsComponent', () => {
       isComputedPassword: true,
       lastLoginDate: 1752647017,
       registeredSince: 1744086356,
-      sessionLifetime: 3600,
+      sessionLifetime: 3 * 3600,
       globalPermissionGroupId: 1
     }
   };
@@ -84,7 +91,10 @@ describe('AccountSettingsComponent', () => {
   };
 
   beforeEach(async () => {
-    alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+    alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage', 'showInfoMessage']);
+    uiSettings = { maxSessionLength: 48 };
+    authSpy = jasmine.createSpyObj<AuthService>('AuthService', ['refreshToken', 'logOut']);
+    authSpy.refreshToken.and.returnValue(of({} as AuthData));
 
     spyOn(JsonAPISerializer.prototype, 'deserialize').and.returnValue(mockUser);
 
@@ -114,6 +124,14 @@ describe('AccountSettingsComponent', () => {
           provide: AlertService,
           useValue: alertSpy
         },
+        {
+          provide: AuthService,
+          useValue: authSpy
+        },
+        {
+          provide: UIConfigService,
+          useValue: { getUISettings: () => uiSettings }
+        },
         provideHttpClient(withInterceptorsFromDi())
       ]
     }).compileComponents();
@@ -133,6 +151,50 @@ describe('AccountSettingsComponent', () => {
       // loadUserSettings() is called in ngOnInit, so the form should already be populated.
       expect(component.form.controls.name.value).toBe('admin');
       expect(component.form.controls.email.value).toBe('admin@localhost');
+    });
+
+    it('preselects the session lifetime of the user', () => {
+      expect(component.form.controls.sessionLifetime.value).toBe(3 * 3600);
+    });
+
+    it('offers the presets up to the maximum and the current session lifetime', () => {
+      const names = component.sessionLifetimeOptions.map((option) => option.name);
+
+      expect(names).toEqual(['2 hours', '3 hours', '4 hours', '8 hours', '12 hours', '1 day', '2 days']);
+    });
+
+    it('shows the preselected session lifetime in the select', async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const select = fixture.debugElement.query(By.css('[data-testid="input-session-lifetime"] mat-select'));
+
+      expect(select.nativeElement.textContent).toContain('3 hours');
+    });
+
+    it('caps the offered session lifetimes at the maximum session length', () => {
+      uiSettings = { maxSessionLength: 6 };
+      (JsonAPISerializer.prototype.deserialize as jasmine.Spy).and.returnValue({
+        ...mockUser,
+        sessionLifetime: 24 * 3600
+      });
+
+      component['loadUserSettings']();
+
+      const names = component.sessionLifetimeOptions.map((option) => option.name);
+      expect(names).toEqual(['2 hours', '4 hours', '6 hours']);
+    });
+
+    it('preselects the maximum when the stored session lifetime exceeds it', () => {
+      uiSettings = { maxSessionLength: 6 };
+      (JsonAPISerializer.prototype.deserialize as jasmine.Spy).and.returnValue({
+        ...mockUser,
+        sessionLifetime: 24 * 3600
+      });
+
+      component['loadUserSettings']();
+
+      expect(component.form.controls.sessionLifetime.value).toBe(6 * 3600);
     });
 
     it('populates registeredSince as a formatted date', () => {
@@ -195,13 +257,57 @@ describe('AccountSettingsComponent', () => {
       btnDebugEl.nativeElement.click();
       fixture.detectChanges();
 
-      expect(component['gs'].uhelper).toHaveBeenCalledWith(
-        SERV.HELPER,
-        Number(component['gs'].userId),
-        'currentUser',
-        component.form.value
-      );
+      expect(component['gs'].uhelper).toHaveBeenCalledWith(SERV.HELPER, Number(component['gs'].userId), 'currentUser', {
+        email: 'test@example.com',
+        sessionLifetime: 3 * 3600
+      });
       expect(component['alert'].showSuccessMessage).toHaveBeenCalled();
+    });
+
+    it('requires a session lifetime', () => {
+      component.form.controls.sessionLifetime.patchValue(null);
+
+      expect(component.form.controls.sessionLifetime.hasError('required')).toBeTrue();
+    });
+
+    it('submits the chosen session lifetime', () => {
+      const uhelperSpy = spyOn(component['gs'], 'uhelper').and.returnValue(of({}));
+      component.form.patchValue({ email: 'test@example.com', sessionLifetime: 8 * 3600 });
+
+      component.onSubmit();
+
+      const payload = uhelperSpy.calls.mostRecent().args[3];
+      expect(payload['sessionLifetime']).toBe(8 * 3600);
+    });
+
+    it('renews the session once the session lifetime changed', () => {
+      spyOn(component['gs'], 'uhelper').and.returnValue(of({}));
+      component.form.patchValue({ email: 'test@example.com', sessionLifetime: 8 * 3600 });
+
+      component.onSubmit();
+      component.onSubmit();
+
+      expect(authSpy.refreshToken).toHaveBeenCalledOnceWith({ force: true });
+    });
+
+    it('does not renew the session when the session lifetime is unchanged', () => {
+      spyOn(component['gs'], 'uhelper').and.returnValue(of({}));
+      component.form.patchValue({ email: 'changed@example.com' });
+
+      component.onSubmit();
+
+      expect(authSpy.refreshToken).not.toHaveBeenCalled();
+    });
+
+    it('tells the user and logs out when renewing the session fails', () => {
+      spyOn(component['gs'], 'uhelper').and.returnValue(of({}));
+      authSpy.refreshToken.and.returnValue(throwError(() => new Error('Refresh token has expired')));
+      component.form.patchValue({ email: 'test@example.com', sessionLifetime: 8 * 3600 });
+
+      component.onSubmit();
+
+      expect(alertSpy.showInfoMessage).toHaveBeenCalledWith('Session expired, please log in again.');
+      expect(authSpy.logOut).toHaveBeenCalled();
     });
 
     it('does not submit form with invalid email', () => {

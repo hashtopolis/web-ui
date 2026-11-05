@@ -163,7 +163,7 @@ export const DEFAULT_CONFIG_TOOLTIP = {
         hcErrorIgnore: 'Ignore non-critical errors from Hashcat to prevent task failures',
         numLogEntries: 'Number of historical log entries to display in the UI',
         timefmt: 'Time format string for displaying timestamps in logs (e.g., YYYY-MM-DD HH:MM:SS)',
-        maxSessionLength: 'Maximum session duration in minutes before automatic logout',
+        maxSessionLength: 'Longest session length in hours users can choose',
         baseHost: 'Base URL/hostname used for generating links in the application',
         contactEmail: 'Email address for support inquiries and system notifications',
         serverLogLevel: 'Logging verbosity: DEBUG, INFO, WARN, ERROR'
@@ -264,7 +264,7 @@ export const DEFAULT_CONFIG_TOOLTIP = {
         timefmt:
           'Time format specification for timestamps in logs and UI. Uses standard strftime format (e.g., %Y-%m-%d %H:%M:%S for 2026-02-16 14:30:45).',
         maxSessionLength:
-          'Maximum duration in minutes a user session remains valid. Applies to web UI sessions. Users are logged out automatically after this period.',
+          'Longest session length in hours users can choose for themselves. The session length is how long a user stays logged in while Hashtopolis is closed or the computer is asleep.',
         baseHost:
           'Base URL/hostname for your Hashtopolis installation. Used for generating links in emails, notifications, and APIs. Must be publicly accessible or match your network configuration.',
         contactEmail:
