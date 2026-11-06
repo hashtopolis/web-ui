@@ -90,12 +90,12 @@ export class EditPreconfiguredTasksComponent implements OnInit {
     } catch (e: unknown) {
       const status = e instanceof HttpErrorResponse ? e.status : undefined;
       if (status === HttpStatus.FORBIDDEN) {
-        this.router.navigateByUrl('/forbidden');
+        void this.router.navigateByUrl('/forbidden');
         return;
       }
 
       if (status === HttpStatus.NOT_FOUND) {
-        this.router.navigateByUrl('/not-found');
+        void this.router.navigateByUrl('/not-found');
         return;
       }
 
