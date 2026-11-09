@@ -1,11 +1,15 @@
 import { ChunkState } from '@constants/chunks.config';
 import { zChunkListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
-import type { MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { JChunk } from '@models/chunk.model';
+import { Filter, FilterType, RequestParams } from '@models/request-params.model';
+
+import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { HttpCacheService } from '@services/shared/http-cache.service';
 import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
@@ -14,93 +18,66 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { ChunksDataSource } from '@datasources/chunks.datasource';
 
-import { mockValidResponse } from '@src/app/testing/mock-response';
-
-const chunkResource = (id: number, state: ChunkState) => ({
-  id,
-  type: 'chunk',
-  attributes: {
-    taskId: 1,
-    skip: 0,
-    length: 100,
-    agentId: 1,
-    dispatchTime: 0,
-    solveTime: 0,
-    checkpoint: 0,
-    progress: 0,
-    state,
-    cracked: 0,
-    speed: 0
-  }
-});
-
-const RESPONSE = mockValidResponse(zChunkListResponse, {
-  data: [chunkResource(1, ChunkState.INIT), chunkResource(2, ChunkState.AUTOTUNE)],
-  meta: { page: { total_elements: 2 } }
-});
+import { mockResponse } from '@src/app/testing/mock-response';
 
 describe('ChunksDataSource', () => {
   let dataSource: ChunksDataSource;
-  let gsSpy: MockedObject<GlobalService>;
+  let service: { getAll: ReturnType<typeof vi.fn> };
+  const runningChunk: JChunk = {
+    id: 7,
+    type: 'chunk',
+    taskId: 4,
+    task: { taskName: 'Task' } as never,
+    agent: { agentName: 'Agent' } as never,
+    state: ChunkState.RUNNING
+  } as unknown as JChunk;
+  const idleChunk: JChunk = { id: 8, state: ChunkState.INIT } as JChunk;
 
   beforeEach(() => {
-    gsSpy = {
-      getAll: vi.fn().mockName('GlobalService.getAll')
-    } as MockedObject<GlobalService>;
-    gsSpy.getAll.mockReturnValue(of(RESPONSE));
-
-    const uiServiceSpy = {
-      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
-    };
-    uiServiceSpy.getUISettings.mockReturnValue({});
-
-    const storageSpy = {
-      getItem: vi.fn().mockName('LocalStorageService.getItem'),
-      setItem: vi.fn().mockName('LocalStorageService.setItem')
-    };
-    storageSpy.getItem.mockReturnValue(null);
-
+    service = { getAll: vi.fn().mockReturnValue(of(mockResponse())) };
+    vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockImplementation((_response, schema) =>
+      schema === zChunkListResponse ? [runningChunk, idleChunk] : []
+    );
     TestBed.configureTestingModule({
       providers: [
-        { provide: GlobalService, useValue: gsSpy },
-        {
-          provide: ChangeDetectorRef,
-          useValue: {
-            markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
-            detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges')
-          }
-        },
-        { provide: UIConfigService, useValue: uiServiceSpy },
+        { provide: GlobalService, useValue: service },
+        { provide: ChangeDetectorRef, useValue: { markForCheck: vi.fn(), detectChanges: vi.fn() } },
+        { provide: UIConfigService, useValue: { getUISettings: vi.fn().mockReturnValue({}) } },
         {
           provide: AutoRefreshService,
-          useValue: {
-            toggleAutoRefresh: vi.fn().mockName('AutoRefreshService.toggleAutoRefresh'),
-            startAutoRefresh: vi.fn().mockName('AutoRefreshService.startAutoRefresh'),
-            stopAutoRefresh: vi.fn().mockName('AutoRefreshService.stopAutoRefresh'),
-            refresh$: of()
-          }
+          useValue: { refresh$: of(), toggleAutoRefresh: vi.fn(), startAutoRefresh: vi.fn(), stopAutoRefresh: vi.fn() }
         },
-        {
-          provide: HttpCacheService,
-          useValue: {
-            invalidate: vi.fn().mockName('HttpCacheService.invalidate')
-          }
-        },
-        { provide: LocalStorageService, useValue: storageSpy }
+        { provide: HttpCacheService, useValue: { invalidate: vi.fn() } },
+        { provide: LocalStorageService, useValue: { getItem: vi.fn().mockReturnValue(null), setItem: vi.fn() } }
       ]
     });
     dataSource = new ChunksDataSource(TestBed.inject(Injector));
   });
 
-  afterEach(() => TestBed.resetTestingModule());
-
-  it('sets isRunning for chunks hashcat works on', () => {
+  it('requests chunk relationships, maps display fields, and marks running chunks', () => {
     dataSource.loadAll();
-
-    const isRunningById = dataSource.getOriginalData().map((chunk) => [chunk.id, chunk.isRunning]);
-    expect(isRunningById).toStrictEqual([
-      [1, false],
-      [2, true]
+    const [resource, params] = service.getAll.mock.lastCall!;
+    expect(resource).toBe(SERV.CHUNKS);
+    expect((params as RequestParams).include).toEqual(expect.arrayContaining(['task', 'agent']));
+    expect(dataSource.getOriginalData().map(({ id, isRunning }) => [id, isRunning])).toStrictEqual([
+      [7, true],
+      [8, false]
     ]);
+    expect(dataSource.getOriginalData()[0]).toMatchObject({ taskName: 'Task', agentName: 'Agent' });
+    expect(dataSource['loadingSubject'].getValue()).toBe(false);
+  });
+
+  it('applies and retains the agent and query filters on subsequent loads', () => {
+    dataSource.setAgentId(12);
+    const query: Filter = { field: 'state', operator: FilterType.EQUAL, value: ChunkState.RUNNING };
+    dataSource.loadAll(query);
+    dataSource.loadAll();
+    const [, params] = service.getAll.mock.lastCall!;
+    expect((params as RequestParams).filter).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ field: 'agentId', value: 12 }),
+        expect.objectContaining({ field: 'state', value: ChunkState.RUNNING })
+      ])
+    );
   });
 });
