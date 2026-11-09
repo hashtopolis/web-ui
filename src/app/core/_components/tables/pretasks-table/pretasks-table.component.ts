@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
@@ -9,6 +9,7 @@ import { JPretask } from '@models/pretask.model';
 
 import { PreTaskContextMenuService } from '@services/context-menu/tasks/pretask-menu.service';
 import { RelationshipType, SERV } from '@services/main.config';
+import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
@@ -40,10 +41,17 @@ import { formatFileSize } from '@src/app/shared/utils/util';
   standalone: false
 })
 export class PretasksTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {
+  private readonly supertasksRoleService = inject(SupertasksRoleService);
+
   private _supertTaskId: number;
   private _reverseQuery = false;
   private _unassignOption = false;
   isDetail = false;
+
+  /** True when the table lists the pretasks a supertask contains, as opposed to a plain pretask list */
+  get isSupertaskContext(): boolean {
+    return this.supertTaskId !== 0 && !this.reverseQuery;
+  }
 
   // Input property to specify a supertask ID for filtering pretasks.
   @Input()
@@ -214,54 +222,74 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       }
     ];
 
-    if (this.preconfiguredTasksRoleService.hasRole('edit')) {
-      tableColumns.push(
-        {
-          id: PretasksTableCol.PRIORITY,
-          isNumeric: true,
-          dataKey: 'priority',
+    /* Inside a supertask the priority column shows the priority the pretask has within that
+       supertask, which is stored on the association and not on the pretask. It cannot be sorted on,
+       the rows are pretasks and the server knows nothing of that field. */
+    if (this.isSupertaskContext) {
+      tableColumns.push({
+        id: PretasksTableCol.PRIORITY,
+        isNumeric: true,
+        dataKey: 'supertaskPriority',
+        isSortable: false,
+        export: async (pretask: JPretask) => (pretask.supertaskPriority ?? '') + '',
+        ...(this.supertasksRoleService.hasRole('editSupertaskPretaskPriority') && {
           editable: (pretask: JPretask) => {
             return {
               data: pretask,
-              value: pretask.priority + '',
-              action: PretasksTableEditableAction.CHANGE_PRIORITY
+              value: (pretask.supertaskPriority ?? '') + '',
+              action: PretasksTableEditableAction.CHANGE_SUPERTASK_PRIORITY
             };
-          },
-          isSortable: true,
-          export: async (pretask: JPretask) => pretask.priority.toString()
+          }
+        })
+      });
+    } else if (this.preconfiguredTasksRoleService.hasRole('edit')) {
+      tableColumns.push({
+        id: PretasksTableCol.PRIORITY,
+        isNumeric: true,
+        dataKey: 'priority',
+        editable: (pretask: JPretask) => {
+          return {
+            data: pretask,
+            value: pretask.priority + '',
+            action: PretasksTableEditableAction.CHANGE_PRIORITY
+          };
         },
-        {
-          id: PretasksTableCol.MAX_AGENTS,
-          isNumeric: true,
-          dataKey: 'maxAgents',
-          editable: (pretask: JPretask) => {
-            return {
-              data: pretask,
-              value: pretask.maxAgents + '',
-              action: PretasksTableEditableAction.CHANGE_MAX_AGENTS
-            };
-          },
-          isSortable: true,
-          export: async (pretask: JPretask) => pretask.maxAgents.toString()
-        }
-      );
+        isSortable: true,
+        export: async (pretask: JPretask) => pretask.priority.toString()
+      });
     } else {
-      tableColumns.push(
-        {
-          id: PretasksTableCol.PRIORITY,
-          isNumeric: true,
-          dataKey: 'priority',
-          isSortable: true,
-          export: async (pretask: JPretask) => pretask.priority + ''
+      tableColumns.push({
+        id: PretasksTableCol.PRIORITY,
+        isNumeric: true,
+        dataKey: 'priority',
+        isSortable: true,
+        export: async (pretask: JPretask) => pretask.priority + ''
+      });
+    }
+
+    if (this.preconfiguredTasksRoleService.hasRole('edit')) {
+      tableColumns.push({
+        id: PretasksTableCol.MAX_AGENTS,
+        isNumeric: true,
+        dataKey: 'maxAgents',
+        editable: (pretask: JPretask) => {
+          return {
+            data: pretask,
+            value: pretask.maxAgents + '',
+            action: PretasksTableEditableAction.CHANGE_MAX_AGENTS
+          };
         },
-        {
-          id: PretasksTableCol.MAX_AGENTS,
-          isNumeric: true,
-          dataKey: 'maxAgents',
-          isSortable: true,
-          export: async (pretask: JPretask) => pretask.maxAgents + ''
-        }
-      );
+        isSortable: true,
+        export: async (pretask: JPretask) => pretask.maxAgents.toString()
+      });
+    } else {
+      tableColumns.push({
+        id: PretasksTableCol.MAX_AGENTS,
+        isNumeric: true,
+        dataKey: 'maxAgents',
+        isSortable: true,
+        export: async (pretask: JPretask) => pretask.maxAgents + ''
+      });
     }
 
     if (this.supertTaskId !== 0) {
@@ -478,6 +506,9 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
       case PretasksTableEditableAction.CHANGE_PRIORITY:
         this.changePriority(editable.data, editable.value);
         break;
+      case PretasksTableEditableAction.CHANGE_SUPERTASK_PRIORITY:
+        this.changeSupertaskPriority(editable.data, editable.value);
+        break;
       case PretasksTableEditableAction.CHANGE_MAX_AGENTS:
         this.changeMaxAgents(editable.data, editable.value);
         break;
@@ -498,6 +529,40 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
     }
 
     const request$ = this.gs.update(SERV.PRETASKS, pretask.id, {
+      priority: val
+    });
+    request$
+      .pipe(
+        catchError((error) => {
+          this.alertService.showErrorMessage(`Failed to update prio!`);
+          console.error('Failed to update prio:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        this.alertService.showSuccessMessage(`Changed prio to ${val} on Task #${pretask.id}!`);
+        this.reload();
+      });
+  }
+
+  /**
+   * Changes the priority the pretask has within the supertask shown, which leaves the pretask and
+   * the other supertasks using it untouched.
+   */
+  private changeSupertaskPriority(pretask: JPretask, priority: string): void {
+    const val = parseInt(priority);
+
+    if (Number.isNaN(val) || pretask.supertaskPriority === val) {
+      this.alertService.showInfoMessage('Nothing changed');
+      return;
+    }
+    if (!pretask.supertaskPretaskId) {
+      this.alertService.showErrorMessage('Failed to update prio!');
+      return;
+    }
+
+    const request$ = this.gs.update(SERV.SUPER_TASK_PRETASKS, pretask.supertaskPretaskId, {
       priority: val
     });
     request$

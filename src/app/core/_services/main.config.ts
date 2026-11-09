@@ -84,6 +84,7 @@ export class SERV {
   public static PRETASKS = { URL: '/ui/pretasks', RESOURCE: 'PreTasks' };
   public static SPEEDS = { URL: '/ui/speeds', RESOURCE: 'Speeds' };
   public static SUPER_TASKS = { URL: '/ui/supertasks', RESOURCE: 'SuperTasks' };
+  public static SUPER_TASK_PRETASKS = { URL: '/ui/supertaskpretasks', RESOURCE: 'SupertaskPretasks' };
   public static TASKS = { URL: '/ui/tasks', RESOURCE: 'Tasks' };
   public static TASKS_WRAPPER = { URL: '/ui/taskwrappers', RESOURCE: 'TaskWrappers' };
   public static TASKS_WRAPPER_DISPLAYS = { URL: '/ui/taskwrapperdisplays', RESOURCE: 'TaskWrapperDisplays' };

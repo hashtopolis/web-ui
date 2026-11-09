@@ -56,6 +56,12 @@ export const SuperTask = {
   READ: 'permSupertaskRead',
   UPDATE: 'permSupertaskUpdate'
 } as const;
+export const SupertaskPretask = {
+  CREATE: 'permSupertaskPretaskCreate',
+  DELETE: 'permSupertaskPretaskDelete',
+  READ: 'permSupertaskPretaskRead',
+  UPDATE: 'permSupertaskPretaskUpdate'
+} as const;
 // // TASK WRAPPER  (Running supertask)
 export const TaskWrapper = {
   CREATE: 'permTaskWrapperCreate',
@@ -209,6 +215,7 @@ export const Perm = {
   Task,
   Pretask,
   SuperTask,
+  SupertaskPretask,
   TaskWrapper,
   Chunk,
   Speed,

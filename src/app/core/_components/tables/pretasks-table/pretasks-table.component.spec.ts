@@ -24,8 +24,10 @@ import {
 import { JFile } from '@src/app/core/_models/file.model';
 import { JPretask } from '@src/app/core/_models/pretask.model';
 import { ExportService } from '@src/app/core/_services/export/export.service';
+import { SERV } from '@src/app/core/_services/main.config';
 import { GlobalService } from '@src/app/core/_services/main.service';
 import { PreconfiguredTasksRoleService } from '@src/app/core/_services/roles/tasks/preconfiguredTasks-role.service';
+import { SupertasksRoleService } from '@src/app/core/_services/roles/tasks/supertasks-role.service';
 
 class MockDataSource {
   loadAll = jasmine.createSpy('loadAll');
@@ -70,6 +72,7 @@ describe('PretasksTableComponent', () => {
   let mockExportService: jasmine.SpyObj<ExportService>;
   let mockRouter: jasmine.SpyObj<Router>;
   let mockPreconfiguredTasksRoleService: jasmine.SpyObj<PreconfiguredTasksRoleService>;
+  let mockSupertasksRoleService: jasmine.SpyObj<SupertasksRoleService>;
   let mockPermissionService: jasmine.SpyObj<unknown>;
 
   beforeEach(async () => {
@@ -91,6 +94,7 @@ describe('PretasksTableComponent', () => {
     );
     mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
     mockPreconfiguredTasksRoleService = jasmine.createSpyObj('PreconfiguredTasksRoleService', ['hasRole']);
+    mockSupertasksRoleService = jasmine.createSpyObj('SupertasksRoleService', ['hasRole']);
     mockPermissionService = jasmine.createSpyObj('PermissionService', ['hasPermission']);
 
     await TestBed.configureTestingModule({
@@ -103,6 +107,7 @@ describe('PretasksTableComponent', () => {
         { provide: GlobalService, useValue: mockGlobalService },
         { provide: ExportService, useValue: mockExportService },
         { provide: PreconfiguredTasksRoleService, useValue: mockPreconfiguredTasksRoleService },
+        { provide: SupertasksRoleService, useValue: mockSupertasksRoleService },
         { provide: 'PermissionService', useValue: mockPermissionService }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -118,6 +123,7 @@ describe('PretasksTableComponent', () => {
       reload: jasmine.createSpy('reload')
     };
     mockPreconfiguredTasksRoleService.hasRole.and.returnValue(false);
+    mockSupertasksRoleService.hasRole.and.returnValue(false);
   });
 
   it('should create', () => {
@@ -136,6 +142,44 @@ describe('PretasksTableComponent', () => {
       expect(columnIds).toContain(PretasksTableCol.FILES_SIZE);
       expect(columnIds).toContain(PretasksTableCol.PRIORITY);
       expect(columnIds).toContain(PretasksTableCol.MAX_AGENTS);
+    });
+
+    it('should bind the priority column to the pretask outside a supertask', () => {
+      const priorityColumn = component.getColumns().find((col) => col.id === PretasksTableCol.PRIORITY);
+
+      expect(priorityColumn?.dataKey).toBe('priority');
+      expect(priorityColumn?.isSortable).toBe(true);
+    });
+
+    it('should bind the priority column to the association inside a supertask', () => {
+      component.supertTaskId = 3;
+      mockSupertasksRoleService.hasRole.and.returnValue(true);
+
+      const priorityColumn = component.getColumns().find((col) => col.id === PretasksTableCol.PRIORITY);
+
+      expect(priorityColumn?.dataKey).toBe('supertaskPriority');
+      // the field is not known to the pretask endpoint the rows come from
+      expect(priorityColumn?.isSortable).toBe(false);
+      expect(priorityColumn?.editable).toBeDefined();
+    });
+
+    it('should leave the priority column of a supertask read-only without the permission', () => {
+      component.supertTaskId = 3;
+      mockSupertasksRoleService.hasRole.and.returnValue(false);
+
+      const priorityColumn = component.getColumns().find((col) => col.id === PretasksTableCol.PRIORITY);
+
+      expect(priorityColumn?.dataKey).toBe('supertaskPriority');
+      expect(priorityColumn?.editable).toBeUndefined();
+    });
+
+    it('should bind the priority column to the pretask in the reverse query of a supertask', () => {
+      component.supertTaskId = 3;
+      component.reverseQuery = true;
+
+      const priorityColumn = component.getColumns().find((col) => col.id === PretasksTableCol.PRIORITY);
+
+      expect(priorityColumn?.dataKey).toBe('priority');
     });
 
     it('should include ID column with correct properties', () => {
@@ -591,6 +635,30 @@ describe('PretasksTableComponent', () => {
       component.editableSaved(editable);
 
       expect(mockGlobalService.update).toHaveBeenCalledWith(jasmine.anything(), 1, { priority: 10 });
+    });
+
+    it('should patch the association for CHANGE_SUPERTASK_PRIORITY action', () => {
+      const editable = {
+        action: PretasksTableEditableAction.CHANGE_SUPERTASK_PRIORITY,
+        data: { id: 1, taskName: 'Test', priority: 5, supertaskPretaskId: 7, supertaskPriority: 5 } as JPretask,
+        value: '10'
+      };
+
+      component.editableSaved(editable);
+
+      expect(mockGlobalService.update).toHaveBeenCalledWith(SERV.SUPER_TASK_PRETASKS, 7, { priority: 10 });
+    });
+
+    it('should not patch anything for CHANGE_SUPERTASK_PRIORITY on a row without an association', () => {
+      const editable = {
+        action: PretasksTableEditableAction.CHANGE_SUPERTASK_PRIORITY,
+        data: { id: 1, taskName: 'Test', priority: 5 } as JPretask,
+        value: '10'
+      };
+
+      component.editableSaved(editable);
+
+      expect(mockGlobalService.update).not.toHaveBeenCalled();
     });
 
     it('should call globalService.update for CHANGE_MAX_AGENTS action', () => {
