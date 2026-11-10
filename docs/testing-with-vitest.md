@@ -20,10 +20,14 @@ What stayed the same: specs are colocated as `*.spec.ts`, `describe` / `it` / `b
 npm test                                                   # whole suite, once, with coverage
 npx ng test --watch=false                                  # whole suite, no coverage
 npx ng test --watch=false --include src/app/home/home.component.spec.ts
+npx ng test --watch=false --include src/app/config/hashtypes      # every spec in a directory
+npx ng test --watch=false --include 'src/app/shared/input/**/*.spec.ts'   # a glob, quoted so the shell does not expand it
 npx ng test --watch=false --include <spec> --filter "should emit"   # only tests whose name matches the regex
 npx ng test                                                # watch mode
 npx ng test --watch=false --debug                          # attach a debugger (VS Code: "ng test" launch config)
 ```
+
+`--include` takes a spec file, a directory or a glob, and can be given more than once. A component's `.ts` file works too and runs its spec. All options: [`ng test`](https://angular.dev/cli/test).
 
 Console output is shown only for failing tests (`silent: 'passed-only'`).
 
@@ -183,7 +187,7 @@ Use `lastValueFrom` when the last emission matters.
 Most tests need no timer control at all. In order of preference:
 
 1. **Nothing.** `of(...)` mocks and `HttpTestingController.flush()` are synchronous. Call, then assert.
-2. **`await fixture.whenStable()`** for a component whose template or forms have pending async work.
+2. **`await fixture.whenStable()`** for a component whose template or forms have pending async work. It waits but does not render, unless the fixture uses `autoDetectChanges()` (see "Signals and change detection").
 3. **`await wait()`** from `@src/app/testing/wait` when the code under test defers through a promise, a `setTimeout(0)` or a router navigation and no fixture is involved.
 4. **Fake `Date` only** when the code just reads the clock (`Date.now()`, `new Date()`): cache TTLs, expiry checks, "today". Prefer this over letting real time pass with `await wait(150)`, which is slower; `http-cache.service.spec.ts` still does that.
 5. **Full fake timers** only when the code schedules work with `setTimeout` / `setInterval` / RxJS `timer`, `interval`, `debounceTime` and the test has to control when it fires.
@@ -266,6 +270,38 @@ Older HTTP specs assert inside `subscribe` and flush right after. That works bec
 - If the component navigates, register the target route: `provideRouter([{ path: 'account/notifications', children: [] }])`. A navigation to an unknown route rejects, and a test that ends before it settles does not notice (see pitfall 6).
 - API fixtures: `mockResponse`, `mockResource` and `mockValidResponse` from `@src/app/testing/mock-response`.
 
+### Signals and change detection
+
+Which components use signals is decided in `STYLE_GUIDE.md`, section 4. For the tests that means two kinds of components:
+
+- **Existing components** are `Eager`: change a value, call `fixture.detectChanges()`, assert.
+- **New and converted components** use signals and OnPush. Test them the way they run in the app, with automatic change detection:
+
+```ts
+beforeEach(async () => {
+  await TestBed.configureTestingModule({ imports: [TaskStateComponent] }).compileComponents();
+
+  fixture = TestBed.createComponent(TaskStateComponent);
+  fixture.componentRef.setInput('state', 'idle');
+  fixture.autoDetectChanges();
+  await fixture.whenStable();
+});
+
+it('shows the state it gets', async () => {
+  fixture.componentRef.setInput('state', 'running');
+  await fixture.whenStable();
+
+  expect(stateElement().textContent).toBe('running');
+});
+```
+
+- `fixture.autoDetectChanges()` renders whenever a signal or input the template reads changes, and `await fixture.whenStable()` waits for that render. A component that changes a plain field from a subscription or a timer is not re-rendered, so the test fails the way the app would. This is also how components are tested once the app runs zoneless.
+- Without `autoDetectChanges()`, `await fixture.whenStable()` renders nothing: neither `setInput()` nor a signal change reaches the DOM until `fixture.detectChanges()`.
+- Set inputs with `fixture.componentRef.setInput('name', value)`, never by assigning to the component. It is the only way to set a signal input, and it works for `@Input()` too.
+- Read signal state by calling it: `expect(component.count()).toBe(1)`. Listen to an `output()` with `component.picked.subscribe(spy)`.
+- Effects in a service run on `TestBed.tick()`, not on their own.
+- Under fake timers, call `fixture.detectChanges()` after advancing time instead of awaiting `whenStable()`. Automatic change detection is itself scheduled with a timer, and `whenStable()` can wait forever for a timer that never fires.
+
 ### Tests that only check "does not throw"
 
 Every test must run at least one assertion (`expect.requireAssertions`, the replacement for Jasmine's `failSpecWithNoExpectations`). State the implicit check:
@@ -334,6 +370,7 @@ So in a spec you do not need `vi.restoreAllMocks()`, `TestBed.resetTestingModule
 - [ ] Observables are awaited with `firstValueFrom` / `lastValueFrom` instead of asserting inside `subscribe`; `.resolves` / `.rejects` assertions are awaited.
 - [ ] No fake timers unless the code under test schedules work; fake only `Date` if it just reads the clock.
 - [ ] Fake timers are advanced with awaited `...Async` calls and switched off again.
+- [ ] Inputs are set with `fixture.componentRef.setInput()`; a signal-based component is tested with `autoDetectChanges()` and `await fixture.whenStable()`.
 - [ ] Every test has at least one assertion.
 - [ ] Nothing depends on layout, real rendering or the current date.
 - [ ] Every route the code navigates to is registered, and no promise started by the test is left unawaited.

@@ -4,7 +4,7 @@ Checklist from #842. The upgrade pinned old behaviour wherever a default changed
 
 ## Keep in mind
 
-- New components default to **OnPush**: use signals / `async`, or set `Eager` explicitly; never `Default`
+- New components default to **OnPush** and use signals (`STYLE_GUIDE.md`, section 4); `Eager` stays on existing components; never `Default`
 - Template `?.` returns `undefined`, not `null`
 - TypeScript 6.0; no `baseUrl`, import via aliases (`@src/...`), never `'src/...'`
 - Selectors must be unique (NG8023)
