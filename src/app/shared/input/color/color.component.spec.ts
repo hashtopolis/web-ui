@@ -32,7 +32,7 @@ describe('InputColorComponent', () => {
     it('does not emit on registration when no defaultColor is configured', () => {
       const onChange = vi.fn().mockName('onChange');
       component.registerOnChange(onChange);
-      expect(component.value).toBeFalsy();
+      expect(component.value).toBeNull();
       expect(onChange).not.toHaveBeenCalled();
     });
   });

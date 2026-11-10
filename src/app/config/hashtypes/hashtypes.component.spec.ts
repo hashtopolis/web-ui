@@ -69,7 +69,7 @@ describe('HashtypesComponent', () => {
     expect(page.title).toBe('Hashtypes');
     expect(page.actionTitle).toBeUndefined();
     expect(page.actionLink).toBeUndefined();
-    expect(page.showAction).toBeFalsy();
+    expect(page.showAction).toBeUndefined();
   });
 
   it('shows the hashtypes table', () => {
