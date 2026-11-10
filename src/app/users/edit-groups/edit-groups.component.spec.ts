@@ -1,5 +1,6 @@
 import { zAccessGroupListResponse, zAccessGroupResponse, zUserListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -83,13 +84,13 @@ describe('EditGroupsComponent deserialization', () => {
     // Validation against the wrong schema no longer throws — it reports the mismatch
     // via console.error (and an alert in dev mode) so the UI stays responsive even when
     // backend payloads drift from the expected shape.
-    const consoleSpy = spyOn(console, 'error');
+    const consoleSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
 
     expect(() => {
       serializer.deserialize(userListBody, zAccessGroupListResponse);
     }).not.toThrow();
 
-    expect(consoleSpy).toHaveBeenCalledWith('API response validation failed', jasmine.anything());
+    expect(consoleSpy).toHaveBeenCalledWith('API response validation failed', expect.anything());
   });
 
   it('should correctly deserialize user data with zUserListResponse (the fix)', () => {
@@ -106,23 +107,26 @@ describe('EditGroupsComponent deserialization', () => {
 describe('EditGroupsComponent', () => {
   let component: EditGroupsComponent;
   let fixture: ComponentFixture<EditGroupsComponent>;
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
-  let mockUserTable: jasmine.SpyObj<AccessGroupsUserTableComponent>;
-  let mockAgentTable: jasmine.SpyObj<AccessGroupsAgentsTableComponent>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockAlertService: MockedObject<AlertService>;
+  let mockUserTable: MockedObject<AccessGroupsUserTableComponent>;
+  let mockAgentTable: MockedObject<AccessGroupsAgentsTableComponent>;
 
   beforeEach(async () => {
-    mockGlobalService = jasmine.createSpyObj('GlobalService', [
-      'get',
-      'getAll',
-      'update',
-      'delete',
-      'postRelationships'
-    ]);
-    mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+    mockGlobalService = {
+      get: vi.fn().mockName('GlobalService.get'),
+      getAll: vi.fn().mockName('GlobalService.getAll'),
+      update: vi.fn().mockName('GlobalService.update'),
+      delete: vi.fn().mockName('GlobalService.delete'),
+      postRelationships: vi.fn().mockName('GlobalService.postRelationships')
+    } as MockedObject<GlobalService>;
+    mockAlertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    } as MockedObject<AlertService>;
 
-    mockGlobalService.get.and.returnValue(of(mockAccessGroupResponse));
-    mockGlobalService.getAll.and.returnValue(of(mockResponse()));
+    mockGlobalService.get.mockReturnValue(of(mockAccessGroupResponse));
+    mockGlobalService.getAll.mockReturnValue(of(mockResponse()));
 
     await TestBed.configureTestingModule({
       declarations: [EditGroupsComponent],
@@ -130,11 +134,26 @@ describe('EditGroupsComponent', () => {
       providers: [
         { provide: GlobalService, useValue: mockGlobalService },
         { provide: AlertService, useValue: mockAlertService },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+        {
+          provide: Router,
+          useValue: {
+            navigate: vi.fn().mockName('Router.navigate')
+          }
+        },
         { provide: ActivatedRoute, useValue: { params: of({ id: '1' }) } },
-        { provide: ConfirmDialogService, useValue: jasmine.createSpyObj('ConfirmDialogService', ['confirmDeletion']) },
+        {
+          provide: ConfirmDialogService,
+          useValue: {
+            confirmDeletion: vi.fn().mockName('ConfirmDialogService.confirmDeletion')
+          }
+        },
         { provide: AccessGroupRoleService, useValue: {} },
-        { provide: AutoTitleService, useValue: jasmine.createSpyObj('AutoTitleService', ['set']) }
+        {
+          provide: AutoTitleService,
+          useValue: {
+            set: vi.fn().mockName('AutoTitleService.set')
+          }
+        }
       ]
     })
       .overrideComponent(EditGroupsComponent, { set: { template: '' } })
@@ -146,15 +165,19 @@ describe('EditGroupsComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    mockUserTable = jasmine.createSpyObj('AccessGroupsUserTableComponent', ['reload']);
-    mockAgentTable = jasmine.createSpyObj('AccessGroupsAgentsTableComponent', ['reload']);
+    mockUserTable = {
+      reload: vi.fn().mockName('AccessGroupsUserTableComponent.reload')
+    } as MockedObject<AccessGroupsUserTableComponent>;
+    mockAgentTable = {
+      reload: vi.fn().mockName('AccessGroupsAgentsTableComponent.reload')
+    } as MockedObject<AccessGroupsAgentsTableComponent>;
     component.userTable = mockUserTable;
     component.agentTable = mockAgentTable;
   });
 
   describe('adding members', () => {
     it('should reload the user table after successfully adding users', async () => {
-      mockGlobalService.postRelationships.and.returnValue(of({}));
+      mockGlobalService.postRelationships.mockReturnValue(of({}));
       component.addUsersForm.patchValue({ userIds: [1, 2] });
 
       await component.onAddUsers();
@@ -163,7 +186,7 @@ describe('EditGroupsComponent', () => {
     });
 
     it('should reload the agent table after successfully adding agents', async () => {
-      mockGlobalService.postRelationships.and.returnValue(of({}));
+      mockGlobalService.postRelationships.mockReturnValue(of({}));
       component.addAgentsForm.patchValue({ agentIds: [3] });
 
       await component.onAddAgents();
@@ -174,7 +197,7 @@ describe('EditGroupsComponent', () => {
 
   describe('removing members', () => {
     it('should refresh when users are removed from the table', () => {
-      spyOn(component, 'refresh');
+      vi.spyOn(component, 'refresh').mockReturnValue(undefined);
 
       component.onUsersRemoved();
 
@@ -182,7 +205,7 @@ describe('EditGroupsComponent', () => {
     });
 
     it('should refresh when agents are removed from the table', () => {
-      spyOn(component, 'refresh');
+      vi.spyOn(component, 'refresh').mockReturnValue(undefined);
 
       component.onAgentsRemoved();
 
@@ -192,7 +215,7 @@ describe('EditGroupsComponent', () => {
 
   describe('postRelationships payload', () => {
     it('should post the selected user IDs to the correct relationship endpoint', async () => {
-      mockGlobalService.postRelationships.and.returnValue(of({}));
+      mockGlobalService.postRelationships.mockReturnValue(of({}));
       component.addUsersForm.patchValue({ userIds: [10, 20] });
 
       await component.onAddUsers();
@@ -211,7 +234,7 @@ describe('EditGroupsComponent', () => {
     });
 
     it('should post the selected agent IDs to the correct relationship endpoint', async () => {
-      mockGlobalService.postRelationships.and.returnValue(of({}));
+      mockGlobalService.postRelationships.mockReturnValue(of({}));
       component.addAgentsForm.patchValue({ agentIds: [5] });
 
       await component.onAddAgents();

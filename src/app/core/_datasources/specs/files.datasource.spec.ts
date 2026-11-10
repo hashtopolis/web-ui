@@ -1,6 +1,6 @@
-/// <reference types="jasmine" />
 import { zFileListResponse, zPreTaskResponse, zTaskResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -53,27 +53,41 @@ const MOCK_PRETASK: JPretask = {
 
 describe('FilesDataSource', () => {
   let dataSource: FilesDataSource;
-  let gsSpy: jasmine.SpyObj<GlobalService>;
+  let gsSpy: MockedObject<GlobalService>;
 
   beforeEach(() => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['get', 'getAll']);
+    gsSpy = {
+      get: vi.fn().mockName('GlobalService.get'),
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    } as MockedObject<GlobalService>;
 
-    const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges']);
-    const uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    uiServiceSpy.getUISettings.and.returnValue({});
-    const autoRefreshSpy = jasmine.createSpyObj(
-      'AutoRefreshService',
-      ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'],
-      { refresh$: of() }
-    );
-    const cacheSpy = jasmine.createSpyObj('HttpCacheService', ['invalidate']);
-    const storageSpy = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
-    storageSpy.getItem.and.returnValue(null);
+    const cdrSpy = {
+      markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
+      detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges')
+    };
+    const uiServiceSpy = {
+      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+    };
+    uiServiceSpy.getUISettings.mockReturnValue({});
+    const autoRefreshSpy = {
+      toggleAutoRefresh: vi.fn().mockName('AutoRefreshService.toggleAutoRefresh'),
+      startAutoRefresh: vi.fn().mockName('AutoRefreshService.startAutoRefresh'),
+      stopAutoRefresh: vi.fn().mockName('AutoRefreshService.stopAutoRefresh'),
+      refresh$: of()
+    };
+    const cacheSpy = {
+      invalidate: vi.fn().mockName('HttpCacheService.invalidate')
+    };
+    const storageSpy = {
+      getItem: vi.fn().mockName('LocalStorageService.getItem'),
+      setItem: vi.fn().mockName('LocalStorageService.setItem')
+    };
+    storageSpy.getItem.mockReturnValue(null);
 
-    gsSpy.getAll.and.returnValue(of(mockResponse()));
-    gsSpy.get.and.returnValue(of(mockResponse()));
+    gsSpy.getAll.mockReturnValue(of(mockResponse()));
+    gsSpy.get.mockReturnValue(of(mockResponse()));
 
-    spyOn(JsonAPISerializer.prototype, 'deserialize').and.callFake((_body: unknown, schema?: unknown) => {
+    vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockImplementation((_body: unknown, schema?: unknown) => {
       if (schema === zTaskResponse) return MOCK_TASK;
       if (schema === zPreTaskResponse) return MOCK_PRETASK;
       if (schema === zFileListResponse) return [MOCK_FILE];
@@ -94,8 +108,6 @@ describe('FilesDataSource', () => {
     const injector = TestBed.inject(Injector);
     dataSource = new FilesDataSource(injector);
   });
-
-  afterEach(() => TestBed.resetTestingModule());
 
   // setFileType() / getFileType()
 
@@ -125,48 +137,48 @@ describe('FilesDataSource', () => {
   describe('loadAll() — list mode', () => {
     it('should call service.getAll with SERV.FILES', () => {
       dataSource.loadAll();
-      const [serviceConfig] = gsSpy.getAll.calls.mostRecent().args;
-      expect(serviceConfig).toEqual(SERV.FILES);
+      const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
+      expect(serviceConfig).toStrictEqual(SERV.FILES);
     });
 
     it('should include accessGroup in the request params', () => {
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).include).toContain('accessGroup');
     });
 
     it('should filter by the stored fileType', () => {
       dataSource.setFileType(FileType.RULES);
       dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'fileType', value: FileType.RULES })
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'fileType', value: FileType.RULES })
       );
     });
 
     it('should apply the provided query filter', () => {
       const query: Filter = { field: 'filename', operator: FilterType.ICONTAINS, value: 'rockyou' };
       dataSource.loadAll(query);
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'filename', value: 'rockyou' })
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'filename', value: 'rockyou' })
       );
     });
 
     it('should persist the query as _currentFilter', () => {
       const query: Filter = { field: 'filename', operator: FilterType.ICONTAINS, value: 'cyclone' };
       dataSource.loadAll(query);
-      expect(dataSource['_currentFilter']).toEqual(query);
+      expect(dataSource['_currentFilter']).toStrictEqual(query);
     });
 
     it('should reuse _currentFilter on a subsequent call without query', () => {
       const query: Filter = { field: 'filename', operator: FilterType.ICONTAINS, value: 'cyclone' };
       dataSource.loadAll(query);
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       dataSource.loadAll(); // no query — should reuse stored filter
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'filename', value: 'cyclone' })
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'filename', value: 'cyclone' })
       );
     });
 
@@ -177,13 +189,13 @@ describe('FilesDataSource', () => {
     });
 
     it('should set totalItems from meta.page.total_elements', () => {
-      gsSpy.getAll.and.returnValue(of(mockResponse({ meta: { page: { total_elements: 6 } } })));
+      gsSpy.getAll.mockReturnValue(of(mockResponse({ meta: { page: { total_elements: 6 } } })));
       dataSource.loadAll();
       expect(dataSource.totalItems).toBe(6);
     });
 
     it('should extract the page[after] cursor from links.next', () => {
-      gsSpy.getAll.and.returnValue(
+      gsSpy.getAll.mockReturnValue(
         of(
           mockResponse({
             meta: { page: { total_elements: 50 } },
@@ -196,7 +208,7 @@ describe('FilesDataSource', () => {
     });
 
     it('should extract the page[before] cursor from links.prev', () => {
-      gsSpy.getAll.and.returnValue(
+      gsSpy.getAll.mockReturnValue(
         of(
           mockResponse({
             meta: { page: { total_elements: 50 } },
@@ -215,15 +227,15 @@ describe('FilesDataSource', () => {
 
     it('should set loading to false after a successful response', () => {
       dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
 
     it('should call handleFilterError and stop loading when the request fails', () => {
-      gsSpy.getAll.and.returnValue(throwError(() => new Error('backend error')));
-      const handleFilterErrorSpy = spyOn(dataSource as never, 'handleFilterError').and.callThrough();
+      gsSpy.getAll.mockReturnValue(throwError(() => new Error('backend error')));
+      const handleFilterErrorSpy = vi.spyOn(dataSource as never, 'handleFilterError');
       dataSource.loadAll();
       expect(handleFilterErrorSpy).toHaveBeenCalled();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
   });
 
@@ -238,19 +250,19 @@ describe('FilesDataSource', () => {
       dataSource.loadAll();
       expect(gsSpy.get).toHaveBeenCalled();
       expect(gsSpy.getAll).not.toHaveBeenCalled();
-      const [serviceConfig] = gsSpy.get.calls.mostRecent().args;
-      expect(serviceConfig).toEqual(SERV.TASKS);
+      const [serviceConfig] = gsSpy.get.mock.lastCall!;
+      expect(serviceConfig).toStrictEqual(SERV.TASKS);
     });
 
     it('should include files in the request params', () => {
       dataSource.loadAll();
-      const [, , params] = gsSpy.get.calls.mostRecent().args;
+      const [, , params] = gsSpy.get.mock.lastCall!;
       expect((params as RequestParams).include).toContain('files');
     });
 
     it('should use the editIndex as the entity ID', () => {
       dataSource.loadAll();
-      const [, entityId] = gsSpy.get.calls.mostRecent().args;
+      const [, entityId] = gsSpy.get.mock.lastCall!;
       expect(entityId).toBe(100);
     });
 
@@ -262,7 +274,7 @@ describe('FilesDataSource', () => {
 
     it('should set loading to false after response', () => {
       dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
   });
 
@@ -277,19 +289,19 @@ describe('FilesDataSource', () => {
       dataSource.loadAll();
       expect(gsSpy.get).toHaveBeenCalled();
       expect(gsSpy.getAll).not.toHaveBeenCalled();
-      const [serviceConfig] = gsSpy.get.calls.mostRecent().args;
-      expect(serviceConfig).toEqual(SERV.PRETASKS);
+      const [serviceConfig] = gsSpy.get.mock.lastCall!;
+      expect(serviceConfig).toStrictEqual(SERV.PRETASKS);
     });
 
     it('should include pretaskFiles in the request params', () => {
       dataSource.loadAll();
-      const [, , params] = gsSpy.get.calls.mostRecent().args;
+      const [, , params] = gsSpy.get.mock.lastCall!;
       expect((params as RequestParams).include).toContain('pretaskFiles');
     });
 
     it('should use the editIndex as the entity ID', () => {
       dataSource.loadAll();
-      const [, entityId] = gsSpy.get.calls.mostRecent().args;
+      const [, entityId] = gsSpy.get.mock.lastCall!;
       expect(entityId).toBe(200);
     });
 
@@ -302,14 +314,14 @@ describe('FilesDataSource', () => {
     // The `if (!this.editType)` guard inside the editType===1 subscribe branch is dead code
     // because !1 === false, so setPaginationConfig is never reached in pretask mode.
     it('should NOT configure pagination (if (!editType) guard is always false when editType=1)', () => {
-      gsSpy.get.and.returnValue(of(mockResponse({ meta: { page: { total_elements: 99 } } })));
+      gsSpy.get.mockReturnValue(of(mockResponse({ meta: { page: { total_elements: 99 } } })));
       dataSource.loadAll();
       expect(dataSource.totalItems).toBe(0);
     });
 
     it('should set loading to false after response', () => {
       dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
   });
 
@@ -323,7 +335,7 @@ describe('FilesDataSource', () => {
     });
 
     it('should call loadAll()', () => {
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       dataSource.reload();
       expect(gsSpy.getAll).toHaveBeenCalled();
     });
@@ -335,13 +347,13 @@ describe('FilesDataSource', () => {
     it('should reset _currentFilter to null', () => {
       const query: Filter = { field: 'filename', operator: FilterType.ICONTAINS, value: 'rockyou' };
       dataSource.loadAll(query);
-      expect(dataSource['_currentFilter']).toEqual(query);
+      expect(dataSource['_currentFilter']).toStrictEqual(query);
       dataSource.clearFilter();
       expect(dataSource['_currentFilter']).toBeNull();
     });
 
     it('should call loadAll() to reload data after clearing', () => {
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       dataSource.clearFilter();
       expect(gsSpy.getAll).toHaveBeenCalled();
     });
@@ -349,11 +361,11 @@ describe('FilesDataSource', () => {
     it('should not apply the old filter in the reloaded request', () => {
       const query: Filter = { field: 'filename', operator: FilterType.ICONTAINS, value: 'rockyou' };
       dataSource.loadAll(query);
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       dataSource.clearFilter(); // resets _currentFilter and calls loadAll() internally
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
-      expect(filter.some((f: Filter) => f.field === 'filename')).toBeFalse();
+      expect(filter.some((f: Filter) => f.field === 'filename')).toBe(false);
     });
   });
 });

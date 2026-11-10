@@ -1,4 +1,5 @@
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -21,12 +22,16 @@ describe('ApiKeyDetailComponent', () => {
   let component: ApiKeyDetailComponent;
   let fixture: ComponentFixture<ApiKeyDetailComponent>;
 
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockRouter: jasmine.SpyObj<Router>;
-  let mockAlert: jasmine.SpyObj<AlertService>;
-  let mockTitle: jasmine.SpyObj<AutoTitleService>;
-  let mockStorage: jasmine.SpyObj<LocalStorageService<UIConfig>>;
-  let mockRoute: { snapshot: { params: Record<string, string> } };
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockRouter: MockedObject<Router>;
+  let mockAlert: MockedObject<AlertService>;
+  let mockTitle: MockedObject<AutoTitleService>;
+  let mockStorage: MockedObject<LocalStorageService<UIConfig>>;
+  let mockRoute: {
+    snapshot: {
+      params: Record<string, string>;
+    };
+  };
 
   /** Token returned by the (stubbed) deserializer for the happy path. */
   const loadedToken: JApiToken = {
@@ -46,16 +51,29 @@ describe('ApiKeyDetailComponent', () => {
   }
 
   beforeEach(async () => {
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['get']);
-    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
-    mockRouter.navigate.and.resolveTo(true);
-    mockAlert = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    mockTitle = jasmine.createSpyObj('AutoTitleService', ['set']);
-    mockStorage = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem', 'removeItem']);
-    mockStorage.getItem.and.returnValue(uiConfigDefault);
+    mockGlobalService = {
+      get: vi.fn().mockName('GlobalService.get')
+    } as MockedObject<GlobalService>;
+    mockRouter = {
+      navigate: vi.fn().mockName('Router.navigate')
+    } as MockedObject<Router>;
+    mockRouter.navigate.mockResolvedValue(true);
+    mockAlert = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    } as MockedObject<AlertService>;
+    mockTitle = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    } as MockedObject<AutoTitleService>;
+    mockStorage = {
+      getItem: vi.fn().mockName('LocalStorageService.getItem'),
+      setItem: vi.fn().mockName('LocalStorageService.setItem'),
+      removeItem: vi.fn().mockName('LocalStorageService.removeItem')
+    } as MockedObject<LocalStorageService<UIConfig>>;
+    mockStorage.getItem.mockReturnValue(uiConfigDefault);
     mockRoute = { snapshot: { params: {} } };
 
-    spyOn(JsonAPISerializer.prototype, 'deserialize').and.returnValue(loadedToken);
+    vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockReturnValue(loadedToken);
 
     await TestBed.configureTestingModule({
       declarations: [ApiKeyDetailComponent],
@@ -72,7 +90,7 @@ describe('ApiKeyDetailComponent', () => {
   });
 
   it('loads the token and computes status on a valid route id', async () => {
-    mockGlobalService.get.and.returnValue(of(mockResponse()));
+    mockGlobalService.get.mockReturnValue(of(mockResponse()));
     createFixture('7');
 
     fixture.detectChanges();
@@ -82,7 +100,7 @@ describe('ApiKeyDetailComponent', () => {
     await fixture.whenStable();
 
     expect(mockGlobalService.get).toHaveBeenCalled();
-    expect(component.token).toEqual(loadedToken);
+    expect(component.token).toStrictEqual(loadedToken);
     expect(component.status).toBe(computeApiTokenStatus(loadedToken));
     expect(component.loading).toBe(false);
     expect(component.notFound).toBe(false);
@@ -100,7 +118,7 @@ describe('ApiKeyDetailComponent', () => {
   });
 
   it('marks notFound on a 404 and shows the not-found alert', async () => {
-    mockGlobalService.get.and.returnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
+    mockGlobalService.get.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
     createFixture('7');
 
     fixture.detectChanges();
@@ -114,7 +132,7 @@ describe('ApiKeyDetailComponent', () => {
   });
 
   it('marks loadError on a non-404 error and shows the generic alert', async () => {
-    mockGlobalService.get.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+    mockGlobalService.get.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
     createFixture('7');
 
     fixture.detectChanges();

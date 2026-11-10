@@ -1,6 +1,6 @@
-/// <reference types="jasmine" />
 import { zPreTaskListResponse, zSupertaskPretaskListResponse, zSupertaskResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -80,37 +80,51 @@ const MOCK_SUPERTASK_NO_PRETASKS: JSuperTask = {
 
 describe('PreTasksDataSource', () => {
   let dataSource: PreTasksDataSource;
-  let gsSpy: jasmine.SpyObj<GlobalService>;
-  let uiServiceSpy: jasmine.SpyObj<UIConfigService>;
-  let deserializeSpy: jasmine.Spy;
+  let gsSpy: MockedObject<GlobalService>;
+  let uiServiceSpy: MockedObject<UIConfigService>;
+  let deserializeSpy: Mock;
 
   beforeEach(() => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['get', 'getAll']);
+    gsSpy = {
+      get: vi.fn().mockName('GlobalService.get'),
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    } as MockedObject<GlobalService>;
 
-    const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges']);
-    uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    uiServiceSpy.getUISettings.and.returnValue(null);
-    const autoRefreshSpy = jasmine.createSpyObj(
-      'AutoRefreshService',
-      ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'],
-      { refresh$: of() }
-    );
-    const cacheSpy = jasmine.createSpyObj('HttpCacheService', ['invalidate']);
-    const storageSpy = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
-    storageSpy.getItem.and.returnValue(null);
+    const cdrSpy = {
+      markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
+      detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges')
+    };
+    uiServiceSpy = {
+      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+    } as MockedObject<UIConfigService>;
+    uiServiceSpy.getUISettings.mockReturnValue(null);
+    const autoRefreshSpy = {
+      toggleAutoRefresh: vi.fn().mockName('AutoRefreshService.toggleAutoRefresh'),
+      startAutoRefresh: vi.fn().mockName('AutoRefreshService.startAutoRefresh'),
+      stopAutoRefresh: vi.fn().mockName('AutoRefreshService.stopAutoRefresh'),
+      refresh$: of()
+    };
+    const cacheSpy = {
+      invalidate: vi.fn().mockName('HttpCacheService.invalidate')
+    };
+    const storageSpy = {
+      getItem: vi.fn().mockName('LocalStorageService.getItem'),
+      setItem: vi.fn().mockName('LocalStorageService.setItem')
+    };
+    storageSpy.getItem.mockReturnValue(null);
 
-    gsSpy.getAll.and.returnValue(of(mockResponse()));
-    gsSpy.get.and.returnValue(of(mockResponse()));
+    gsSpy.getAll.mockReturnValue(of(mockResponse()));
+    gsSpy.get.mockReturnValue(of(mockResponse()));
 
-    deserializeSpy = spyOn(JsonAPISerializer.prototype, 'deserialize').and.callFake(
-      (_body: unknown, schema?: unknown) => {
+    deserializeSpy = vi
+      .spyOn(JsonAPISerializer.prototype, 'deserialize')
+      .mockImplementation((_body: unknown, schema?: unknown) => {
         if (schema === zSupertaskResponse) return MOCK_SUPERTASK;
         /* a fresh copy per call, the data source copies the association fields onto the rows */
         if (schema === zPreTaskListResponse) return [{ ...MOCK_PRETASK }];
         if (schema === zSupertaskPretaskListResponse) return [MOCK_ASSOCIATION];
         return [];
-      }
-    );
+      });
 
     TestBed.configureTestingModule({
       providers: [
@@ -127,11 +141,9 @@ describe('PreTasksDataSource', () => {
     dataSource = new PreTasksDataSource(injector);
   });
 
-  afterEach(() => TestBed.resetTestingModule());
-
   /** Arguments of the getAll call made for the given endpoint, several are made in supertask mode */
   function callArgsFor(service: unknown): unknown[] | undefined {
-    return gsSpy.getAll.calls.allArgs().find((args) => args[0] === service);
+    return gsSpy.getAll.mock.calls.find((args) => args[0] === service);
   }
 
   // setSuperTaskId()
@@ -148,10 +160,10 @@ describe('PreTasksDataSource', () => {
   describe('setReverseQuery()', () => {
     it('should store the provided reverse-query flag', () => {
       dataSource.setReverseQuery(true);
-      expect(dataSource['_reverseQuery']).toBeTrue();
+      expect(dataSource['_reverseQuery']).toBe(true);
 
       dataSource.setReverseQuery(false);
-      expect(dataSource['_reverseQuery']).toBeFalse();
+      expect(dataSource['_reverseQuery']).toBe(false);
     });
   });
 
@@ -160,13 +172,13 @@ describe('PreTasksDataSource', () => {
   describe('loadAll() — simple mode', () => {
     it('should call service.getAll with SERV.PRETASKS', async () => {
       await dataSource.loadAll();
-      const [serviceConfig] = gsSpy.getAll.calls.mostRecent().args;
-      expect(serviceConfig).toEqual(SERV.PRETASKS);
+      const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
+      expect(serviceConfig).toStrictEqual(SERV.PRETASKS);
     });
 
     it('should include pretaskFiles in the request params', async () => {
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       expect((params as RequestParams).include).toContain('pretaskFiles');
     });
 
@@ -177,13 +189,13 @@ describe('PreTasksDataSource', () => {
     });
 
     it('should set totalItems from meta.page.total_elements', async () => {
-      gsSpy.getAll.and.returnValue(of(mockResponse({ meta: { page: { total_elements: 32 } } })));
+      gsSpy.getAll.mockReturnValue(of(mockResponse({ meta: { page: { total_elements: 32 } } })));
       await dataSource.loadAll();
       expect(dataSource.totalItems).toBe(32);
     });
 
     it('should extract the page[after] cursor from links.next', async () => {
-      gsSpy.getAll.and.returnValue(
+      gsSpy.getAll.mockReturnValue(
         of(
           mockResponse({
             meta: { page: { total_elements: 32 } },
@@ -206,68 +218,68 @@ describe('PreTasksDataSource', () => {
     it('should append a query filter when provided', async () => {
       const query: Filter = { field: 'taskName', operator: FilterType.ICONTAINS, value: 'dive' };
       await dataSource.loadAll(query);
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'taskName', value: 'dive' })
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'taskName', value: 'dive' })
       );
     });
 
     it('should persist the query as _currentFilter', async () => {
       const query: Filter = { field: 'taskName', operator: FilterType.ICONTAINS, value: 'rockyou' };
       await dataSource.loadAll(query);
-      expect(dataSource['_currentFilter']).toEqual(query);
+      expect(dataSource['_currentFilter']).toStrictEqual(query);
     });
 
     it('should reuse _currentFilter on a subsequent call without query', async () => {
       const query: Filter = { field: 'taskName', operator: FilterType.ICONTAINS, value: 'rockyou' };
       await dataSource.loadAll(query);
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'taskName', value: 'rockyou' })
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'taskName', value: 'rockyou' })
       );
     });
 
     it('should add isMaskImport=false filter when hideImportMasks is 1', async () => {
-      uiServiceSpy.getUISettings.and.returnValue({ hideImportMasks: 1 } as unknown as UiSettings);
+      uiServiceSpy.getUISettings.mockReturnValue({ hideImportMasks: 1 } as unknown as UiSettings);
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false })
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false })
       );
     });
 
     it('should NOT add isMaskImport filter when hideImportMasks is 0', async () => {
-      uiServiceSpy.getUISettings.and.returnValue({ hideImportMasks: 0 } as unknown as UiSettings);
+      uiServiceSpy.getUISettings.mockReturnValue({ hideImportMasks: 0 } as unknown as UiSettings);
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
-      expect(filter.some((f) => f.field === 'isMaskImport')).toBeFalse();
+      expect(filter.some((f) => f.field === 'isMaskImport')).toBe(false);
     });
 
     it('should NOT add isMaskImport filter when hideImportMasks is absent', async () => {
-      uiServiceSpy.getUISettings.and.returnValue(null);
+      uiServiceSpy.getUISettings.mockReturnValue(null);
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
-      expect(filter.some((f) => f.field === 'isMaskImport')).toBeFalse();
+      expect(filter.some((f) => f.field === 'isMaskImport')).toBe(false);
     });
 
     it('should set loading to false after a successful response', async () => {
       await dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
 
     it('should call handleFilterError and return empty data when request fails', async () => {
-      gsSpy.getAll.and.returnValue(throwError(() => new Error('backend error')));
-      const handleFilterErrorSpy = spyOn(dataSource as never, 'handleFilterError').and.callThrough();
+      gsSpy.getAll.mockReturnValue(throwError(() => new Error('backend error')));
+      const handleFilterErrorSpy = vi.spyOn(dataSource as never, 'handleFilterError');
 
       await dataSource.loadAll();
 
       expect(handleFilterErrorSpy).toHaveBeenCalled();
       expect(dataSource.getOriginalData().length).toBe(0);
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
   });
 
@@ -281,14 +293,14 @@ describe('PreTasksDataSource', () => {
     it('should call service.get with SERV.SUPER_TASKS to fetch the supertask', async () => {
       await dataSource.loadAll();
       expect(gsSpy.get).toHaveBeenCalled();
-      const [serviceConfig, entityId] = gsSpy.get.calls.mostRecent().args;
-      expect(serviceConfig).toEqual(SERV.SUPER_TASKS);
+      const [serviceConfig, entityId] = gsSpy.get.mock.lastCall!;
+      expect(serviceConfig).toStrictEqual(SERV.SUPER_TASKS);
       expect(entityId).toBe(1);
     });
 
     it('should include pretasks in the supertask request params', async () => {
       await dataSource.loadAll();
-      const [, , params] = gsSpy.get.calls.mostRecent().args;
+      const [, , params] = gsSpy.get.mock.lastCall!;
       expect((params as RequestParams).include).toContain('pretasks');
     });
 
@@ -301,8 +313,8 @@ describe('PreTasksDataSource', () => {
     it('should filter pretasks by pretaskId IN the assigned IDs', async () => {
       await dataSource.loadAll();
       const [, params] = callArgsFor(SERV.PRETASKS)!;
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'pretaskId', operator: FilterType.IN, value: [MOCK_PRETASK.id] })
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'pretaskId', operator: FilterType.IN, value: [MOCK_PRETASK.id] })
       );
     });
 
@@ -314,15 +326,15 @@ describe('PreTasksDataSource', () => {
 
     it('should set loading to false after response', async () => {
       await dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
 
     it('should NOT add isMaskImport filter even when hideImportMasks is 1', async () => {
-      uiServiceSpy.getUISettings.and.returnValue({ hideImportMasks: 1 } as unknown as UiSettings);
+      uiServiceSpy.getUISettings.mockReturnValue({ hideImportMasks: 1 } as unknown as UiSettings);
       await dataSource.loadAll();
       const [, params] = callArgsFor(SERV.PRETASKS)!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
-      expect(filter.some((f) => f.field === 'isMaskImport')).toBeFalse();
+      expect(filter.some((f) => f.field === 'isMaskImport')).toBe(false);
     });
 
     it('should copy the priority of the association onto the row', async () => {
@@ -337,15 +349,15 @@ describe('PreTasksDataSource', () => {
     it('should scope the association request to the supertask and the rows of the page', async () => {
       await dataSource.loadAll();
       const [, params] = callArgsFor(SERV.SUPER_TASK_PRETASKS)!;
-      expect((params as RequestParams).filter).toEqual([
-        jasmine.objectContaining({ field: 'supertaskId', operator: FilterType.EQUAL, value: 1 }),
-        jasmine.objectContaining({ field: 'pretaskId', operator: FilterType.IN, value: [MOCK_PRETASK.id] })
+      expect((params as RequestParams).filter).toStrictEqual([
+        expect.objectContaining({ field: 'supertaskId', operator: FilterType.EQUAL, value: 1 }),
+        expect.objectContaining({ field: 'pretaskId', operator: FilterType.IN, value: [MOCK_PRETASK.id] })
       ]);
       expect((params as RequestParams).page?.size).toBe(1);
     });
 
     it('should leave a row without an association alone', async () => {
-      deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {
+      deserializeSpy.mockImplementation((_body: unknown, schema?: unknown) => {
         if (schema === zSupertaskResponse) return MOCK_SUPERTASK;
         if (schema === zPreTaskListResponse) return [{ ...MOCK_PRETASK }];
         return [];
@@ -374,52 +386,52 @@ describe('PreTasksDataSource', () => {
 
     it('should filter pretasks by pretaskId NOTIN the assigned IDs', async () => {
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'pretaskId', operator: FilterType.NOTIN, value: [MOCK_PRETASK.id] })
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'pretaskId', operator: FilterType.NOTIN, value: [MOCK_PRETASK.id] })
       );
     });
 
     it('should add isMaskImport=false filter when hideImportMasks is 1', async () => {
-      uiServiceSpy.getUISettings.and.returnValue({ hideImportMasks: 1 } as unknown as UiSettings);
+      uiServiceSpy.getUISettings.mockReturnValue({ hideImportMasks: 1 } as unknown as UiSettings);
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false })
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false })
       );
     });
 
     it('should NOT add isMaskImport filter when hideImportMasks is 0', async () => {
-      uiServiceSpy.getUISettings.and.returnValue({ hideImportMasks: 0 } as unknown as UiSettings);
+      uiServiceSpy.getUISettings.mockReturnValue({ hideImportMasks: 0 } as unknown as UiSettings);
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
-      expect(filter.some((f) => f.field === 'isMaskImport')).toBeFalse();
+      expect(filter.some((f) => f.field === 'isMaskImport')).toBe(false);
     });
 
     it('should NOT add isMaskImport filter when hideImportMasks is absent', async () => {
-      uiServiceSpy.getUISettings.and.returnValue(null);
+      uiServiceSpy.getUISettings.mockReturnValue(null);
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
-      expect(filter.some((f) => f.field === 'isMaskImport')).toBeFalse();
+      expect(filter.some((f) => f.field === 'isMaskImport')).toBe(false);
     });
   });
 
   describe('cracker type filter', () => {
-    const typeFilter = jasmine.objectContaining({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: 1 });
+    const typeFilter = expect.objectContaining({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: 1 });
 
     it('filters the pretasks not part of the supertask by its type', async () => {
       dataSource.setSuperTaskId(1);
       dataSource.setReverseQuery(true);
       dataSource.setCrackerBinaryTypeId(1);
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(typeFilter);
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(typeFilter);
     });
 
     it('filters the reverse query of a supertask without pretasks', async () => {
-      deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {
+      deserializeSpy.mockImplementation((_body: unknown, schema?: unknown) => {
         if (schema === zSupertaskResponse) return MOCK_SUPERTASK_NO_PRETASKS;
         if (schema === zPreTaskListResponse) return [MOCK_PRETASK];
         return [];
@@ -428,8 +440,8 @@ describe('PreTasksDataSource', () => {
       dataSource.setReverseQuery(true);
       dataSource.setCrackerBinaryTypeId(1);
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(typeFilter);
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(typeFilter);
     });
 
     it('does not filter the pretasks part of the supertask', async () => {
@@ -437,18 +449,18 @@ describe('PreTasksDataSource', () => {
       dataSource.setReverseQuery(false);
       dataSource.setCrackerBinaryTypeId(1);
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = callArgsFor(SERV.PRETASKS)!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
-      expect(filter.some((f) => f.field === 'crackerBinaryTypeId')).toBeFalse();
+      expect(filter.some((f) => f.field === 'crackerBinaryTypeId')).toBe(false);
     });
 
     it('does not filter without a type', async () => {
       dataSource.setSuperTaskId(1);
       dataSource.setReverseQuery(true);
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
-      expect(filter.some((f) => f.field === 'crackerBinaryTypeId')).toBeFalse();
+      expect(filter.some((f) => f.field === 'crackerBinaryTypeId')).toBe(false);
     });
   });
 
@@ -457,7 +469,7 @@ describe('PreTasksDataSource', () => {
   describe('loadAll() — supertask mode (no assigned pretasks, reverseQuery=false)', () => {
     beforeEach(() => {
       dataSource.setSuperTaskId(2);
-      deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {
+      deserializeSpy.mockImplementation((_body: unknown, schema?: unknown) => {
         if (schema === zSupertaskResponse) return MOCK_SUPERTASK_NO_PRETASKS;
         if (schema === zPreTaskListResponse) return [MOCK_PRETASK];
         return [];
@@ -477,7 +489,7 @@ describe('PreTasksDataSource', () => {
 
     it('should set loading to false', async () => {
       await dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
   });
 
@@ -487,7 +499,7 @@ describe('PreTasksDataSource', () => {
     beforeEach(() => {
       dataSource.setSuperTaskId(2);
       dataSource.setReverseQuery(true);
-      deserializeSpy.and.callFake((_body: unknown, schema?: unknown) => {
+      deserializeSpy.mockImplementation((_body: unknown, schema?: unknown) => {
         if (schema === zSupertaskResponse) return MOCK_SUPERTASK_NO_PRETASKS;
         if (schema === zPreTaskListResponse) return [MOCK_PRETASK];
         return [];
@@ -497,8 +509,8 @@ describe('PreTasksDataSource', () => {
     it('should load all pretasks (NOTIN empty set = all)', async () => {
       await dataSource.loadAll();
       expect(gsSpy.getAll).toHaveBeenCalled();
-      const [serviceConfig] = gsSpy.getAll.calls.mostRecent().args;
-      expect(serviceConfig).toEqual(SERV.PRETASKS);
+      const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
+      expect(serviceConfig).toStrictEqual(SERV.PRETASKS);
     });
 
     it('should populate data with the full pretask list', async () => {
@@ -508,11 +520,11 @@ describe('PreTasksDataSource', () => {
     });
 
     it('should add isMaskImport=false filter when hideImportMasks is 1', async () => {
-      uiServiceSpy.getUISettings.and.returnValue({ hideImportMasks: 1 } as unknown as UiSettings);
+      uiServiceSpy.getUISettings.mockReturnValue({ hideImportMasks: 1 } as unknown as UiSettings);
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
-      expect((params as RequestParams).filter).toContain(
-        jasmine.objectContaining({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false })
+      const [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).filter).toContainEqual(
+        expect.objectContaining({ field: 'isMaskImport', operator: FilterType.EQUAL, value: false })
       );
     });
   });
@@ -522,11 +534,11 @@ describe('PreTasksDataSource', () => {
   describe('loadAll() — supertask fetch error', () => {
     beforeEach(() => {
       dataSource.setSuperTaskId(1);
-      gsSpy.get.and.returnValue(throwError(() => new Error('supertask error')));
+      gsSpy.get.mockReturnValue(throwError(() => new Error('supertask error')));
     });
 
     it('should call handleFilterError when supertask fetch fails', async () => {
-      const handleFilterErrorSpy = spyOn(dataSource as never, 'handleFilterError').and.callThrough();
+      const handleFilterErrorSpy = vi.spyOn(dataSource as never, 'handleFilterError');
       await dataSource.loadAll();
       expect(handleFilterErrorSpy).toHaveBeenCalled();
     });
@@ -534,7 +546,7 @@ describe('PreTasksDataSource', () => {
     it('should produce an empty result and set loading to false', async () => {
       await dataSource.loadAll();
       expect(dataSource.getOriginalData().length).toBe(0);
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
   });
 
@@ -550,7 +562,7 @@ describe('PreTasksDataSource', () => {
     });
 
     it('should call loadAll()', async () => {
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       dataSource.reload();
       await Promise.resolve();
       expect(gsSpy.getAll).toHaveBeenCalled();
@@ -563,7 +575,7 @@ describe('PreTasksDataSource', () => {
     it('should reset _currentFilter to null', async () => {
       const query: Filter = { field: 'taskName', operator: FilterType.ICONTAINS, value: 'dive' };
       await dataSource.loadAll(query);
-      expect(dataSource['_currentFilter']).toEqual(query);
+      expect(dataSource['_currentFilter']).toStrictEqual(query);
 
       dataSource.clearFilter();
       expect(dataSource['_currentFilter']).toBeNull();
@@ -571,7 +583,7 @@ describe('PreTasksDataSource', () => {
 
     it('should reset index to 0 and reload data', async () => {
       dataSource.index = 5;
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
 
       dataSource.clearFilter();
       await Promise.resolve();
@@ -584,13 +596,13 @@ describe('PreTasksDataSource', () => {
       const query: Filter = { field: 'taskName', operator: FilterType.ICONTAINS, value: 'dive' };
       await dataSource.loadAll(query);
 
-      gsSpy.getAll.calls.reset();
+      gsSpy.getAll.mockClear();
       dataSource.clearFilter();
       await Promise.resolve();
 
-      const [, params] = gsSpy.getAll.calls.mostRecent().args;
+      const [, params] = gsSpy.getAll.mock.lastCall!;
       const filter = (params as RequestParams).filter ?? [];
-      expect(filter.some((f: Filter) => f.field === 'taskName')).toBeFalse();
+      expect(filter.some((f: Filter) => f.field === 'taskName')).toBe(false);
     });
   });
 });

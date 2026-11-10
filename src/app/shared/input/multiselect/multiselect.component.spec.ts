@@ -74,7 +74,7 @@ describe('InputMultiSelectComponent', () => {
     it('should filter by id when mergeIdAndName is true', () => {
       component.mergeIdAndName = true;
       component.onSearchInputChange({ target: { value: '2' } } as unknown as Event);
-      expect(component.filteredItems.some((i) => i.id === 2)).toBeTrue();
+      expect(component.filteredItems.some((i) => i.id === 2)).toBe(true);
     });
   });
 
@@ -98,30 +98,34 @@ describe('InputMultiSelectComponent', () => {
     it('should prefer the first filtered item when submitting typed input', () => {
       component.onSearchInputChange({ target: { value: 'ga' } } as unknown as Event);
 
-      const chipInput = jasmine.createSpyObj('chipInput', ['clear']);
+      const chipInput = {
+        clear: vi.fn().mockName('chipInput.clear')
+      };
       component.onInputChipAdd({
         value: 'ga',
         chipInput
       } as unknown as import('@angular/material/chips').MatChipInputEvent);
 
-      expect(component.selectedItems).toEqual([ITEMS[2]]);
+      expect(component.selectedItems).toStrictEqual([ITEMS[2]]);
       expect(chipInput.clear).toHaveBeenCalled();
     });
 
     it('should set an invalidSelection error instead of creating a NaN chip when no match exists', () => {
       const control = new FormControl<number[] | null>(null);
-      spyOnProperty(component, 'ngControl', 'get').and.returnValue({ control } as unknown as NgControl);
+      vi.spyOn(component, 'ngControl', 'get').mockReturnValue({ control } as unknown as NgControl);
 
       component.onSearchInputChange({ target: { value: 'zzz' } } as unknown as Event);
 
-      const chipInput = jasmine.createSpyObj('chipInput', ['clear']);
+      const chipInput = {
+        clear: vi.fn().mockName('chipInput.clear')
+      };
       component.onInputChipAdd({
         value: 'zzz',
         chipInput
       } as unknown as import('@angular/material/chips').MatChipInputEvent);
 
-      expect(component.selectedItems).toEqual([]);
-      expect(control.hasError('invalidSelection')).toBeTrue();
+      expect(component.selectedItems).toStrictEqual([]);
+      expect(control.hasError('invalidSelection')).toBe(true);
       expect(chipInput.clear).not.toHaveBeenCalled();
     });
   });
@@ -144,7 +148,7 @@ describe('InputMultiSelectComponent', () => {
     it('should restore item at its original position, not at the end', () => {
       // beforeEach selected ITEMS[0] — removing it should restore it at the front
       component.remove(ITEMS[0]);
-      expect(component.filteredItems.map((i) => i.id)).toEqual(ITEMS.map((i) => i.id));
+      expect(component.filteredItems.map((i) => i.id)).toStrictEqual(ITEMS.map((i) => i.id));
     });
   });
 
@@ -170,7 +174,7 @@ describe('InputMultiSelectComponent', () => {
       component.addChip(ITEMS[0]);
       component.addChip(ITEMS[3]);
       const expected = ITEMS.filter((i) => i.id !== ITEMS[3].id).map((i) => i.id);
-      expect(component.filteredItems.map((i) => i.id)).toEqual(expected);
+      expect(component.filteredItems.map((i) => i.id)).toStrictEqual(expected);
     });
   });
 
@@ -190,13 +194,13 @@ describe('InputMultiSelectComponent', () => {
     it('should reset selection when null is passed', () => {
       component.addChip(ITEMS[0]);
       component.writeValue(null);
-      expect(component.selectedItems).toEqual([]);
+      expect(component.selectedItems).toStrictEqual([]);
     });
 
     it('should reset selection when empty array is passed', () => {
       component.addChip(ITEMS[0]);
       component.writeValue([]);
-      expect(component.selectedItems).toEqual([]);
+      expect(component.selectedItems).toStrictEqual([]);
     });
 
     it('should restore all items to filteredItems on reset', () => {
@@ -261,7 +265,8 @@ describe('InputMultiSelectComponent chip removal interaction', () => {
     await TestBed.configureTestingModule({
       declarations: [InputMultiSelectComponent],
       imports: [MatFormFieldModule, MatChipsModule, MatInputModule, MatTooltipModule, MatAutocompleteModule],
-      providers: [provideDisabledMaterialAnimations()]
+      providers: [provideDisabledMaterialAnimations()],
+      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(InputMultiSelectComponent);
@@ -282,7 +287,7 @@ describe('InputMultiSelectComponent chip removal interaction', () => {
     removeButton?.click();
     fixture.detectChanges();
 
-    expect(component.selectedItems).toEqual([]);
+    expect(component.selectedItems).toStrictEqual([]);
     expect(fixture.nativeElement.querySelectorAll('mat-chip-row').length).toBe(0);
   });
 });

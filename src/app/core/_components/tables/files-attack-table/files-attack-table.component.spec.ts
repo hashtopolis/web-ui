@@ -34,7 +34,7 @@ describe('FilesAttackTableComponent', () => {
     );
 
     expect(result.attackCmd).toBe('#HL# -r dive.rule');
-    expect(result.files).toEqual([10]);
+    expect(result.files).toStrictEqual([10]);
   });
 
   it('removes only the flag paired with the unchecked rule', () => {
@@ -47,6 +47,6 @@ describe('FilesAttackTableComponent', () => {
     );
 
     expect(result.attackCmd).toBe('#HL# -r dive.rule');
-    expect(result.files).toEqual([10]);
+    expect(result.files).toStrictEqual([10]);
   });
 });

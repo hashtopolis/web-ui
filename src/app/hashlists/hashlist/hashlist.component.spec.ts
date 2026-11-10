@@ -1,3 +1,5 @@
+import type { MockedObject } from 'vitest';
+
 import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
@@ -14,20 +16,24 @@ import { HashlistComponent } from '@src/app/hashlists/hashlist/hashlist.componen
   standalone: false
 })
 class MockHashlistsTableComponent {
-  setIsArchived = jasmine.createSpy('setIsArchived');
+  setIsArchived = vi.fn().mockName('setIsArchived');
 }
 
 describe('HashlistComponent', () => {
   let component: HashlistComponent;
   let fixture: ComponentFixture<HashlistComponent>;
 
-  let titleService: jasmine.SpyObj<AutoTitleService>;
-  let roleService: jasmine.SpyObj<HashListRoleService>;
+  let titleService: MockedObject<AutoTitleService>;
+  let roleService: MockedObject<HashListRoleService>;
   let mockTable: MockHashlistsTableComponent;
 
   beforeEach(async () => {
-    titleService = jasmine.createSpyObj('AutoTitleService', ['set']);
-    roleService = jasmine.createSpyObj('HashListRoleService', ['hasRole']);
+    titleService = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    } as MockedObject<AutoTitleService>;
+    roleService = {
+      hasRole: vi.fn().mockName('HashListRoleService.hasRole')
+    } as MockedObject<HashListRoleService>;
 
     await TestBed.configureTestingModule({
       declarations: [HashlistComponent, MockHashlistsTableComponent],
@@ -56,15 +62,15 @@ describe('HashlistComponent', () => {
 
   describe('showCreateButton', () => {
     it('should be true when user has create role', () => {
-      roleService.hasRole.withArgs('create').and.returnValue(true);
+      vi.when(roleService.hasRole).calledWith('create').thenReturn(true);
       const compWithRole = TestBed.createComponent(HashlistComponent).componentInstance;
-      expect(compWithRole.showCreateButton).toBeTrue();
+      expect(compWithRole.showCreateButton).toBe(true);
     });
 
     it('should be false when user does not have create role', () => {
-      roleService.hasRole.withArgs('create').and.returnValue(false);
+      vi.when(roleService.hasRole).calledWith('create').thenReturn(false);
       const compWithoutRole = TestBed.createComponent(HashlistComponent).componentInstance;
-      expect(compWithoutRole.showCreateButton).toBeFalse();
+      expect(compWithoutRole.showCreateButton).toBe(false);
     });
   });
 

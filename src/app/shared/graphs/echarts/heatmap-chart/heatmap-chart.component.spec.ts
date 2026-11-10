@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { HeatmapChartComponent } from './heatmap-chart.component';
+import { HeatmapChartComponent } from '@src/app/shared/graphs/echarts/heatmap-chart/heatmap-chart.component';
 
 describe('HeatmapChartComponent', () => {
   let component: HeatmapChartComponent;
