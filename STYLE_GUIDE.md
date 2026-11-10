@@ -712,6 +712,8 @@ direct write would be overwritten by its next update.
   `src/test-providers.ts`, `src/test-setup.ts`); specs are colocated as `*.spec.ts`. Advance fake
   timers with the `…Async` variants (ESLint enforces it) and wait for real async work with
   `wait()` from `@src/app/testing/wait`.
-  Be mindful of cross-spec state when a suite is flaky.
+  Be mindful of cross-spec state when a suite is flaky. See
+  [Writing unit tests with Vitest](docs/testing-with-vitest.md) for the API mappings from
+  Jasmine, the established patterns and the pitfalls.
 - **i18n**: there is none today - UI strings are hardcoded English even though
   `@angular/localize` is present. Do not assume a translation pipeline exists.
