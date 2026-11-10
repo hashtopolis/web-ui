@@ -25,7 +25,7 @@ export class CheckTokenService {
   /**
    * Brings the session back up to date when the tab becomes visible again.
    *
-   * A backgrounded tab is where the renewal timer is least reliable: browsers throttle timers in
+   * The renewal timer is least reliable when the tab is in the background: browsers throttle timers in
    * hidden tabs, and a suspended machine does not run them at all. So rather than trusting the
    * timer, this renews on the way back in whenever the access token is at or past its expiry.
    *
