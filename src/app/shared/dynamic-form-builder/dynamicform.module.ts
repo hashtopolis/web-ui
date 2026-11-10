@@ -1,5 +1,4 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { FormComponent } from 'src/app/core/_components/forms/simple-forms/form.component';
 
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
@@ -20,6 +19,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormConfigComponent } from '@components/forms/simple-forms/formconfig.component';
 
 import { ServerActionsComponent } from '@src/app/config/server-actions/server-actions.component';
+import { FormComponent } from '@src/app/core/_components/forms/simple-forms/form.component';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { DynamicFormComponent } from '@src/app/shared/dynamic-form-builder/dynamicform.component';
 import { CoreFormsModule } from '@src/app/shared/forms.module';

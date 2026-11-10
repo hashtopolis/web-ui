@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'app-table',
@@ -27,6 +27,7 @@ import { Component } from '@angular/core';
       }
     `
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class TableComponent {}

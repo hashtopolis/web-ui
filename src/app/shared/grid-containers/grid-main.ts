@@ -1,4 +1,4 @@
-import { Component, HostBinding, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, Input } from '@angular/core';
 
 @Component({
   selector: 'grid-main',
@@ -10,6 +10,7 @@ import { Component, HostBinding, Input } from '@angular/core';
     </mat-card>
   `,
   styleUrls: ['./grid-main.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class GridMainComponent {

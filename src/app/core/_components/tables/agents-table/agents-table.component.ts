@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
@@ -38,6 +38,7 @@ import { convertCrackingSpeed } from '@src/app/shared/utils/util';
 @Component({
   selector: 'agents-table',
   templateUrl: './agents-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class AgentsTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

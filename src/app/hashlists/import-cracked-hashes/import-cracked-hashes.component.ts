@@ -4,7 +4,7 @@ import { zHashlistResponse } from '@generated/api/zod';
 import { lastValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -40,6 +40,7 @@ type WithError = { error?: { title?: string; message?: string } };
 @Component({
   selector: 'app-import-cracked-hashes',
   templateUrl: './import-cracked-hashes.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class ImportCrackedHashesComponent implements OnInit {

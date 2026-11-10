@@ -1,6 +1,7 @@
 import { Subscription, interval } from 'rxjs';
 
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   Input,
@@ -41,7 +42,8 @@ import { TimePrecision, formatDate } from '@src/app/shared/utils/datetime';
   templateUrl: './last-updated.component.html',
   styleUrls: ['./last-updated.component.scss'],
   host: { class: 'text-xs text-muted-foreground' },
-  imports: [MatProgressSpinner]
+  imports: [MatProgressSpinner],
+  changeDetection: ChangeDetectionStrategy.Eager
 })
 export class LastUpdatedComponent implements OnInit, OnDestroy, OnChanges {
   /** The actual last time data was loaded */

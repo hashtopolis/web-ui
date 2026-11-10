@@ -94,12 +94,6 @@
           },
           "defaultConfiguration": "development"
         },
-        "extract-i18n": {
-          "builder": "@angular/build:extract-i18n",
-          "options": {
-            "buildTarget": "hashtopolis:build"
-          }
-        },
         "test": {
           "builder": "@angular/build:karma",
           "options": {

@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs';
 
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { VoucherContextMenuService } from '@services/context-menu/agents/voucher-menu.service';
@@ -25,6 +25,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 @Component({
   selector: 'app-vouchers-table',
   templateUrl: './vouchers-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class VouchersTableComponent extends BaseTableComponent implements OnInit {

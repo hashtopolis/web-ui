@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 
 import { PageTitle } from '@src/app/core/_decorators/autotitle';
 import { CookieService } from '@src/app/core/_services/shared/cookies.service';
@@ -6,14 +6,15 @@ import { CookieService } from '@src/app/core/_services/shared/cookies.service';
 @Component({
   selector: 'app-agent-status',
   templateUrl: './agent-status.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 @PageTitle(['Agent Status'])
 export class AgentStatusComponent implements OnInit {
+  private cookieService = inject(CookieService);
+
   pageTitle = 'Agents Status';
   view: string | number = 0;
-
-  constructor(private cookieService: CookieService) {}
 
   getView() {
     return this.cookieService.getCookie('asview');

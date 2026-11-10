@@ -1,6 +1,6 @@
 import { Observable, of } from 'rxjs';
 
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 import { SearchHashModel } from '@models/hash.model';
 
@@ -19,6 +19,7 @@ import { FilterType } from '@src/app/core/_models/request-params.model';
 @Component({
   selector: 'search-hash-table',
   templateUrl: './search-hash-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class SearchHashTableComponent extends BaseTableComponent implements OnInit, OnChanges {

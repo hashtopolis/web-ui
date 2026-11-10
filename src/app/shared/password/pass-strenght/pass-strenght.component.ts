@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/core';
 interface PasswordStrength {
   score: number;
   label: string;
@@ -8,6 +8,7 @@ interface PasswordStrength {
   selector: 'app-pass-strenght',
   templateUrl: './pass-strenght.component.html',
   styleUrls: ['./pass-strenght.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class PassStrenghtComponent implements OnChanges {
