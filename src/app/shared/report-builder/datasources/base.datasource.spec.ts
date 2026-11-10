@@ -7,14 +7,9 @@ import type { ChangeDetectorRef } from '@angular/core';
 import type { GlobalService } from '@src/app/core/_services/main.service';
 import type { UIConfigService } from '@src/app/core/_services/shared/storage.service';
 import { ReportBaseDataSource } from '@src/app/shared/report-builder/datasources/base.datasource';
-import type { ReportSection } from '@src/app/shared/report-builder/reports/report-builder/report.models';
 
 // Mock class
 class TestReportDataSource extends ReportBaseDataSource<string> {
-  getDataStructure(): ReportSection[] {
-    return this.dataStructure;
-  }
-
   addSubscription(subscription: Subscription): void {
     this.subscriptions.push(subscription);
   }
@@ -68,14 +63,6 @@ describe('ReportBaseDataSource', () => {
 
     expect(received).toEqual([[], rows, []]);
     expect(dataSource.getOriginalData()).toEqual([]);
-  });
-
-  it('stores the report structure', () => {
-    const structure: ReportSection[] = [{ title: 'Summary' }];
-
-    dataSource.setDataStructure(structure);
-
-    expect(dataSource.getDataStructure()).toBe(structure);
   });
 
   it('connects viewers to the data stream', () => {
