@@ -102,7 +102,7 @@ export type HashResponse = {
           solveTime: number;
           checkpoint: number;
           progress: number;
-          state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+          state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 13 | 14 | 16;
           cracked: number;
           speed: number;
         };
@@ -199,7 +199,7 @@ export type HashListResponse = {
           solveTime: number;
           checkpoint: number;
           progress: number;
-          state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+          state: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 13 | 14 | 16;
           cracked: number;
           speed: number;
         };

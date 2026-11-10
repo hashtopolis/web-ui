@@ -158,7 +158,7 @@ export class ChunkDetailComponent implements OnInit {
   }
 
   get isActive(): boolean {
-    return this.chunk?.state === ChunkState.RUNNING || this.chunk?.state === ChunkState.INIT;
+    return this.chunk?.state === ChunkState.RUNNING;
   }
 
   get usesPipe(): boolean {

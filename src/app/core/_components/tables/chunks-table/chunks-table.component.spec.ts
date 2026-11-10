@@ -317,12 +317,28 @@ describe('ChunksTableComponent', () => {
       const chunk = { state: 0 } as JChunk;
       const result = component.renderState(chunk);
 
-      expect(result).toContain(ChunkStateLabels[ChunkState.NEW].toLowerCase());
-      expect(result).toContain(ChunkStateLabels[ChunkState.NEW]);
+      expect(result).toContain(ChunkStateLabels[ChunkState.INIT].toLowerCase());
+      expect(result).toContain(ChunkStateLabels[ChunkState.INIT]);
+    });
+
+    it('should render state for AUTOTUNE state', () => {
+      const chunk = { state: 1 } as JChunk;
+      const result = component.renderState(chunk);
+
+      expect(result).toContain(ChunkStateLabels[ChunkState.AUTOTUNE].toLowerCase());
+      expect(result).toContain(ChunkStateLabels[ChunkState.AUTOTUNE]);
+    });
+
+    it('should render state for SELFTEST state', () => {
+      const chunk = { state: 2 } as JChunk;
+      const result = component.renderState(chunk);
+
+      expect(result).toContain(ChunkStateLabels[ChunkState.SELFTEST].toLowerCase());
+      expect(result).toContain(ChunkStateLabels[ChunkState.SELFTEST]);
     });
 
     it('should render state for RUNNING state', () => {
-      const chunk = { state: 2 } as JChunk;
+      const chunk = { state: 3 } as JChunk;
       const result = component.renderState(chunk);
 
       expect(result).toContain(ChunkStateLabels[ChunkState.RUNNING].toLowerCase());
@@ -330,7 +346,7 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should render state for EXHAUSTED state', () => {
-      const chunk = { state: 4 } as JChunk;
+      const chunk = { state: 5 } as JChunk;
       const result = component.renderState(chunk);
 
       expect(result).toContain(ChunkStateLabels[ChunkState.EXHAUSTED].toLowerCase());
@@ -338,7 +354,7 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should render state for CRACKED state', () => {
-      const chunk = { state: 5 } as JChunk;
+      const chunk = { state: 6 } as JChunk;
       const result = component.renderState(chunk);
 
       expect(result).toContain(ChunkStateLabels[ChunkState.CRACKED].toLowerCase());
@@ -346,7 +362,7 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should render state for ABORTED state', () => {
-      const chunk = { state: 6 } as JChunk;
+      const chunk = { state: 7 } as JChunk;
       const result = component.renderState(chunk);
 
       expect(result).toContain(ChunkStateLabels[ChunkState.ABORTED].toLowerCase());
@@ -354,7 +370,7 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should render state for QUIT state', () => {
-      const chunk = { state: 7 } as JChunk;
+      const chunk = { state: 8 } as JChunk;
       const result = component.renderState(chunk);
 
       expect(result).toContain(ChunkStateLabels[ChunkState.QUIT].toLowerCase());
@@ -362,7 +378,7 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should render state for BYPASS state', () => {
-      const chunk = { state: 8 } as JChunk;
+      const chunk = { state: 9 } as JChunk;
       const result = component.renderState(chunk);
 
       expect(result).toContain(ChunkStateLabels[ChunkState.BYPASS].toLowerCase());
@@ -370,19 +386,43 @@ describe('ChunksTableComponent', () => {
     });
 
     it('should render state for TRIMMED state', () => {
-      const chunk = { state: 9 } as JChunk;
-      const result = component.renderState(chunk);
-
-      expect(result).toContain(ChunkStateLabels[ChunkState.TRIMMED].toLowerCase());
-      expect(result).toContain(ChunkStateLabels[ChunkState.TRIMMED]);
-    });
-
-    it('should render state for ABORTING state', () => {
       const chunk = { state: 10 } as JChunk;
       const result = component.renderState(chunk);
 
+      expect(result).toContain(ChunkStateLabels[ChunkState.ABORTED_CHECKPOINT].toLowerCase());
+      expect(result).toContain(ChunkStateLabels[ChunkState.ABORTED_CHECKPOINT]);
+    });
+
+    it('should render state for ABORTING state', () => {
+      const chunk = { state: 11 } as JChunk;
+      const result = component.renderState(chunk);
+
       expect(result).toContain('class="pill pill-aborting"');
-      expect(result).toContain(ChunkStateLabels[ChunkState.ABORTING]);
+      expect(result).toContain(ChunkStateLabels[ChunkState.ABORTED_RUNTIME]);
+    });
+
+    it('should render state for ERROR state', () => {
+      const chunk = { state: 13 } as JChunk;
+      const result = component.renderState(chunk);
+
+      expect(result).toContain('class="pill pill-error"');
+      expect(result).toContain(ChunkStateLabels[ChunkState.ERROR]);
+    });
+
+    it('should render state for ABORTED_FINISH state', () => {
+      const chunk = { state: 14 } as JChunk;
+      const result = component.renderState(chunk);
+
+      expect(result).toContain(ChunkStateLabels[ChunkState.ABORTED_FINISH].toLowerCase());
+      expect(result).toContain(ChunkStateLabels[ChunkState.ABORTED_FINISH]);
+    });
+
+    it('should render state for AUTODETECT state', () => {
+      const chunk = { state: 16 } as JChunk;
+      const result = component.renderState(chunk);
+
+      expect(result).toContain('class="pill pill-autodetect"');
+      expect(result).toContain(ChunkStateLabels[ChunkState.AUTODETECT]);
     });
 
     it('should render the raw state value within a span for unknown state', () => {

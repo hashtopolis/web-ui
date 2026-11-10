@@ -24,7 +24,7 @@ describe('ChunkContextMenuService', () => {
       solveTime: 0,
       checkpoint: 0,
       progress: 0,
-      state: isRunning ? 2 : 0,
+      state: isRunning ? 3 : 0,
       isRunning,
       cracked: 0,
       speed: 0
