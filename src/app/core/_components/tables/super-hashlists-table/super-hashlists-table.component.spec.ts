@@ -1,3 +1,5 @@
+import type { MockedObject } from 'vitest';
+
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -32,12 +34,16 @@ class TestSuperHashlistsTableComponent extends SuperHashlistsTableComponent {
 describe('SuperHashlistsTableComponent', () => {
   let component: TestSuperHashlistsTableComponent;
   let fixture: ComponentFixture<TestSuperHashlistsTableComponent>;
-  let mockExportService: jasmine.SpyObj<ExportService>;
-  let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
+  let mockExportService: MockedObject<ExportService>;
+  let mockHTTable: MockedObject<HTTableComponent<BaseModel>>;
 
   beforeEach(async () => {
-    mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
-    mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
+    mockExportService = {
+      handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
+    } as MockedObject<ExportService>;
+    mockHTTable = {
+      reload: vi.fn().mockName('HTTableComponent.reload')
+    } as MockedObject<HTTableComponent<BaseModel>>;
 
     await TestBed.configureTestingModule({
       declarations: [TestSuperHashlistsTableComponent],
@@ -73,7 +79,7 @@ describe('SuperHashlistsTableComponent', () => {
 
       component.exportActionClicked(event);
 
-      expect(mockExportService.handleExportAction).toHaveBeenCalledOnceWith(
+      expect(mockExportService.handleExportAction).toHaveBeenCalledExactlyOnceWith(
         event,
         component.tableColumns,
         SuperHashlistsTableColumnLabel,

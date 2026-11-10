@@ -1,6 +1,7 @@
 import { asyncScheduler, observeOn, of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -26,14 +27,28 @@ describe('ForgotPasswordComponent', () => {
   let fixture: ComponentFixture<ForgotPasswordComponent>;
 
   // Mocks
-  let mockGlobalService: jasmine.SpyObj<GlobalService>;
-  let mockAlertService: jasmine.SpyObj<AlertService>;
-  let mockRouter: jasmine.SpyObj<Router>;
+  let mockGlobalService: MockedObject<GlobalService>;
+  let mockAlertService: MockedObject<AlertService>;
+  let mockRouter: MockedObject<Router>;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   beforeEach(async () => {
-    mockGlobalService = jasmine.createSpyObj('GlobalService', ['chelper']);
-    mockAlertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    mockRouter = jasmine.createSpyObj('Router', ['navigate']);
+    mockGlobalService = {
+      chelper: vi.fn().mockName('GlobalService.chelper')
+    } as MockedObject<GlobalService>;
+    mockAlertService = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    } as MockedObject<AlertService>;
+    mockRouter = {
+      navigate: vi.fn().mockName('Router.navigate')
+    } as MockedObject<Router>;
 
     await TestBed.configureTestingModule({
       imports: [
@@ -70,20 +85,20 @@ describe('ForgotPasswordComponent', () => {
 
   it('should mark the form invalid when both fields are empty', () => {
     component.forgotForm.setValue({ username: '', email: '' });
-    expect(component.forgotForm.invalid).toBeTrue();
+    expect(component.forgotForm.invalid).toBe(true);
   });
 
   it('should reject emails without a top-level domain, matching the backend rule', () => {
     const email = component.forgotForm.controls.email;
 
     email.setValue('a@b');
-    expect(email.hasError('email')).toBeTrue();
+    expect(email.hasError('email')).toBe(true);
 
     email.setValue('user@localhost');
-    expect(email.hasError('email')).toBeTrue();
+    expect(email.hasError('email')).toBe(true);
 
     email.setValue('user@example.com');
-    expect(email.valid).toBeTrue();
+    expect(email.valid).toBe(true);
   });
 
   it('should not send a request when the form is invalid', () => {
@@ -92,39 +107,39 @@ describe('ForgotPasswordComponent', () => {
     component.onSubmit();
 
     expect(mockGlobalService.chelper).not.toHaveBeenCalled();
-    expect(component.forgotForm.touched).toBeTrue();
+    expect(component.forgotForm.touched).toBe(true);
   });
 
-  it('should request a password reset and redirect to login on valid submit', fakeAsync(() => {
-    mockGlobalService.chelper.and.returnValue(of(mockResponse()).pipe(observeOn(asyncScheduler)));
+  it('should request a password reset and redirect to login on valid submit', async () => {
+    mockGlobalService.chelper.mockReturnValue(of(mockResponse()).pipe(observeOn(asyncScheduler)));
     component.forgotForm.setValue({ username: 'admin', email: 'admin@example.com' });
 
     const submitButtonDebugEl = fixture.debugElement.query(By.css('button-submit button'));
     submitButtonDebugEl.nativeElement.click();
 
-    expect(component.isLoading).toBeTrue();
+    expect(component.isLoading).toBe(true);
     expect(mockGlobalService.chelper).toHaveBeenCalledWith(SERV.HELPER, 'resetUserPassword', {
       username: 'admin',
       email: 'admin@example.com'
     });
 
-    tick();
+    await vi.advanceTimersByTimeAsync(0);
 
-    expect(component.isLoading).toBeFalse();
+    expect(component.isLoading).toBe(false);
     expect(mockAlertService.showSuccessMessage).toHaveBeenCalled();
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/auth']);
-  }));
+  });
 
-  it('should reset the loading state and not redirect when the request fails', fakeAsync(() => {
-    mockGlobalService.chelper.and.returnValue(throwError(() => new Error('failed')).pipe(observeOn(asyncScheduler)));
+  it('should reset the loading state and not redirect when the request fails', async () => {
+    mockGlobalService.chelper.mockReturnValue(throwError(() => new Error('failed')).pipe(observeOn(asyncScheduler)));
     component.forgotForm.setValue({ username: 'admin', email: 'admin@example.com' });
 
     component.onSubmit();
-    expect(component.isLoading).toBeTrue();
+    expect(component.isLoading).toBe(true);
 
-    tick();
+    await vi.advanceTimersByTimeAsync(0);
 
-    expect(component.isLoading).toBeFalse();
+    expect(component.isLoading).toBe(false);
     expect(mockRouter.navigate).not.toHaveBeenCalled();
-  }));
+  });
 });

@@ -1,9 +1,10 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { CommonModule } from '@angular/common';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -27,7 +28,7 @@ describe('AccountSettingsComponent', () => {
   let component: AccountSettingsComponent;
   let fixture: ComponentFixture<AccountSettingsComponent>;
 
-  let alertSpy: jasmine.SpyObj<AlertService>;
+  let alertSpy: MockedObject<AlertService>;
 
   const userResponse = {
     type: 'user',
@@ -83,9 +84,12 @@ describe('AccountSettingsComponent', () => {
   };
 
   beforeEach(async () => {
-    alertSpy = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
+    alertSpy = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    } as MockedObject<AlertService>;
 
-    spyOn(JsonAPISerializer.prototype, 'deserialize').and.returnValue(mockUser);
+    vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockReturnValue(mockUser);
 
     await TestBed.configureTestingModule({
       declarations: [AccountSettingsComponent],
@@ -145,7 +149,7 @@ describe('AccountSettingsComponent', () => {
       const emailControl = component.form.controls.email;
       emailControl.patchValue(null);
       component.form.updateValueAndValidity();
-      expect(emailControl?.hasError('required')).toBeTrue();
+      expect(emailControl?.hasError('required')).toBe(true);
     });
 
     it('validates email format', () => {
@@ -153,11 +157,11 @@ describe('AccountSettingsComponent', () => {
 
       emailControl.patchValue('invalid-email');
       component.form.updateValueAndValidity();
-      expect(emailControl.hasError('email')).toBeTrue();
+      expect(emailControl.hasError('email')).toBe(true);
 
       emailControl.patchValue('test@example.com');
       component.form.updateValueAndValidity();
-      expect(emailControl.hasError('email')).toBeFalse();
+      expect(emailControl.hasError('email')).toBe(false);
     });
 
     it('enables form submission when form is valid', () => {
@@ -168,7 +172,7 @@ describe('AccountSettingsComponent', () => {
       expect(component.form.valid).toBe(true);
       const btn = fixture.debugElement.query(By.css('[data-testid="button-update-submit"]'));
       const nativeBtn = btn.nativeElement.querySelector('button');
-      expect(nativeBtn?.disabled).toBeFalse();
+      expect(nativeBtn?.disabled).toBe(false);
     });
 
     it('keeps submit button enabled when form is invalid', () => {
@@ -179,11 +183,11 @@ describe('AccountSettingsComponent', () => {
       expect(component.form.valid).toBe(false);
       const btn = fixture.debugElement.query(By.css('[data-testid="button-update-submit"]'));
       const nativeBtn = btn.nativeElement.querySelector('button');
-      expect(nativeBtn?.disabled).toBeFalse();
+      expect(nativeBtn?.disabled).toBe(false);
     });
 
     it('submits form with valid email', () => {
-      spyOn(component['gs'], 'uhelper').and.returnValue(of({}));
+      vi.spyOn(component['gs'], 'uhelper').mockReturnValue(of({}));
 
       component.form.patchValue({ email: 'test@example.com' });
       component.form.updateValueAndValidity();
@@ -203,7 +207,7 @@ describe('AccountSettingsComponent', () => {
     });
 
     it('does not submit form with invalid email', () => {
-      const uhelperSpy = spyOn(component['gs'], 'uhelper');
+      const uhelperSpy = vi.spyOn(component['gs'], 'uhelper').mockReturnValue(undefined as never);
       component.form.patchValue({ email: 'invalid-email' });
       component.form.updateValueAndValidity();
       fixture.detectChanges();
@@ -212,7 +216,7 @@ describe('AccountSettingsComponent', () => {
       btnDebugEl.nativeElement.click();
       fixture.detectChanges();
 
-      expect(component.form.valid).toBeFalse();
+      expect(component.form.valid).toBe(false);
       expect(uhelperSpy).not.toHaveBeenCalled();
       expect(component['alert'].showSuccessMessage).not.toHaveBeenCalled();
     });
@@ -244,12 +248,12 @@ describe('AccountSettingsComponent', () => {
       const newPasswordControl = form.controls.newPassword;
       const confirmPasswordControl = form.controls.confirmNewPassword;
 
-      expect(oldPasswordControl.hasError('required')).toBeTrue();
-      expect(newPasswordControl.hasError('required')).toBeTrue();
-      expect(confirmPasswordControl.hasError('required')).toBeTrue();
+      expect(oldPasswordControl.hasError('required')).toBe(true);
+      expect(newPasswordControl.hasError('required')).toBe(true);
+      expect(confirmPasswordControl.hasError('required')).toBe(true);
     });
 
-    it('shows validation only for the password field that has been visited', fakeAsync(() => {
+    it('shows validation only for the password field that has been visited', () => {
       const form = component.changepasswordFormGroup;
       const oldPasswordHost = fixture.debugElement.query(By.css('[data-testid="input-oldPassword"]'));
       const newPasswordHost = fixture.debugElement.query(By.css('[data-testid="input-newPassword"]'));
@@ -260,42 +264,36 @@ describe('AccountSettingsComponent', () => {
       oldPasswordInput.dispatchEvent(new Event('input'));
       oldPasswordInput.dispatchEvent(new Event('blur'));
       fixture.detectChanges();
-      tick();
-      fixture.detectChanges();
 
-      expect(form.controls.oldPassword.touched).toBeTrue();
-      expect(form.controls.newPassword.touched).toBeFalse();
-      expect(form.controls.confirmNewPassword.touched).toBeFalse();
+      expect(form.controls.oldPassword.touched).toBe(true);
+      expect(form.controls.newPassword.touched).toBe(false);
+      expect(form.controls.confirmNewPassword.touched).toBe(false);
       expect(newPasswordHost.query(By.css('.field-stack')).nativeElement.classList).not.toContain('is-invalid');
       expect(confirmPasswordHost.query(By.css('.field-stack')).nativeElement.classList).not.toContain('is-invalid');
 
       const newPasswordInput = newPasswordHost.query(By.css('input')).nativeElement as HTMLInputElement;
       newPasswordInput.dispatchEvent(new Event('blur'));
       fixture.detectChanges();
-      tick();
-      fixture.detectChanges();
 
-      expect(form.controls.newPassword.touched).toBeTrue();
-      expect(form.controls.confirmNewPassword.touched).toBeFalse();
+      expect(form.controls.newPassword.touched).toBe(true);
+      expect(form.controls.confirmNewPassword.touched).toBe(false);
       expect(newPasswordHost.query(By.css('.field-stack')).nativeElement.classList).toContain('is-invalid');
       expect(confirmPasswordHost.query(By.css('.field-stack')).nativeElement.classList).not.toContain('is-invalid');
-    }));
+    });
 
-    it('shows every invalid password field after an invalid submission', fakeAsync(() => {
+    it('shows every invalid password field after an invalid submission', () => {
       component.onSubmitPass();
       fixture.detectChanges();
-      tick();
-      fixture.detectChanges();
 
-      expect(component.changepasswordFormGroup.controls.oldPassword.touched).toBeTrue();
-      expect(component.changepasswordFormGroup.controls.newPassword.touched).toBeTrue();
-      expect(component.changepasswordFormGroup.controls.confirmNewPassword.touched).toBeTrue();
+      expect(component.changepasswordFormGroup.controls.oldPassword.touched).toBe(true);
+      expect(component.changepasswordFormGroup.controls.newPassword.touched).toBe(true);
+      expect(component.changepasswordFormGroup.controls.confirmNewPassword.touched).toBe(true);
 
       for (const testId of ['input-oldPassword', 'input-newPassword', 'input-confirmNewPassword']) {
         const field = fixture.debugElement.query(By.css(`[data-testid="${testId}"] .field-stack`));
         expect(field.nativeElement.classList).toContain('is-invalid');
       }
-    }));
+    });
 
     it('validates password length', () => {
       const newPasswordControl = component.changepasswordFormGroup.controls.newPassword;
@@ -306,24 +304,24 @@ describe('AccountSettingsComponent', () => {
       confirmPasswordControl.patchValue('123');
       component.changepasswordFormGroup.updateValueAndValidity();
 
-      expect(newPasswordControl.hasError('minlength')).toBeTrue();
-      expect(confirmPasswordControl.hasError('minlength')).toBeTrue();
+      expect(newPasswordControl.hasError('minlength')).toBe(true);
+      expect(confirmPasswordControl.hasError('minlength')).toBe(true);
 
       // Exactly min
       newPasswordControl.patchValue('1234');
       confirmPasswordControl.patchValue('1234');
       component.changepasswordFormGroup.updateValueAndValidity();
 
-      expect(newPasswordControl.hasError('minlength')).toBeFalse();
-      expect(confirmPasswordControl.hasError('minlength')).toBeFalse();
+      expect(newPasswordControl.hasError('minlength')).toBe(false);
+      expect(confirmPasswordControl.hasError('minlength')).toBe(false);
 
       // Long passwords are allowed: there is no maximum length limit
       newPasswordControl.patchValue('VeryNiceLongPasswordWithoutAnyLengthLimitForHashtopolis');
       confirmPasswordControl.patchValue('VeryNiceLongPasswordWithoutAnyLengthLimitForHashtopolis');
       component.changepasswordFormGroup.updateValueAndValidity();
 
-      expect(newPasswordControl.hasError('maxlength')).toBeFalse();
-      expect(confirmPasswordControl.hasError('maxlength')).toBeFalse();
+      expect(newPasswordControl.hasError('maxlength')).toBe(false);
+      expect(confirmPasswordControl.hasError('maxlength')).toBe(false);
     });
 
     it('validates password match', () => {
@@ -346,12 +344,12 @@ describe('AccountSettingsComponent', () => {
       expect(component.changepasswordFormGroup.hasError('passwordMismatch')).toBe(false);
     });
 
-    it('Submits password form and resets on success', fakeAsync(() => {
+    it('Submits password form and resets on success', () => {
       // Arrange
-      const chelperSpy = spyOn(component['gs'], 'chelper').and.returnValue(
-        of(mockResponse({ meta: { 'Change password': 'Password changed successfully' } }))
-      );
-      const resetSpy = spyOn(component, 'resetPasswordForm');
+      const chelperSpy = vi
+        .spyOn(component['gs'], 'chelper')
+        .mockReturnValue(of(mockResponse({ meta: { 'Change password': 'Password changed successfully' } })));
+      const resetSpy = vi.spyOn(component, 'resetPasswordForm').mockReturnValue(undefined);
 
       // Fill valid form values
       component.changepasswordFormGroup.patchValue({
@@ -366,24 +364,22 @@ describe('AccountSettingsComponent', () => {
       const btn = fixture.debugElement.query(By.css('[data-testid="button-password-submit"]'));
       expect(btn).toBeTruthy();
       btn.nativeElement.click();
-
-      tick(); // flush observable
       fixture.detectChanges();
 
       // Assert
-      expect(chelperSpy).toHaveBeenCalledOnceWith(SERV.HELPER, 'changeOwnPassword', {
+      expect(chelperSpy).toHaveBeenCalledExactlyOnceWith(SERV.HELPER, 'changeOwnPassword', {
         oldPassword: 'oldPass123',
         newPassword: 'newPass456',
         confirmPassword: 'newPass456'
       });
-      expect(component['alert'].showSuccessMessage).toHaveBeenCalledOnceWith('Password changed successfully');
+      expect(component['alert'].showSuccessMessage).toHaveBeenCalledExactlyOnceWith('Password changed successfully');
       expect(resetSpy).toHaveBeenCalled();
-      expect(component.isUpdatingPassLoading).toBeFalse();
-    }));
+      expect(component.isUpdatingPassLoading).toBe(false);
+    });
 
     it('Does not submit password form if invalid', () => {
-      const chelperSpy = spyOn(component['gs'], 'chelper');
-      const resetSpy = spyOn(component, 'resetPasswordForm');
+      const chelperSpy = vi.spyOn(component['gs'], 'chelper').mockReturnValue(undefined as never);
+      const resetSpy = vi.spyOn(component, 'resetPasswordForm').mockReturnValue(undefined);
 
       // Make the form invalid by patching passwords not matching
       component.changepasswordFormGroup.patchValue({
@@ -406,7 +402,7 @@ describe('AccountSettingsComponent', () => {
       // Reset should not be called
       expect(resetSpy).not.toHaveBeenCalled();
       // isUpdatingPassLoading should remain false (no submission started)
-      expect(component.isUpdatingPassLoading).toBeFalse();
+      expect(component.isUpdatingPassLoading).toBe(false);
     });
   });
 });

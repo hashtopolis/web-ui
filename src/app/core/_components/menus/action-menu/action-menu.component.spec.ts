@@ -1,7 +1,8 @@
-/// <reference types="jasmine" />
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Subject } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -13,7 +14,7 @@ import { UIConfig } from '@models/config-ui.model';
 
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
-import { ActionMenuComponent } from './action-menu.component';
+import { ActionMenuComponent } from '@components/menus/action-menu/action-menu.component';
 
 import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
@@ -21,16 +22,20 @@ describe('ActionMenuComponent', () => {
   let component: ActionMenuComponent;
   let fixture: ComponentFixture<ActionMenuComponent>;
   let routerEvents$: Subject<NavigationEnd>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let storageSpy: jasmine.SpyObj<LocalStorageService<UIConfig>>;
+  let routerSpy: MockedObject<Router>;
+  let storageSpy: MockedObject<LocalStorageService<UIConfig>>;
 
   beforeEach(async () => {
     routerEvents$ = new Subject<NavigationEnd>();
-    routerSpy = jasmine.createSpyObj('Router', ['navigate'], {
+    routerSpy = {
+      navigate: vi.fn().mockName('Router.navigate'),
       events: routerEvents$.asObservable()
-    });
-    storageSpy = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
-    storageSpy.getItem.and.returnValue(null);
+    } as MockedObject<Router>;
+    storageSpy = {
+      getItem: vi.fn().mockName('LocalStorageService.getItem'),
+      setItem: vi.fn().mockName('LocalStorageService.setItem')
+    } as MockedObject<LocalStorageService<UIConfig>>;
+    storageSpy.getItem.mockReturnValue(null);
 
     await TestBed.configureTestingModule({
       declarations: [ActionMenuComponent],
@@ -39,7 +44,8 @@ describe('ActionMenuComponent', () => {
         provideDisabledMaterialAnimations(),
         { provide: Router, useValue: routerSpy },
         { provide: LocalStorageService, useValue: storageSpy }
-      ]
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ActionMenuComponent);
@@ -57,28 +63,28 @@ describe('ActionMenuComponent', () => {
       component.currentUrl = ['agents', 'show-agents'];
       component.actionMenuItems = [];
       component.checkIsActive();
-      expect(component.isActive).toBeFalse();
+      expect(component.isActive).toBe(false);
     });
 
     it('should be active when currentUrl matches routerLink exactly', () => {
       component.currentUrl = ['agents', 'show-agents'];
       component.actionMenuItems = [[{ label: 'Agents', routerLink: ['agents', 'show-agents'] }]];
       component.checkIsActive();
-      expect(component.isActive).toBeTrue();
+      expect(component.isActive).toBe(true);
     });
 
     it('should be active when currentUrl is deeper than routerLink (prefix match)', () => {
       component.currentUrl = ['files', 'wordlist', 'new-wordlist'];
       component.actionMenuItems = [[{ label: 'Wordlists', routerLink: ['files', 'wordlist'] }]];
       component.checkIsActive();
-      expect(component.isActive).toBeTrue();
+      expect(component.isActive).toBe(true);
     });
 
     it('should NOT be active when currentUrl does not match routerLink', () => {
       component.currentUrl = ['hashlists', 'hashlist'];
       component.actionMenuItems = [[{ label: 'Agents', routerLink: ['agents', 'show-agents'] }]];
       component.checkIsActive();
-      expect(component.isActive).toBeFalse();
+      expect(component.isActive).toBe(false);
     });
 
     it('should be active when currentUrl matches routerLinkAdd', () => {
@@ -93,7 +99,7 @@ describe('ActionMenuComponent', () => {
         ]
       ];
       component.checkIsActive();
-      expect(component.isActive).toBeTrue();
+      expect(component.isActive).toBe(true);
     });
 
     it('should NOT be active when routerLink matches but routerLinkAdd does not', () => {
@@ -108,7 +114,7 @@ describe('ActionMenuComponent', () => {
         ]
       ];
       component.checkIsActive();
-      expect(component.isActive).toBeFalse();
+      expect(component.isActive).toBe(false);
     });
 
     it('should be active when currentUrl matches an activeRoute', () => {
@@ -126,7 +132,7 @@ describe('ActionMenuComponent', () => {
         ]
       ];
       component.checkIsActive();
-      expect(component.isActive).toBeTrue();
+      expect(component.isActive).toBe(true);
     });
 
     it('should be active when currentUrl matches second activeRoute', () => {
@@ -144,7 +150,7 @@ describe('ActionMenuComponent', () => {
         ]
       ];
       component.checkIsActive();
-      expect(component.isActive).toBeTrue();
+      expect(component.isActive).toBe(true);
     });
 
     it('should NOT be active when currentUrl does not match any activeRoute', () => {
@@ -162,7 +168,7 @@ describe('ActionMenuComponent', () => {
         ]
       ];
       component.checkIsActive();
-      expect(component.isActive).toBeFalse();
+      expect(component.isActive).toBe(false);
     });
 
     it('should be active when currentUrl matches a 3-segment activeRoute', () => {
@@ -177,7 +183,7 @@ describe('ActionMenuComponent', () => {
         ]
       ];
       component.checkIsActive();
-      expect(component.isActive).toBeTrue();
+      expect(component.isActive).toBe(true);
     });
 
     it('should be active when matching item is in a second section', () => {
@@ -187,14 +193,14 @@ describe('ActionMenuComponent', () => {
         [{ label: 'Hashlists', routerLink: ['hashlists', 'hashlist'] }]
       ];
       component.checkIsActive();
-      expect(component.isActive).toBeTrue();
+      expect(component.isActive).toBe(true);
     });
 
     it('should handle item with no routerLink, routerLinkAdd or activeRoutes', () => {
       component.currentUrl = ['agents', 'show-agents'];
       component.actionMenuItems = [[{ label: 'Logout', action: 'logout' }]];
       component.checkIsActive();
-      expect(component.isActive).toBeFalse();
+      expect(component.isActive).toBe(false);
     });
   });
 });

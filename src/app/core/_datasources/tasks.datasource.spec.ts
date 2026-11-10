@@ -1,7 +1,7 @@
-/// <reference types="jasmine" />
 import type { TaskWrapperDisplayListResponse } from '@generated/api/types';
 import { zTaskWrapperDisplayListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -59,7 +59,10 @@ function taskWrapperDisplayAttributes(
 }
 
 function buildMockResponse(
-  taskWrappers: { id: number; attributes: Partial<TaskWrapperDisplayAttributes> }[]
+  taskWrappers: {
+    id: number;
+    attributes: Partial<TaskWrapperDisplayAttributes>;
+  }[]
 ): ResponseWrapper {
   return mockValidResponse(zTaskWrapperDisplayListResponse, {
     data: taskWrappers.map((t) => ({
@@ -74,24 +77,35 @@ function buildMockResponse(
 
 describe('TasksDataSource', () => {
   let dataSource: TasksDataSource;
-  let gsSpy: jasmine.SpyObj<GlobalService>;
+  let gsSpy: MockedObject<GlobalService>;
 
   beforeEach(() => {
-    gsSpy = jasmine.createSpyObj('GlobalService', ['getAll']);
+    gsSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    } as MockedObject<GlobalService>;
 
-    const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['markForCheck', 'detectChanges']);
-    const uiServiceSpy = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-    uiServiceSpy.getUISettings.and.returnValue({});
-    const autoRefreshSpy = jasmine.createSpyObj(
-      'AutoRefreshService',
-      ['toggleAutoRefresh', 'startAutoRefresh', 'stopAutoRefresh'],
-      {
-        refresh$: of()
-      }
-    );
-    const cacheSpy = jasmine.createSpyObj('HttpCacheService', ['invalidate']);
-    const storageSpy = jasmine.createSpyObj('LocalStorageService', ['getItem', 'setItem']);
-    storageSpy.getItem.and.returnValue(null);
+    const cdrSpy = {
+      markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
+      detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges')
+    };
+    const uiServiceSpy = {
+      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+    };
+    uiServiceSpy.getUISettings.mockReturnValue({});
+    const autoRefreshSpy = {
+      toggleAutoRefresh: vi.fn().mockName('AutoRefreshService.toggleAutoRefresh'),
+      startAutoRefresh: vi.fn().mockName('AutoRefreshService.startAutoRefresh'),
+      stopAutoRefresh: vi.fn().mockName('AutoRefreshService.stopAutoRefresh'),
+      refresh$: of()
+    };
+    const cacheSpy = {
+      invalidate: vi.fn().mockName('HttpCacheService.invalidate')
+    };
+    const storageSpy = {
+      getItem: vi.fn().mockName('LocalStorageService.getItem'),
+      setItem: vi.fn().mockName('LocalStorageService.setItem')
+    };
+    storageSpy.getItem.mockReturnValue(null);
 
     TestBed.configureTestingModule({
       providers: [
@@ -114,7 +128,7 @@ describe('TasksDataSource', () => {
         { id: 5, attributes: { displayName: 'Task A', taskType: 1 } },
         { id: 10, attributes: { displayName: 'Task B', taskType: 1 } }
       ]);
-      gsSpy.getAll.and.returnValue(of(response));
+      gsSpy.getAll.mockReturnValue(of(response));
 
       dataSource.loadAll();
 
@@ -127,7 +141,7 @@ describe('TasksDataSource', () => {
       const response = buildMockResponse([
         { id: 5, attributes: { displayName: 'Task A', taskType: 1, hashlistId: 3 } }
       ]);
-      gsSpy.getAll.and.returnValue(of(response));
+      gsSpy.getAll.mockReturnValue(of(response));
 
       dataSource.loadAll();
 
@@ -140,15 +154,15 @@ describe('TasksDataSource', () => {
 
   describe('loadAll', () => {
     it('should set loading to false after successful load', () => {
-      gsSpy.getAll.and.returnValue(of(buildMockResponse([])));
+      gsSpy.getAll.mockReturnValue(of(buildMockResponse([])));
       dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
 
     it('should set loading to false after failed load', () => {
-      gsSpy.getAll.and.returnValue(throwError(() => new Error('Network error')));
+      gsSpy.getAll.mockReturnValue(throwError(() => new Error('Network error')));
       dataSource.loadAll();
-      expect(dataSource['loadingSubject'].getValue()).toBeFalse();
+      expect(dataSource['loadingSubject'].getValue()).toBe(false);
     });
 
     it('should set data from API response', () => {
@@ -156,7 +170,7 @@ describe('TasksDataSource', () => {
         { id: 1, attributes: { displayName: 'Task 1' } },
         { id: 2, attributes: { displayName: 'Task 2' } }
       ]);
-      gsSpy.getAll.and.returnValue(of(response));
+      gsSpy.getAll.mockReturnValue(of(response));
 
       dataSource.loadAll();
 
@@ -165,7 +179,7 @@ describe('TasksDataSource', () => {
 
     it('should call reload with filter when filterQuery is set', () => {
       const filter = { field: 'name', operator: 'eq' as never, value: 'test' };
-      gsSpy.getAll.and.returnValue(of(buildMockResponse([])));
+      gsSpy.getAll.mockReturnValue(of(buildMockResponse([])));
 
       dataSource.setFilterQuery(filter);
       dataSource.reload();
@@ -179,7 +193,7 @@ describe('TasksDataSource', () => {
       dataSource.pageAfter = 'someCursor';
       dataSource.index = 5;
 
-      gsSpy.getAll.and.returnValue(of(buildMockResponse([])));
+      gsSpy.getAll.mockReturnValue(of(buildMockResponse([])));
       dataSource.setIsArchived(true);
 
       expect(dataSource.pageAfter).toBeNull();

@@ -2,6 +2,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { zAgentListResponse, zHashlistListResponse, zTaskListResponse, zUserListResponse } from '@generated/api/zod';
 import { TJsonApiData } from 'jsona/lib/JsonaTypes';
 import { of } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
 import { HarnessLoader } from '@angular/cdk/testing';
 import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
@@ -13,7 +14,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatSelectHarness } from '@angular/material/select/testing';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
-import { RouterModule } from '@angular/router';
+import { RouterModule, provideRouter } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
 
@@ -33,7 +34,7 @@ let loader: HarnessLoader;
 describe('NewNotificationComponent', () => {
   let component: NewNotificationComponent;
   let fixture: ComponentFixture<NewNotificationComponent>;
-  let mockRoleService: jasmine.SpyObj<NotificationsRoleService>;
+  let mockRoleService: MockedObject<NotificationsRoleService>;
 
   // Sample data for agents, tasks, hashlist, and users
   // Attributes must match the Zod schemas (zAgentListResponse, zTaskListResponse, etc.)
@@ -228,7 +229,9 @@ describe('NewNotificationComponent', () => {
   };
 
   beforeEach(async () => {
-    mockRoleService = jasmine.createSpyObj('NotificationsRoleService', ['hasRole']);
+    mockRoleService = {
+      hasRole: vi.fn().mockName('NotificationsRoleService.hasRole')
+    } as MockedObject<NotificationsRoleService>;
 
     await TestBed.configureTestingModule({
       declarations: [NewNotificationComponent],
@@ -245,14 +248,17 @@ describe('NewNotificationComponent', () => {
       providers: [
         { provide: GlobalService, useValue: mockService },
         { provide: NotificationsRoleService, useValue: mockRoleService },
-        provideHttpClient(withInterceptorsFromDi())
+        provideHttpClient(withInterceptorsFromDi()),
+        // The component navigates here after a successful submit; without the route the
+        // navigation rejects with NG04002 after the test, which Vitest reports as an unhandled error.
+        provideRouter([{ path: 'account/notifications', children: [] }])
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(NewNotificationComponent);
     loader = TestbedHarnessEnvironment.loader(fixture);
     component = fixture.componentInstance;
-    mockRoleService.hasRole.and.returnValue(true);
+    mockRoleService.hasRole.mockReturnValue(true);
     fixture.detectChanges();
   });
 
@@ -268,7 +274,7 @@ describe('NewNotificationComponent', () => {
     submitButton.nativeElement.querySelector('button').click();
     fixture.detectChanges();
 
-    expect(component.form.invalid).toBeTrue();
+    expect(component.form.invalid).toBe(true);
   });
 
   it('should keep submit button enabled but not submit when trigger action is not selected', () => {
@@ -280,11 +286,13 @@ describe('NewNotificationComponent', () => {
     submitButton.nativeElement.querySelector('button').click();
     fixture.detectChanges();
 
-    expect(component.form.invalid).toBeTrue();
+    expect(component.form.invalid).toBe(true);
   });
 
   it('should keep submit button enabled but not submit when notification is not selected', () => {
-    spyOn(mockService, 'getAll').withArgs(SERV.TASKS).and.returnValue(of(taskValues));
+    vi.when(vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never))
+      .calledWith(SERV.TASKS)
+      .thenReturn(of(taskValues));
 
     setAction(ACTION.NEW_TASK);
     setFieldValue(fixture, 'input-receiver', 'test-receiver');
@@ -294,11 +302,13 @@ describe('NewNotificationComponent', () => {
     submitButton.nativeElement.querySelector('button').click();
     fixture.detectChanges();
 
-    expect(component.form.invalid).toBeTrue();
+    expect(component.form.invalid).toBe(true);
   });
 
   it('should keep submit button enabled but not submit when receiver is not selected', () => {
-    spyOn(mockService, 'getAll').withArgs(SERV.TASKS).and.returnValue(of(taskValues));
+    vi.when(vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never))
+      .calledWith(SERV.TASKS)
+      .thenReturn(of(taskValues));
 
     setAction(ACTION.NEW_TASK);
     setFieldValue(fixture, 'select-notification', NOTIF.EMAIL);
@@ -308,11 +318,13 @@ describe('NewNotificationComponent', () => {
     submitButton.nativeElement.querySelector('button').click();
     fixture.detectChanges();
 
-    expect(component.form.invalid).toBeTrue();
+    expect(component.form.invalid).toBe(true);
   });
 
   it('should be possible to submit the form when all fields have data', () => {
-    spyOn(mockService, 'getAll').withArgs(SERV.TASKS).and.returnValue(of(taskValues));
+    vi.when(vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never))
+      .calledWith(SERV.TASKS)
+      .thenReturn(of(taskValues));
 
     setAction(ACTION.NEW_TASK);
     component.form.controls.actionFilter.patchValue('1');
@@ -376,9 +388,8 @@ describe('NewNotificationComponent', () => {
   });
 
   it('should submit the form when it is valid', () => {
-    const serviceSpy = spyOn(mockService, 'create')
-      .withArgs(SERV.NOTIFICATIONS, jasmine.any(Object))
-      .and.returnValue(of(mockResponse()));
+    const serviceSpy = vi.spyOn(mockService, 'create').mockReturnValue(undefined as never);
+    vi.when(serviceSpy).calledWith(SERV.NOTIFICATIONS, expect.any(Object)).thenReturn(of(mockResponse()));
 
     setValidFormValues();
     fixture.detectChanges();
@@ -386,10 +397,10 @@ describe('NewNotificationComponent', () => {
     const submitButton: DebugElement = findEl(fixture, 'button-create');
     submitButton.nativeElement.querySelector('button').click();
 
-    expect(serviceSpy).toHaveBeenCalledWith(SERV.NOTIFICATIONS, jasmine.any(Object));
+    expect(serviceSpy).toHaveBeenCalledWith(SERV.NOTIFICATIONS, expect.any(Object));
   });
 
-  it('should show actionFilter only for actions with filters', async () => {
+  it('should show actionFilter only for actions with filters', () => {
     const allActions = Object.values(ACTION); // all possible actions
     const actionsWithFilters = component.actionsWithFilters; // use the component's list
 
@@ -421,11 +432,11 @@ describe('NewNotificationComponent', () => {
 
   const expectButtonToBeEnabled = (): void => {
     const btn: HTMLButtonElement = findEl(fixture, 'button-create').nativeElement.querySelector('button');
-    expect(btn.disabled).toBeFalse();
+    expect(btn.disabled).toBe(false);
   };
 
   const expectHiddenOnAction = (action: string): void => {
-    spyOn(mockService, 'getAll');
+    vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never);
     setAction(action);
     expect(mockService.getAll).not.toHaveBeenCalled();
     const actionFilter = fixture.debugElement.query(By.css('select-action-filter'));
@@ -449,7 +460,9 @@ describe('NewNotificationComponent', () => {
   };
 
   const expectAgentOptionsOnAction = async (action: string): Promise<void> => {
-    spyOn(mockService, 'getAll').withArgs(SERV.AGENTS).and.returnValue(of(agentValues));
+    vi.when(vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never))
+      .calledWith(SERV.AGENTS)
+      .thenReturn(of(agentValues));
 
     const options = await getOptions(action);
 
@@ -460,7 +473,9 @@ describe('NewNotificationComponent', () => {
   };
 
   const expectTaskOptionsOnAction = async (action: string): Promise<void> => {
-    spyOn(mockService, 'getAll').withArgs(SERV.TASKS).and.returnValue(of(taskValues));
+    vi.when(vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never))
+      .calledWith(SERV.TASKS)
+      .thenReturn(of(taskValues));
 
     const options = await getOptions(action);
 
@@ -471,7 +486,9 @@ describe('NewNotificationComponent', () => {
   };
 
   const expectHashlistOptionsOnAction = async (action: string): Promise<void> => {
-    spyOn(mockService, 'getAll').withArgs(SERV.HASHLISTS).and.returnValue(of(hashlistValues));
+    vi.when(vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never))
+      .calledWith(SERV.HASHLISTS)
+      .thenReturn(of(hashlistValues));
 
     const options = await getOptions(action);
 
@@ -482,7 +499,9 @@ describe('NewNotificationComponent', () => {
   };
 
   const expectUserOptionsOnAction = async (action: string): Promise<void> => {
-    spyOn(mockService, 'getAll').withArgs(SERV.USERS).and.returnValue(of(userValues));
+    vi.when(vi.spyOn(mockService, 'getAll').mockReturnValue(undefined as never))
+      .calledWith(SERV.USERS)
+      .thenReturn(of(userValues));
 
     const options = await getOptions(action);
 

@@ -133,9 +133,39 @@ const calculateTotal = (items: number[]): number => {
   for anything not covered here.
 - For the project-specific patterns that the Angular guide does not cover (data
   fetching, tables, forms, caching, theming, storage), see Part B.
-- The app currently uses classic reactive patterns (RxJS with `@Input()` /
-  `@Output()`). Angular **signals are not used yet**, but may be adopted in the
-  future - do not introduce signal-based APIs ad hoc without aligning first.
+- Signals are adopted step by step; see "Signals and change detection" below.
+
+**Signals and change detection.** The app runs on zone.js. Since Angular 22, new
+components default to OnPush change detection; the existing components were
+pinned to `ChangeDetectionStrategy.Eager` during the upgrade. Signals come in
+gradually, starting where a change cannot ripple through the rest of the app:
+
+- **New components** use signals: `input()`, `output()` and `model()` instead of
+  `@Input()` / `@Output()`, and `signal()` / `computed()` for the state their
+  template reads. Keep the OnPush default; do not set `Eager` on a new component.
+- **Existing components** are converted only when they are leaf components whose
+  change stays local: no child components that depend on them, not a base class
+  (`AbstractInputComponent`, `BaseTableComponent`), and no other code that sets
+  their properties directly. Convert such a component completely in one change
+  (all inputs, outputs and template state) and switch it to OnPush. Do not leave
+  a component half on `@Input()` and half on `input()`.
+- **Everything else** (shared base classes, tables and data sources, components
+  with many consumers) stays on `@Input()` / `@Output()` and RxJS until it is
+  migrated on purpose, with the Angular schematics listed in
+  `docs/angular-22-notes.md`.
+- **RxJS stays** for asynchronous streams: HTTP through `GlobalService`, router
+  events, polling, debounced input. Do not rewrite a working RxJS pipeline into
+  signals. Where a signal-based component needs such a stream, convert it at the
+  edge with `toSignal()` (and `toObservable()` the other way) from
+  `@angular/core/rxjs-interop`.
+- **In an OnPush component**, everything the template shows must be a signal, an
+  input, or come through the `async` pipe. A plain field that changes outside a
+  template event (in a subscription, a timer or a callback) is not rendered.
+- **Change detection later:** moving the existing components from `Eager` to
+  OnPush, and then the app to zoneless change detection, are planned follow-ups
+  (`docs/angular-22-notes.md`), not something to do in passing.
+- Testing signal-based components: `docs/testing-with-vitest.md`, section
+  "Signals and change detection".
 
 ---
 
@@ -708,8 +738,12 @@ direct write would be overwritten by its next update.
   (`src/app/core/_services/shared/alert.service.ts`): `showSuccessMessage` /
   `showErrorMessage` / `showInfoMessage`, wrapping `MatSnackBar`. This is distinct
   from the in-app "notifications" feature under `src/app/account/notifications/`.
-- **Testing**: Karma + Jasmine with a custom `ChromeHeadlessNoKeychain` launcher
-  (puppeteer, keychain-free) in `karma.conf.js`; specs are colocated as `*.spec.ts`.
-  Be mindful of cross-spec state when a suite is flaky.
+- **Testing**: Vitest via `@angular/build:unit-test` with jsdom (`vitest-base.config.mts`,
+  `src/test-providers.ts`, `src/test-setup.ts`); specs are colocated as `*.spec.ts`. Advance fake
+  timers with the `…Async` variants (ESLint enforces it) and wait for real async work with
+  `wait()` from `@src/app/testing/wait`.
+  Be mindful of cross-spec state when a suite is flaky. See
+  [Writing unit tests with Vitest](docs/testing-with-vitest.md) for the API mappings from
+  Jasmine, the established patterns and the pitfalls.
 - **i18n**: there is none today - UI strings are hardcoded English even though
   `@angular/localize` is present. Do not assume a translation pipeline exists.

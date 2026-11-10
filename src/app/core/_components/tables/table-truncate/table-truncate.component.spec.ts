@@ -1,4 +1,5 @@
-/// <reference types="jasmine" />
+import type { MockedObject } from 'vitest';
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -14,7 +15,7 @@ import { provideDisabledMaterialAnimations } from '@src/app/testing/material-ani
 describe('TableTruncateComponent', () => {
   let fixture: ComponentFixture<TableTruncateComponent>;
   let component: TableTruncateComponent;
-  let dialog: jasmine.SpyObj<MatDialog>;
+  let dialog: MockedObject<MatDialog>;
 
   const longText = 'a'.repeat(60) + 'b'.repeat(20);
 
@@ -31,7 +32,9 @@ describe('TableTruncateComponent', () => {
   }
 
   beforeEach(async () => {
-    dialog = jasmine.createSpyObj('MatDialog', ['open']);
+    dialog = {
+      open: vi.fn().mockName('MatDialog.open')
+    } as MockedObject<MatDialog>;
 
     await TestBed.configureTestingModule({
       declarations: [TableTruncateComponent],
@@ -47,14 +50,14 @@ describe('TableTruncateComponent', () => {
     render('short value');
 
     expect(fixture.nativeElement.textContent).toContain('short value');
-    expect(component.isTruncated).toBeFalse();
+    expect(component.isTruncated).toBe(false);
     expect(viewButton()).toBeNull();
   });
 
   it('should truncate long text in the middle and show a view button', () => {
     render(longText);
 
-    expect(component.isTruncated).toBeTrue();
+    expect(component.isTruncated).toBe(true);
     expect(component.abbr).toBe('a'.repeat(54) + '…' + 'b'.repeat(10));
     expect(viewButton()).not.toBeNull();
   });
@@ -62,7 +65,7 @@ describe('TableTruncateComponent', () => {
   it('should read the text from the given path of a model', () => {
     render({ id: 1, type: 'hash', hash: longText } as BaseModel, { path: 'hash' });
 
-    expect(component.isTruncated).toBeTrue();
+    expect(component.isTruncated).toBe(true);
   });
 
   it('should open the full value dialog with the given title', () => {
@@ -70,7 +73,7 @@ describe('TableTruncateComponent', () => {
 
     viewButton()!.click();
 
-    expect(dialog.open).toHaveBeenCalledOnceWith(ShowFullValueDialogComponent, {
+    expect(dialog.open).toHaveBeenCalledExactlyOnceWith(ShowFullValueDialogComponent, {
       data: { title: 'Full hash for: list', value: longText }
     });
   });
@@ -80,7 +83,7 @@ describe('TableTruncateComponent', () => {
 
     viewButton()!.click();
 
-    expect(dialog.open).toHaveBeenCalledOnceWith(ShowFullValueDialogComponent, {
+    expect(dialog.open).toHaveBeenCalledExactlyOnceWith(ShowFullValueDialogComponent, {
       data: { title: 'Full value', value: longText }
     });
   });
@@ -121,7 +124,7 @@ describe('TableTruncateComponent with a real dialog', () => {
     await fixture.whenStable();
 
     const closeButton = document.querySelector<HTMLElement>('app-show-full-value-dialog button[mat-dialog-close]');
-    expect(closeButton).withContext('dialog close button').not.toBeNull();
+    expect(closeButton, 'dialog close button').not.toBeNull();
     // let the focus monitor forget the mousedown on the view button
     await new Promise((resolve) => setTimeout(resolve, 0));
     mouseClick(closeButton!);

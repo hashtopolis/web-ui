@@ -1,11 +1,12 @@
-/// <reference types="jasmine" />
+import type { Mock } from 'vitest';
+
 import { SelectionModel } from '@angular/cdk/collections';
 
 import { BaseModel } from '@models/base.model';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
+import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 
-import { HTTableComponent } from './ht-table.component';
 import { BaseDataSource } from '@datasources/base.datasource';
 
 interface TestModel extends BaseModel {
@@ -24,10 +25,10 @@ function makeComponent() {
 
   component['dataSource'] = mockDataSource;
   component['bulkActionClicked'] = {
-    emit: jasmine.createSpy('emit')
+    emit: vi.fn().mockName('emit')
   } as never;
   component['exportActionClicked'] = {
-    emit: jasmine.createSpy('emit')
+    emit: vi.fn().mockName('emit')
   } as never;
 
   return { component, mockSelection };
@@ -50,7 +51,7 @@ describe('HTTableComponent', () => {
       component.bulkAction(event);
 
       expect(component['bulkActionClicked'].emit).toHaveBeenCalledWith(
-        jasmine.objectContaining({
+        expect.objectContaining({
           data: [row1, row2]
         })
       );
@@ -67,7 +68,7 @@ describe('HTTableComponent', () => {
       component.bulkAction(event);
 
       expect(component['bulkActionClicked'].emit).toHaveBeenCalledWith(
-        jasmine.objectContaining({
+        expect.objectContaining({
           menuItem: { label: 'Archive', action: 'archive' }
         })
       );
@@ -87,9 +88,9 @@ describe('HTTableComponent', () => {
 
       component.bulkAction(event);
 
-      const emittedEvent = (component['bulkActionClicked'].emit as jasmine.Spy).calls.mostRecent().args[0];
+      const emittedEvent = (component['bulkActionClicked'].emit as Mock).mock.lastCall![0];
       expect(emittedEvent.data).not.toBe(dummyData);
-      expect(emittedEvent.data).toEqual([selectedRow]);
+      expect(emittedEvent.data).toStrictEqual([selectedRow]);
     });
 
     it('should emit empty array when no rows are selected', () => {
@@ -103,7 +104,7 @@ describe('HTTableComponent', () => {
       component.bulkAction(event);
 
       expect(component['bulkActionClicked'].emit).toHaveBeenCalledWith(
-        jasmine.objectContaining({
+        expect.objectContaining({
           data: []
         })
       );
@@ -126,7 +127,7 @@ describe('HTTableComponent', () => {
       component.exportAction(event);
 
       expect(component['exportActionClicked'].emit).toHaveBeenCalledWith(
-        jasmine.objectContaining({
+        expect.objectContaining({
           data: [row1, row2]
         })
       );
@@ -143,7 +144,7 @@ describe('HTTableComponent', () => {
       component.exportAction(event);
 
       expect(component['exportActionClicked'].emit).toHaveBeenCalledWith(
-        jasmine.objectContaining({
+        expect.objectContaining({
           menuItem: { label: 'CSV', action: 'export-csv' }
         })
       );
@@ -163,9 +164,9 @@ describe('HTTableComponent', () => {
 
       component.exportAction(event);
 
-      const emittedEvent = (component['exportActionClicked'].emit as jasmine.Spy).calls.mostRecent().args[0];
+      const emittedEvent = (component['exportActionClicked'].emit as Mock).mock.lastCall![0];
       expect(emittedEvent.data).not.toBe(dummyData);
-      expect(emittedEvent.data).toEqual([selectedRow]);
+      expect(emittedEvent.data).toStrictEqual([selectedRow]);
     });
 
     it('should emit empty array when no rows are selected', () => {
@@ -179,7 +180,7 @@ describe('HTTableComponent', () => {
       component.exportAction(event);
 
       expect(component['exportActionClicked'].emit).toHaveBeenCalledWith(
-        jasmine.objectContaining({
+        expect.objectContaining({
           data: []
         })
       );
@@ -198,7 +199,7 @@ describe('HTTableComponent', () => {
 
       component.exportAction(event);
 
-      const emittedEvent = (component['exportActionClicked'].emit as jasmine.Spy).calls.mostRecent().args[0];
+      const emittedEvent = (component['exportActionClicked'].emit as Mock).mock.lastCall![0];
       expect(Array.isArray(emittedEvent.data)).toBe(true);
       expect(() => {
         for (const _ of emittedEvent.data) {
@@ -226,9 +227,9 @@ describe('HTTableComponent', () => {
       component.bulkAction(bulkEvent);
       component.exportAction(exportEvent);
 
-      const bulkData = (component['bulkActionClicked'].emit as jasmine.Spy).calls.mostRecent().args[0].data;
-      const exportData = (component['exportActionClicked'].emit as jasmine.Spy).calls.mostRecent().args[0].data;
-      expect(exportData).toEqual(bulkData);
+      const bulkData = (component['bulkActionClicked'].emit as Mock).mock.lastCall![0].data;
+      const exportData = (component['exportActionClicked'].emit as Mock).mock.lastCall![0].data;
+      expect(exportData).toStrictEqual(bulkData);
     });
 
     it('should emit the current selection, not a stale snapshot', () => {
@@ -247,9 +248,9 @@ describe('HTTableComponent', () => {
       mockSelection.select(newRow);
       component.exportAction(event);
 
-      const emitSpy = component['exportActionClicked'].emit as jasmine.Spy;
-      expect(emitSpy.calls.argsFor(0)[0].data).toEqual([initialRow]);
-      expect(emitSpy.calls.argsFor(1)[0].data).toEqual([initialRow, newRow]);
+      const emitSpy = component['exportActionClicked'].emit;
+      expect(emitSpy).toHaveBeenNthCalledWith(1, expect.objectContaining({ data: [initialRow] }));
+      expect(emitSpy).toHaveBeenNthCalledWith(2, expect.objectContaining({ data: [initialRow, newRow] }));
     });
 
     it('should not mutate the original event object', () => {
@@ -278,13 +279,19 @@ describe('HTTableComponent', () => {
 
     function makeCopyComponent(copied: boolean) {
       const { component } = makeComponent();
-      const clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
-      clipboard.copy.and.returnValue(copied);
-      const alertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-      const focusMonitor = jasmine.createSpyObj('FocusMonitor', ['focusVia']);
-      component['clipboard'] = clipboard;
-      component['alertService'] = alertService;
-      component['focusMonitor'] = focusMonitor;
+      const clipboard = {
+        copy: vi.fn().mockName('Clipboard.copy').mockReturnValue(copied)
+      };
+      const alertService = {
+        showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+        showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+      };
+      const focusMonitor = {
+        focusVia: vi.fn().mockName('FocusMonitor.focusVia')
+      };
+      component['clipboard'] = clipboard as never;
+      component['alertService'] = alertService as never;
+      component['focusMonitor'] = focusMonitor as never;
       return { component, clipboard, alertService, focusMonitor };
     }
 
@@ -300,8 +307,10 @@ describe('HTTableComponent', () => {
 
       component.copyCellValue(copy, row, clickOn(document.createElement('button')));
 
-      expect(clipboard.copy).toHaveBeenCalledOnceWith('Task A');
-      expect(alertService.showSuccessMessage).toHaveBeenCalledOnceWith('Task name successfully copied to clipboard.');
+      expect(clipboard.copy).toHaveBeenCalledExactlyOnceWith('Task A');
+      expect(alertService.showSuccessMessage).toHaveBeenCalledExactlyOnceWith(
+        'Task name successfully copied to clipboard.'
+      );
       expect(alertService.showErrorMessage).not.toHaveBeenCalled();
     });
 
@@ -310,7 +319,7 @@ describe('HTTableComponent', () => {
 
       component.copyCellValue(copy, row, clickOn(document.createElement('button')));
 
-      expect(alertService.showErrorMessage).toHaveBeenCalledOnceWith('Could not copy task name to clipboard.');
+      expect(alertService.showErrorMessage).toHaveBeenCalledExactlyOnceWith('Could not copy task name to clipboard.');
       expect(alertService.showSuccessMessage).not.toHaveBeenCalled();
     });
 
@@ -320,7 +329,7 @@ describe('HTTableComponent', () => {
 
       component.copyCellValue(copy, row, clickOn(button));
 
-      expect(focusMonitor.focusVia).toHaveBeenCalledOnceWith(button, 'mouse');
+      expect(focusMonitor.focusVia).toHaveBeenCalledExactlyOnceWith(button, 'mouse');
     });
 
     it('should attribute the refocused button to the keyboard after a keyboard activation', () => {
@@ -329,7 +338,7 @@ describe('HTTableComponent', () => {
 
       component.copyCellValue(copy, row, clickOn(button, 0, 0));
 
-      expect(focusMonitor.focusVia).toHaveBeenCalledOnceWith(button, 'keyboard');
+      expect(focusMonitor.focusVia).toHaveBeenCalledExactlyOnceWith(button, 'keyboard');
     });
   });
 });
