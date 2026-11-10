@@ -279,13 +279,19 @@ describe('HTTableComponent', () => {
 
     function makeCopyComponent(copied: boolean) {
       const { component } = makeComponent();
-      const clipboard = jasmine.createSpyObj('Clipboard', ['copy']);
-      clipboard.copy.and.returnValue(copied);
-      const alertService = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-      const focusMonitor = jasmine.createSpyObj('FocusMonitor', ['focusVia']);
-      component['clipboard'] = clipboard;
-      component['alertService'] = alertService;
-      component['focusMonitor'] = focusMonitor;
+      const clipboard = {
+        copy: vi.fn().mockName('Clipboard.copy').mockReturnValue(copied)
+      };
+      const alertService = {
+        showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+        showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+      };
+      const focusMonitor = {
+        focusVia: vi.fn().mockName('FocusMonitor.focusVia')
+      };
+      component['clipboard'] = clipboard as never;
+      component['alertService'] = alertService as never;
+      component['focusMonitor'] = focusMonitor as never;
       return { component, clipboard, alertService, focusMonitor };
     }
 
@@ -301,8 +307,10 @@ describe('HTTableComponent', () => {
 
       component.copyCellValue(copy, row, clickOn(document.createElement('button')));
 
-      expect(clipboard.copy).toHaveBeenCalledOnceWith('Task A');
-      expect(alertService.showSuccessMessage).toHaveBeenCalledOnceWith('Task name successfully copied to clipboard.');
+      expect(clipboard.copy).toHaveBeenCalledExactlyOnceWith('Task A');
+      expect(alertService.showSuccessMessage).toHaveBeenCalledExactlyOnceWith(
+        'Task name successfully copied to clipboard.'
+      );
       expect(alertService.showErrorMessage).not.toHaveBeenCalled();
     });
 
@@ -311,7 +319,7 @@ describe('HTTableComponent', () => {
 
       component.copyCellValue(copy, row, clickOn(document.createElement('button')));
 
-      expect(alertService.showErrorMessage).toHaveBeenCalledOnceWith('Could not copy task name to clipboard.');
+      expect(alertService.showErrorMessage).toHaveBeenCalledExactlyOnceWith('Could not copy task name to clipboard.');
       expect(alertService.showSuccessMessage).not.toHaveBeenCalled();
     });
 
@@ -321,7 +329,7 @@ describe('HTTableComponent', () => {
 
       component.copyCellValue(copy, row, clickOn(button));
 
-      expect(focusMonitor.focusVia).toHaveBeenCalledOnceWith(button, 'mouse');
+      expect(focusMonitor.focusVia).toHaveBeenCalledExactlyOnceWith(button, 'mouse');
     });
 
     it('should attribute the refocused button to the keyboard after a keyboard activation', () => {
@@ -330,7 +338,7 @@ describe('HTTableComponent', () => {
 
       component.copyCellValue(copy, row, clickOn(button, 0, 0));
 
-      expect(focusMonitor.focusVia).toHaveBeenCalledOnceWith(button, 'keyboard');
+      expect(focusMonitor.focusVia).toHaveBeenCalledExactlyOnceWith(button, 'keyboard');
     });
   });
 });

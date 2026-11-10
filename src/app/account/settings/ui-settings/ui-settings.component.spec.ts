@@ -99,7 +99,7 @@ describe('UiSettingsComponent', () => {
   });
 
   it('should call updateForm and patch form values', () => {
-    spyOn(component.util, 'config').and.returnValue({
+    vi.spyOn(component.util, 'config').mockReturnValue({
       ...uiConfigDefault,
       dateFmt: 'dd/MM/yyyy',
       timeFmt: '24h',
