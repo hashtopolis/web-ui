@@ -46,7 +46,7 @@ describe('HttpCacheInterceptor', () => {
 
     // First request - should hit the network
     httpClient.get(testUrl).subscribe((data) => {
-      expect(data).toEqual(testData);
+      expect(data).toStrictEqual(testData);
     });
 
     const firstReq = httpMock.expectOne(testUrl);
@@ -54,7 +54,7 @@ describe('HttpCacheInterceptor', () => {
 
     // Second request - served from a fresh cache entry, no network call
     httpClient.get(testUrl).subscribe((data) => {
-      expect(data).toEqual(testData);
+      expect(data).toStrictEqual(testData);
     });
 
     httpMock.expectNone(testUrl);
@@ -66,7 +66,7 @@ describe('HttpCacheInterceptor', () => {
     const response = { id: 1, ...postData };
 
     httpClient.post(testUrl, postData).subscribe((data) => {
-      expect(data).toEqual(response);
+      expect(data).toStrictEqual(response);
     });
 
     const req = httpMock.expectOne(testUrl);
@@ -137,7 +137,7 @@ describe('HttpCacheInterceptor', () => {
 
     // First request with X-Cache-Skip
     httpClient.get(testUrl, { headers: HTTP_SKIP_CACHE_HEADER_CONFIG }).subscribe((data) => {
-      expect(data).toEqual(testData);
+      expect(data).toStrictEqual(testData);
     });
 
     const firstReq = httpMock.expectOne(testUrl);
@@ -145,7 +145,7 @@ describe('HttpCacheInterceptor', () => {
 
     // Second request should also hit the network (not cached)
     httpClient.get(testUrl, { headers: HTTP_SKIP_CACHE_HEADER_CONFIG }).subscribe((data) => {
-      expect(data).toEqual(testData);
+      expect(data).toStrictEqual(testData);
     });
 
     const secondReq = httpMock.expectOne(testUrl);
@@ -160,13 +160,13 @@ describe('HttpCacheInterceptor', () => {
     let done!: () => void;
     const finished = new Promise<void>((resolve) => (done = resolve));
     httpClient.get(testUrl).subscribe((data) => {
-      expect(data).toEqual(testData);
+      expect(data).toStrictEqual(testData);
 
       // After first request is cached, second request should be instant
       let subscribeFinished = false;
 
       httpClient.get(testUrl).subscribe((cachedData) => {
-        expect(cachedData).toEqual(testData);
+        expect(cachedData).toStrictEqual(testData);
         subscribeFinished = true;
       });
 
@@ -295,7 +295,7 @@ describe('HttpCacheInterceptor', () => {
       });
 
       // The stale response should be returned synchronously without any network request for the caller
-      expect(receivedData).toEqual(staleData);
+      expect(receivedData).toStrictEqual(staleData);
 
       // A background revalidation request must have been fired
       const revalidationReq = httpMock.expectOne(testUrl);
@@ -323,7 +323,7 @@ describe('HttpCacheInterceptor', () => {
       // Stale is served synchronously; the background revalidation fires — answer it with fresh data.
       httpMock.expectOne(testUrl).flush(freshData);
 
-      await expect(result).resolves.toEqual(freshData);
+      await expect(result).resolves.toStrictEqual(freshData);
     });
 
     it('should not trigger a background revalidation for a fresh cache hit', () => {
@@ -368,7 +368,7 @@ describe('HttpCacheInterceptor', () => {
         httpClient.get(testUrl).subscribe((data) => {
           firstRead = data;
         });
-        expect(firstRead).toEqual(staleData);
+        expect(firstRead).toStrictEqual(staleData);
 
         const revalidation = httpMock.expectOne(testUrl);
         revalidation.flush(freshData, { headers: { 'Cache-Control': 'max-age=60, stale-while-revalidate=60' } });
@@ -378,7 +378,7 @@ describe('HttpCacheInterceptor', () => {
         httpClient.get(testUrl).subscribe((data) => {
           secondRead = data;
         });
-        expect(secondRead).toEqual(freshData);
+        expect(secondRead).toStrictEqual(freshData);
         httpMock.expectNone(testUrl);
       } finally {
         vi.useRealTimers();

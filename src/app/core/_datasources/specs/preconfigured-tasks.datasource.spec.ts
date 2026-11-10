@@ -157,7 +157,7 @@ describe('PreTasksDataSource', () => {
     it('should call service.getAll with SERV.PRETASKS', async () => {
       await dataSource.loadAll();
       const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.PRETASKS);
+      expect(serviceConfig).toStrictEqual(SERV.PRETASKS);
     });
 
     it('should include pretaskFiles in the request params', async () => {
@@ -211,7 +211,7 @@ describe('PreTasksDataSource', () => {
     it('should persist the query as _currentFilter', async () => {
       const query: Filter = { field: 'taskName', operator: FilterType.ICONTAINS, value: 'rockyou' };
       await dataSource.loadAll(query);
-      expect(dataSource['_currentFilter']).toEqual(query);
+      expect(dataSource['_currentFilter']).toStrictEqual(query);
     });
 
     it('should reuse _currentFilter on a subsequent call without query', async () => {
@@ -278,7 +278,7 @@ describe('PreTasksDataSource', () => {
       await dataSource.loadAll();
       expect(gsSpy.get).toHaveBeenCalled();
       const [serviceConfig, entityId] = gsSpy.get.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.SUPER_TASKS);
+      expect(serviceConfig).toStrictEqual(SERV.SUPER_TASKS);
       expect(entityId).toBe(1);
     });
 
@@ -292,7 +292,7 @@ describe('PreTasksDataSource', () => {
       await dataSource.loadAll();
       expect(gsSpy.getAll).toHaveBeenCalled();
       const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.PRETASKS);
+      expect(serviceConfig).toStrictEqual(SERV.PRETASKS);
     });
 
     it('should filter pretasks by pretaskId IN the assigned IDs', async () => {
@@ -457,7 +457,7 @@ describe('PreTasksDataSource', () => {
       await dataSource.loadAll();
       expect(gsSpy.getAll).toHaveBeenCalled();
       const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.PRETASKS);
+      expect(serviceConfig).toStrictEqual(SERV.PRETASKS);
     });
 
     it('should populate data with the full pretask list', async () => {
@@ -522,7 +522,7 @@ describe('PreTasksDataSource', () => {
     it('should reset _currentFilter to null', async () => {
       const query: Filter = { field: 'taskName', operator: FilterType.ICONTAINS, value: 'dive' };
       await dataSource.loadAll(query);
-      expect(dataSource['_currentFilter']).toEqual(query);
+      expect(dataSource['_currentFilter']).toStrictEqual(query);
 
       dataSource.clearFilter();
       expect(dataSource['_currentFilter']).toBeNull();

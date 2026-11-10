@@ -219,7 +219,7 @@ describe('NewEditPreprocessorComponent', () => {
 
     const errors = component.newEditPreprocessorForm.controls.url.errors;
     expect(errors).toBeTruthy();
-    expect(errors!['pattern']).toEqual({
+    expect(errors!['pattern']).toStrictEqual({
       requiredPattern: ValidationPatterns.URL,
       actualValue: 'ThisIsAnInvalidURL'
     });

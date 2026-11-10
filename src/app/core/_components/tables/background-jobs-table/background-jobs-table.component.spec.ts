@@ -147,7 +147,7 @@ describe('BackgroundJobsTableComponent', () => {
           };
         }
       >;
-      expect(settings['backgroundJobsTable'].order).toEqual(
+      expect(settings['backgroundJobsTable'].order).toStrictEqual(
         expect.objectContaining({ id: BackgroundJobsTableCol.ID, direction: TableSortDirection.DESC })
       );
     });
@@ -221,7 +221,7 @@ describe('BackgroundJobsTableComponent', () => {
       });
 
       const dialogData = dialogOpen.mock.lastCall![1].data;
-      expect(dialogData.rows).toEqual([done, pending]);
+      expect(dialogData.rows).toStrictEqual([done, pending]);
       expect(gs.bulkDelete).toHaveBeenCalledWith(SERV.BACKGROUND_JOBS, [done, pending]);
       expect(showSuccess).toHaveBeenCalledWith('Deleted 2 background jobs. 1 running jobs were skipped.');
       expect(reload).toHaveBeenCalled();

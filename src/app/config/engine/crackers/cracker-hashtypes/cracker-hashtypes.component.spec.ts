@@ -106,7 +106,7 @@ describe('CrackerHashtypesComponent', () => {
 
     it('loads the ids of the assigned hashtypes', () => {
       expect(gs.getRelationshipLink).toHaveBeenCalledWith(SERV.CRACKERS, 12, RelationshipType.HASHTYPES);
-      expect(component.assignedHashtypeIds).toEqual([1000]);
+      expect(component.assignedHashtypeIds).toStrictEqual([1000]);
       expect(el().querySelector('[data-testid="hashcat-scan-pending"]')).toBeNull();
     });
   });
@@ -137,7 +137,7 @@ describe('CrackerHashtypesComponent', () => {
 
       const [dialogComponent, config] = dialog.open.mock.lastCall!;
       expect(dialogComponent).toBe(AddCrackerHashtypesDialogComponent);
-      expect(config?.data).toEqual({ crackerBinaryId: 12, assignedHashtypeIds: [1000], canCreate: false });
+      expect(config?.data).toStrictEqual({ crackerBinaryId: 12, assignedHashtypeIds: [1000], canCreate: false });
     });
 
     it('focuses the dialog itself, so the hashtype search does not open its options over the actions', () => {
@@ -152,7 +152,7 @@ describe('CrackerHashtypesComponent', () => {
       await fixture.whenStable();
 
       expect(table().reload).toHaveBeenCalled();
-      expect(component.assignedHashtypeIds).toEqual([0, 1000]);
+      expect(component.assignedHashtypeIds).toStrictEqual([0, 1000]);
     });
 
     it('reloads nothing when the dialog was cancelled', () => {
@@ -171,7 +171,7 @@ describe('CrackerHashtypesComponent', () => {
       table().hashtypesRemoved.emit();
       await fixture.whenStable();
 
-      expect(component.assignedHashtypeIds).toEqual([]);
+      expect(component.assignedHashtypeIds).toStrictEqual([]);
     });
   });
 

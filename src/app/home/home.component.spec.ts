@@ -523,7 +523,7 @@ describe('HomeComponent — updateHeatmapData$()', () => {
     component = fixture.componentInstance;
 
     expect(() => fixture.detectChanges()).not.toThrow();
-    expect(component.heatmapData).toEqual([]);
+    expect(component.heatmapData).toStrictEqual([]);
   });
 
   it('should fetch completed counts via getCompletedCount when canReadTasks is true', () => {

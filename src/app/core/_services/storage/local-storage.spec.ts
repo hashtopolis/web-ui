@@ -51,7 +51,7 @@ describe('TypedStorage', () => {
     it('should store and retrieve an object value', () => {
       const obj = { a: 1, b: [2, 3] };
       storage.setItem('key', obj);
-      expect(storage.getItem('key')).toEqual(obj);
+      expect(storage.getItem('key')).toStrictEqual(obj);
     });
 
     it('should return null for missing keys', () => {
@@ -62,13 +62,13 @@ describe('TypedStorage', () => {
       const schema = z.object({ n: z.number() });
       storage.setItem('k', { n: 42 });
       const result = storage.getItem('k', schema);
-      expect(result).toEqual({ n: 42 });
+      expect(result).toStrictEqual({ n: 42 });
     });
 
     it('should accept an explicit per-call schema on setItem', () => {
       const schema = z.object({ n: z.number() });
       storage.setItem('k', { n: 5 }, schema);
-      expect(storage.getItem('k')).toEqual({ n: 5 });
+      expect(storage.getItem('k')).toStrictEqual({ n: 5 });
     });
 
     it('should self-heal on getItem when per-call schema fails', () => {
@@ -112,7 +112,7 @@ describe('TypedStorage', () => {
     it('getItem should validate using the constructor schema', () => {
       native.setItem('p', JSON.stringify({ x: 1, y: 2 }));
       const result = storage.getItem('p');
-      expect(result).toEqual({ x: 1, y: 2 });
+      expect(result).toStrictEqual({ x: 1, y: 2 });
     });
 
     it('getItem should self-heal when constructor schema fails', () => {
@@ -124,12 +124,12 @@ describe('TypedStorage', () => {
     it('getItem should strip unknown keys via constructor schema', () => {
       native.setItem('p', JSON.stringify({ x: 1, y: 2, z: 99 }));
       const result = storage.getItem('p');
-      expect(result).toEqual({ x: 1, y: 2 });
+      expect(result).toStrictEqual({ x: 1, y: 2 });
     });
 
     it('setItem should validate using the constructor schema', () => {
       storage.setItem('p', { x: 10, y: 20 });
-      expect(JSON.parse(native.getItem('p')!)).toEqual({ x: 10, y: 20 });
+      expect(JSON.parse(native.getItem('p')!)).toStrictEqual({ x: 10, y: 20 });
     });
 
     it('setItem should refuse invalid data via constructor schema', () => {
@@ -144,7 +144,7 @@ describe('TypedStorage', () => {
       native.setItem('l', JSON.stringify({ label: 'hi' }));
       // Explicitly passing a different schema overrides the default
       const result = storage.getItem('l', altSchema);
-      expect(result).toEqual({ label: 'hi' });
+      expect(result).toStrictEqual({ label: 'hi' });
     });
   });
 
@@ -159,7 +159,7 @@ describe('TypedStorage', () => {
       // Write via typed instance
       typed.setItem('key', { v: 42 });
       // Read via base instance (no schema) — sees the same raw data
-      expect(base.getItem('key')).toEqual({ v: 42 });
+      expect(base.getItem('key')).toStrictEqual({ v: 42 });
     });
 
     it('should validate reads through the typed schema', () => {
@@ -200,21 +200,21 @@ describe('TypedStorage', () => {
     it('should return defaultValue when key is missing', () => {
       const schema = z.object({ n: z.number() });
       const result = storage.getItem('missing', schema, { n: 0 });
-      expect(result).toEqual({ n: 0 });
+      expect(result).toStrictEqual({ n: 0 });
     });
 
     it('should return stored value (not default) when key exists and is valid', () => {
       const schema = z.object({ n: z.number() });
       storage.setItem('k', { n: 42 });
       const result = storage.getItem('k', schema, { n: 0 });
-      expect(result).toEqual({ n: 42 });
+      expect(result).toStrictEqual({ n: 42 });
     });
 
     it('should return defaultValue when schema validation fails', () => {
       const schema = z.object({ n: z.number() });
       storage.setItem('k', { n: 'bad' });
       const result = storage.getItem('k', schema, { n: -1 });
-      expect(result).toEqual({ n: -1 });
+      expect(result).toStrictEqual({ n: -1 });
       // Self-heal still removes the corrupt entry
       expect(native.getItem('k')).toBeNull();
     });
@@ -223,7 +223,7 @@ describe('TypedStorage', () => {
       const schema = z.object({ x: z.number() });
       const bound = new TypedStorage(native, schema);
       const result = bound.getItem('missing', undefined!, { x: 99 });
-      expect(result).toEqual({ x: 99 });
+      expect(result).toStrictEqual({ x: 99 });
     });
   });
 
@@ -239,7 +239,7 @@ describe('TypedStorage', () => {
       const schema = z.object({ n: z.number() });
       localStorage.setItem('__test_global', { n: 7 }, schema);
       const result = localStorage.getItem('__test_global', schema);
-      expect(result).toEqual({ n: 7 });
+      expect(result).toStrictEqual({ n: 7 });
       localStorage.removeItem('__test_global');
     });
 
@@ -248,7 +248,7 @@ describe('TypedStorage', () => {
       const typed = localStorage.typed(schema);
       expect(typed).toBeInstanceOf(TypedStorage);
       typed.setItem('__test_typed', { v: 'hello' });
-      expect(typed.getItem('__test_typed')).toEqual({ v: 'hello' });
+      expect(typed.getItem('__test_typed')).toStrictEqual({ v: 'hello' });
       localStorage.removeItem('__test_typed');
     });
   });

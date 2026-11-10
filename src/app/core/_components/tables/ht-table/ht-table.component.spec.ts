@@ -90,7 +90,7 @@ describe('HTTableComponent', () => {
 
       const emittedEvent = (component['bulkActionClicked'].emit as Mock).mock.lastCall![0];
       expect(emittedEvent.data).not.toBe(dummyData);
-      expect(emittedEvent.data).toEqual([selectedRow]);
+      expect(emittedEvent.data).toStrictEqual([selectedRow]);
     });
 
     it('should emit empty array when no rows are selected', () => {
@@ -166,7 +166,7 @@ describe('HTTableComponent', () => {
 
       const emittedEvent = (component['exportActionClicked'].emit as Mock).mock.lastCall![0];
       expect(emittedEvent.data).not.toBe(dummyData);
-      expect(emittedEvent.data).toEqual([selectedRow]);
+      expect(emittedEvent.data).toStrictEqual([selectedRow]);
     });
 
     it('should emit empty array when no rows are selected', () => {
@@ -229,7 +229,7 @@ describe('HTTableComponent', () => {
 
       const bulkData = (component['bulkActionClicked'].emit as Mock).mock.lastCall![0].data;
       const exportData = (component['exportActionClicked'].emit as Mock).mock.lastCall![0].data;
-      expect(exportData).toEqual(bulkData);
+      expect(exportData).toStrictEqual(bulkData);
     });
 
     it('should emit the current selection, not a stale snapshot', () => {

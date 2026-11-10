@@ -177,7 +177,7 @@ describe('PretasksTableComponent', () => {
       const links = await firstValueFrom(link$);
       expect(links).toBeDefined();
       expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/tasks/preconfigured-tasks', 5, 'edit']);
+      expect(links[0].routerLink).toStrictEqual(['/tasks/preconfigured-tasks', 5, 'edit']);
     });
 
     it('should include FILES_TOTAL column with render function that returns correct count', () => {

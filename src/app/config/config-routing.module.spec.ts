@@ -10,11 +10,11 @@ describe('config routes', () => {
   }
 
   it('gates the hashtypes page by the hashtype update role', () => {
-    expect(roleOf('hashtypes')).toEqual({ roleName: 'update', roleServiceClass: HashTypesRoleService });
+    expect(roleOf('hashtypes')).toStrictEqual({ roleName: 'update', roleServiceClass: HashTypesRoleService });
   });
 
   it('gates the hashtype edit page by the hashtype update role', () => {
-    expect(roleOf('hashtypes/:id/edit')).toEqual({ roleName: 'update', roleServiceClass: HashTypesRoleService });
+    expect(roleOf('hashtypes/:id/edit')).toStrictEqual({ roleName: 'update', roleServiceClass: HashTypesRoleService });
   });
 
   it('has no route to create hashtypes', () => {

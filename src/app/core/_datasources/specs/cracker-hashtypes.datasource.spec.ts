@@ -99,7 +99,10 @@ describe('CrackerHashtypesDataSource', () => {
   it('shows the page and takes the total and the next cursor from the response', () => {
     dataSource.loadAll();
 
-    expect(dataSource.getOriginalData().map((hashtype: JHashtype) => hashtype.description)).toEqual(['MD5', 'NTLM']);
+    expect(dataSource.getOriginalData().map((hashtype: JHashtype) => hashtype.description)).toStrictEqual([
+      'MD5',
+      'NTLM'
+    ]);
     expect(dataSource.totalItems).toBe(582);
     expect(dataSource.pageAfter).toBe('abc');
   });
@@ -110,6 +113,6 @@ describe('CrackerHashtypesDataSource', () => {
     dataSource.reload();
 
     const params = gsSpy.getAll.mock.lastCall![1] as RequestParams;
-    expect(params.filter).toEqual([filter]);
+    expect(params.filter).toStrictEqual([filter]);
   });
 });

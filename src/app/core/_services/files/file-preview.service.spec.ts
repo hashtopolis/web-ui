@@ -87,7 +87,7 @@ describe('FilePreviewService', () => {
   it('returns the whole lines of a window and reports where the next page starts', () => {
     const page = loadPage({ totalBytes: 1000 }, 'alpha\nbravo\ncharl');
 
-    expect(page.lines).toEqual(['alpha', 'bravo']);
+    expect(page.lines).toStrictEqual(['alpha', 'bravo']);
     expect(page.startByte).toBe(0);
     // The trailing fragment belongs to the next page, so it stops right after "bravo\n".
     expect(page.endByte).toBe(12);
@@ -97,27 +97,27 @@ describe('FilePreviewService', () => {
   it('keeps a final line that carries no terminator', () => {
     const page = loadPage({}, 'alpha\nbravo');
 
-    expect(page.lines).toEqual(['alpha', 'bravo']);
+    expect(page.lines).toStrictEqual(['alpha', 'bravo']);
     expect(page.endByte).toBe(page.totalBytes);
   });
 
   it('stops at maxLines even when the window holds more', () => {
     const page = loadPage({ maxLines: 2, totalBytes: 1000 }, 'a\nb\nc\nd\n');
 
-    expect(page.lines).toEqual(['a', 'b']);
+    expect(page.lines).toStrictEqual(['a', 'b']);
     expect(page.endByte).toBe(4);
   });
 
   it('strips CRLF terminators', () => {
     const page = loadPage({}, 'alpha\r\nbravo\r\n');
 
-    expect(page.lines).toEqual(['alpha', 'bravo']);
+    expect(page.lines).toStrictEqual(['alpha', 'bravo']);
   });
 
   it('drops the leading fragment when the offset was seeked to rather than paged to', () => {
     const page = loadPage({ offset: 500, isLineAligned: false, totalBytes: 1000 }, 'avo\ncharlie\ndelt');
 
-    expect(page.lines).toEqual(['charlie']);
+    expect(page.lines).toStrictEqual(['charlie']);
     // "avo\n" is the tail of a line that started before the window.
     expect(page.startByte).toBe(504);
     expect(page.endByte).toBe(512);
@@ -127,7 +127,7 @@ describe('FilePreviewService', () => {
     const page = loadPage({ totalBytes: 100_000 }, 'a-line-longer-than-the-window');
 
     expect(page.hasPartialLine).toBe(true);
-    expect(page.lines).toEqual(['a-line-longer-than-the-window']);
+    expect(page.lines).toStrictEqual(['a-line-longer-than-the-window']);
     // The whole window is consumed, so paging on makes progress instead of re-reading it.
     expect(page.endByte).toBe(29);
   });
@@ -142,7 +142,7 @@ describe('FilePreviewService', () => {
     it('returns the last lines, not the first ones in the window', () => {
       const page = loadPage({ offset: 0, takeLastLines: true, maxLines: 2 }, 'alpha\nbravo\ncharlie\ndelta\n');
 
-      expect(page.lines).toEqual(['charlie', 'delta']);
+      expect(page.lines).toStrictEqual(['charlie', 'delta']);
       expect(page.startByte).toBe(12);
       expect(page.endByte).toBe(page.totalBytes);
     });
@@ -150,13 +150,13 @@ describe('FilePreviewService', () => {
     it('keeps a final line that carries no terminator', () => {
       const page = loadPage({ offset: 0, takeLastLines: true, maxLines: 2 }, 'alpha\nbravo\ncharlie');
 
-      expect(page.lines).toEqual(['bravo', 'charlie']);
+      expect(page.lines).toStrictEqual(['bravo', 'charlie']);
     });
 
     it('returns every line when the window holds fewer than a page of them', () => {
       const page = loadPage({ offset: 0, takeLastLines: true, maxLines: 10 }, 'alpha\nbravo\n');
 
-      expect(page.lines).toEqual(['alpha', 'bravo']);
+      expect(page.lines).toStrictEqual(['alpha', 'bravo']);
       expect(page.startByte).toBe(0);
     });
 
@@ -166,7 +166,7 @@ describe('FilePreviewService', () => {
         'avo\ncharlie\ndelta\n'
       );
 
-      expect(page.lines).toEqual(['charlie', 'delta']);
+      expect(page.lines).toStrictEqual(['charlie', 'delta']);
       expect(page.startByte).toBe(504);
     });
   });
@@ -185,7 +185,7 @@ describe('FilePreviewService', () => {
 
     httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile')).flush(encode('far too many bytes'));
 
-    await expect(failure).resolves.toEqual(expect.any(Error));
+    await expect(failure).resolves.toStrictEqual(expect.any(Error));
   });
 
   it('does not request a range for an empty file', () => {
@@ -195,7 +195,7 @@ describe('FilePreviewService', () => {
       .subscribe((result) => (page = result));
 
     httpMock.expectNone(() => true);
-    expect(page.lines).toEqual([]);
+    expect(page.lines).toStrictEqual([]);
     expect(page.totalBytes).toBe(0);
   });
 });

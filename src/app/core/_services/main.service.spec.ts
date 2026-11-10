@@ -135,14 +135,14 @@ describe('GlobalService relationships', () => {
     const req = httpMock.expectOne('http://localhost:8080/api/v2/ui/crackers/12/relationships/hashtypes');
     expect(req.request.method).toBe('POST');
     expect(req.request.headers.get('X-Test')).toBe('1');
-    expect(req.request.body).toEqual({ data: [{ type: 'hashType', id: 0 }] });
+    expect(req.request.body).toStrictEqual({ data: [{ type: 'hashType', id: 0 }] });
     req.flush({});
   });
 
   it('postRelationships sends no extra headers without options', () => {
     service.postRelationships(SERV.CRACKERS, 12, 'hashtypes', { data: [] }).subscribe();
     const req = httpMock.expectOne('http://localhost:8080/api/v2/ui/crackers/12/relationships/hashtypes');
-    expect(req.request.headers.keys()).toEqual([]);
+    expect(req.request.headers.keys()).toStrictEqual([]);
     req.flush({});
   });
 });

@@ -88,7 +88,7 @@ describe('LocalStorageService', () => {
     service.setItem(key, complexObject, 1000);
     const retrievedValue = service.getItem(key);
 
-    expect(retrievedValue).toEqual(complexObject);
+    expect(retrievedValue).toStrictEqual(complexObject);
   });
 
   it('should handle keys with special characters', () => {
@@ -115,7 +115,7 @@ describe('LocalStorageService', () => {
       service.setItem(key, value, 1000);
       const result = service.getItem(key, testSchema);
 
-      expect(result).toEqual(value);
+      expect(result).toStrictEqual(value);
     });
 
     it('getItem should remove key and return null when stored data fails schema', () => {
@@ -137,7 +137,7 @@ describe('LocalStorageService', () => {
       service.setItem(key, value, 1000, testSchema);
       const result = service.getItem(key);
 
-      expect(result).toEqual(value);
+      expect(result).toStrictEqual(value);
     });
 
     it('setItem should refuse to write and log error when value fails schema', () => {
@@ -158,7 +158,7 @@ describe('LocalStorageService', () => {
       service.setItem(key, value, 1000);
       const result = service.getItem(key);
 
-      expect(result).toEqual(value);
+      expect(result).toStrictEqual(value);
     });
 
     it('setItem without schema should behave unchanged (backward compat)', () => {
@@ -175,7 +175,7 @@ describe('LocalStorageService', () => {
 
       const result = service.getItem(key, testSchema);
 
-      expect(result).toEqual({ name: 'a', count: 1 });
+      expect(result).toStrictEqual({ name: 'a', count: 1 });
       expect((result as Record<string, unknown>)['extra']).toBeUndefined();
     });
   });

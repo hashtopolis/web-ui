@@ -53,20 +53,20 @@ describe('RequestParamBuilder – default sort serialization', () => {
         const params = new RequestParamBuilder().addSorting(order).create();
 
         const prefix = order.direction === 'asc' ? '' : '-';
-        expect(params.sort).toEqual([`${prefix}${order.dataKey}`]);
+        expect(params.sort).toStrictEqual([`${prefix}${order.dataKey}`]);
       });
     });
 
     it('tasksTable: sorts by -taskWrapperPriority (descending)', () => {
       const order = (uiConfigDefault.tableSettings['tasksTable'] as TableConfig).order as SortingColumn;
       const params = new RequestParamBuilder().addSorting(order).create();
-      expect(params.sort).toEqual(['-taskWrapperPriority']);
+      expect(params.sort).toStrictEqual(['-taskWrapperPriority']);
     });
 
     it('cracksTable: sorts by -timeCracked (descending)', () => {
       const order = (uiConfigDefault.tableSettings['cracksTable'] as TableConfig).order as SortingColumn;
       const params = new RequestParamBuilder().addSorting(order).create();
-      expect(params.sort).toEqual(['-timeCracked']);
+      expect(params.sort).toStrictEqual(['-timeCracked']);
     });
   });
 
@@ -138,7 +138,9 @@ describe('RequestParamBuilder – aggregate fieldsets', () => {
     const params = new RequestParamBuilder()
       .addAggregate({ field: 'task', values: ['activeAgents', 'searched', 'dispatched', 'status'] })
       .create();
-    expect(params.aggregate).toEqual([{ field: 'task', values: ['activeAgents', 'searched', 'dispatched', 'status'] }]);
+    expect(params.aggregate).toStrictEqual([
+      { field: 'task', values: ['activeAgents', 'searched', 'dispatched', 'status'] }
+    ]);
   });
 
   it('setParameter emits aggregate[<field>]=<comma-joined values>', () => {

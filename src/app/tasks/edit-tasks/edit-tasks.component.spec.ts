@@ -199,7 +199,7 @@ describe('EditTasksComponent', () => {
       respondToTaskRequest(mockTaskResponse());
       await wait();
 
-      expect(component.updateForm.getRawValue()).toEqual(
+      expect(component.updateForm.getRawValue()).toStrictEqual(
         expect.objectContaining({
           taskId: 1,
           forcePipe: 'No',
@@ -220,7 +220,7 @@ describe('EditTasksComponent', () => {
       await wait();
 
       const updateData = component.updateForm.getRawValue()['updateData'];
-      expect(updateData).toEqual(
+      expect(updateData).toStrictEqual(
         expect.objectContaining({
           taskName: 'Test Task',
           attackCmd: '-a 0 #HL# rockyou.txt',

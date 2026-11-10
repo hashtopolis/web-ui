@@ -563,7 +563,7 @@ describe('NewTasksComponent', () => {
       const payload = globalServiceSpy.create.mock.lastCall![1] as {
         files: number[];
       };
-      expect(payload.files).toEqual([10, 30]);
+      expect(payload.files).toStrictEqual([10, 30]);
     });
 
     it('should drop the preprocessor files when the preprocessor is set to none', async () => {
@@ -593,7 +593,7 @@ describe('NewTasksComponent', () => {
       const payload = globalServiceSpy.create.mock.lastCall![1] as {
         files: number[];
       };
-      expect(payload.files).toEqual([10]);
+      expect(payload.files).toStrictEqual([10]);
       expect(component.form.controls.preprocessorCommand.value).toBe('');
     });
 
@@ -623,7 +623,7 @@ describe('NewTasksComponent', () => {
 
       expect(globalServiceSpy.get).toHaveBeenCalled();
       const [endpoint, id] = globalServiceSpy.get.mock.lastCall!;
-      expect(endpoint).toEqual(SERV.TASKS);
+      expect(endpoint).toStrictEqual(SERV.TASKS);
       expect(id).toBe(42);
     });
 
@@ -864,7 +864,7 @@ describe('NewTasksComponent', () => {
 
       expect(globalServiceSpy.get).toHaveBeenCalled();
       const [endpoint, id] = globalServiceSpy.get.mock.lastCall!;
-      expect(endpoint).toEqual(SERV.PRETASKS);
+      expect(endpoint).toStrictEqual(SERV.PRETASKS);
       expect(id).toBe(7);
     });
 
@@ -1114,7 +1114,7 @@ describe('NewTasksComponent', () => {
       await fixture.whenStable();
 
       const crackerCtrl = component.form.controls.crackerBinaryId;
-      expect(crackerCtrl.errors).toEqual({ required: true });
+      expect(crackerCtrl.errors).toStrictEqual({ required: true });
       expect(crackerCtrl.touched).toBe(true);
       expect(crackerCtrl.dirty).toBe(true);
     });
@@ -1183,7 +1183,7 @@ describe('NewTasksComponent', () => {
         buildGetAllCallFake({ [SERV.CRACKERS_TYPES.URL]: of(TYPES_WITH_EMPTY_TYPE) })
       );
       await initComponent(fixture);
-      expect(component.selectCrackertype.map((o) => o.id)).toEqual([1]);
+      expect(component.selectCrackertype.map((o) => o.id)).toStrictEqual([1]);
     });
 
     it('flags that no cracker is available when all types are empty', async () => {
@@ -1199,7 +1199,7 @@ describe('NewTasksComponent', () => {
       });
       globalServiceSpy.getAll.mockImplementation(buildGetAllCallFake({ [SERV.CRACKERS_TYPES.URL]: of(noVersions) }));
       await initComponent(fixture);
-      expect(component.selectCrackertype).toEqual([]);
+      expect(component.selectCrackertype).toStrictEqual([]);
       expect(component.noCrackerVersionsAvailable).toBe(true);
       expect(component.form.controls.crackerBinaryId.value).toBeNull();
       expect(component.form.valid).toBe(false);
@@ -1226,7 +1226,7 @@ describe('NewTasksComponent', () => {
       await initComponent(fixture);
 
       expect(supportSpy.getSupportedCrackerBinaryIds).not.toHaveBeenCalled();
-      expect(component.selectCrackerversions.map((o) => o.id)).toEqual([10, 11]);
+      expect(component.selectCrackerversions.map((o) => o.id)).toStrictEqual([10, 11]);
       expect(component.form.controls.crackerBinaryId.value).toBe(11);
     });
 
@@ -1237,7 +1237,7 @@ describe('NewTasksComponent', () => {
       await selectHashlist(2);
 
       expect(supportSpy.getSupportedCrackerBinaryIds).toHaveBeenCalledWith(1);
-      expect(component.selectCrackerversions.map((o) => o.id)).toEqual([10]);
+      expect(component.selectCrackerversions.map((o) => o.id)).toStrictEqual([10]);
       expect(component.form.controls.crackerBinaryId.value).toBe(10);
       expect(component.unsupportedHashtypeMessage).toBeNull();
     });
@@ -1258,10 +1258,10 @@ describe('NewTasksComponent', () => {
 
       await selectHashlist(2);
 
-      expect(component.selectCrackertype).toEqual([]);
-      expect(component.selectCrackerversions).toEqual([]);
+      expect(component.selectCrackertype).toStrictEqual([]);
+      expect(component.selectCrackerversions).toStrictEqual([]);
       expect(component.form.controls.crackerBinaryId.value).toBeNull();
-      expect(component.form.controls.crackerBinaryId.errors).toEqual({ required: true });
+      expect(component.form.controls.crackerBinaryId.errors).toStrictEqual({ required: true });
       expect(component.unsupportedHashtypeMessage).toBe(buildUnsupportedHashtypeMessage(1));
       const el: HTMLElement = fixture.nativeElement;
       expect(el.querySelector('[data-testid="unsupported-hashtype"]')).toBeTruthy();
@@ -1298,7 +1298,7 @@ describe('NewTasksComponent', () => {
       await selectHashlist([]);
 
       expect(component.unsupportedHashtypeMessage).toBeNull();
-      expect(component.selectCrackertype.map((o) => o.id)).toEqual([1]);
+      expect(component.selectCrackertype.map((o) => o.id)).toStrictEqual([1]);
       expect(component.form.controls.crackerBinaryId.value).toBe(11);
     });
 
@@ -1319,7 +1319,7 @@ describe('NewTasksComponent', () => {
       types.complete();
       await fixture.whenStable();
 
-      expect(component.selectCrackerversions.map((o) => o.id)).toEqual([10]);
+      expect(component.selectCrackerversions.map((o) => o.id)).toStrictEqual([10]);
       expect(component.form.controls.crackerBinaryId.value).toBe(10);
     });
 
@@ -1333,7 +1333,7 @@ describe('NewTasksComponent', () => {
 
       await selectHashlist(2);
 
-      expect(component.selectCrackerversions).toEqual([]);
+      expect(component.selectCrackerversions).toStrictEqual([]);
       expect(component.form.controls.crackerBinaryId.value).toBeNull();
       expect(component.form.controls.crackerBinaryId.valid).toBe(false);
     });
@@ -1362,7 +1362,7 @@ describe('NewTasksComponent', () => {
 
       await selectHashlist(2);
 
-      expect(component.form.controls.crackerBinaryId.errors).toEqual({ required: true });
+      expect(component.form.controls.crackerBinaryId.errors).toStrictEqual({ required: true });
       expect(component.form.controls.crackerBinaryId.touched).toBe(false);
     });
 
@@ -1454,7 +1454,7 @@ describe('NewTasksComponent', () => {
 
       const data = component['getFormData']();
       expect(data.attackCmd).toBe('-a 0 #HL# dict.txt');
-      expect(data.files).toEqual([1, 2]);
+      expect(data.files).toStrictEqual([1, 2]);
       expect(data.preprocessorCommand).toBe('--prince');
     });
 
@@ -1462,7 +1462,7 @@ describe('NewTasksComponent', () => {
       // Before ngOnInit, formReady is false
       const data = component['getFormData']();
       expect(data.attackCmd).toBe('');
-      expect(data.files).toEqual([]);
+      expect(data.files).toStrictEqual([]);
       expect(data.preprocessorCommand).toBe('');
     });
   });
@@ -1532,7 +1532,7 @@ describe('NewTasksComponent', () => {
       });
 
       expect(component.form.controls.attackCmd.value).toBe('-a 3 ?a?a?a');
-      expect(component.form.controls.files.value).toEqual([10, 20]);
+      expect(component.form.controls.files.value).toStrictEqual([10, 20]);
     });
 
     it('should update preprocessorCommand when event type is not CMD', async () => {
@@ -1561,7 +1561,7 @@ describe('NewTasksComponent', () => {
       });
 
       expect(component.form.controls.preprocessorCommand.value).toBe('--prince keyspace.txt');
-      expect(component.form.controls.files.value).toEqual([10]);
+      expect(component.form.controls.files.value).toStrictEqual([10]);
     });
   });
 

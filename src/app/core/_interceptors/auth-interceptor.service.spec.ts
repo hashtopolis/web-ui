@@ -99,7 +99,7 @@ describe('AuthInterceptorService', () => {
     expect(retried.request.headers.get('Authorization')).toBe('Bearer renewed-token');
     retried.flush({ ok: true });
 
-    expect(body).toEqual({ ok: true });
+    expect(body).toStrictEqual({ ok: true });
     expect(authService.refreshToken).toHaveBeenCalledTimes(1);
   });
 

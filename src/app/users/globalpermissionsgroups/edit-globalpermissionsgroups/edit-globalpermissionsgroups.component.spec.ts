@@ -95,13 +95,13 @@ describe('EditGlobalpermissionsgroupsComponent', () => {
     it('should call gs.get with the correct endpoint and ID', () => {
       expect(mockGlobalService.get).toHaveBeenCalled();
       const [config, id, params] = mockGlobalService.get.mock.lastCall!;
-      expect(config).toEqual(SERV.ACCESS_PERMISSIONS_GROUPS);
+      expect(config).toStrictEqual(SERV.ACCESS_PERMISSIONS_GROUPS);
       expect(id).toBe(1);
-      expect(params).toEqual(expect.objectContaining({ include: ['userMembers'] }));
+      expect(params).toStrictEqual(expect.objectContaining({ include: ['userMembers'] }));
     });
 
     it('should store the deserialized group in editedGPG', () => {
-      expect(component.editedGPG).toEqual(MOCK_GPG);
+      expect(component.editedGPG).toStrictEqual(MOCK_GPG);
     });
 
     it('should populate the form name field with the group name', () => {

@@ -50,11 +50,11 @@ describe('CrackerBinaryTypesService', () => {
     expect(gs.getAll).toHaveBeenCalledTimes(1);
 
     expect(gs.getAll).toHaveBeenCalledWith(SERV.CRACKERS_TYPES);
-    expect(first).toEqual([
+    expect(first).toStrictEqual([
       { id: 1, typeName: 'hashcat' },
       { id: 2, typeName: 'generic' }
     ]);
-    expect(second).toEqual(first);
+    expect(second).toStrictEqual(first);
   });
 
   it('requests the types again after invalidate', async () => {
@@ -71,7 +71,7 @@ describe('CrackerBinaryTypesService', () => {
     await expect(firstValueFrom(service.getTypes())).rejects.toThrow();
     const types = await firstValueFrom(service.getTypes());
 
-    expect(types.map((type) => type.id)).toEqual([1, 2]);
+    expect(types.map((type) => type.id)).toStrictEqual([1, 2]);
     expect(gs.getAll).toHaveBeenCalledTimes(2);
   });
 

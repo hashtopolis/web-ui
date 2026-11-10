@@ -96,7 +96,7 @@ describe('TasksDataSource', () => {
     it('should store the provided filter', () => {
       const filter: Filter = { field: 'taskWrapperName', operator: FilterType.EQUAL, value: 'foo' };
       dataSource.setFilterQuery(filter);
-      expect(dataSource['filterQuery']).toEqual(filter);
+      expect(dataSource['filterQuery']).toStrictEqual(filter);
     });
   });
 
@@ -149,7 +149,7 @@ describe('TasksDataSource', () => {
     it('should call service.getAll with SERV.TASKS_WRAPPER_DISPLAYS', () => {
       dataSource.loadAll();
       const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.TASKS_WRAPPER_DISPLAYS);
+      expect(serviceConfig).toStrictEqual(SERV.TASKS_WRAPPER_DISPLAYS);
     });
 
     it('should set loading to false after a successful response', () => {

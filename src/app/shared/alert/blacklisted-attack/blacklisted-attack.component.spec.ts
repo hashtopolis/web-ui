@@ -55,7 +55,7 @@ describe('BlacklistAttackComponent', () => {
       Object.defineProperty(component, 'uiService', { value: mockService });
       component.checkForBanChars();
       expect(component.hasErrors).toBe(true);
-      expect(component.blacklistedChars).toEqual(['@', '#', '$']);
+      expect(component.blacklistedChars).toStrictEqual(['@', '#', '$']);
     });
 
     it('should handle escaped special regex characters', () => {
@@ -90,7 +90,7 @@ describe('BlacklistAttackComponent', () => {
       mockService.getUISettings.mockReturnValue({ blacklistChars: '@#$' });
       Object.defineProperty(component, 'uiService', { value: mockService });
       component.checkForBanChars();
-      expect(component.blacklistedChars).toEqual(['@', '#', '$']);
+      expect(component.blacklistedChars).toStrictEqual(['@', '#', '$']);
       expect(component.hasErrors).toBe(true);
     });
 
@@ -103,7 +103,7 @@ describe('BlacklistAttackComponent', () => {
       Object.defineProperty(component, 'uiService', { value: mockService });
       component.checkForBanChars();
       expect(component.hasErrors).toBe(false);
-      expect(component.blacklistedChars).toEqual([]);
+      expect(component.blacklistedChars).toStrictEqual([]);
     });
 
     it('should treat dash as literal character, not a range operator', () => {
@@ -115,7 +115,7 @@ describe('BlacklistAttackComponent', () => {
       Object.defineProperty(component, 'uiService', { value: mockService });
       component.checkForBanChars();
       expect(component.hasErrors).toBe(false);
-      expect(component.blacklistedChars).toEqual([]);
+      expect(component.blacklistedChars).toStrictEqual([]);
     });
   });
 });

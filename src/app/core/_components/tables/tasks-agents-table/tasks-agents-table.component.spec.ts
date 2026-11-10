@@ -144,23 +144,23 @@ describe('TasksAgentsTableComponent', () => {
       const speedColumn = column(TasksAgentsTableCol.TASK_SPEED);
       // sanitize() HTML-encodes the non-breaking space in convertCrackingSpeed output.
       expect(speedColumn.render!(working)).toBe(convertCrackingSpeed(1200).replace('\u00A0', '&#160;'));
-      expect(speedColumn.icon!(working)).toEqual({ name: 'radio_button_checked', cls: 'pulsing-progress' });
+      expect(speedColumn.icon!(working)).toStrictEqual({ name: 'radio_button_checked', cls: 'pulsing-progress' });
     });
 
     it('should render a dash and no progress icon when the agent has no current speed', () => {
       const speedColumn = column(TasksAgentsTableCol.TASK_SPEED);
       expect(speedColumn.render!(idle)).toBe('-');
-      expect(speedColumn.icon!(idle)).toEqual({ name: '' });
+      expect(speedColumn.icon!(idle)).toStrictEqual({ name: '' });
     });
 
     it('should link to the current chunk', async () => {
       const links = await firstValueFrom(column(TasksAgentsTableCol.CURRENT_CHUNK).routerLink!(working));
-      expect(links).toEqual([{ routerLink: ['/tasks', 'chunks', 289, 'view'], label: 289 }]);
+      expect(links).toStrictEqual([{ routerLink: ['/tasks', 'chunks', 289, 'view'], label: 289 }]);
     });
 
     it('should render no chunk link when the agent has no chunk', async () => {
       const links = await firstValueFrom(column(TasksAgentsTableCol.CURRENT_CHUNK).routerLink!(idle));
-      expect(links).toEqual([]);
+      expect(links).toStrictEqual([]);
     });
 
     it('should render the time spent on the task', () => {
@@ -185,19 +185,19 @@ describe('TasksAgentsTableComponent', () => {
     });
 
     it('should export the aggregate values', async () => {
-      await expect(column(TasksAgentsTableCol.TASK_SPEED).export!(working)).resolves.toEqual('1200');
-      await expect(column(TasksAgentsTableCol.CURRENT_CHUNK).export!(working)).resolves.toEqual('289');
-      await expect(column(TasksAgentsTableCol.TIME_SPENT).export!(working)).resolves.toEqual('30');
-      await expect(column(TasksAgentsTableCol.SEARCHED).export!(working)).resolves.toEqual('0.25');
-      await expect(column(TasksAgentsTableCol.CRACKED).export!(working)).resolves.toEqual('2');
+      await expect(column(TasksAgentsTableCol.TASK_SPEED).export!(working)).resolves.toStrictEqual('1200');
+      await expect(column(TasksAgentsTableCol.CURRENT_CHUNK).export!(working)).resolves.toStrictEqual('289');
+      await expect(column(TasksAgentsTableCol.TIME_SPENT).export!(working)).resolves.toStrictEqual('30');
+      await expect(column(TasksAgentsTableCol.SEARCHED).export!(working)).resolves.toStrictEqual('0.25');
+      await expect(column(TasksAgentsTableCol.CRACKED).export!(working)).resolves.toStrictEqual('2');
     });
 
     it('should export placeholders when the aggregates are missing', async () => {
-      await expect(column(TasksAgentsTableCol.TASK_SPEED).export!(idle)).resolves.toEqual('-');
-      await expect(column(TasksAgentsTableCol.CURRENT_CHUNK).export!(idle)).resolves.toEqual('');
-      await expect(column(TasksAgentsTableCol.TIME_SPENT).export!(idle)).resolves.toEqual('-');
-      await expect(column(TasksAgentsTableCol.SEARCHED).export!(idle)).resolves.toEqual('0');
-      await expect(column(TasksAgentsTableCol.CRACKED).export!(idle)).resolves.toEqual('-');
+      await expect(column(TasksAgentsTableCol.TASK_SPEED).export!(idle)).resolves.toStrictEqual('-');
+      await expect(column(TasksAgentsTableCol.CURRENT_CHUNK).export!(idle)).resolves.toStrictEqual('');
+      await expect(column(TasksAgentsTableCol.TIME_SPENT).export!(idle)).resolves.toStrictEqual('-');
+      await expect(column(TasksAgentsTableCol.SEARCHED).export!(idle)).resolves.toStrictEqual('0');
+      await expect(column(TasksAgentsTableCol.CRACKED).export!(idle)).resolves.toStrictEqual('-');
     });
   });
 

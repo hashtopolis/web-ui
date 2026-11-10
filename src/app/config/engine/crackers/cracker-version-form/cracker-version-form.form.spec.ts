@@ -88,7 +88,7 @@ describe('cracker-version-form helpers', () => {
     it('external link sends downloadUrl only', () => {
       const form = baseForm();
       form.controls.downloadUrl.setValue('https://e.com/h.7z');
-      expect(buildCreatePayload(form, 1)).toEqual({
+      expect(buildCreatePayload(form, 1)).toStrictEqual({
         crackerBinaryTypeId: 1,
         binaryName: 'hashcat',
         version: '7.1.2',
@@ -100,7 +100,7 @@ describe('cracker-version-form helpers', () => {
     it('upload sends sourceType import with the uploaded name', () => {
       const form = baseForm();
       applyCrackerSource(form, CrackerSource.UPLOAD);
-      expect(buildCreatePayload(form, 1, 'cracker-1-5.7z')).toEqual({
+      expect(buildCreatePayload(form, 1, 'cracker-1-5.7z')).toStrictEqual({
         crackerBinaryTypeId: 1,
         binaryName: 'hashcat',
         version: '7.1.2',
@@ -114,7 +114,7 @@ describe('cracker-version-form helpers', () => {
       const form = baseForm();
       applyCrackerSource(form, CrackerSource.SERVER_DOWNLOAD);
       form.controls.sourceUrl.setValue('https://e.com/h.7z');
-      expect(buildCreatePayload(form, 1)).toEqual(
+      expect(buildCreatePayload(form, 1)).toStrictEqual(
         expect.objectContaining({ sourceType: 'url', sourceData: 'https://e.com/h.7z' })
       );
     });
@@ -123,7 +123,7 @@ describe('cracker-version-form helpers', () => {
       const form = baseForm();
       applyCrackerSource(form, CrackerSource.SERVER_IMPORT);
       form.controls.importFile.setValue('hashcat-7.1.2.7z');
-      expect(buildCreatePayload(form, 1)).toEqual(
+      expect(buildCreatePayload(form, 1)).toStrictEqual(
         expect.objectContaining({ sourceType: 'import', sourceData: 'hashcat-7.1.2.7z' })
       );
     });
@@ -146,21 +146,21 @@ describe('cracker-version-form helpers', () => {
       form.patchValue({ binaryName: 'hashcat', version: '7.1.2', accessGroupId: 1, downloadUrl: 'https://e.com/h.7z' });
       form.controls.version.setValue('7.1.3');
       form.controls.version.markAsDirty();
-      expect(buildUpdatePayload(form, false)).toEqual({ version: '7.1.3' });
+      expect(buildUpdatePayload(form, false)).toStrictEqual({ version: '7.1.3' });
     });
 
     it('never contains downloadUrl for binaries stored on the server', () => {
       const form = getCrackerVersionForm();
       form.controls.downloadUrl.setValue('https://changed.example/h.7z');
       form.controls.downloadUrl.markAsDirty();
-      expect(buildUpdatePayload(form, true)).toEqual({});
+      expect(buildUpdatePayload(form, true)).toStrictEqual({});
     });
 
     it('contains a changed downloadUrl for external binaries', () => {
       const form = getCrackerVersionForm();
       form.controls.downloadUrl.setValue('https://new.example/h.7z');
       form.controls.downloadUrl.markAsDirty();
-      expect(buildUpdatePayload(form, false)).toEqual({ downloadUrl: 'https://new.example/h.7z' });
+      expect(buildUpdatePayload(form, false)).toStrictEqual({ downloadUrl: 'https://new.example/h.7z' });
     });
   });
 

@@ -100,7 +100,7 @@ describe('ApiKeyDetailComponent', () => {
     await fixture.whenStable();
 
     expect(mockGlobalService.get).toHaveBeenCalled();
-    expect(component.token).toEqual(loadedToken);
+    expect(component.token).toStrictEqual(loadedToken);
     expect(component.status).toBe(computeApiTokenStatus(loadedToken));
     expect(component.loading).toBe(false);
     expect(component.notFound).toBe(false);

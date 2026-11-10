@@ -103,7 +103,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     it('offers a tab for existing and one for new hashtypes with the create permission', async () => {
       await setup({ canCreate: true });
       const labels = Array.from(el().querySelectorAll('[role="tab"]')).map((tab) => tab.textContent?.trim());
-      expect(labels).toEqual(['Existing', 'New']);
+      expect(labels).toStrictEqual(['Existing', 'New']);
       expect(el().querySelector('[data-testid="add-hashtypes"]')).not.toBeNull();
       expect(el().querySelector('[data-testid="create-hashtype"]')).toBeNull();
     });
@@ -139,9 +139,11 @@ describe('AddCrackerHashtypesDialogComponent', () => {
 
     it('offers the hashtypes which are not assigned yet', () => {
       const [serviceConfig, params] = gs.getAll.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.HASHTYPES);
-      expect((params as RequestParams).filter).toEqual([{ field: 'id', operator: FilterType.NOTIN, value: [1000] }]);
-      expect(component.selectHashtypes.map((option) => option.id)).toEqual([0, 100]);
+      expect(serviceConfig).toStrictEqual(SERV.HASHTYPES);
+      expect((params as RequestParams).filter).toStrictEqual([
+        { field: 'id', operator: FilterType.NOTIN, value: [1000] }
+      ]);
+      expect(component.selectHashtypes.map((option) => option.id)).toStrictEqual([0, 100]);
     });
 
     it('adds the selected hashtypes and closes with a change', async () => {
@@ -166,7 +168,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
       await component.onAdd();
 
       expect(dialogRef.close).not.toHaveBeenCalled();
-      expect(component.addForm.controls.hashtypeIds.value).toEqual([0]);
+      expect(component.addForm.controls.hashtypeIds.value).toStrictEqual([0]);
       expect(component.isAdding).toBe(false);
     });
 
@@ -249,10 +251,10 @@ describe('AddCrackerHashtypesDialogComponent', () => {
       await component.onCreate();
 
       const [serviceConfig, id, relType, body, options] = gs.postRelationships.mock.calls[0];
-      expect(serviceConfig).toEqual(SERV.CRACKERS);
+      expect(serviceConfig).toStrictEqual(SERV.CRACKERS);
       expect(id).toBe(12);
       expect(relType).toBe(RelationshipType.HASHTYPES);
-      expect(body).toEqual(linkBody(100));
+      expect(body).toStrictEqual(linkBody(100));
       expect(skipsErrorDialog(options)).toBe(true);
       expect(gs.create).not.toHaveBeenCalled();
       expect(alert.showSuccessMessage).toHaveBeenCalledWith(
@@ -264,7 +266,7 @@ describe('AddCrackerHashtypesDialogComponent', () => {
     it('links mode 0', async () => {
       fill({ hashTypeId: 0, description: 'MD5' });
       await component.onCreate();
-      expect(gs.postRelationships.mock.calls[0][3]).toEqual(linkBody(0));
+      expect(gs.postRelationships.mock.calls[0][3]).toStrictEqual(linkBody(0));
       expect(alert.showSuccessMessage).toHaveBeenCalledWith(
         'Hashtype 0 already existed and was added to this version. Its existing description was kept.'
       );
@@ -276,11 +278,16 @@ describe('AddCrackerHashtypesDialogComponent', () => {
       await component.onCreate();
 
       const [serviceConfig, item, options] = gs.create.mock.calls[0];
-      expect(serviceConfig).toEqual(SERV.HASHTYPES);
-      expect(item).toEqual({ hashTypeId: 99000, description: 'My custom hash', isSalted: true, isSlowHash: false });
+      expect(serviceConfig).toStrictEqual(SERV.HASHTYPES);
+      expect(item).toStrictEqual({
+        hashTypeId: 99000,
+        description: 'My custom hash',
+        isSalted: true,
+        isSlowHash: false
+      });
       expect(skipsErrorDialog(options)).toBe(true);
       expect(gs.postRelationships).toHaveBeenCalledTimes(2);
-      expect(gs.postRelationships.mock.calls[1][3]).toEqual(linkBody(99000));
+      expect(gs.postRelationships.mock.calls[1][3]).toStrictEqual(linkBody(99000));
       expect(skipsErrorDialog(gs.postRelationships.mock.calls[1][4])).toBe(true);
       expect(alert.showSuccessMessage).toHaveBeenCalledWith(
         'Created hashtype 99000 (My custom hash) and added it to this version.'

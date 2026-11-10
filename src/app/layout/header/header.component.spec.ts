@@ -88,12 +88,12 @@ describe('HeaderComponent config menu', () => {
 
   it('shows Background Jobs after Log with the read role', () => {
     const labels = configMenu(true).map((action) => action.label);
-    expect(labels).toEqual([HeaderMenuLabel.LOG, HeaderMenuLabel.BACKGROUND_JOBS]);
-    expect(configMenu(true)[1].routerLink).toEqual(['config', 'background-jobs']);
+    expect(labels).toStrictEqual([HeaderMenuLabel.LOG, HeaderMenuLabel.BACKGROUND_JOBS]);
+    expect(configMenu(true)[1].routerLink).toStrictEqual(['config', 'background-jobs']);
   });
 
   it('hides Background Jobs without the read role', () => {
-    expect(configMenu(false).map((action) => action.label)).toEqual([HeaderMenuLabel.LOG]);
+    expect(configMenu(false).map((action) => action.label)).toStrictEqual([HeaderMenuLabel.LOG]);
   });
 
   it('shows Hashtypes with the update role', () => {

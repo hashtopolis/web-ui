@@ -227,7 +227,7 @@ describe('TasksTableComponent', () => {
 
       const links = await firstValueFrom(nameColumn!.routerLink!(taskWrapper));
       expect(links[0].label).toBe('Test Task');
-      expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
+      expect(links[0].routerLink).toStrictEqual(['/tasks', 'show-tasks', 1, 'edit']);
     });
 
     it('should pass the full task name to the NAME column label (CSS handles truncation)', async () => {
@@ -242,7 +242,7 @@ describe('TasksTableComponent', () => {
 
       const links = await firstValueFrom(nameColumn!.routerLink!(taskWrapper));
       expect(links[0].label).toBe(longName);
-      expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
+      expect(links[0].routerLink).toStrictEqual(['/tasks', 'show-tasks', 1, 'edit']);
     });
 
     it('should render NAME column for SUPERTASK with an onClick that opens the subtasks dialog', async () => {
@@ -474,7 +474,7 @@ describe('TasksTableComponent', () => {
 
       const links = await firstValueFrom(hashlistsColumn!.routerLink!(taskWrapper));
       expect(links[0].label).toBe('Test Hashlist');
-      expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 5, 'edit']);
+      expect(links[0].routerLink).toStrictEqual(['/hashlists', 'hashlist', 5, 'edit']);
     });
 
     it('should truncate long HASHLISTS label and keep full name in tooltip', async () => {
@@ -489,7 +489,7 @@ describe('TasksTableComponent', () => {
       const links = await firstValueFrom(hashlistsColumn!.routerLink!(taskWrapper));
       expect(links[0].label).toBe('This is a very long ...');
       expect(links[0].tooltip).toBe(longName);
-      expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 11, 'edit']);
+      expect(links[0].routerLink).toStrictEqual(['/hashlists', 'hashlist', 11, 'edit']);
     });
 
     it('should render HASHLISTS column routerLink with id as label when name is empty', async () => {
@@ -502,7 +502,7 @@ describe('TasksTableComponent', () => {
 
       const links = await firstValueFrom(hashlistsColumn!.routerLink!(taskWrapper));
       expect(links[0].label).toBe('10');
-      expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 10, 'edit']);
+      expect(links[0].routerLink).toStrictEqual(['/hashlists', 'hashlist', 10, 'edit']);
     });
 
     it('should render AGENTS column for TASK type using totalAssignedAgents', () => {
@@ -608,7 +608,7 @@ describe('TasksTableComponent', () => {
 
       const links = await firstValueFrom(accessGroupColumn!.routerLink!(taskWrapper));
       expect(links[0].label).toBe('Test Group');
-      expect(links[0].routerLink).toEqual(['/users', 'access-groups', 7, 'edit']);
+      expect(links[0].routerLink).toStrictEqual(['/users', 'access-groups', 7, 'edit']);
     });
 
     it('should include PRIORITY and MAX_AGENTS columns without editable when user lacks edit role', () => {

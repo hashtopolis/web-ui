@@ -156,7 +156,7 @@ describe('CrackerVersionFormComponent', () => {
 
     it('loads access groups via the getAccessGroups helper and preselects the first', () => {
       expect(gs.ghelper).toHaveBeenCalledWith(SERV.HELPER, 'getAccessGroups');
-      expect(component.selectAccessGroups.map((o) => o.id)).toEqual([4, 7]);
+      expect(component.selectAccessGroups.map((o) => o.id)).toStrictEqual([4, 7]);
       expect(component.form.controls.accessGroupId.value).toBe(4);
     });
 
@@ -184,7 +184,7 @@ describe('CrackerVersionFormComponent', () => {
       component.form.controls.source.setValue(CrackerSource.SERVER_DOWNLOAD);
       component.form.controls.sourceUrl.setValue('https://e.com/h.7z');
       await component.onSubmit();
-      expect(gs.create.mock.lastCall![1]).toEqual(
+      expect(gs.create.mock.lastCall![1]).toStrictEqual(
         expect.objectContaining({ sourceType: 'url', sourceData: 'https://e.com/h.7z' })
       );
     });
@@ -192,11 +192,11 @@ describe('CrackerVersionFormComponent', () => {
     it('lists only .7z files for server import and creates with the chosen file', async () => {
       component.form.controls.source.setValue(CrackerSource.SERVER_IMPORT);
       await fixture.whenStable();
-      expect(component.serverFileOptions.map((o) => o.id)).toEqual(['hashcat-7.1.2.7z']);
+      expect(component.serverFileOptions.map((o) => o.id)).toStrictEqual(['hashcat-7.1.2.7z']);
       fillCommon();
       component.form.controls.importFile.setValue('hashcat-7.1.2.7z');
       await component.onSubmit();
-      expect(gs.create.mock.lastCall![1]).toEqual(
+      expect(gs.create.mock.lastCall![1]).toStrictEqual(
         expect.objectContaining({ sourceType: 'import', sourceData: 'hashcat-7.1.2.7z' })
       );
     });
@@ -231,7 +231,7 @@ describe('CrackerVersionFormComponent', () => {
       await component.onSubmit();
       const names = tus.uploadFile.mock.calls.map((args) => args[1]);
       expect(names[0]).toBe(names[1]);
-      expect(gs.create.mock.lastCall![1]).toEqual(expect.objectContaining({ sourceData: names[1] }));
+      expect(gs.create.mock.lastCall![1]).toStrictEqual(expect.objectContaining({ sourceData: names[1] }));
     });
 
     it('does not create the version when the page is left during the upload', async () => {

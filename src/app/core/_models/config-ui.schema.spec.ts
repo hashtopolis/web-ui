@@ -118,7 +118,7 @@ describe('uiConfigSchema', () => {
     expect(result.success).toBe(true);
     if (result.success) {
       // stored entry wins
-      expect((result.data.tableSettings['usersTable'] as TableConfig).columns).toEqual(customColumns);
+      expect((result.data.tableSettings['usersTable'] as TableConfig).columns).toStrictEqual(customColumns);
       // missing default keys are filled
       expect(result.data.tableSettings['notificationsTable']).toBeDefined();
       expect(result.data.tableSettings['apiTokensTable']).toBeDefined();
@@ -138,7 +138,7 @@ describe('uiConfigSchema', () => {
     if (result.success) {
       const expected = uiConfigDefault.tableSettings['usersTable'] as TableConfig;
       const repaired = result.data.tableSettings['usersTable'] as TableConfig;
-      expect(repaired.columns).toEqual([...expected.columns]);
+      expect(repaired.columns).toStrictEqual([...expected.columns]);
       expect(result.data.theme).toBe(defaults.theme);
       expect(result.data.layout).toBe(defaults.layout);
     }
@@ -180,10 +180,10 @@ describe('uiConfigSchema', () => {
       // bad entry repaired from default
       const repaired = result.data.tableSettings['usersTable'] as TableConfig;
       const usersDefault = uiConfigDefault.tableSettings['usersTable'] as TableConfig;
-      expect(repaired.columns).toEqual([...usersDefault.columns]);
+      expect(repaired.columns).toStrictEqual([...usersDefault.columns]);
       // sibling custom entry kept
       const kept = result.data.tableSettings['agentsTable'] as TableConfig;
-      expect(kept.columns).toEqual(customColumns);
+      expect(kept.columns).toStrictEqual(customColumns);
     }
   });
 
@@ -301,7 +301,7 @@ describe('uiConfigSchema', () => {
     expect(result.success).toBe(true);
     if (result.success) {
       const table = result.data.tableSettings['testTable'] as TableConfig;
-      expect(table.columns).toEqual([1, 2, 3]);
+      expect(table.columns).toStrictEqual([1, 2, 3]);
       expect(table.page).toBe(25);
     }
   });

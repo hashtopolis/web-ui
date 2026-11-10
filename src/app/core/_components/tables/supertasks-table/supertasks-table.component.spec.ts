@@ -85,7 +85,7 @@ describe('SuperTasksTableComponent', () => {
     }
 
     it('should expose columns for super tasks', () => {
-      expect(component.tableColumns.map((col) => col.id)).toEqual([
+      expect(component.tableColumns.map((col) => col.id)).toStrictEqual([
         SupertasksTableCol.ID,
         SupertasksTableCol.NAME,
         SupertasksTableCol.PRETASKS,

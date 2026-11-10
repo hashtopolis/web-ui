@@ -98,9 +98,9 @@ describe('NewSupertasksComponent', () => {
   });
 
   it('preselects hashcat and offers only its pretasks', () => {
-    expect(component.selectCrackerTypes.map((option) => option.id)).toEqual([2, 1]);
+    expect(component.selectCrackerTypes.map((option) => option.id)).toStrictEqual([2, 1]);
     expect(component.form.controls.crackerBinaryTypeId.value).toBe(1);
-    expect(component.selectPretasks.map((option) => option.id)).toEqual([2]);
+    expect(component.selectPretasks.map((option) => option.id)).toStrictEqual([2]);
     expect(component.isLoading).toBe(false);
   });
 
@@ -109,8 +109,8 @@ describe('NewSupertasksComponent', () => {
 
     component.form.controls.crackerBinaryTypeId.setValue(2);
 
-    expect(component.form.controls.pretasks.value).toEqual([]);
-    expect(component.selectPretasks.map((option) => option.id)).toEqual([3]);
+    expect(component.form.controls.pretasks.value).toStrictEqual([]);
+    expect(component.selectPretasks.map((option) => option.id)).toStrictEqual([3]);
     expect(component.form.valid).toBe(false);
   });
 
@@ -132,7 +132,7 @@ describe('NewSupertasksComponent', () => {
     types$.next([{ id: 1, typeName: 'hashcat' }]);
 
     expect(component.form.controls.crackerBinaryTypeId.value).toBe(1);
-    expect(component.form.controls.pretasks.value).toEqual([2]);
+    expect(component.form.controls.pretasks.value).toStrictEqual([2]);
   });
 
   it('sends the type with the supertask', () => {

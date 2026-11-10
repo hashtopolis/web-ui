@@ -125,6 +125,6 @@ describe('EditSupertasksComponent', () => {
     >;
     const notContained = Array.from(tables).find((table) => table.reverseQuery === true);
     expect(notContained?.crackerBinaryTypeId).toBe(2);
-    expect(component.selectPretasks?.map((option) => option.id)).toEqual([3]);
+    expect(component.selectPretasks?.map((option) => option.id)).toStrictEqual([3]);
   });
 });

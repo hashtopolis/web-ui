@@ -289,8 +289,8 @@ describe('ImportCrackedHashesComponent', () => {
 
       await component.loadServerFiles();
 
-      expect(component.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
-      expect(component.serverFileOptions.map((o) => o.name)).toEqual(['cached.txt', 'added-after-login.txt']);
+      expect(component.serverFiles.map((f) => f.file)).toStrictEqual(['cached.txt', 'added-after-login.txt']);
+      expect(component.serverFileOptions.map((o) => o.name)).toStrictEqual(['cached.txt', 'added-after-login.txt']);
     });
   });
 
@@ -463,11 +463,11 @@ describe('ImportCrackedHashesComponent', () => {
 
   describe('default values', () => {
     it('should have empty serverFiles array', () => {
-      expect(component.serverFiles).toEqual([]);
+      expect(component.serverFiles).toStrictEqual([]);
     });
 
     it('should have empty serverFileOptions array', () => {
-      expect(component.serverFileOptions).toEqual([]);
+      expect(component.serverFileOptions).toStrictEqual([]);
     });
 
     it('should have isLoadingServerFiles as false', () => {

@@ -143,7 +143,7 @@ describe('AccessGroupsTableComponent', () => {
   describe('table columns', () => {
     it('should expose exactly four columns: ID, NAME, NUSERS, NAGENTS', () => {
       const ids = component.tableColumns.map((c) => c.id);
-      expect(ids).toEqual([
+      expect(ids).toStrictEqual([
         AccessGroupsTableCol.ID,
         AccessGroupsTableCol.NAME,
         AccessGroupsTableCol.NUSERS,
@@ -183,7 +183,7 @@ describe('AccessGroupsTableComponent', () => {
       const links = await firstValueFrom(
         col.routerLink!(group) as Observable<{ routerLink: unknown[]; label: string }[]>
       );
-      expect(links[0].routerLink).toEqual(['/users', 'access-groups', 3, 'edit']);
+      expect(links[0].routerLink).toStrictEqual(['/users', 'access-groups', 3, 'edit']);
       expect(links[0].label).toBe('TestGroup');
     });
   });

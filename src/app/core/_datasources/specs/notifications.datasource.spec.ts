@@ -105,7 +105,7 @@ describe('NotificationsDataSource', () => {
     it('should call service.getAll with SERV.NOTIFICATIONS', () => {
       dataSource.loadAll();
       const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.NOTIFICATIONS);
+      expect(serviceConfig).toStrictEqual(SERV.NOTIFICATIONS);
     });
 
     it('should deserialize the response with zNotificationSettingListResponse', () => {
@@ -163,7 +163,7 @@ describe('NotificationsDataSource', () => {
     it('should persist the query as _currentFilter', () => {
       const query: Filter = { field: 'action', operator: FilterType.ICONTAINS, value: 'hashlist' };
       dataSource.loadAll(query);
-      expect(dataSource['_currentFilter']).toEqual(query);
+      expect(dataSource['_currentFilter']).toStrictEqual(query);
     });
 
     it('should reuse _currentFilter on a subsequent call without query', () => {
@@ -229,7 +229,7 @@ describe('NotificationsDataSource', () => {
     it('should reset _currentFilter to null', () => {
       const query: Filter = { field: 'action', operator: FilterType.ICONTAINS, value: 'error' };
       dataSource.loadAll(query);
-      expect(dataSource['_currentFilter']).toEqual(query);
+      expect(dataSource['_currentFilter']).toStrictEqual(query);
 
       dataSource.clearFilter();
       expect(dataSource['_currentFilter']).toBeNull();

@@ -110,8 +110,8 @@ describe('WrbulkComponent', () => {
     expect(val.isCpuTask).toBe(false);
     expect(val.useNewBench).toBe(true);
     expect(val.crackerBinaryId).toBe(1);
-    expect(val.baseFiles).toEqual([]);
-    expect(val.iterFiles).toEqual([]);
+    expect(val.baseFiles).toStrictEqual([]);
+    expect(val.iterFiles).toStrictEqual([]);
   });
 
   // ──────────────────────────────────────────────
@@ -333,7 +333,7 @@ describe('WrbulkComponent', () => {
       iterFiles: [2]
     });
 
-    expect(component.getFormData()).toEqual({
+    expect(component.getFormData()).toStrictEqual({
       attackCmd: '#HL# -a 0 FILE',
       files: [1],
       otherFiles: [2]
@@ -353,7 +353,7 @@ describe('WrbulkComponent', () => {
     });
 
     expect(component.createForm.value.attackCmd).toBe('#HL# -a 0 dict.txt FILE');
-    expect(component.createForm.value.baseFiles).toEqual([10, 20]);
+    expect(component.createForm.value.baseFiles).toStrictEqual([10, 20]);
   });
 
   it('should update iterFiles on non-CMD event', () => {
@@ -364,6 +364,6 @@ describe('WrbulkComponent', () => {
       otherFiles: [30, 40]
     });
 
-    expect(component.createForm.value.iterFiles).toEqual([30, 40]);
+    expect(component.createForm.value.iterFiles).toStrictEqual([30, 40]);
   });
 });

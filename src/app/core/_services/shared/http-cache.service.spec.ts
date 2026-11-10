@@ -38,7 +38,7 @@ describe('HttpCacheService', () => {
     const cached = service.get(req);
 
     expect(cached).toBeTruthy();
-    expect(cached?.response.body).toEqual({ id: 1, name: 'Test' });
+    expect(cached?.response.body).toStrictEqual({ id: 1, name: 'Test' });
     expect(cached?.isStale).toBe(false);
   });
 
@@ -66,7 +66,7 @@ describe('HttpCacheService', () => {
 
     // User 1 should get the cached response
     const cached1 = service.get(req1);
-    expect(cached1?.response.body).toEqual({ user: 'user-1' });
+    expect(cached1?.response.body).toStrictEqual({ user: 'user-1' });
 
     // User 2 should not get user 1's cache
     const cached2 = service.get(req2);
@@ -101,7 +101,7 @@ describe('HttpCacheService', () => {
     const cached = service.get(req);
 
     expect(cached).toBeTruthy();
-    expect(cached?.response.body).toEqual({ id: 1, name: 'Test' });
+    expect(cached?.response.body).toStrictEqual({ id: 1, name: 'Test' });
   });
 
   it('should invalidate cache on command', () => {
@@ -139,7 +139,7 @@ describe('HttpCacheService', () => {
     const stale = service.get(req);
     expect(stale).toBeTruthy();
     expect(stale?.isStale).toBe(true);
-    expect(stale?.response.body).toEqual({ id: 1, name: 'Test' });
+    expect(stale?.response.body).toStrictEqual({ id: 1, name: 'Test' });
   });
 
   it('should return null once the stale window has also elapsed', async () => {
@@ -183,7 +183,7 @@ describe('HttpCacheService', () => {
 
     // Clear memory cache to force retrieval from sessionStorage
     const cached = service.get(req);
-    expect(cached?.response.body).toEqual({ id: 1, name: 'Test' });
+    expect(cached?.response.body).toStrictEqual({ id: 1, name: 'Test' });
 
     // Verify that data is in sessionStorage (as a sanity check)
     expect(sessionStorage.length).toBeGreaterThan(0);

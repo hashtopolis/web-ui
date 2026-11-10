@@ -67,12 +67,12 @@ describe('WordlistGeneratorComponent', () => {
   it('should be invalid if filename is empty', () => {
     component.form.controls.filename.setValue('');
     expect(component.form.controls.filename.valid).toBe(false);
-    expect(component.form.controls.filename.errors).toEqual({ required: true });
+    expect(component.form.controls.filename.errors).toStrictEqual({ required: true });
   });
 
   it('should be invalid if names, specialdates and sparetext are all empty', () => {
     expect(component.form.valid).toBe(false);
-    expect(component.form.errors).toEqual({ atLeastOneRequired: true });
+    expect(component.form.errors).toStrictEqual({ atLeastOneRequired: true });
   });
 
   it('should be valid if at least one field is filled', () => {

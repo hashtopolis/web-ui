@@ -109,7 +109,7 @@ describe('BaseTableComponent', () => {
     const mockSuperTask = { id: 1, supertaskName: 'Test Supertask' } as JSuperTask;
     const links = await firstValueFrom(component.renderSupertaskLink(mockSuperTask));
     expect(links.length).toBe(1);
-    expect(links[0].routerLink).toEqual(['/tasks/', 1, 'edit']);
+    expect(links[0].routerLink).toStrictEqual(['/tasks/', 1, 'edit']);
     expect(links[0].label).toBe('Test Supertask');
   });
 
@@ -117,14 +117,14 @@ describe('BaseTableComponent', () => {
     const mockChunk = { id: 1, taskId: 2, cracked: 100 } as JChunk;
     const links = await firstValueFrom(component.renderCrackedLinkFromChunk(mockChunk));
     expect(links.length).toBe(1);
-    expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'chunks', 1]);
+    expect(links[0].routerLink).toStrictEqual(['/hashlists', 'hashes', 'chunks', 1]);
     expect(links[0].label).toBe('100');
   });
   it('should render cracked link from task', async () => {
     const mockTask = { id: 1, cracked: 100 } as JTaskWith<'cracked'>;
     const links = await firstValueFrom(component.renderCrackedLinkFromTask(mockTask));
     expect(links.length).toBe(1);
-    expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 1]);
+    expect(links[0].routerLink).toStrictEqual(['/hashlists', 'hashes', 'tasks', 1]);
     expect(links[0].label).toBe('100');
   });
 
@@ -158,7 +158,7 @@ describe('BaseTableComponent', () => {
     const links = await firstValueFrom(component.getCrackedLinkFromWrapper(mockWrapper));
     expect(links.length).toBe(1);
     expect(links[0].label).toBe('100');
-    expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'tasks', 7]);
+    expect(links[0].routerLink).toStrictEqual(['/hashlists', 'hashes', 'tasks', 7]);
     expect(links[0].tooltip).toBe(undefined);
   });
 
@@ -166,7 +166,7 @@ describe('BaseTableComponent', () => {
     const hashlist = { id: 1, name: 'Test Hashlist', isSecret: true } as JHashlist;
     const links = await firstValueFrom(component.renderHashlistLink(hashlist));
     expect(links.length).toBe(1);
-    expect(links[0].routerLink).toEqual(['/hashlists', 'hashlist', 1, 'edit']);
+    expect(links[0].routerLink).toStrictEqual(['/hashlists', 'hashlist', 1, 'edit']);
     expect(links[0].label).toBe('Test Hashlist');
     expect(links[0].icon!.tooltip).toBe('Secret hashlist');
   });
@@ -175,7 +175,7 @@ describe('BaseTableComponent', () => {
     const accessGroup = { id: 1, groupName: 'Test Group' } as JAccessGroup;
     const links = await firstValueFrom(component.renderAccessGroupLink(accessGroup));
     expect(links.length).toBe(1);
-    expect(links[0].routerLink).toEqual(['/users', 'access-groups', 1, 'edit']);
+    expect(links[0].routerLink).toStrictEqual(['/users', 'access-groups', 1, 'edit']);
     expect(links[0].label).toBe('Test Group');
   });
 
@@ -184,7 +184,7 @@ describe('BaseTableComponent', () => {
     const agent = { id: 1, accessGroups: accessGroup /* id: 1, groupName: 'Test Group'  */ } as JAgent;
     const links = await firstValueFrom(component.renderAccessGroupLinks(agent));
     expect(links.length).toBe(1);
-    expect(links[0].routerLink).toEqual(['/users', 'access-groups', 1, 'edit']);
+    expect(links[0].routerLink).toStrictEqual(['/users', 'access-groups', 1, 'edit']);
     expect(links[0].label).toBe('Test Group');
   });
 
@@ -192,7 +192,7 @@ describe('BaseTableComponent', () => {
     const agent = { id: 1, agentName: 'Test Agent', isTrusted: true } as JAgent;
     const links = await firstValueFrom(component.renderAgentLink(agent));
     expect(links.length).toBe(1);
-    expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 1, 'edit']);
+    expect(links[0].routerLink).toStrictEqual(['/agents', 'show-agents', 1, 'edit']);
     expect(links[0].label).toBe('Test Agent');
     expect(links[0].icon!.tooltip).toBe('Trusted Agent');
   });
@@ -201,7 +201,7 @@ describe('BaseTableComponent', () => {
     const chunk = { agentId: 1, agentName: 'Test Agent', agent: agent } as JChunk;
     const links = await firstValueFrom(component.renderAgentLinkFromChunk(chunk));
     expect(links.length).toBe(1);
-    expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 1, 'edit']);
+    expect(links[0].routerLink).toStrictEqual(['/agents', 'show-agents', 1, 'edit']);
     expect(links[0].label).toBe('Test Agent');
   });
 
@@ -218,7 +218,7 @@ describe('BaseTableComponent', () => {
     const user = { id: 1, name: 'Test User' } as JUser;
     const links = await firstValueFrom(component.renderUserLink(user));
     expect(links.length).toBe(1);
-    expect(links[0].routerLink).toEqual(['/users', 1, 'edit']);
+    expect(links[0].routerLink).toStrictEqual(['/users', 1, 'edit']);
     expect(links[0].label).toBe('Test User');
   });
 
@@ -227,7 +227,7 @@ describe('BaseTableComponent', () => {
     const agent = { id: 1, userId: 1, user: user } as JAgent;
     const links = await firstValueFrom(component.renderUserLinkFromAgent(agent));
     expect(links.length).toBe(1);
-    expect(links[0].routerLink).toEqual(['/users', 1, 'edit']);
+    expect(links[0].routerLink).toStrictEqual(['/users', 1, 'edit']);
     expect(links[0].label).toBe('Test User');
   });
 
@@ -236,7 +236,7 @@ describe('BaseTableComponent', () => {
 
     const links = await firstValueFrom(component.renderTaskLink(model));
     expect(links.length).toBe(1);
-    expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
+    expect(links[0].routerLink).toStrictEqual(['/tasks', 'show-tasks', 1, 'edit']);
     expect(links[0].label).toBe('Test Task');
   });
 
@@ -244,7 +244,7 @@ describe('BaseTableComponent', () => {
     const model = { taskId: 1, task: { taskName: 'Test Task' } } as JChunk;
     const links = await firstValueFrom(component.renderTaskLink(model, true));
     expect(links.length).toBe(1);
-    expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 1, 'edit']);
+    expect(links[0].routerLink).toStrictEqual(['/tasks', 'show-tasks', 1, 'edit']);
     expect(links[0].label).toBe('1');
   });
 
@@ -278,7 +278,7 @@ describe('BaseTableComponent', () => {
   it('should set column labels', () => {
     const labels = { col1: 'Column 1', col2: 'Column 2' };
     component.exposedSetColumnLabels(labels);
-    expect(component.getColumnLabels()).toEqual(labels);
+    expect(component.getColumnLabels()).toStrictEqual(labels);
   });
   it('should sanitize HTML', () => {
     const html = '<div>Test</div>';

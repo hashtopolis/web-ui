@@ -203,7 +203,7 @@ describe('ChunksTableComponent', () => {
 
       const links = await firstValueFrom(taskColumn!.routerLink!(chunk));
       expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 5, 'edit']);
+      expect(links[0].routerLink).toStrictEqual(['/tasks', 'show-tasks', 5, 'edit']);
       expect(links[0].label).toBe('Test Task');
     });
 
@@ -214,7 +214,7 @@ describe('ChunksTableComponent', () => {
 
       const links = await firstValueFrom(taskColumn!.routerLink!(chunk));
       expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/tasks', 'show-tasks', 10, 'edit']);
+      expect(links[0].routerLink).toStrictEqual(['/tasks', 'show-tasks', 10, 'edit']);
       expect(links[0].label).toBeUndefined();
     });
 
@@ -235,7 +235,7 @@ describe('ChunksTableComponent', () => {
 
       const links = await firstValueFrom(agentColumn!.routerLink!(chunk));
       expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 7, 'edit']);
+      expect(links[0].routerLink).toStrictEqual(['/agents', 'show-agents', 7, 'edit']);
       expect(links[0].label).toBe('Test Agent');
     });
 
@@ -246,7 +246,7 @@ describe('ChunksTableComponent', () => {
 
       const links = await firstValueFrom(agentColumn!.routerLink!(chunk));
       expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 3, 'edit']);
+      expect(links[0].routerLink).toStrictEqual(['/agents', 'show-agents', 3, 'edit']);
       expect(links[0].label).toBe('3');
     });
 
@@ -307,7 +307,7 @@ describe('ChunksTableComponent', () => {
 
       const links = await firstValueFrom(crackedColumn!.routerLink!(chunk));
       expect(links.length).toBe(1);
-      expect(links[0].routerLink).toEqual(['/hashlists', 'hashes', 'chunks', 9]);
+      expect(links[0].routerLink).toStrictEqual(['/hashlists', 'hashes', 'chunks', 9]);
       expect(links[0].label).toBe('100');
     });
   });

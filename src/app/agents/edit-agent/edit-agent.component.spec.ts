@@ -489,7 +489,7 @@ describe('EditAgentComponent', () => {
     await fixture.whenStable();
 
     expect(component.showagent).toBeDefined();
-    expect(component.selectUserAgps).toEqual([]);
+    expect(component.selectUserAgps).toStrictEqual([]);
   });
 
   it('should not load tasks when readAssignment role is not enabled', async () => {

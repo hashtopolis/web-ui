@@ -345,7 +345,7 @@ describe('AuthService refresh token', () => {
     service.refreshToken().subscribe();
     await wait();
 
-    expect(lockRequests).toEqual(['hashtopolis-refresh-token']);
+    expect(lockRequests).toStrictEqual(['hashtopolis-refresh-token']);
 
     httpMock.expectOne(REFRESH_URL).flush({ token: tokenForUser1(), expires: Math.floor(Date.now() / 1000) + 3600 });
   });

@@ -243,8 +243,8 @@ describe('NewFilesComponent', () => {
 
       const result = transformSelectOptions(deserialized, ACCESS_GROUP_FIELD_MAPPING);
       expect(result.length).toBe(2);
-      expect(result[0]).toEqual(expect.objectContaining({ id: 1, name: 'Group A' }));
-      expect(result[1]).toEqual(expect.objectContaining({ id: 3, name: 'Group C' }));
+      expect(result[0]).toStrictEqual(expect.objectContaining({ id: 1, name: 'Group A' }));
+      expect(result[1]).toStrictEqual(expect.objectContaining({ id: 3, name: 'Group C' }));
     });
 
     it('should populate dropdown with only user-scoped groups, not the full set', async () => {
@@ -274,7 +274,7 @@ describe('NewFilesComponent', () => {
 
       // Only the user's 2 groups should appear, not all 5
       expect(component.selectAccessgroup.length).toBe(2);
-      expect(component.selectAccessgroup).toEqual(userScopedGroups);
+      expect(component.selectAccessgroup).toStrictEqual(userScopedGroups);
 
       // Groups that exist globally but not for this user must be absent
       expect(component.selectAccessgroup.find((g) => g.name === 'Admin Group')).toBeUndefined();
@@ -296,7 +296,7 @@ describe('NewFilesComponent', () => {
 
       await comp.loadServerFiles();
 
-      expect(comp.serverFiles.map((f) => f.file)).toEqual(['cached.txt', 'added-after-login.txt']);
+      expect(comp.serverFiles.map((f) => f.file)).toStrictEqual(['cached.txt', 'added-after-login.txt']);
     });
   });
 });

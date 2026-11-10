@@ -167,7 +167,7 @@ describe('HashesDataSource', () => {
       dataSource.loadAll();
 
       const [serviceConfig, entityId, params] = gsSpy.get.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.HASHLISTS);
+      expect(serviceConfig).toStrictEqual(SERV.HASHLISTS);
       expect(entityId).toBe(5);
       expect((params as RequestParams).include).toContain('hashlists');
     });
@@ -176,7 +176,7 @@ describe('HashesDataSource', () => {
       dataSource.loadAll();
 
       const [serviceConfig, params] = gsSpy.getAll.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.HASHES);
+      expect(serviceConfig).toStrictEqual(SERV.HASHES);
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'hashlistId', operator: FilterType.EQUAL, value: 5 })
       );
@@ -247,7 +247,7 @@ describe('HashesDataSource', () => {
       dataSource.loadAll();
 
       const [serviceConfig, params] = gsSpy.getAll.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.HASHES);
+      expect(serviceConfig).toStrictEqual(SERV.HASHES);
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({
           field: 'hashlistId',
@@ -329,7 +329,7 @@ describe('HashesDataSource', () => {
     it('should filter by chunkId EQUAL the id', () => {
       dataSource.loadAll();
       const [serviceConfig, params] = gsSpy.getAll.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.HASHES);
+      expect(serviceConfig).toStrictEqual(SERV.HASHES);
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'chunkId', operator: FilterType.EQUAL, value: 9 })
       );
@@ -350,9 +350,9 @@ describe('HashesDataSource', () => {
       expect(gsSpy.get).not.toHaveBeenCalled();
       expect(gsSpy.getAll).not.toHaveBeenCalled();
       const [serviceConfig, helper, payload] = gsSpy.ghelper.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.HELPER);
+      expect(serviceConfig).toStrictEqual(SERV.HELPER);
       expect(helper).toBe('getCracksOfTask');
-      expect(payload).toEqual({ task: 3 });
+      expect(payload).toStrictEqual({ task: 3 });
     });
 
     it('should populate the hashes from the helper response', () => {

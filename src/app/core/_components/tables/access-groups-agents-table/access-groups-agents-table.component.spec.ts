@@ -121,7 +121,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
   describe('table columns', () => {
     it('should expose exactly two columns: ID and NAME', () => {
       const ids = component.tableColumns.map((c) => c.id);
-      expect(ids).toEqual([AccessGroupsAgentsTableCol.ID, AccessGroupsAgentsTableCol.NAME]);
+      expect(ids).toStrictEqual([AccessGroupsAgentsTableCol.ID, AccessGroupsAgentsTableCol.NAME]);
     });
 
     it('ID column should be sortable and searchable', () => {
@@ -148,7 +148,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
     it('should link to the agent edit page', async () => {
       const agent = { id: 42, agentName: 'Agent42' } as JAgent;
       const links = await firstValueFrom(idCol.routerLink!(agent));
-      expect(links[0].routerLink).toEqual(['/agents', 42, 'edit']);
+      expect(links[0].routerLink).toStrictEqual(['/agents', 42, 'edit']);
     });
 
     it('should use the agent numeric ID as the link label (as string)', async () => {
@@ -169,7 +169,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
     it('should link to the agent detail/edit page using the agent name as label', async () => {
       const agent = { id: 7, agentName: 'TestAgent', isTrusted: false } as JAgent;
       const links = await firstValueFrom(nameCol.routerLink!(agent));
-      expect(links[0].routerLink).toEqual(['/agents', 'show-agents', 7, 'edit']);
+      expect(links[0].routerLink).toStrictEqual(['/agents', 'show-agents', 7, 'edit']);
       expect(links[0].label).toBe('TestAgent');
     });
 
@@ -433,7 +433,7 @@ describe('AccessGroupsAgentsTableComponent', () => {
         }
       ).data;
       expect(dialogData.listAttribute).toBe('agentName');
-      expect(dialogData.rows).toEqual(agents);
+      expect(dialogData.rows).toStrictEqual(agents);
       subject.complete();
     });
   });

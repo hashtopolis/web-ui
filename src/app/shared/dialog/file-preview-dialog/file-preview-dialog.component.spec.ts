@@ -139,6 +139,6 @@ describe('FilePreviewDialogComponent', () => {
     const previousPage = visibleRows();
 
     const strip = (rows: string[]): string[] => rows.map((row) => row.replace(/^\S+ /, ''));
-    expect(strip(previousPage).concat(strip(lastPage))).toEqual(LINES.slice(10));
+    expect(strip(previousPage).concat(strip(lastPage))).toStrictEqual(LINES.slice(10));
   });
 });

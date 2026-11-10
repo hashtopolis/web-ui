@@ -165,7 +165,7 @@ describe('AgentsDataSource', () => {
     it('should call service.getAll with SERV.AGENTS', () => {
       dataSource.loadAll();
       const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.AGENTS);
+      expect(serviceConfig).toStrictEqual(SERV.AGENTS);
     });
 
     it('should set loading to false after a successful response', () => {
@@ -246,7 +246,7 @@ describe('AgentsDataSource', () => {
     it('should call service.getAll with SERV.AGENT_ASSIGN', () => {
       dataSource.loadAssignments();
       const firstCallArgs = gsSpy.getAll.mock.calls[0];
-      expect(firstCallArgs[0]).toEqual(SERV.AGENT_ASSIGN);
+      expect(firstCallArgs[0]).toStrictEqual(SERV.AGENT_ASSIGN);
 
       const httpOptions = firstCallArgs[2] as
         | {
@@ -296,12 +296,12 @@ describe('AgentsDataSource', () => {
       const agents = dataSource.getOriginalData();
       expect(agents.length).toBe(1);
       const agent = agents[0];
-      expect(agent.task).toEqual(MOCK_TASK);
+      expect(agent.task).toStrictEqual(MOCK_TASK);
       expect(agent.taskName).toBe(MOCK_TASK.taskName);
       expect(agent.taskId).toBe(MOCK_TASK.id);
       expect(agent.assignmentId).toBe(MOCK_ASSIGNMENT.id);
       expect(agent.benchmark).toBe(MOCK_ASSIGNMENT.benchmark);
-      expect(agent.user).toEqual(MOCK_USER);
+      expect(agent.user).toStrictEqual(MOCK_USER);
     });
 
     it('should map the assignment aggregates onto agents', async () => {

@@ -102,7 +102,7 @@ describe('HashlistPretaskBuilderTableComponent', () => {
       th.textContent?.trim()
     );
 
-    expect(headers).toEqual(['ID', 'Color', 'Name']);
+    expect(headers).toStrictEqual(['ID', 'Color', 'Name']);
   });
 
   it('should render color preview when pretask has color and keep empty when no color', async () => {
@@ -163,10 +163,10 @@ describe('HashlistPretaskBuilderTableComponent', () => {
     };
 
     privateComponent.retainSelection(rows);
-    expect(Array.from(component.selectedPretaskIds)).toEqual([1, 2]);
+    expect(Array.from(component.selectedPretaskIds)).toStrictEqual([1, 2]);
 
     privateComponent.retainSelection([rows[0]]);
-    expect(Array.from(component.selectedPretaskIds)).toEqual([1]);
+    expect(Array.from(component.selectedPretaskIds)).toStrictEqual([1]);
   });
 
   it('should show an error when creating with no selection', async () => {

@@ -71,7 +71,7 @@ describe('UiSettingsService', () => {
       const service = setup(stored);
 
       const expected = (uiConfigDefault.tableSettings['apiTokensTable'] as TableConfig).columns;
-      expect(service.getTableSettings('apiTokensTable')).toEqual([...expected]);
+      expect(service.getTableSettings('apiTokensTable')).toStrictEqual([...expected]);
       expect(errorSpy).not.toHaveBeenCalled();
     });
 
@@ -86,7 +86,7 @@ describe('UiSettingsService', () => {
 
       const service = setup(stored);
 
-      expect(service.getTableSettings('usersTable')).toEqual(customColumns);
+      expect(service.getTableSettings('usersTable')).toStrictEqual(customColumns);
     });
 
     it('applies the stored theme on creation', () => {
@@ -148,10 +148,12 @@ describe('UiSettingsService', () => {
 
       service.updateTableSettings('tasksTable', { columns: [1, 2, 3], page: 50 });
 
-      expect(tasksTable().columns).toEqual([1, 2, 3]);
+      expect(tasksTable().columns).toStrictEqual([1, 2, 3]);
       expect(tasksTable().page).toBe(50);
       expect(tasksTable().search).toBe(before.search);
-      expect(service.getTableConfig('tasksTable')).toEqual(expect.objectContaining({ columns: [1, 2, 3], page: 50 }));
+      expect(service.getTableConfig('tasksTable')).toStrictEqual(
+        expect.objectContaining({ columns: [1, 2, 3], page: 50 })
+      );
     });
 
     it('drops the sort order when its column is hidden', () => {
@@ -173,7 +175,7 @@ describe('UiSettingsService', () => {
 
       service.updateTableSettings('tasksTable', { columns: [2, 3] });
 
-      expect(tasksTable().order).toEqual(order);
+      expect(tasksTable().order).toStrictEqual(order);
     });
 
     it('keeps top-level settings written before it', () => {

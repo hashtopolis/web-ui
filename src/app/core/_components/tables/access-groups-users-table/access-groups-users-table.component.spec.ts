@@ -76,7 +76,7 @@ describe('AccessGroupsUsersTableComponent', () => {
   describe('table columns', () => {
     it('should expose exactly three columns: ID, NAME, STATUS', () => {
       const ids = component.tableColumns.map((c) => c.id);
-      expect(ids).toEqual([
+      expect(ids).toStrictEqual([
         AccessGroupsUsersTableCol.ID,
         AccessGroupsUsersTableCol.NAME,
         AccessGroupsUsersTableCol.STATUS

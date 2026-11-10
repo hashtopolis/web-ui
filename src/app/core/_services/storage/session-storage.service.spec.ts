@@ -84,7 +84,7 @@ describe('SessionStorageService', () => {
     service.setItem(key, value, 10000);
     const result = service.getItem(key);
 
-    expect(result).toEqual(value);
+    expect(result).toStrictEqual(value);
   });
 
   // --- Schema validation tests ---
@@ -102,7 +102,7 @@ describe('SessionStorageService', () => {
       service.setItem(key, value, 1000);
       const result = service.getItem(key, testSchema);
 
-      expect(result).toEqual(value);
+      expect(result).toStrictEqual(value);
     });
 
     it('getItem should remove key and return null when stored data fails schema', () => {
@@ -125,7 +125,7 @@ describe('SessionStorageService', () => {
       service.setItem(key, value, 1000, testSchema);
       const result = service.getItem(key);
 
-      expect(result).toEqual(value);
+      expect(result).toStrictEqual(value);
     });
 
     it('setItem should refuse to write and log error when value fails schema', () => {
@@ -146,7 +146,7 @@ describe('SessionStorageService', () => {
       service.setItem(key, value, 1000);
       const result = service.getItem(key);
 
-      expect(result).toEqual(value);
+      expect(result).toStrictEqual(value);
     });
 
     it('setItem without schema should behave unchanged (backward compat)', () => {
@@ -163,7 +163,7 @@ describe('SessionStorageService', () => {
 
       const result = service.getItem(key, testSchema);
 
-      expect(result).toEqual({ name: 'a', count: 1 });
+      expect(result).toStrictEqual({ name: 'a', count: 1 });
       expect((result as Record<string, unknown>)['extra']).toBeUndefined();
     });
   });
@@ -180,7 +180,7 @@ describe('SessionStorageService', () => {
 
     it('getItem should return defaultValue when key does not exist', () => {
       const result = service.getItem('missing-key', testSchema, defaultObj);
-      expect(result).toEqual(defaultObj);
+      expect(result).toStrictEqual(defaultObj);
     });
 
     it('getItem should return stored value (not default) when key exists and is valid', () => {
@@ -188,7 +188,7 @@ describe('SessionStorageService', () => {
       service.setItem('existing', stored, 1000);
 
       const result = service.getItem('existing', testSchema, defaultObj);
-      expect(result).toEqual(stored);
+      expect(result).toStrictEqual(stored);
     });
 
     it('getItem should return defaultValue when schema validation fails', () => {
@@ -196,7 +196,7 @@ describe('SessionStorageService', () => {
       service.setItem('bad', { name: 999, count: 'bad' }, 1000);
 
       const result = service.getItem('bad', testSchema, defaultObj);
-      expect(result).toEqual(defaultObj);
+      expect(result).toStrictEqual(defaultObj);
       // corrupt entry should be self-healed (removed)
       expect(sessionStorage.getItem('bad')).toBeNull();
     });
@@ -209,7 +209,7 @@ describe('SessionStorageService', () => {
         vi.setSystemTime(Date.now() + 2);
 
         const result = service.getItem('expiring', testSchema, defaultObj);
-        expect(result).toEqual(defaultObj);
+        expect(result).toStrictEqual(defaultObj);
       } finally {
         vi.useRealTimers();
       }

@@ -138,7 +138,7 @@ describe('FilesDataSource', () => {
     it('should call service.getAll with SERV.FILES', () => {
       dataSource.loadAll();
       const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.FILES);
+      expect(serviceConfig).toStrictEqual(SERV.FILES);
     });
 
     it('should include accessGroup in the request params', () => {
@@ -168,7 +168,7 @@ describe('FilesDataSource', () => {
     it('should persist the query as _currentFilter', () => {
       const query: Filter = { field: 'filename', operator: FilterType.ICONTAINS, value: 'cyclone' };
       dataSource.loadAll(query);
-      expect(dataSource['_currentFilter']).toEqual(query);
+      expect(dataSource['_currentFilter']).toStrictEqual(query);
     });
 
     it('should reuse _currentFilter on a subsequent call without query', () => {
@@ -251,7 +251,7 @@ describe('FilesDataSource', () => {
       expect(gsSpy.get).toHaveBeenCalled();
       expect(gsSpy.getAll).not.toHaveBeenCalled();
       const [serviceConfig] = gsSpy.get.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.TASKS);
+      expect(serviceConfig).toStrictEqual(SERV.TASKS);
     });
 
     it('should include files in the request params', () => {
@@ -290,7 +290,7 @@ describe('FilesDataSource', () => {
       expect(gsSpy.get).toHaveBeenCalled();
       expect(gsSpy.getAll).not.toHaveBeenCalled();
       const [serviceConfig] = gsSpy.get.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.PRETASKS);
+      expect(serviceConfig).toStrictEqual(SERV.PRETASKS);
     });
 
     it('should include pretaskFiles in the request params', () => {
@@ -347,7 +347,7 @@ describe('FilesDataSource', () => {
     it('should reset _currentFilter to null', () => {
       const query: Filter = { field: 'filename', operator: FilterType.ICONTAINS, value: 'rockyou' };
       dataSource.loadAll(query);
-      expect(dataSource['_currentFilter']).toEqual(query);
+      expect(dataSource['_currentFilter']).toStrictEqual(query);
       dataSource.clearFilter();
       expect(dataSource['_currentFilter']).toBeNull();
     });

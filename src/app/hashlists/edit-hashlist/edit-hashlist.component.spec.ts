@@ -341,7 +341,7 @@ describe('EditHashlistComponent', () => {
       await wait();
 
       expect(gsSpy.ghelper).not.toHaveBeenCalled();
-      expect(component.selectAccessgroup).toEqual([]);
+      expect(component.selectAccessgroup).toStrictEqual([]);
     });
   });
 
@@ -471,12 +471,12 @@ describe('EditHashlistComponent', () => {
           .map((input) => [input.title, input.linkTo])
       );
 
-      expect([...linkByTitle.keys()]).toEqual(['Hashes', 'Cracked', 'Remaining']);
+      expect([...linkByTitle.keys()]).toStrictEqual(['Hashes', 'Cracked', 'Remaining']);
       // Hashes links to the unfiltered list; Cracked/Remaining pack the filter into
       // the :id segment (split on '?' in hashes.component.ts) for cracked/uncracked views.
-      expect(linkByTitle.get('Hashes')).toEqual(['/hashlists', 'hashes', 'hashlists', 42]);
-      expect(linkByTitle.get('Cracked')).toEqual(['/hashlists', 'hashes', 'hashlists', '42?cracked']);
-      expect(linkByTitle.get('Remaining')).toEqual(['/hashlists', 'hashes', 'hashlists', '42?uncracked']);
+      expect(linkByTitle.get('Hashes')).toStrictEqual(['/hashlists', 'hashes', 'hashlists', 42]);
+      expect(linkByTitle.get('Cracked')).toStrictEqual(['/hashlists', 'hashes', 'hashlists', '42?cracked']);
+      expect(linkByTitle.get('Remaining')).toStrictEqual(['/hashlists', 'hashes', 'hashlists', '42?uncracked']);
     });
   });
 

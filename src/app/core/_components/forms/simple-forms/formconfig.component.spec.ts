@@ -284,11 +284,11 @@ describe('FormConfigComponent', () => {
     component.loadEdit();
 
     expect(component.isloaded).toBe(true);
-    expect(component.formIds).toEqual({
+    expect(component.formIds).toStrictEqual({
       hashcatBrainEnable: 11,
       timefmt: 12
     });
-    expect(component.formValues).toEqual({
+    expect(component.formValues).toStrictEqual({
       hashcatBrainEnable: true,
       timefmt: 'yyyy-MM-dd HH:mm:ss'
     });
@@ -313,7 +313,7 @@ describe('FormConfigComponent', () => {
     });
 
     expect(globalService.update).toHaveBeenCalledTimes(2);
-    expect(globalService.update.mock.calls).toEqual([
+    expect(globalService.update.mock.calls).toStrictEqual([
       [SERV.CONFIGS, 21, { item: 'serverLogLevel', value: '30' }],
       [SERV.CONFIGS, 22, { item: 'hashcatBrainEnable', value: '0' }]
     ]);

@@ -76,7 +76,7 @@ describe('CrackerHashtypesTableComponent', () => {
   });
 
   it('exposes hashtype, description, salted and slow hash columns', () => {
-    expect(component.tableColumns.map((col) => col.id)).toEqual([
+    expect(component.tableColumns.map((col) => col.id)).toStrictEqual([
       CrackerHashtypesTableCol.HASHTYPE,
       CrackerHashtypesTableCol.DESCRIPTION,
       CrackerHashtypesTableCol.SALTED,

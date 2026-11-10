@@ -29,7 +29,7 @@ describe('Global permission group creation metadata', () => {
       .getFormMetadata('newglobalpermissionsgp')
       .find((field) => field.name === 'permissions');
 
-    expect(permissionsField).toEqual(
+    expect(permissionsField).toStrictEqual(
       expect.objectContaining({
         type: FieldType.Hidden,
         defaultValue: {}

@@ -43,15 +43,15 @@ describe('cracker hashtype support helpers', () => {
   const types = [crackerType(1, 'hashcat', [10, 11]), crackerType(2, 'generic', [20])];
 
   it('keeps everything when no hashtype is known', () => {
-    expect(filterSupportedCrackerTypes(types, null)).toEqual(types);
-    expect(filterSupportedCrackerVersions(types[0].crackerVersions, null)).toEqual(types[0].crackerVersions);
+    expect(filterSupportedCrackerTypes(types, null)).toStrictEqual(types);
+    expect(filterSupportedCrackerVersions(types[0].crackerVersions, null)).toStrictEqual(types[0].crackerVersions);
   });
 
   it('keeps only types and versions with support', () => {
     const supported = new Set([11]);
-    expect(filterSupportedCrackerTypes(types, supported).map((type) => type.id)).toEqual([1]);
-    expect(filterSupportedCrackerVersions(types[0].crackerVersions, supported).map((v) => v.id)).toEqual([11]);
-    expect(filterSupportedCrackerTypes(types, new Set())).toEqual([]);
+    expect(filterSupportedCrackerTypes(types, supported).map((type) => type.id)).toStrictEqual([1]);
+    expect(filterSupportedCrackerVersions(types[0].crackerVersions, supported).map((v) => v.id)).toStrictEqual([11]);
+    expect(filterSupportedCrackerTypes(types, new Set())).toStrictEqual([]);
   });
 
   it('prefers the hashcat type, else the last type', () => {
@@ -110,7 +110,7 @@ describe('CrackerHashtypeSupportService', () => {
       RelationshipType.CRACKERBINARIES,
       expect.anything()
     );
-    expect([...ids]).toEqual([5, 9]);
+    expect([...ids]).toStrictEqual([5, 9]);
   });
 
   it('bypasses the HTTP cache, a stale answer must not decide about blocking', async () => {

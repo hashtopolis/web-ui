@@ -152,7 +152,7 @@ describe('SuperHashlistsDataSource', () => {
     it('should call service.getAll with SERV.HASHLISTS', () => {
       dataSource.loadAll();
       const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.HASHLISTS);
+      expect(serviceConfig).toStrictEqual(SERV.HASHLISTS);
     });
 
     it('should include hashType and hashlists in request params', () => {
@@ -244,7 +244,7 @@ describe('SuperHashlistsDataSource', () => {
     it('should persist the query as _currentFilter', () => {
       const query: Filter = { field: 'name', operator: FilterType.ICONTAINS, value: 'md5' };
       dataSource.loadAll(query);
-      expect(dataSource['_currentFilter']).toEqual(query);
+      expect(dataSource['_currentFilter']).toStrictEqual(query);
     });
 
     it('should reuse _currentFilter on a subsequent call without query', () => {
@@ -302,7 +302,7 @@ describe('SuperHashlistsDataSource', () => {
     it('should reset _currentFilter to null', () => {
       const query: Filter = { field: 'name', operator: FilterType.ICONTAINS, value: 'sha1' };
       dataSource.loadAll(query);
-      expect(dataSource['_currentFilter']).toEqual(query);
+      expect(dataSource['_currentFilter']).toStrictEqual(query);
 
       dataSource.clearFilter();
       expect(dataSource['_currentFilter']).toBeNull();

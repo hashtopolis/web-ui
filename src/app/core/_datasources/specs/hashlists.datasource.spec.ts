@@ -180,7 +180,7 @@ describe('HashlistsDataSource', () => {
     it('should call service.getAll with SERV.HASHLISTS', () => {
       dataSource.loadAll();
       const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.HASHLISTS);
+      expect(serviceConfig).toStrictEqual(SERV.HASHLISTS);
     });
 
     it('should include hashType and accessGroup', () => {
@@ -319,7 +319,7 @@ describe('HashlistsDataSource', () => {
       expect(gsSpy.getAll).not.toHaveBeenCalled();
 
       const [serviceConfig, entityId] = gsSpy.get.mock.lastCall!;
-      expect(serviceConfig).toEqual(SERV.HASHLISTS);
+      expect(serviceConfig).toStrictEqual(SERV.HASHLISTS);
       expect(entityId).toBe(77);
     });
 

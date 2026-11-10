@@ -98,7 +98,7 @@ describe('BackgroundJobsDataSource', () => {
   it('requests SERV.BACKGROUND_JOBS with the user included', () => {
     dataSource.loadAll();
     const [serviceConfig, params] = gsSpy.getAll.mock.lastCall!;
-    expect(serviceConfig).toEqual(SERV.BACKGROUND_JOBS);
+    expect(serviceConfig).toStrictEqual(SERV.BACKGROUND_JOBS);
     expect((params as RequestParams).include).toContain('user');
   });
 
@@ -107,7 +107,7 @@ describe('BackgroundJobsDataSource', () => {
     const jobs = dataSource.getOriginalData();
     expect(jobs.length).toBe(1);
     expect(jobs[0].jobType).toBe('recount_file');
-    expect(jobs[0].payload).toEqual({ fileId: 7 });
+    expect(jobs[0].payload).toStrictEqual({ fileId: 7 });
     expect(jobs[0].user?.name).toBe('admin');
     expect(dataSource.totalItems).toBe(1);
   });

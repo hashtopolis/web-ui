@@ -148,15 +148,17 @@ describe('ApplyHashlistComponent', () => {
   it('shows the supertask and its type read-only and selects the newest version of the type', () => {
     create();
 
-    expect(gs.get.mock.lastCall!.slice(0, 2)).toEqual([SERV.SUPER_TASKS, 5]);
+    expect(gs.get.mock.lastCall!.slice(0, 2)).toStrictEqual([SERV.SUPER_TASKS, 5]);
     expect(crackerBinaryTypes.getTypeName).toHaveBeenCalledWith(1);
     expect(component.form.controls.supertaskName.value).toBe('BF set');
     expect(component.form.controls.supertaskName.disabled).toBe(true);
     expect(component.form.controls.crackerBinaryType.value).toBe('hashcat');
     expect(component.form.controls.crackerBinaryType.disabled).toBe(true);
-    expect(versionsRequest().filter).toEqual([{ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: 1 }]);
+    expect(versionsRequest().filter).toStrictEqual([
+      { field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: 1 }
+    ]);
     expect(gs.getAll.mock.calls.some((c) => (c[0] as ServiceConfig).URL === SERV.CRACKERS_TYPES.URL)).toBe(false);
-    expect(component.selectCrackerversions.map((o) => o.id)).toEqual([10, 11]);
+    expect(component.selectCrackerversions.map((o) => o.id)).toStrictEqual([10, 11]);
     expect(component.form.controls.crackerBinaryId.value).toBe(11);
     expect(component.noCrackerVersionsAvailable).toBe(false);
   });
@@ -164,7 +166,7 @@ describe('ApplyHashlistComponent', () => {
   it('flags when the type has no accessible version', () => {
     responses[SERV.CRACKERS.URL] = EMPTY_VERSIONS;
     expect(() => create()).not.toThrow();
-    expect(component.selectCrackerversions).toEqual([]);
+    expect(component.selectCrackerversions).toStrictEqual([]);
     expect(component.form.controls.crackerBinaryId.value).toBeNull();
     expect(component.noCrackerVersionsAvailable).toBe(true);
     expect(component.unsupportedHashtypeMessage).toBeNull();
@@ -223,7 +225,7 @@ describe('ApplyHashlistComponent', () => {
       component.handleChangeHashlist(1);
 
       expect(support.getSupportedCrackerBinaryIds).toHaveBeenCalledWith(1000);
-      expect(component.selectCrackerversions.map((o) => o.id)).toEqual([10]);
+      expect(component.selectCrackerversions.map((o) => o.id)).toStrictEqual([10]);
       expect(component.form.controls.crackerBinaryId.value).toBe(10);
       expect(component.unsupportedHashtypeMessage).toBeNull();
     });
@@ -247,7 +249,7 @@ describe('ApplyHashlistComponent', () => {
       fixture.detectChanges();
       component.onSubmit();
 
-      expect(component.selectCrackerversions).toEqual([]);
+      expect(component.selectCrackerversions).toStrictEqual([]);
       expect(component.form.controls.crackerBinaryId.value).toBeNull();
       expect(component.unsupportedHashtypeMessage).toBe(buildUnsupportedHashtypeMessage(1000));
       expect(component.noCrackerVersionsAvailable).toBe(false);
@@ -289,7 +291,7 @@ describe('ApplyHashlistComponent', () => {
       expect(component.form.controls.crackerBinaryId.pending).toBe(true);
       versionsResponse.next(VERSIONS_10_11);
 
-      expect(component.selectCrackerversions.map((o) => o.id)).toEqual([10]);
+      expect(component.selectCrackerversions.map((o) => o.id)).toStrictEqual([10]);
       expect(component.form.controls.crackerBinaryId.value).toBe(10);
       expect(component.form.controls.crackerBinaryId.pending).toBe(false);
     });
@@ -333,7 +335,7 @@ describe('ApplyHashlistComponent', () => {
       component.handleChangeHashlist(null);
 
       expect(firstLookup.observed).toBe(false);
-      expect(component.selectCrackerversions.map((o) => o.id)).toEqual([10, 11]);
+      expect(component.selectCrackerversions.map((o) => o.id)).toStrictEqual([10, 11]);
     });
   });
 });
