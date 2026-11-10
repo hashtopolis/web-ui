@@ -47,6 +47,35 @@ beforeEach(() => {
   });
 });
 
+// zone.js replaces Promise and only logs a rejection nobody handles, so Vitest never sees it, and the
+// log is hidden for a passing test. A navigation to an unregistered route or an unawaited call that
+// rejects would pass unnoticed. Record what zone.js reports and fail the test that was running. A
+// rejection that settles after its test has finished is charged to the next one, hence the hint.
+const unhandledRejections: unknown[] = [];
+const zone = (globalThis as { Zone?: { __symbol__(name: string): string } }).Zone;
+
+if (zone) {
+  const handlerKey = zone.__symbol__('unhandledPromiseRejectionHandler');
+  (zone as unknown as Record<string, unknown>)[handlerKey] = (event: { rejection?: unknown }) => {
+    unhandledRejections.push(event?.rejection ?? event);
+  };
+}
+
+beforeEach(() => {
+  onTestFinished(() => {
+    const rejections = unhandledRejections.splice(0);
+
+    if (rejections.length > 0) {
+      const reasons = rejections.map((reason) => (reason instanceof Error ? reason.message : String(reason)));
+
+      throw new Error(
+        `Unhandled promise rejection during this test (or left over from the one before): ${reasons.join('; ')}`,
+        { cause: rejections[0] }
+      );
+    }
+  });
+});
+
 // jsdom's typed arrays come from its own realm, but its TextEncoder is Node's, so encoded bytes fail
 // `instanceof Uint8Array` / `instanceof ArrayBuffer` checks (for example when HttpTestingController
 // flushes an 'arraybuffer' response). Copy the result into this realm's Uint8Array, as in a browser.
