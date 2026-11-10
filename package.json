@@ -82,6 +82,7 @@
     "@typescript-eslint/parser": "^8.56.1",
     "@typescript-eslint/utils": "^8.56.1",
     "@vitest/coverage-v8": "^5.0.3",
+    "@vitest/eslint-plugin": "^1.6.28",
     "angular-eslint": "^22.6.0",
     "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.1.2",

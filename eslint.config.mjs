@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
 import { FlatCompat } from '@eslint/eslintrc';
 import angular from 'angular-eslint';
+import vitest from '@vitest/eslint-plugin';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -187,6 +188,20 @@ export default defineConfig([
             'Use the ...Async variant (e.g. await vi.advanceTimersByTimeAsync(ms)): the sync one does not flush promise and RxJS microtasks between timers, so assertions can run before the work they check.'
         }
       ]
+    }
+  },
+  // === Specs: Vitest rules ===
+  {
+    files: ['**/*.spec.ts'],
+    plugins: { vitest },
+    rules: {
+      // A `.resolves` / `.rejects` assertion that is not awaited runs after the test has ended.
+      // Two arguments, because `expect(value, message)` replaces Jasmine's withContext().
+      'vitest/valid-expect': ['error', { maxArgs: 2 }],
+      // `it.only` / `describe.only` left in a spec would silently skip the rest of the suite.
+      'vitest/no-focused-tests': 'error',
+      // Vitest's toEqual ignores undefined keys and the object's class, which Jasmine's toEqual checked.
+      'vitest/prefer-strict-equal': 'error'
     }
   },
   // === Allow window.location.reload() only in ReloadService ===
