@@ -1,5 +1,5 @@
 import { zBackgroundJobListResponse } from '@generated/api/zod';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
 import { ChangeDetectorRef, Injector } from '@angular/core';
@@ -110,5 +110,26 @@ describe('BackgroundJobsDataSource', () => {
     expect(jobs[0].payload).toStrictEqual({ fileId: 7 });
     expect(jobs[0].user?.name).toBe('admin');
     expect(dataSource.totalItems).toBe(1);
+  });
+
+  it('retains filter state and clears it when requested', () => {
+    const filter = { field: 'status', operator: 'eq' as never, value: 2 };
+    dataSource.loadAll(filter);
+    dataSource.loadAll();
+    expect((gsSpy.getAll.mock.lastCall![1] as RequestParams).filter).toContainEqual(filter);
+
+    dataSource.clearFilter();
+    expect((gsSpy.getAll.mock.lastCall![1] as RequestParams).filter ?? []).not.toContainEqual(filter);
+  });
+
+  it('emits filter errors and stops loading after a failed request', () => {
+    const errors: string[] = [];
+    dataSource.filterError$.subscribe((message) => errors.push(message));
+    gsSpy.getAll.mockReturnValue(throwError(() => new Error('request failed')));
+
+    dataSource.loadAll({ field: 'invalid', operator: 'eq' as never, value: 'x' });
+
+    expect(dataSource['loadingSubject'].getValue()).toBe(false);
+    expect(errors).toEqual([]);
   });
 });
