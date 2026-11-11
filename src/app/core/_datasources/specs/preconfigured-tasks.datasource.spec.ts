@@ -32,7 +32,8 @@ const MOCK_FILE: JFile = {
   isSecret: false,
   fileType: 0,
   accessGroupId: 1,
-  lineCount: 128417
+  lineCount: 128417,
+  checksum: null
 } as unknown as JFile;
 
 const MOCK_PRETASK: JPretask = {

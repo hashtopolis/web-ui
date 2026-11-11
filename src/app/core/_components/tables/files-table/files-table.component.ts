@@ -14,6 +14,7 @@ import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-ac
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { BaseTableComponent } from '@components/tables/base-table/base-table.component';
 import {
+  CHECKSUM_PENDING_LABEL,
   FilesRowAction,
   FilesTableCol,
   FilesTableColumnLabel
@@ -184,6 +185,20 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, A
         isSortable: this.isSortable,
         render: (file: JFile) => (file.lineCount ? file.lineCount.toLocaleString() : 0),
         export: async (file: JFile) => (file.lineCount ? file.lineCount.toLocaleString() : 0) + ''
+      },
+      {
+        id: FilesTableCol.CHECKSUM,
+        dataKey: 'checksum',
+        // Sorting groups equal checksums together, which is how duplicate files show up.
+        isSortable: this.isSortable,
+        isSearchable: true,
+        copy: { label: 'Checksum', value: (file: JFile) => file.checksum ?? '' },
+        truncate: { dialogTitle: (file: JFile) => `Checksum for: ${file.filename}` },
+        // A pending checksum is spelled out: an empty cell would read as a failure rather than
+        // as a background job that has not run yet.
+        render: (file: JFile) => file.checksum ?? CHECKSUM_PENDING_LABEL,
+        // Exported empty, so a spreadsheet cell stays blank instead of carrying the placeholder.
+        export: async (file: JFile) => file.checksum ?? ''
       }
     ];
 
@@ -260,6 +275,9 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, A
         break;
       case FilesRowAction.RECOUNT_LINES:
         this.rowActionRecount(event.data);
+        break;
+      case FilesRowAction.RECOMPUTE_CHECKSUM:
+        this.rowActionRecomputeChecksum(event.data);
         break;
     }
   }
@@ -390,6 +408,24 @@ export class FilesTableComponent extends BaseTableComponent implements OnInit, A
         // The recount runs as background job, reloading now would only show the old count
         this.alertService.showSuccessMessage(
           `Line recount for ${file.filename} queued. The line count updates once the background job has finished.`
+        );
+      });
+  }
+
+  private rowActionRecomputeChecksum(file: JFile): void {
+    this.gs
+      .chelper(SERV.HELPER, 'recomputeFileChecksum', { fileId: file.id })
+      .pipe(
+        catchError((error) => {
+          console.error('Error recomputing file checksum:', error);
+          return [];
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        // The checksum is computed as background job, reloading now would only show the old value
+        this.alertService.showSuccessMessage(
+          `Checksum recomputation for ${file.filename} queued. The checksum updates once the background job has finished.`
         );
       });
   }

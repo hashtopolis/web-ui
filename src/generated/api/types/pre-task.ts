@@ -122,6 +122,7 @@ export type PreTaskResponse = {
       fileType: 0 | 1 | 2 | 100;
       accessGroupId: number;
       lineCount: number;
+      checksum: string | null;
     };
   }>;
 };
@@ -178,6 +179,7 @@ export type PreTaskPostPatchResponse = {
       fileType: 0 | 1 | 2 | 100;
       accessGroupId: number;
       lineCount: number;
+      checksum: string | null;
     };
   }>;
 };
@@ -243,6 +245,7 @@ export type PreTaskListResponse = {
       fileType: 0 | 1 | 2 | 100;
       accessGroupId: number;
       lineCount: number;
+      checksum: string | null;
     };
   }>;
 };

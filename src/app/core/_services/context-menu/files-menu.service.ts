@@ -51,6 +51,12 @@ export class FilesContextMenuService extends ContextMenuService {
       icon: FilesRowActionIcon.RECOUNT_LINES,
       permissions: permUpdate
     });
+    this.addCtxCustomItem({
+      label: FilesRowActionLabel.RECOMPUTE_CHECKSUM,
+      action: FilesRowAction.RECOMPUTE_CHECKSUM,
+      icon: FilesRowActionIcon.RECOMPUTE_CHECKSUM,
+      permissions: permUpdate
+    });
 
     this.addCtxDeleteItem(RowActionMenuLabel.DELETE_FILE, permDelete);
 

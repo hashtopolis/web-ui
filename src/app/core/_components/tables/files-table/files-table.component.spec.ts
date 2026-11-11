@@ -14,7 +14,12 @@ import { SERV } from '@services/main.config';
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { FilesTableComponent } from '@components/tables/files-table/files-table.component';
-import { FilesRowAction, FilesTableColumnLabel } from '@components/tables/files-table/files-table.constants';
+import {
+  CHECKSUM_PENDING_LABEL,
+  FilesRowAction,
+  FilesTableCol,
+  FilesTableColumnLabel
+} from '@components/tables/files-table/files-table.constants';
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
@@ -96,6 +101,57 @@ describe('FilesTableComponent', () => {
     });
   });
 
+  describe('checksum column', () => {
+    const CHECKSUM = 'af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262';
+
+    function checksumColumn(): HTTableColumn {
+      const column = component.tableColumns.find((col) => col.id === FilesTableCol.CHECKSUM);
+      expect(column).toBeDefined();
+      return column!;
+    }
+
+    it('should offer a checksum column bound to the backend attribute', () => {
+      const column = checksumColumn();
+
+      expect(column.dataKey).toBe('checksum');
+      expect(column.isSearchable).toBe(true);
+    });
+
+    it('should render a computed checksum in full', () => {
+      const file = { id: 7, filename: 'a.txt', checksum: CHECKSUM } as JFile;
+
+      expect(checksumColumn().render!(file)).toBe(CHECKSUM);
+    });
+
+    it('should render a pending checksum as not yet computed rather than blank', () => {
+      const file = { id: 7, filename: 'a.txt', checksum: null } as JFile;
+
+      expect(checksumColumn().render!(file)).toBe(CHECKSUM_PENDING_LABEL);
+    });
+
+    it('should copy the full checksum and title the truncation dialog with the filename', () => {
+      const file = { id: 7, filename: 'a.txt', checksum: CHECKSUM } as JFile;
+      const column = checksumColumn();
+
+      expect(column.copy!.value(file)).toBe(CHECKSUM);
+      expect(column.truncate!.dialogTitle!(file)).toBe('Checksum for: a.txt');
+    });
+
+    it('should export the checksum, and an empty cell while it is pending', async () => {
+      const column = checksumColumn();
+
+      await expect(column.export!({ id: 7, filename: 'a.txt', checksum: CHECKSUM } as JFile)).resolves.toBe(CHECKSUM);
+      // Empty rather than the placeholder, so a spreadsheet cell stays blank.
+      await expect(column.export!({ id: 7, filename: 'a.txt', checksum: null } as JFile)).resolves.toBe('');
+    });
+
+    it('should copy an empty string when there is no checksum to copy', () => {
+      const file = { id: 7, filename: 'a.txt', checksum: null } as JFile;
+
+      expect(checksumColumn().copy!.value(file)).toBe('');
+    });
+  });
+
   describe('rowActionClicked', () => {
     let gs: {
       update: Mock;
@@ -132,6 +188,17 @@ describe('FilesTableComponent', () => {
       expect(gs.chelper).toHaveBeenCalledWith(SERV.HELPER, 'recountFileLines', { fileId: 7 });
       expect(component['alertService'].showSuccessMessage).toHaveBeenCalledWith(
         'Line recount for a.txt queued. The line count updates once the background job has finished.'
+      );
+      expect(component.reload).not.toHaveBeenCalled();
+    });
+
+    it('should queue the checksum recomputation without reloading the stale checksum', () => {
+      const file = { id: 7, filename: 'a.txt', isSecret: false } as JFile;
+      component.rowActionClicked({ data: file, menuItem: { action: FilesRowAction.RECOMPUTE_CHECKSUM, label: '' } });
+
+      expect(gs.chelper).toHaveBeenCalledWith(SERV.HELPER, 'recomputeFileChecksum', { fileId: 7 });
+      expect(component['alertService'].showSuccessMessage).toHaveBeenCalledWith(
+        'Checksum recomputation for a.txt queued. The checksum updates once the background job has finished.'
       );
       expect(component.reload).not.toHaveBeenCalled();
     });

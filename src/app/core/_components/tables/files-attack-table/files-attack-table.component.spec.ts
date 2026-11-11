@@ -12,7 +12,8 @@ describe('FilesAttackTableComponent', () => {
     isSecret: false,
     fileType: FileType.RULES,
     accessGroupId: 1,
-    lineCount: 0
+    lineCount: 0,
+    checksum: null
   });
 
   const unchecked = (row: JFile): CheckboxChangeEvent => ({

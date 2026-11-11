@@ -20,7 +20,8 @@ const FILE: JFile = {
   isSecret: false,
   fileType: 0,
   accessGroupId: 1,
-  lineCount: LINES.length
+  lineCount: LINES.length,
+  checksum: null
 };
 
 describe('FilePreviewDialogComponent', () => {
