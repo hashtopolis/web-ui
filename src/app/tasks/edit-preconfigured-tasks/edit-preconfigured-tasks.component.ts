@@ -199,7 +199,7 @@ export class EditPreconfiguredTasksComponent implements OnInit {
           next: () => {
             this.alert.showSuccessMessage('Preconfigured Task saved');
             this.isUpdatingLoading = false;
-            this.router.navigate(['tasks/preconfigured-tasks']);
+            void this.router.navigate(['tasks/preconfigured-tasks']);
           },
           error: (err) => {
             console.error('Error updating preconfigured Task', err);
