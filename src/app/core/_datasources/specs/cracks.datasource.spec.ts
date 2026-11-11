@@ -1,84 +1,189 @@
 import { zHashListResponse, zTaskResponse } from '@generated/api/zod';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
-import { ChangeDetectorRef, Injector } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-
+import { JHash } from '@models/hash.model';
 import { Filter, FilterType, RequestParams } from '@models/request-params.model';
+import { JTask } from '@models/task.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
-import { GlobalService } from '@services/main.service';
-import { HttpCacheService } from '@services/shared/http-cache.service';
-import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
-import { UIConfigService } from '@services/shared/storage.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { CracksDataSource } from '@datasources/cracks.datasource';
 
-import { mockResponse } from '@src/app/testing/mock-response';
+import { setupDatasource } from '@src/app/core/_datasources/specs/datasource-test-setup-util';
+import { mockValidResponse } from '@src/app/testing/mock-response';
+import { wait } from '@src/app/testing/wait';
+
+const HASH: JHash = {
+  id: 3,
+  type: 'hash',
+  hash: 'abc',
+  plaintext: 'secret',
+  hashlistId: 6,
+  salt: '',
+  timeCracked: 1710000000,
+  isCracked: true,
+  chunkId: null,
+  crackPos: 0
+};
+
+const TASK: JTask = { id: 8, type: 'task', taskName: 'Task' } as JTask;
+
+const hashResponse = mockValidResponse(zHashListResponse, {
+  data: [
+    {
+      id: HASH.id,
+      type: 'hash',
+      attributes: {
+        hash: HASH.hash,
+        plaintext: HASH.plaintext,
+        hashlistId: HASH.hashlistId,
+        salt: HASH.salt,
+        timeCracked: HASH.timeCracked,
+        isCracked: HASH.isCracked,
+        chunkId: HASH.chunkId,
+        crackPos: HASH.crackPos
+      },
+      relationships: { chunk: { data: null }, hashlist: { data: { id: HASH.hashlistId, type: 'hashlist' } } }
+    }
+  ],
+  meta: { page: { total_elements: 8 } },
+  links: { next: 'https://api.test/hashes?page%5Bafter%5D=next' }
+});
+
+const taskResponse = mockValidResponse(zTaskResponse, {
+  data: {
+    id: TASK.id,
+    type: 'task',
+    attributes: {
+      taskName: TASK.taskName,
+      attackCmd: '-a 0',
+      color: '',
+      priority: 1,
+      maxAgents: 1,
+      chunkTime: 600,
+      statusTimer: 0,
+      keyspace: 0,
+      keyspaceProgress: 0,
+      isSmall: false,
+      isCpuTask: false,
+      useNewBench: false,
+      skipKeyspace: 0,
+      crackerBinaryId: 1,
+      crackerBinaryTypeId: null,
+      taskWrapperId: 1,
+      isArchived: false,
+      notes: '',
+      staticChunks: 0,
+      chunkSize: 0,
+      forcePipe: false,
+      preprocessorId: 0,
+      preprocessorCommand: ''
+    }
+  }
+});
 
 describe('CracksDataSource', () => {
   let dataSource: CracksDataSource;
-  let service: { getAll: ReturnType<typeof vi.fn>; get: ReturnType<typeof vi.fn> };
-  const hash = { id: 3, type: 'hash', hash: 'abc', isCracked: true };
+  let service: ReturnType<typeof setupDatasource<CracksDataSource>>['service'];
+  let serializer: ReturnType<typeof setupDatasource<CracksDataSource>>['serializer'];
 
   beforeEach(() => {
-    service = { getAll: vi.fn().mockReturnValue(of(mockResponse())), get: vi.fn().mockReturnValue(of(mockResponse())) };
-    vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockImplementation((_response, schema) => {
-      if (schema === zHashListResponse) return [hash];
-      if (schema === zTaskResponse) return { id: 8, type: 'task', taskName: 'Task' };
+    const setup = setupDatasource(CracksDataSource);
+    dataSource = setup.dataSource;
+    service = setup.service;
+    serializer = setup.serializer;
+    serializer.deserialize.mockImplementation((_response, schema) => {
+      if (schema === zHashListResponse) return [HASH];
+      if (schema === zTaskResponse) return TASK;
       return [];
     });
-    TestBed.configureTestingModule({
-      providers: [
-        { provide: GlobalService, useValue: service },
-        { provide: ChangeDetectorRef, useValue: { markForCheck: vi.fn(), detectChanges: vi.fn() } },
-        { provide: UIConfigService, useValue: { getUISettings: vi.fn().mockReturnValue({}) } },
-        {
-          provide: AutoRefreshService,
-          useValue: { refresh$: of(), toggleAutoRefresh: vi.fn(), startAutoRefresh: vi.fn(), stopAutoRefresh: vi.fn() }
-        },
-        { provide: HttpCacheService, useValue: { invalidate: vi.fn() } },
-        { provide: LocalStorageService, useValue: { getItem: vi.fn().mockReturnValue(null), setItem: vi.fn() } }
-      ]
-    });
-    dataSource = new CracksDataSource(TestBed.inject(Injector));
   });
 
-  it('loads cracked hashes with chunk and hashlist relationships and updates pagination', async () => {
-    service.getAll.mockReturnValue(
-      of(
-        mockResponse({
-          meta: { page: { total_elements: 8 } },
-          links: { self: '/hashes', next: 'https://api.test/hashes?page%5Bafter%5D=next' }
-        })
-      )
-    );
+  it('loads cracked hashes with required filters and pagination', async () => {
+    service.getAll.mockReturnValueOnce(of(hashResponse));
     await dataSource.loadAll();
-    const [resource, params] = service.getAll.mock.lastCall!;
-    expect(resource).toBe(SERV.HASHES);
-    expect((params as RequestParams).include).toEqual(expect.arrayContaining(['chunk', 'hashlist']));
-    expect((params as RequestParams).filter).toContainEqual(
+
+    expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.HASHES, expect.anything());
+    expect(serializer.deserialize).toHaveBeenCalledExactlyOnceWith(hashResponse, zHashListResponse, {
+      include: ['chunk']
+    });
+    const params = service.getAll.mock.lastCall![1] as RequestParams;
+    expect(params.include).toStrictEqual(expect.arrayContaining(['chunk', 'hashlist']));
+    expect(params.filter).toContainEqual(
       expect.objectContaining({ field: 'isCracked', operator: FilterType.EQUAL, value: true })
     );
-    expect(dataSource.getOriginalData()).toEqual([hash]);
+    expect(dataSource.getOriginalData()).toStrictEqual([HASH]);
     expect(dataSource.totalItems).toBe(8);
     expect(dataSource.pageAfter).toBe('next');
     expect(dataSource['loadingSubject'].getValue()).toBe(false);
   });
 
-  it('loads a task by id and returns the deserialized task', async () => {
-    await expect(dataSource.loadTask(8)).resolves.toMatchObject({ taskName: 'Task' });
-    expect(service.get).toHaveBeenCalledWith(SERV.TASKS, 8);
+  it('loads and returns the requested task', async () => {
+    service.get.mockReturnValueOnce(of(taskResponse));
+
+    await expect(dataSource.loadTask(TASK.id)).resolves.toStrictEqual(TASK);
+
+    expect(service.get).toHaveBeenCalledExactlyOnceWith(SERV.TASKS, TASK.id);
+    expect(serializer.deserialize).toHaveBeenCalledExactlyOnceWith(taskResponse, zTaskResponse);
   });
 
   it('applies and retains the query filter', async () => {
     const query: Filter = { field: 'hash', operator: FilterType.ICONTAINS, value: 'abc' };
+    service.getAll.mockReturnValue(of(hashResponse));
+
     await dataSource.loadAll(query);
     await dataSource.loadAll();
-    expect((service.getAll.mock.lastCall![1] as RequestParams).filter).toContainEqual(
+
+    expect((service.getAll.mock.calls[0][1] as RequestParams).filter).toContainEqual(
       expect.objectContaining({ field: 'hash', value: 'abc' })
     );
+    expect((service.getAll.mock.calls[1][1] as RequestParams).filter).toContainEqual(
+      expect.objectContaining({ field: 'hash', value: 'abc' })
+    );
+  });
+
+  it('clears selection and reloads data', async () => {
+    await dataSource.loadAll();
+    const hash = dataSource.getOriginalData()[0];
+    dataSource.selection.select(hash);
+    service.getAll.mockClear();
+
+    dataSource.reload();
+    await wait();
+
+    expect(dataSource.selection.isSelected(hash)).toBe(false);
+    expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.HASHES, expect.anything());
+  });
+
+  it('clears the active filter and resets pagination before reloading', async () => {
+    const query: Filter = { field: 'hash', operator: FilterType.ICONTAINS, value: 'abc' };
+    service.getAll.mockReturnValue(of(hashResponse));
+    await dataSource.loadAll(query);
+    dataSource.totalItems = 50;
+    dataSource.index = 2;
+    dataSource.pageAfter = 'old-cursor';
+    service.getAll.mockClear();
+
+    dataSource.clearFilter();
+    await wait();
+
+    const params = service.getAll.mock.lastCall![1] as RequestParams;
+    expect(params.filter ?? []).not.toContainEqual(expect.objectContaining({ field: 'hash' }));
+    expect(params.page?.after).toBeUndefined();
+    expect(dataSource.index).toBe(0);
+    expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.HASHES, expect.anything());
+  });
+
+  it('emits filter errors, clears the failed result, and ends loading when a request fails', async () => {
+    await dataSource.loadAll();
+    const errors: string[] = [];
+    dataSource.filterError$.subscribe((error) => errors.push(error));
+    service.getAll.mockReturnValue(throwError(() => ({ status: 400, error: { title: 'Invalid filter' } })));
+
+    await dataSource.loadAll();
+
+    expect(dataSource.getOriginalData()).toStrictEqual([]);
+    expect(errors).toStrictEqual(['Invalid filter']);
+    expect(dataSource['loadingSubject'].getValue()).toBe(false);
   });
 });
