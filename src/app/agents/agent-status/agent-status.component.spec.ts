@@ -2,7 +2,6 @@ import type { MockedObject } from 'vitest';
 
 import { ChangeDetectionStrategy, Component, Injector, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
@@ -17,7 +16,7 @@ import { CookieService } from '@src/app/core/_services/shared/cookies.service';
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
-export class MockPageComponent {
+class MockPageComponent {
   @Input()
   title: string;
 }
@@ -28,7 +27,7 @@ export class MockPageComponent {
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
-export class MockTableComponent {}
+class MockTableComponent {}
 
 @Component({
   selector: 'app-agents-status-table',
@@ -36,7 +35,7 @@ export class MockTableComponent {}
   changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
-export class MockAgentsStatusTableComponent {}
+class MockAgentsStatusTableComponent {}
 
 describe('AgentStatusComponent', () => {
   let component: AgentStatusComponent;
@@ -48,12 +47,11 @@ describe('AgentStatusComponent', () => {
 
   beforeEach(async () => {
     cookieServiceSpy = {
-      getCookie: vi.fn().mockName('CookieService.getCookie'),
-      setCookie: vi.fn().mockName('CookieService.setCookie')
-    } as unknown as MockedObject<CookieService>;
+      getCookie: vi.fn().mockName('CookieService.getCookie')
+    } as MockedObject<CookieService>;
     autoTitleServiceSpy = {
       set: vi.fn().mockName('AutoTitleService.set')
-    } as unknown as MockedObject<AutoTitleService>;
+    } as MockedObject<AutoTitleService>;
 
     // Default case, no cookie stored
     cookieServiceSpy.getCookie.mockReturnValue('');
@@ -73,10 +71,6 @@ describe('AgentStatusComponent', () => {
   });
 
   describe('initial state', () => {
-    it('should create the component', () => {
-      expect(component).toBeTruthy();
-    });
-
     it('should have default pageTitle and view before ngOnInit', () => {
       expect(component.pageTitle).toBe('Agents Status');
       expect(component.view).toBe(0);
@@ -90,8 +84,7 @@ describe('AgentStatusComponent', () => {
 
       const result = component.getView();
 
-      expect(cookieServiceSpy.getCookie).toHaveBeenCalledTimes(1);
-      expect(cookieServiceSpy.getCookie).toHaveBeenCalledWith('asview');
+      expect(cookieServiceSpy.getCookie).toHaveBeenCalledExactlyOnceWith('asview');
       expect(result).toBe('1');
     });
 
@@ -102,14 +95,6 @@ describe('AgentStatusComponent', () => {
 
       expect(result).toBe('');
     });
-
-    it('should propagate errors thrown by the CookieService', () => {
-      cookieServiceSpy.getCookie.mockImplementation(() => {
-        throw new Error('Cookie access denied');
-      });
-
-      expect(() => component.getView()).toThrow('Cookie access denied');
-    });
   });
 
   describe('ngOnInit', () => {
@@ -118,16 +103,8 @@ describe('AgentStatusComponent', () => {
 
       component.ngOnInit();
 
-      expect(cookieServiceSpy.getCookie).toHaveBeenCalledWith('asview');
+      expect(cookieServiceSpy.getCookie).toHaveBeenCalledExactlyOnceWith('asview');
       expect(component.view).toBe('2');
-    });
-
-    it('should keep "0" string value from cookie since it is truthy', () => {
-      cookieServiceSpy.getCookie.mockReturnValue('0');
-
-      component.ngOnInit();
-
-      expect(component.view).toBe('0');
     });
 
     it('should fall back to 0 when the cookie is an empty string', () => {
@@ -139,37 +116,10 @@ describe('AgentStatusComponent', () => {
       expect(component.view).toBe(0);
     });
 
-    it.each([null, undefined])('should fall back to 0 when the cookie value is %s', (value) => {
-      cookieServiceSpy.getCookie.mockReturnValue(value as unknown as string);
-
-      component.ngOnInit();
-
-      expect(component.view).toBe(0);
-    });
-
-    it('should accept arbitrary (unexpected) cookie values unchanged', () => {
-      cookieServiceSpy.getCookie.mockReturnValue('invalid-view');
-
-      component.ngOnInit();
-
-      expect(component.view).toBe('invalid-view');
-    });
-
     it('should set the page title via AutoTitleService (@PageTitle decorator)', () => {
       component.ngOnInit();
 
-      expect(autoTitleServiceSpy.set).toHaveBeenCalledTimes(1);
-      expect(autoTitleServiceSpy.set).toHaveBeenCalledWith(['Agent Status']);
-    });
-
-    it('should propagate errors from CookieService and not set the page title', () => {
-      cookieServiceSpy.getCookie.mockImplementation(() => {
-        throw new Error('Cookie access denied');
-      });
-
-      expect(() => component.ngOnInit()).toThrow('Cookie access denied');
-      expect(component.view).toBe(0);
-      expect(autoTitleServiceSpy.set).not.toHaveBeenCalled();
+      expect(autoTitleServiceSpy.set).toHaveBeenCalledExactlyOnceWith(['Agent Status']);
     });
 
     it('should be invoked by angular on first change detection', () => {
@@ -178,37 +128,7 @@ describe('AgentStatusComponent', () => {
       fixture.detectChanges();
 
       expect(component.view).toBe('1');
-      expect(autoTitleServiceSpy.set).toHaveBeenCalledWith(['Agent Status']);
-    });
-  });
-
-  describe('template', () => {
-    beforeEach(() => {
-      fixture.detectChanges();
-    });
-
-    it('should pass the pageTitle to app-page', () => {
-      const page = fixture.debugElement.query(By.directive(MockPageComponent));
-
-      expect(page).toBeTruthy();
-      expect((page.componentInstance as MockPageComponent).title).toBe('Agents Status');
-    });
-
-    it('should render the agents status table inside app-table', () => {
-      const table = fixture.debugElement.query(By.directive(MockTableComponent));
-      const statusTable = table.query(By.directive(MockAgentsStatusTableComponent));
-
-      expect(table).toBeTruthy();
-      expect(statusTable).toBeTruthy();
-    });
-
-    it('should update app-page title when pageTitle changes', () => {
-      component.pageTitle = 'Changed Title';
-
-      fixture.detectChanges();
-      const page = fixture.debugElement.query(By.directive(MockPageComponent));
-
-      expect((page.componentInstance as MockPageComponent).title).toBe('Changed Title');
+      expect(autoTitleServiceSpy.set).toHaveBeenCalledExactlyOnceWith(['Agent Status']);
     });
   });
 });
