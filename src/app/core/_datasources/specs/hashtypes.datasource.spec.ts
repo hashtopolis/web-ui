@@ -92,7 +92,7 @@ describe('HashtypesDataSource', () => {
 
     expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.HASHTYPES, expect.anything(), expect.anything());
     const params = service.getAll.mock.lastCall![1] as RequestParams;
-    expect(params.filter).toBeUndefined();
+    expect(params!.filter).toBeUndefined();
     expect(params.page?.after).toBeUndefined();
     expect(params.page?.before).toBeUndefined();
     expect(dataSource.index).toBe(0);

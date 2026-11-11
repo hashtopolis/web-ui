@@ -49,7 +49,7 @@ describe('ChunksDataSource', () => {
     expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.CHUNKS, expect.anything(), expect.anything());
     expect(serializer.deserialize).toHaveBeenCalledExactlyOnceWith(chunkResponse, zChunkListResponse);
     const params = service.getAll.mock.lastCall![1] as RequestParams;
-    expect(params.include).toStrictEqual(expect.arrayContaining(['task', 'agent']));
+    expect(params!.include).toStrictEqual(expect.arrayContaining(['task', 'agent']));
     expect(dataSource.getOriginalData()[0]).toStrictEqual(
       expect.objectContaining({ taskName: 'Task', agentName: 'Agent', isRunning: true })
     );
@@ -70,7 +70,7 @@ describe('ChunksDataSource', () => {
     dataSource.loadAll();
 
     const params = service.getAll.mock.lastCall![1] as RequestParams;
-    expect(params.filter).toStrictEqual(
+    expect(params!.filter).toStrictEqual(
       expect.arrayContaining([
         expect.objectContaining({ field: 'agentId', value: 12 }),
         expect.objectContaining({ field: 'state', value: ChunkState.RUNNING })
@@ -101,7 +101,7 @@ describe('ChunksDataSource', () => {
     dataSource.clearFilter();
 
     const params = service.getAll.mock.lastCall![1] as RequestParams;
-    expect(params.filter ?? []).not.toContainEqual(expect.objectContaining({ field: 'state' }));
+    expect(params!.filter ?? []).not.toContainEqual(expect.objectContaining({ field: 'state' }));
     expect(params.page?.after).toBeUndefined();
     expect(dataSource.index).toBe(0);
     expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.CHUNKS, expect.anything(), expect.anything());
