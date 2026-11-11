@@ -1,4 +1,4 @@
-import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod';
+import { zPreTaskListResponse, zSupertaskPretaskListResponse, zSupertaskResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
 import type { Mock, MockedObject } from 'vitest';
 
@@ -9,6 +9,7 @@ import { UiSettings } from '@models/config-ui.schema';
 import { JFile } from '@models/file.model';
 import { JPretask } from '@models/pretask.model';
 import { Filter, FilterType, RequestParams } from '@models/request-params.model';
+import { JSupertaskPretask } from '@models/supertask-pretask.model';
 import { JSuperTask } from '@models/supertask.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
@@ -52,6 +53,14 @@ const MOCK_PRETASK: JPretask = {
   crackerBinaryTypeId: 1,
   pretaskFiles: [MOCK_FILE]
 } as unknown as JPretask;
+
+const MOCK_ASSOCIATION: JSupertaskPretask = {
+  id: 10,
+  type: 'supertaskPretask',
+  supertaskId: 1,
+  pretaskId: MOCK_PRETASK.id,
+  priority: 42
+};
 
 const MOCK_SUPERTASK: JSuperTask = {
   id: 1,
@@ -111,7 +120,9 @@ describe('PreTasksDataSource', () => {
       .spyOn(JsonAPISerializer.prototype, 'deserialize')
       .mockImplementation((_body: unknown, schema?: unknown) => {
         if (schema === zSupertaskResponse) return MOCK_SUPERTASK;
-        if (schema === zPreTaskListResponse) return [MOCK_PRETASK];
+        /* a fresh copy per call, the data source copies the association fields onto the rows */
+        if (schema === zPreTaskListResponse) return [{ ...MOCK_PRETASK }];
+        if (schema === zSupertaskPretaskListResponse) return [MOCK_ASSOCIATION];
         return [];
       });
 
@@ -129,6 +140,11 @@ describe('PreTasksDataSource', () => {
     const injector = TestBed.inject(Injector);
     dataSource = new PreTasksDataSource(injector);
   });
+
+  /** Arguments of the getAll call made for the given endpoint, several are made in supertask mode */
+  function callArgsFor(service: unknown): unknown[] | undefined {
+    return gsSpy.getAll.mock.calls.find((args) => args[0] === service);
+  }
 
   // setSuperTaskId()
 
@@ -291,13 +307,12 @@ describe('PreTasksDataSource', () => {
     it('should call service.getAll with SERV.PRETASKS to load pretask files', async () => {
       await dataSource.loadAll();
       expect(gsSpy.getAll).toHaveBeenCalled();
-      const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
-      expect(serviceConfig).toStrictEqual(SERV.PRETASKS);
+      expect(callArgsFor(SERV.PRETASKS)).toBeDefined();
     });
 
     it('should filter pretasks by pretaskId IN the assigned IDs', async () => {
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.mock.lastCall!;
+      const [, params] = callArgsFor(SERV.PRETASKS)!;
       expect((params as RequestParams).filter).toContainEqual(
         expect.objectContaining({ field: 'pretaskId', operator: FilterType.IN, value: [MOCK_PRETASK.id] })
       );
@@ -317,9 +332,42 @@ describe('PreTasksDataSource', () => {
     it('should NOT add isMaskImport filter even when hideImportMasks is 1', async () => {
       uiServiceSpy.getUISettings.mockReturnValue({ hideImportMasks: 1 } as unknown as UiSettings);
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.mock.lastCall!;
+      const [, params] = callArgsFor(SERV.PRETASKS)!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
       expect(filter.some((f) => f.field === 'isMaskImport')).toBe(false);
+    });
+
+    it('should copy the priority of the association onto the row', async () => {
+      await dataSource.loadAll();
+      const row = dataSource.getOriginalData()[0];
+      expect(row.supertaskPretaskId).toBe(MOCK_ASSOCIATION.id);
+      expect(row.supertaskPriority).toBe(MOCK_ASSOCIATION.priority);
+      // the priority of the pretask itself stays what the pretask endpoint returned
+      expect(row.priority).toBe(MOCK_PRETASK.priority);
+    });
+
+    it('should scope the association request to the supertask and the rows of the page', async () => {
+      await dataSource.loadAll();
+      const [, params] = callArgsFor(SERV.SUPER_TASK_PRETASKS)!;
+      expect((params as RequestParams).filter).toStrictEqual([
+        expect.objectContaining({ field: 'supertaskId', operator: FilterType.EQUAL, value: 1 }),
+        expect.objectContaining({ field: 'pretaskId', operator: FilterType.IN, value: [MOCK_PRETASK.id] })
+      ]);
+      expect((params as RequestParams).page?.size).toBe(1);
+    });
+
+    it('should leave a row without an association alone', async () => {
+      deserializeSpy.mockImplementation((_body: unknown, schema?: unknown) => {
+        if (schema === zSupertaskResponse) return MOCK_SUPERTASK;
+        if (schema === zPreTaskListResponse) return [{ ...MOCK_PRETASK }];
+        return [];
+      });
+
+      await dataSource.loadAll();
+
+      const row = dataSource.getOriginalData()[0];
+      expect(row.supertaskPretaskId).toBeUndefined();
+      expect(row.supertaskPriority).toBeUndefined();
     });
   });
 
@@ -329,6 +377,11 @@ describe('PreTasksDataSource', () => {
     beforeEach(() => {
       dataSource.setSuperTaskId(1);
       dataSource.setReverseQuery(true);
+    });
+
+    it('should not ask for the associations, the rows are not part of the supertask', async () => {
+      await dataSource.loadAll();
+      expect(callArgsFor(SERV.SUPER_TASK_PRETASKS)).toBeUndefined();
     });
 
     it('should filter pretasks by pretaskId NOTIN the assigned IDs', async () => {
@@ -396,7 +449,7 @@ describe('PreTasksDataSource', () => {
       dataSource.setReverseQuery(false);
       dataSource.setCrackerBinaryTypeId(1);
       await dataSource.loadAll();
-      const [, params] = gsSpy.getAll.mock.lastCall!;
+      const [, params] = callArgsFor(SERV.PRETASKS)!;
       const filter: Filter[] = (params as RequestParams).filter ?? [];
       expect(filter.some((f) => f.field === 'crackerBinaryTypeId')).toBe(false);
     });

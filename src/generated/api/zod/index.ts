@@ -27,6 +27,7 @@ export * from './pre-task';
 export * from './preprocessor';
 export * from './speed';
 export * from './supertask';
+export * from './supertask-pretask';
 export * from './task';
 export * from './task-wrapper';
 export * from './user';

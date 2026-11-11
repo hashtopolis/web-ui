@@ -22,5 +22,6 @@ export const PretasksTableColumnLabel = {
 
 export const PretasksTableEditableAction = {
   CHANGE_PRIORITY: 'change-priority',
+  CHANGE_SUPERTASK_PRIORITY: 'change-supertask-priority',
   CHANGE_MAX_AGENTS: 'change-max-agents'
 };
