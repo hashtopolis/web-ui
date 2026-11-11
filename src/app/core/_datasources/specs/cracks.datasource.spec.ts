@@ -108,8 +108,8 @@ describe('CracksDataSource', () => {
       include: ['chunk']
     });
     const params = service.getAll.mock.lastCall![1] as RequestParams;
-    expect(params.include).toStrictEqual(expect.arrayContaining(['chunk', 'hashlist']));
-    expect(params.filter).toContainEqual(
+    expect(params!.include).toStrictEqual(expect.arrayContaining(['chunk', 'hashlist']));
+    expect(params!.filter).toContainEqual(
       expect.objectContaining({ field: 'isCracked', operator: FilterType.EQUAL, value: true })
     );
     expect(dataSource.getOriginalData()).toStrictEqual([HASH]);
@@ -168,7 +168,7 @@ describe('CracksDataSource', () => {
     await wait();
 
     const params = service.getAll.mock.lastCall![1] as RequestParams;
-    expect(params.filter ?? []).not.toContainEqual(expect.objectContaining({ field: 'hash' }));
+    expect(params!.filter ?? []).not.toContainEqual(expect.objectContaining({ field: 'hash' }));
     expect(params.page?.after).toBeUndefined();
     expect(dataSource.index).toBe(0);
     expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.HASHES, expect.anything());
