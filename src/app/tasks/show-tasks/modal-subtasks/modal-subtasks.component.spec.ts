@@ -7,10 +7,10 @@ import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks
 describe('ModalSubtasksComponent', () => {
   let fixture: ComponentFixture<ModalSubtasksComponent>;
   let component: ModalSubtasksComponent;
-  const dialogRef = { close: vi.fn() };
+  let dialogRef: { close: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
-    dialogRef.close.mockClear();
+    dialogRef = { close: vi.fn().mockName('MatDialogRef.close') };
     await TestBed.configureTestingModule({
       declarations: [ModalSubtasksComponent],
       imports: [MatDialogModule],
@@ -33,6 +33,6 @@ describe('ModalSubtasksComponent', () => {
 
   it('closes the dialog', () => {
     component.close();
-    expect(dialogRef.close).toHaveBeenCalledOnce();
+    expect(dialogRef.close).toHaveBeenCalledExactlyOnceWith();
   });
 });
