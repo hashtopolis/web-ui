@@ -1,126 +1,124 @@
 import { zAgentErrorListResponse } from '@generated/api/zod';
 import { of, throwError } from 'rxjs';
-import type { MockedObject } from 'vitest';
 
-import { ChangeDetectorRef, Injector } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
-
-import { JAgentErrors } from '@models/agent-errors.model';
 import { Filter, FilterType, RequestParams } from '@models/request-params.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
-import { GlobalService } from '@services/main.service';
-import { PermissionService } from '@services/permission/permission.service';
-import { HttpCacheService } from '@services/shared/http-cache.service';
-import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
-import { UIConfigService } from '@services/shared/storage.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { AgentErrorDatasource } from '@src/app/core/_datasources/agent-error.datasource';
-import { mockResponse } from '@src/app/testing/mock-response';
+import { setupDatasource } from '@src/app/core/_datasources/specs/datasource-test-setup-util';
+import { mockValidResponse } from '@src/app/testing/mock-response';
 
-const AGENT_ERROR = { id: 4, type: 'agentError', message: 'Connection failed' } as unknown as JAgentErrors;
+const AGENT_ERROR = {
+  id: 4,
+  type: 'agentError',
+  agentId: 23,
+  taskId: 5,
+  chunkId: null,
+  time: 1710000000,
+  error: 'Connection failed'
+};
+
+const ERROR_ATTRIBUTES = {
+  agentId: AGENT_ERROR.agentId,
+  taskId: AGENT_ERROR.taskId,
+  chunkId: AGENT_ERROR.chunkId,
+  time: AGENT_ERROR.time,
+  error: AGENT_ERROR.error
+};
+
+const agentErrorResponse = (totalElements = 1) =>
+  mockValidResponse(zAgentErrorListResponse, {
+    data: [{ id: AGENT_ERROR.id, type: 'agentError', attributes: ERROR_ATTRIBUTES }],
+    links: {
+      next: 'http://test/errors?page%5Bafter%5D=next-cursor',
+      prev: 'http://test/errors?page%5Bbefore%5D=prev-cursor'
+    },
+    meta: { page: { total_elements: totalElements } }
+  });
 
 describe('AgentErrorDatasource', () => {
   let dataSource: AgentErrorDatasource;
-  let service: MockedObject<GlobalService>;
+  let service: ReturnType<typeof setupDatasource<AgentErrorDatasource>>['service'];
+  let serializer: ReturnType<typeof setupDatasource<AgentErrorDatasource>>['serializer'];
 
   beforeEach(() => {
-    service = { getAll: vi.fn().mockReturnValue(of(mockResponse())) } as unknown as MockedObject<GlobalService>;
-    const cdr = { markForCheck: vi.fn(), detectChanges: vi.fn() };
-    const ui = { getUISettings: vi.fn().mockReturnValue({}) };
-    const refresh = { toggleAutoRefresh: vi.fn(), startAutoRefresh: vi.fn(), stopAutoRefresh: vi.fn(), refresh$: of() };
-    const cache = { invalidate: vi.fn() };
-    const storage = { getItem: vi.fn().mockReturnValue(null), setItem: vi.fn() };
-    vi.spyOn(JsonAPISerializer.prototype, 'deserialize').mockImplementation((_response, schema) =>
-      schema === zAgentErrorListResponse ? [AGENT_ERROR] : []
-    );
-
-    TestBed.configureTestingModule({
-      providers: [
-        { provide: GlobalService, useValue: service },
-        { provide: ChangeDetectorRef, useValue: cdr },
-        { provide: UIConfigService, useValue: ui },
-        { provide: PermissionService, useValue: {} },
-        { provide: JsonAPISerializer, useValue: new JsonAPISerializer() },
-        { provide: AutoRefreshService, useValue: refresh },
-        { provide: HttpCacheService, useValue: cache },
-        { provide: LocalStorageService, useValue: storage }
-      ]
-    });
-    dataSource = new AgentErrorDatasource(TestBed.inject(Injector));
+    const setup = setupDatasource(AgentErrorDatasource);
+    dataSource = setup.dataSource;
+    service = setup.service;
+    serializer = setup.serializer;
+    serializer.deserialize.mockReturnValue([AGENT_ERROR]);
   });
 
-  it('requests errors with the task include and optional agent ID filter', () => {
+  it('requests errors with a task include and the configured agent ID filter', () => {
     dataSource.setAgentId(23);
     dataSource.loadAll();
 
-    const [resource, params] = service.getAll.mock.lastCall!;
-    expect(resource).toBe(SERV.AGENT_ERRORS);
-    expect((params as RequestParams).include).toContain('task');
-    expect((params as RequestParams).filter).toContainEqual({
-      field: 'agentId',
-      operator: FilterType.EQUAL,
-      value: 23
-    });
+    expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.AGENT_ERRORS, expect.anything());
+    const params = service.getAll.mock.lastCall![1] as RequestParams;
+    expect(params.include).toContain('task');
+    expect(params.filter).toContainEqual({ field: 'agentId', operator: FilterType.EQUAL, value: 23 });
   });
 
   it('omits the agent ID filter when no ID is set', () => {
     dataSource.loadAll();
+
     const params = service.getAll.mock.lastCall![1] as RequestParams;
     expect(params.filter ?? []).not.toContainEqual(expect.objectContaining({ field: 'agentId' }));
   });
 
-  it('sets the deserialized errors and pagination cursors from the response', () => {
-    service.getAll.mockReturnValue(
-      of(
-        mockResponse({
-          links: {
-            next: 'http://test/errors?page%5Bafter%5D=next-cursor',
-            prev: 'http://test/errors?page%5Bbefore%5D=prev-cursor'
-          },
-          meta: { page: { total_elements: 8 } }
-        })
-      )
-    );
+  it('deserializes errors, updates pagination cursors, and ends loading', () => {
+    service.getAll.mockReturnValue(of(agentErrorResponse(8)));
 
     dataSource.loadAll();
 
-    expect(dataSource.getOriginalData()).toEqual([AGENT_ERROR]);
+    expect(serializer.deserialize).toHaveBeenCalledExactlyOnceWith(expect.anything(), zAgentErrorListResponse);
+    expect(dataSource.getOriginalData()).toStrictEqual([AGENT_ERROR]);
     expect(dataSource.totalItems).toBe(8);
     expect(dataSource.pageAfter).toBe('next-cursor');
     expect(dataSource.pageBefore).toBe('prev-cursor');
     expect(dataSource['loadingSubject'].getValue()).toBe(false);
   });
 
-  it('retains filters across loads and clears them when requested', () => {
-    const filter: Filter = { field: 'message', operator: FilterType.EQUAL, value: 'failed' };
+  it('retains the active filter and clears it with the pagination cursor', () => {
+    const filter: Filter = { field: 'error', operator: FilterType.EQUAL, value: 'failed' };
     dataSource.loadAll(filter);
-    expect((service.getAll.mock.lastCall![1] as RequestParams).filter).toContainEqual(filter);
+    expect((service.getAll.mock.calls[0][1] as RequestParams).filter).toContainEqual(filter);
 
     dataSource.loadAll();
-    expect((service.getAll.mock.lastCall![1] as RequestParams).filter).toContainEqual(filter);
+    expect((service.getAll.mock.calls[1][1] as RequestParams).filter).toContainEqual(filter);
 
+    dataSource.totalItems = 75;
+    dataSource.index = 2;
+    dataSource.pageAfter = 'current-page-cursor';
     dataSource.clearFilter();
-    expect((service.getAll.mock.lastCall![1] as RequestParams).filter ?? []).not.toContainEqual(filter);
+
+    const clearFilterParams = service.getAll.mock.calls[2][1] as RequestParams;
+    expect(clearFilterParams.filter ?? []).not.toContainEqual(filter);
+    expect(clearFilterParams.page?.after).toBeUndefined();
+    expect(dataSource.index).toBe(0);
   });
 
   it('clears the current selection when reloading', () => {
-    dataSource.selection.select(AGENT_ERROR);
+    dataSource.loadAll();
+    const error = dataSource.getOriginalData()[0];
+    dataSource.selection.select(error);
+    service.getAll.mockClear();
 
     dataSource.reload();
 
-    expect(dataSource.selection.isSelected(AGENT_ERROR)).toBe(false);
-    expect(service.getAll).toHaveBeenCalled();
+    expect(dataSource.selection.isSelected(error)).toBe(false);
+    expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.AGENT_ERRORS, expect.anything());
   });
 
-  it('ends loading after a request error', () => {
+  it('preserves existing errors and ends loading when the next request fails', () => {
+    dataSource.loadAll();
+    const loadedErrors = dataSource.getOriginalData();
     service.getAll.mockReturnValue(throwError(() => new Error('request failed')));
 
     dataSource.loadAll();
 
-    expect(dataSource.getOriginalData()).toEqual([]);
+    expect(dataSource.getOriginalData()).toStrictEqual(loadedErrors);
     expect(dataSource['loadingSubject'].getValue()).toBe(false);
   });
 });
