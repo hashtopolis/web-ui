@@ -1,64 +1,114 @@
+import { HttpHeaderName } from '@constants/http.config';
 import { zHashTypeListResponse } from '@generated/api/zod';
-import { of } from 'rxjs';
-import type { MockedObject } from 'vitest';
+import { of, throwError } from 'rxjs';
 
-import { ChangeDetectorRef, Injector } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 
-import { FilterType, RequestParams } from '@models/request-params.model';
+import { JHashtype } from '@models/hashtype.model';
+import { Filter, FilterType, RequestParams } from '@models/request-params.model';
 
-import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
-import { GlobalService } from '@services/main.service';
-import { PermissionService } from '@services/permission/permission.service';
-import { HttpCacheService } from '@services/shared/http-cache.service';
-import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
-import { UIConfigService } from '@services/shared/storage.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { HashtypesDataSource } from '@src/app/core/_datasources/hashtypes.datasource';
-import { mockResponse } from '@src/app/testing/mock-response';
+import { setupDatasource } from '@src/app/core/_datasources/specs/datasource-test-setup-util';
+import { mockValidResponse } from '@src/app/testing/mock-response';
 
-describe('HashtypesDataSource', () => {
-  let injector: MockedObject<Injector>;
-  let getAll: ReturnType<typeof vi.fn>;
-
-  beforeEach(() => {
-    getAll = vi.fn().mockReturnValue(of(mockResponse({ meta: { page: { total_elements: 27 } } })));
-    const dependencies = new Map<unknown, unknown>([
-      [ChangeDetectorRef, { markForCheck: vi.fn(), detectChanges: vi.fn() }],
-      [GlobalService, { getAll }],
-      [UIConfigService, { getUISettings: vi.fn().mockReturnValue(null) }],
-      [PermissionService, {}],
-      [
-        JsonAPISerializer,
-        {
-          deserialize: vi.fn((_response: unknown, schema?: unknown) =>
-            schema === zHashTypeListResponse ? [{ id: 3, type: 'hashtype', description: 'SHA256' }] : []
-          )
+const HASHTYPE = { id: 3, type: 'hashType', description: 'SHA256', isSalted: false, isSlowHash: false } as JHashtype;
+const HASHTYPE_RESPONSE = (totalElements = 27) =>
+  mockValidResponse(zHashTypeListResponse, {
+    data: [
+      {
+        id: HASHTYPE.id,
+        type: 'hashType',
+        attributes: {
+          description: HASHTYPE.description,
+          isSalted: HASHTYPE.isSalted,
+          isSlowHash: HASHTYPE.isSlowHash
         }
-      ],
-      [AutoRefreshService, {}],
-      [HttpCacheService, {}],
-      [LocalStorageService, { getItem: vi.fn().mockReturnValue(null), setItem: vi.fn() }]
-    ]);
-    injector = { get: vi.fn((token: unknown) => dependencies.get(token)) } as unknown as MockedObject<Injector>;
+      }
+    ],
+    links: {
+      next: 'http://test/hashtypes?page%5Bafter%5D=next-cursor',
+      prev: 'http://test/hashtypes?page%5Bbefore%5D=prev-cursor'
+    },
+    meta: { page: { total_elements: totalElements } }
   });
 
-  it('loads, retains, and clears the active filter', () => {
-    const source = new HashtypesDataSource(injector);
-    const filter = { field: 'description', operator: FilterType.ICONTAINS, value: 'sha' };
+describe('HashtypesDataSource', () => {
+  let dataSource: HashtypesDataSource;
+  let service: ReturnType<typeof setupDatasource<HashtypesDataSource>>['service'];
+  let serializer: ReturnType<typeof setupDatasource<HashtypesDataSource>>['serializer'];
+  const filter: Filter = { field: 'description', operator: FilterType.ICONTAINS, value: 'sha' };
 
-    source.loadAll(filter);
-    expect(getAll.mock.lastCall![0]).toEqual(SERV.HASHTYPES);
-    expect((getAll.mock.lastCall![1] as RequestParams).filter).toContainEqual(filter);
-    expect(source.getOriginalData()).toEqual([{ id: 3, type: 'hashtype', description: 'SHA256' }]);
+  beforeEach(() => {
+    const setup = setupDatasource(HashtypesDataSource);
+    dataSource = setup.dataSource;
+    service = setup.service;
+    serializer = setup.serializer;
+    serializer.deserialize.mockReturnValue([HASHTYPE]);
+  });
 
-    getAll.mockClear();
-    source.reload();
-    expect((getAll.mock.lastCall![1] as RequestParams).filter).toContainEqual(filter);
+  afterEach(() => TestBed.resetTestingModule());
 
-    getAll.mockClear();
-    source.clearFilter();
-    expect((getAll.mock.lastCall![1] as RequestParams).filter ?? []).not.toContainEqual(filter);
+  it('requests hashtypes with the provided filter and error-dialog suppression, then populates data and pagination', () => {
+    service.getAll.mockReturnValue(of(HASHTYPE_RESPONSE()));
+
+    dataSource.loadAll(filter);
+
+    expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.HASHTYPES, expect.anything(), expect.anything());
+    const options = service.getAll.mock.lastCall![2];
+    expect(options?.headers?.get(HttpHeaderName.SKIP_ERROR_DIALOG)).toBe('true');
+    expect((service.getAll.mock.lastCall![1] as RequestParams).filter).toStrictEqual([filter]);
+    expect(serializer.deserialize).toHaveBeenCalledExactlyOnceWith(expect.anything(), zHashTypeListResponse);
+    expect(dataSource.getOriginalData()).toStrictEqual([HASHTYPE]);
+    expect(dataSource.totalItems).toBe(27);
+    expect(dataSource.pageAfter).toBe('next-cursor');
+    expect(dataSource.pageBefore).toBe('prev-cursor');
+    expect(dataSource['loadingSubject'].getValue()).toBe(false);
+  });
+
+  it('retains the active filter when reloading and clears the selection', () => {
+    service.getAll.mockReturnValue(of(HASHTYPE_RESPONSE()));
+    dataSource.loadAll(filter);
+    dataSource.selection.select(HASHTYPE);
+    service.getAll.mockClear();
+
+    dataSource.reload();
+
+    expect(dataSource.selection.isSelected(HASHTYPE)).toBe(false);
+    expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.HASHTYPES, expect.anything(), expect.anything());
+    expect((service.getAll.mock.lastCall![1] as RequestParams).filter).toStrictEqual([filter]);
+  });
+
+  it('removes the active filter and resets pagination when clearing the filter', () => {
+    service.getAll.mockReturnValue(of(HASHTYPE_RESPONSE()));
+    dataSource.loadAll(filter);
+    dataSource.index = 2;
+    dataSource.pageAfter = 'current-page-cursor';
+    dataSource.pageBefore = 'previous-page-cursor';
+    service.getAll.mockClear();
+
+    dataSource.clearFilter();
+
+    expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.HASHTYPES, expect.anything(), expect.anything());
+    const params = service.getAll.mock.lastCall![1] as RequestParams;
+    expect(params.filter).toBeUndefined();
+    expect(params.page?.after).toBeUndefined();
+    expect(params.page?.before).toBeUndefined();
+    expect(dataSource.index).toBe(0);
+  });
+
+  it('preserves existing rows, emits filter errors, and ends loading on request failure', () => {
+    service.getAll.mockReturnValue(of(HASHTYPE_RESPONSE()));
+    dataSource.loadAll();
+    const errors: string[] = [];
+    dataSource.filterError$.subscribe((error) => errors.push(error));
+    service.getAll.mockReturnValue(throwError(() => ({ status: 400, error: { title: 'Invalid filter' } })));
+
+    dataSource.loadAll(filter);
+
+    expect(dataSource.getOriginalData()).toStrictEqual([HASHTYPE]);
+    expect(errors).toStrictEqual(['Invalid filter']);
+    expect(dataSource['loadingSubject'].getValue()).toBe(false);
   });
 });
