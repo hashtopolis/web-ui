@@ -103,7 +103,7 @@ describe('BaseDataSource Pagination', () => {
       await vi.advanceTimersByTimeAsync(0);
 
       // Verify that reload was called
-      expect(dataSource.reload).toHaveBeenCalled();
+      expect(dataSource.reload).toHaveBeenCalledOnce();
     } finally {
       vi.useRealTimers();
     }
@@ -136,8 +136,8 @@ describe('BaseDataSource Pagination', () => {
     dataSource.loading = true;
     dataSource.setData(data);
 
-    expect(states).toEqual([false, true]);
-    expect(rows).toEqual([[], data]);
+    expect(states).toStrictEqual([false, true]);
+    expect(rows).toStrictEqual([[], data]);
     expect(dataSource.getOriginalData()).toBe(data);
     expect(dataSource.lastUpdated).toBeInstanceOf(Date);
   });
@@ -153,23 +153,24 @@ describe('BaseDataSource Pagination', () => {
 
     dataSource.applyClientFilter('a', { dataKey: 'name' } as never);
 
-    expect(dataSource['dataSubject'].getValue()).toEqual([second, first]);
+    expect(dataSource['dataSubject'].getValue()).toStrictEqual([second, first]);
     expect(dataSource.index).toBe(0);
-    expect(firstPage).toHaveBeenCalled();
-    expect(dataSource['filterItems']('beta', null)).toEqual([first]);
-    expect(dataSource['filterItems']('ALPHA', { dataKey: 'all' } as never)).toEqual([second]);
-    expect(dataSource['filterItems']('x', {} as never)).toEqual([]);
+    expect(firstPage).toHaveBeenCalledOnce();
+    expect(dataSource['filterItems']('beta', null)).toStrictEqual([first]);
+    expect(dataSource['filterItems']('ALPHA', { dataKey: 'all' } as never)).toStrictEqual([second]);
+    expect(dataSource['filterItems']('x', {} as never)).toStrictEqual([]);
   });
 
   it('sorts numbers descending and keeps null or mixed values stable', () => {
     const high = { id: 1, type: 'row', rank: 10 } as never;
     const low = { id: 2, type: 'row', rank: 2 } as never;
     dataSource.sortingColumn = { dataKey: 'rank', direction: TableSortDirection.DESC } as never;
-    expect(dataSource['applySorting']([low, high])).toEqual([high, low]);
+    expect(dataSource['applySorting']([low, high])).toStrictEqual([high, low]);
     expect(dataSource['applySorting']([{ id: 3, type: 'row', rank: null }, high] as never[])[0]).toMatchObject({
       rank: null
     });
-    expect(dataSource['applySorting']([{ id: 4, type: 'row', rank: '10' }, low] as never[])).toHaveLength(2);
+    const mixed = { id: 4, type: 'row', rank: '10' } as never;
+    expect(dataSource['applySorting']([low, high, mixed])).toStrictEqual([high, low, mixed]);
   });
 
   it('supports row selection, select all, and toggle behavior', () => {
@@ -202,7 +203,7 @@ describe('BaseDataSource Pagination', () => {
     expect(firstPage).not.toHaveBeenCalled();
     dataSource.reset(true);
     expect(firstPage).toHaveBeenCalledOnce();
-    expect(dataSource['dataSubject'].getValue()).toEqual([row]);
+    expect(dataSource['dataSubject'].getValue()).toStrictEqual([row]);
   });
 
   it('synchronizes valid pagination with the paginator and keeps prior total when omitted', () => {
@@ -222,11 +223,11 @@ describe('BaseDataSource Pagination', () => {
     expect(dataSource.reload).toHaveBeenCalledOnce();
 
     dataSource.toggleAutoRefresh(true);
-    expect(autoRefreshService.toggleAutoRefresh).toHaveBeenCalledWith(true, { immediate: true });
+    expect(autoRefreshService.toggleAutoRefresh).toHaveBeenCalledExactlyOnceWith(true, { immediate: true });
     dataSource.toggleAutoRefresh(false);
     expect(dataSource.autoRefreshEnabled).toBe(false);
     dataSource.startAutoRefresh();
-    expect(autoRefreshService.startAutoRefresh).toHaveBeenCalledWith({ immediate: false });
+    expect(autoRefreshService.startAutoRefresh).toHaveBeenCalledExactlyOnceWith({ immediate: false });
     dataSource.stopAutoRefresh();
     expect(autoRefreshService.stopAutoRefresh).toHaveBeenCalledOnce();
     expect(dataSource.autoRefreshEnabled).toBe(false);
@@ -255,7 +256,7 @@ describe('BaseDataSource Pagination', () => {
     dataSource.handleError({ status: 500, statusText: 'Server error' } as never);
     dataSource.handleError({} as never);
 
-    expect(errors).toEqual([
+    expect(errors).toStrictEqual([
       'Forbidden details',
       'Access forbidden. Please check your permissions.',
       'Invalid filter parameter',
