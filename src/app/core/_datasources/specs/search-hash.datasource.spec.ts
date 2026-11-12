@@ -5,14 +5,14 @@ import { FilterType } from '@models/request-params.model';
 import { SERV } from '@services/main.config';
 
 import { SearchHashDataSource } from '@datasources/search-hash.datasource';
-import { setupDatasource } from '@datasources/specs/datasource-test-setup-util';
+
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 
 describe('SearchHashDataSource', () => {
   it('searches hashes for submitted values and includes hashlists', () => {
     const { dataSource, service } = setupDatasource(SearchHashDataSource);
-    const ds = dataSource;
-    ds.setSearch(['abc', 'def']);
-    ds.loadAll();
+    dataSource.setSearch(['abc', 'def']);
+    dataSource.loadAll();
     const [resource, params] = service.getAll.mock.lastCall!;
     expect(resource).toBe(SERV.HASHES);
     expect(params!.include).toContain('hashlist');
@@ -74,6 +74,6 @@ describe('SearchHashDataSource', () => {
     dataSource.reload();
 
     expect(dataSource.selection.hasValue()).toBe(false);
-    expect(service.getAll).toHaveBeenCalledWith(SERV.HASHES, expect.anything());
+    expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.HASHES, expect.anything());
   });
 });

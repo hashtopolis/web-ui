@@ -8,7 +8,8 @@ import { FilterType } from '@models/request-params.model';
 import { SERV } from '@services/main.config';
 
 import { PreprocessorsDataSource } from '@datasources/preprocessors.datasource';
-import { setupDatasource } from '@datasources/specs/datasource-test-setup-util';
+
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 
 describe('PreprocessorsDataSource', () => {
   it('loads preprocessors', () => {

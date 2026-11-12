@@ -3,14 +3,14 @@ import { throwError } from 'rxjs';
 import { SERV } from '@services/main.config';
 
 import { HealthCheckAgentsDataSource } from '@datasources/health-check-agents.datasource';
-import { setupDatasource } from '@datasources/specs/datasource-test-setup-util';
+
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 
 describe('HealthCheckAgentsDataSource', () => {
   it('loads health check agents for the selected health check and includes agents', () => {
     const { dataSource, service } = setupDatasource(HealthCheckAgentsDataSource);
-    const ds = dataSource;
-    ds.setHealthCheckId(13);
-    ds.loadAll();
+    dataSource.setHealthCheckId(13);
+    dataSource.loadAll();
     expect(service.getAll.mock.lastCall![0]).toBe(SERV.HEALTH_CHECKS_AGENTS);
     const [, params] = service.getAll.mock.lastCall!;
     expect(params!.filter).toStrictEqual(
@@ -26,7 +26,7 @@ describe('HealthCheckAgentsDataSource', () => {
     dataSource.reload();
 
     expect(dataSource.selection.hasValue()).toBe(false);
-    expect(service.getAll).toHaveBeenCalledWith(SERV.HEALTH_CHECKS_AGENTS, expect.anything());
+    expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.HEALTH_CHECKS_AGENTS, expect.anything());
   });
 
   it('keeps existing rows and finishes loading when the request fails', () => {

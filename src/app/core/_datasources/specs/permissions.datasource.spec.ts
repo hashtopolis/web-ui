@@ -8,7 +8,8 @@ import { FilterType } from '@models/request-params.model';
 import { SERV } from '@services/main.config';
 
 import { PermissionsDataSource } from '@datasources/permissions.datasource';
-import { setupDatasource } from '@datasources/specs/datasource-test-setup-util';
+
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 
 describe('PermissionsDataSource', () => {
   it('loads permission groups with their user members', () => {
