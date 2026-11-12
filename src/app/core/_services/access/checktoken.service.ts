@@ -27,7 +27,8 @@ export class CheckTokenService {
    *
    * The renewal timer is least reliable when the tab is in the background: browsers throttle timers in
    * hidden tabs, and a suspended machine does not run them at all. So rather than trusting the
-   * timer, this renews on the way back in whenever the access token is at or past its expiry.
+   * timer, this renews on the way back in whenever the access token is within or past the configured
+   * 60-second refresh window before expiration time.
    *
    * The user is only sent back to the login form when the renewal itself fails, which means the
    * refresh cookie has expired or the session was revoked.
