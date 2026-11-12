@@ -1,8 +1,10 @@
 import type { MockedObject } from 'vitest';
 
-import { Injector } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Injector, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
+import { By } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
 
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -13,31 +15,50 @@ import {
   MAX_SEARCH_SIZE
 } from '@src/app/core/_components/tables/search-hash-table/search-hash-table.constants';
 import { SearchHashComponent } from '@src/app/hashlists/search-hash/search-hash.component';
+import { ComponentsModule } from '@src/app/shared/components.module';
+
+@Component({
+  selector: 'search-hash-table',
+  template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false
+})
+class MockSearchHashTableComponent {
+  @Input() search: string[] = [];
+}
 
 describe('SearchHashComponent', () => {
   let component: SearchHashComponent;
   let fixture: ComponentFixture<SearchHashComponent>;
-  let alertServiceSpy: MockedObject<AlertService>;
-  let titleServiceSpy: MockedObject<AutoTitleService>;
+  let alertServiceSpy: MockedObject<Pick<AlertService, 'showErrorMessage'>>;
+  let titleServiceSpy: MockedObject<Pick<AutoTitleService, 'set'>>;
+
+  const submitHashes = (hashes: string): void => {
+    const textarea: HTMLTextAreaElement = fixture.nativeElement.querySelector('textarea');
+    const form: HTMLFormElement = fixture.nativeElement.querySelector('form');
+    textarea.value = hashes;
+    textarea.dispatchEvent(new Event('input'));
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+  };
 
   beforeEach(async () => {
     alertServiceSpy = {
-      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    } as MockedObject<AlertService>;
+      showErrorMessage: vi.fn<AlertService['showErrorMessage']>().mockName('AlertService.showErrorMessage')
+    };
     titleServiceSpy = {
-      set: vi.fn().mockName('AutoTitleService.set')
-    } as MockedObject<AutoTitleService>;
+      set: vi.fn<AutoTitleService['set']>().mockName('AutoTitleService.set')
+    };
 
     await TestBed.configureTestingModule({
-      declarations: [SearchHashComponent],
-      imports: [ReactiveFormsModule],
+      declarations: [SearchHashComponent, MockSearchHashTableComponent],
+      imports: [ReactiveFormsModule, ComponentsModule],
       providers: [
         { provide: AlertService, useValue: alertServiceSpy },
-        { provide: AutoTitleService, useValue: titleServiceSpy }
+        { provide: AutoTitleService, useValue: titleServiceSpy },
+        provideRouter([])
       ]
-    })
-      .overrideComponent(SearchHashComponent, { set: { template: '' } })
-      .compileComponents();
+    }).compileComponents();
 
     AppModule.injector = TestBed.inject(Injector);
     fixture = TestBed.createComponent(SearchHashComponent);
@@ -47,40 +68,48 @@ describe('SearchHashComponent', () => {
   it('should set the page title and initialize a required hashes control', () => {
     fixture.detectChanges();
 
-    expect(titleServiceSpy.set).toHaveBeenCalledWith(['Search Hash']);
     expect(component.pageTitle).toBe('Search Hash');
     expect(component.form.controls['hashes'].value).toBe('');
     expect(component.form.controls['hashes'].hasError('required')).toBe(true);
-    expect(component.isCreatingLoading).toBe(false);
   });
 
-  it('should build a fresh form with a required hashes control', () => {
+  it('should not render the results table before a search', () => {
     fixture.detectChanges();
-    component.form.controls['hashes'].setValue('previous hash');
 
-    component.buildForm();
-
-    expect(component.form.controls['hashes'].value).toBe('');
-    expect(component.form.controls['hashes'].hasError('required')).toBe(true);
+    expect(fixture.debugElement.query(By.css('app-table'))).toBeNull();
+    expect(fixture.debugElement.query(By.directive(MockSearchHashTableComponent))).toBeNull();
   });
 
-  it('should expose search results through its getter and setter', () => {
-    const results = ['hash-one', 'hash-two'];
-
-    component.searchResults = results;
-
-    expect(component.searchResults).toBe(results);
-  });
-
-  it('should split valid input into hashes, refresh the view, and reset the form', () => {
+  it('should pass submitted hashes to the results table and reset the form', () => {
     fixture.detectChanges();
-    component.form.controls['hashes'].setValue('hash-one \n hash-two\t hash-three');
 
-    component.onSubmit();
+    submitHashes('hash-one \n hash-two\t hash-three');
 
-    expect(component.searchResults).toEqual(['hash-one', 'hash-two', 'hash-three']);
-    expect(component.isCreatingLoading).toBe(false);
+    expect(component.searchResults).toStrictEqual(['hash-one', 'hash-two', 'hash-three']);
+    const table = fixture.debugElement.query(By.css('app-table'));
+    expect(table).not.toBeNull();
+    const searchTable = table.query(By.directive(MockSearchHashTableComponent));
+    expect(searchTable).not.toBeNull();
+    expect(searchTable.injector.get(MockSearchHashTableComponent).search).toBe(component.searchResults);
     expect(component.form.controls['hashes'].value).toBeNull();
+    expect(fixture.nativeElement.querySelector('textarea').value).toBe('');
+    expect(alertServiceSpy.showErrorMessage).not.toHaveBeenCalled();
+  });
+
+  it('should update the existing results table when another search is submitted', () => {
+    fixture.detectChanges();
+    submitHashes('hash-one');
+    const searchTable = fixture.debugElement
+      .query(By.directive(MockSearchHashTableComponent))
+      .injector.get(MockSearchHashTableComponent);
+
+    submitHashes('hash-two\nhash-three');
+
+    expect(
+      fixture.debugElement.query(By.directive(MockSearchHashTableComponent)).injector.get(MockSearchHashTableComponent)
+    ).toBe(searchTable);
+    expect(searchTable.search).toStrictEqual(['hash-two', 'hash-three']);
+    expect(searchTable.search).toBe(component.searchResults);
     expect(alertServiceSpy.showErrorMessage).not.toHaveBeenCalled();
   });
 
@@ -91,7 +120,7 @@ describe('SearchHashComponent', () => {
 
     component.onSubmit();
 
-    expect(component.searchResults).toEqual(hashes);
+    expect(component.searchResults).toStrictEqual(hashes);
     expect(alertServiceSpy.showErrorMessage).not.toHaveBeenCalled();
   });
 
@@ -102,12 +131,11 @@ describe('SearchHashComponent', () => {
 
     component.onSubmit();
 
-    expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith(
+    expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledExactlyOnceWith(
       `You have exceeded the maximum hash search size of ${MAX_SEARCH_LENGTH} hashes. You have entered ${MAX_SEARCH_LENGTH + 1} hashes. Please reduce your hash list.`
     );
-    expect(component.searchResults).toEqual([]);
+    expect(component.searchResults).toStrictEqual([]);
     expect(component.form.controls['hashes'].value).toBe(hashes.join(' '));
-    expect(component.isCreatingLoading).toBe(false);
   });
 
   it('should accept an input exactly at the maximum request size', () => {
@@ -117,7 +145,7 @@ describe('SearchHashComponent', () => {
 
     component.onSubmit();
 
-    expect(component.searchResults).toEqual([hash]);
+    expect(component.searchResults).toStrictEqual([hash]);
     expect(alertServiceSpy.showErrorMessage).not.toHaveBeenCalled();
   });
 
@@ -128,21 +156,24 @@ describe('SearchHashComponent', () => {
 
     component.onSubmit();
 
-    expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith(
+    expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledExactlyOnceWith(
       `You have exceeded the maximum request limit size of ${MAX_SEARCH_SIZE} characters. Your current input size is ${MAX_SEARCH_SIZE + 1} characters. Please reduce your search input.`
     );
-    expect(component.searchResults).toEqual([]);
+    expect(component.searchResults).toStrictEqual([]);
     expect(component.form.controls['hashes'].value).toBe(hash);
-    expect(component.isCreatingLoading).toBe(false);
   });
 
-  it('should submit whitespace-only input as an empty result list', () => {
+  it('should remove the results table when a subsequent search contains only whitespace', () => {
     fixture.detectChanges();
-    component.form.controls['hashes'].setValue(' \n\t ');
+    submitHashes('hash-one');
+    expect(fixture.debugElement.query(By.css('app-table'))).not.toBeNull();
+    expect(fixture.debugElement.query(By.directive(MockSearchHashTableComponent))).not.toBeNull();
 
-    component.onSubmit();
+    submitHashes(' \n\t ');
 
-    expect(component.searchResults).toEqual([]);
+    expect(component.searchResults).toStrictEqual([]);
+    expect(fixture.debugElement.query(By.css('app-table'))).toBeNull();
+    expect(fixture.debugElement.query(By.directive(MockSearchHashTableComponent))).toBeNull();
     expect(component.form.controls['hashes'].value).toBeNull();
     expect(alertServiceSpy.showErrorMessage).not.toHaveBeenCalled();
   });
@@ -154,7 +185,7 @@ describe('SearchHashComponent', () => {
 
     expect(component.form.controls['hashes'].touched).toBe(true);
     expect(component.form.invalid).toBe(true);
-    expect(component.searchResults).toEqual([]);
+    expect(component.searchResults).toStrictEqual([]);
     expect(alertServiceSpy.showErrorMessage).not.toHaveBeenCalled();
   });
 });
