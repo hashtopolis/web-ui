@@ -1,12 +1,20 @@
 import { BackgroundJobContextMenuService } from '@services/context-menu/config/background-job-menu.service';
-import { expectContextMenuConfiguration } from '@services/context-menu/context-menu-test-helpers';
+
+import {
+  expectAllowedContextMenuConfiguration,
+  expectDeniedContextMenuConfiguration
+} from '@src/app/testing/context-menu-test-helpers';
 
 describe('BackgroundJobContextMenuService', () => {
-  it('configures the row and bulk actions and filters them by permission', () => {
-    expectContextMenuConfiguration(
+  it('adds the configured row and bulk actions when permitted', () => {
+    expectAllowedContextMenuConfiguration(
       (permissionService) => new BackgroundJobContextMenuService(permissionService),
       ['Delete Background Job'],
       ['Delete Background Jobs']
     );
+  });
+
+  it('omits row and bulk actions when permission is denied', () => {
+    expectDeniedContextMenuConfiguration((permissionService) => new BackgroundJobContextMenuService(permissionService));
   });
 });
