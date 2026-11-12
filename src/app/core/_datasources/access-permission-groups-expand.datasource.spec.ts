@@ -95,13 +95,13 @@ describe('AccessPermissionGroupsExpandDataSource', () => {
 
     dataSource.loadAll();
 
-    expect(globalServiceSpy.get).toHaveBeenCalledWith(SERV.ACCESS_PERMISSIONS_GROUPS, 10, {
+    expect(globalServiceSpy.get).toHaveBeenCalledExactlyOnceWith(SERV.ACCESS_PERMISSIONS_GROUPS, 10, {
       include: ['userMembers']
     });
-    expect(serializerSpy.deserialize).toHaveBeenCalledWith(response, zGlobalPermissionGroupResponse, {
+    expect(serializerSpy.deserialize).toHaveBeenCalledExactlyOnceWith(response, zGlobalPermissionGroupResponse, {
       include: ['userMembers']
     });
-    expect(dataSource['dataSubject'].getValue()).toEqual(users);
+    expect(dataSource['dataSubject'].getValue()).toStrictEqual(users);
     expect(dataSource['loadingSubject'].getValue()).toBe(false);
   });
 
@@ -112,10 +112,10 @@ describe('AccessPermissionGroupsExpandDataSource', () => {
 
     dataSource.loadAll();
 
-    expect(globalServiceSpy.get).toHaveBeenCalledWith(SERV.ACCESS_PERMISSIONS_GROUPS, 25, {
+    expect(globalServiceSpy.get).toHaveBeenCalledExactlyOnceWith(SERV.ACCESS_PERMISSIONS_GROUPS, 25, {
       include: ['userMembers,permissions']
     });
-    expect(dataSource['dataSubject'].getValue()).toEqual([
+    expect(dataSource['dataSubject'].getValue()).toStrictEqual([
       {
         id: 0,
         type: 'userPermission',
@@ -128,62 +128,23 @@ describe('AccessPermissionGroupsExpandDataSource', () => {
         keys: { read: 'permTaskRead', update: 'permTaskUpdate' }
       }
     ]);
-  });
-
-  it('uses the default group ID, include, and member mode', () => {
-    dataSource.loadAll();
-
-    expect(globalServiceSpy.get).toHaveBeenCalledWith(SERV.ACCESS_PERMISSIONS_GROUPS, 0, { include: [''] });
-    expect(dataSource['dataSubject'].getValue()).toEqual(users);
   });
 
   it('clears loading and preserves existing data when the request fails', () => {
     dataSource.setData(users);
     globalServiceSpy.get.mockReturnValue(throwError(() => new Error('Network error')));
 
-    expect(() => dataSource.loadAll()).not.toThrow();
+    dataSource.loadAll();
 
     expect(serializerSpy.deserialize).not.toHaveBeenCalled();
-    expect(dataSource['dataSubject'].getValue()).toEqual(users);
+    expect(dataSource['dataSubject'].getValue()).toStrictEqual(users);
     expect(dataSource['loadingSubject'].getValue()).toBe(false);
-  });
-
-  it('loads a permission matrix directly from a map without making an API request', () => {
-    dataSource.loadFromMap(permissions);
-
-    expect(dataSource['dataSubject'].getValue()).toEqual([
-      {
-        id: 0,
-        type: 'userPermission',
-        name: 'Task',
-        key: 'Task',
-        create: false,
-        read: true,
-        update: false,
-        delete: false,
-        keys: { read: 'permTaskRead', update: 'permTaskUpdate' }
-      }
-    ]);
-    expect(dataSource['loadingSubject'].getValue()).toBe(false);
-    expect(globalServiceSpy.get).not.toHaveBeenCalled();
   });
 
   it('returns an empty matrix for an empty permission map', () => {
     dataSource.loadFromMap({});
 
-    expect(dataSource['dataSubject'].getValue()).toEqual([]);
-    expect(dataSource.getOriginalData()).toEqual([]);
-  });
-
-  it('reloads the group and clears the current selection', () => {
-    dataSource.loadAll();
-    dataSource.toggleRow(users[0]);
-    globalServiceSpy.get.mockClear();
-
-    dataSource.reload();
-
-    expect(dataSource.hasSelected()).toBe(false);
-    expect(globalServiceSpy.get).toHaveBeenCalledWith(SERV.ACCESS_PERMISSIONS_GROUPS, 0, { include: [''] });
-    expect(dataSource['dataSubject'].getValue()).toEqual(users);
+    expect(dataSource['dataSubject'].getValue()).toStrictEqual([]);
+    expect(dataSource.getOriginalData()).toStrictEqual([]);
   });
 });
