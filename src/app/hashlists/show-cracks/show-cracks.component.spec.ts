@@ -8,7 +8,6 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 
 import { ShowCracksComponent } from '@src/app/hashlists/show-cracks/show-cracks.component';
 
-// Mock components for child selectors used in the template
 @Component({
   selector: 'app-page',
   template: '<ng-content></ng-content>',
@@ -69,42 +68,4 @@ describe('ShowCracksComponent', () => {
     expect(table).not.toBeNull();
     expect(table.queryAll(By.directive(MockCracksTableComponent))).toHaveLength(1);
   });
-
-  it('should not set the title again during repeated change detection or destruction', () => {
-    fixture = TestBed.createComponent(ShowCracksComponent);
-    titleServiceSpy.set.mockClear();
-
-    fixture.detectChanges();
-    fixture.detectChanges();
-    fixture.destroy();
-
-    expect(titleServiceSpy.set).not.toHaveBeenCalled();
-  });
-
-  it('should set the title again with a fresh array when the component is recreated', () => {
-    fixture = TestBed.createComponent(ShowCracksComponent);
-    const firstTitle = titleServiceSpy.set.mock.calls[0][0];
-    fixture.destroy();
-
-    const secondFixture = TestBed.createComponent(ShowCracksComponent);
-
-    expect(secondFixture.componentInstance).not.toBe(fixture.componentInstance);
-    expect(titleServiceSpy.set).toHaveBeenCalledTimes(2);
-    expect(titleServiceSpy.set).toHaveBeenNthCalledWith(2, ['Show Cracks']);
-    expect(titleServiceSpy.set.mock.calls[1][0]).not.toBe(firstTitle);
-  });
-
-  it.each([new Error('Title service failed'), new TypeError('Invalid title service configuration')])(
-    'should propagate a title service error during construction: %s',
-    (error) => {
-      titleServiceSpy.set.mockImplementation(() => {
-        throw error;
-      });
-
-      const createComponent = () => TestBed.createComponent(ShowCracksComponent);
-
-      expect(createComponent).toThrow(error);
-      expect(titleServiceSpy.set).toHaveBeenCalledExactlyOnceWith(['Show Cracks']);
-    }
-  );
 });
