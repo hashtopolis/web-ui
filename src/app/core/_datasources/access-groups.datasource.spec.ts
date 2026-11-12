@@ -97,15 +97,15 @@ describe('AccessGroupsDataSource', () => {
 
     dataSource.loadAll();
 
-    expect(globalServiceSpy.getAll).toHaveBeenCalledWith(
+    expect(globalServiceSpy.getAll).toHaveBeenCalledExactlyOnceWith(
       SERV.ACCESS_GROUPS,
       { page: { size: dataSource.pageSize }, include: ['userMembers', 'agentMembers'] },
       expect.objectContaining({ headers: expect.any(HttpHeaders) })
     );
     const requestOptions = globalServiceSpy.getAll.mock.calls[0][2];
     expect(requestOptions?.headers?.get(HttpHeaderName.SKIP_ERROR_DIALOG)).toBe('true');
-    expect(serializerSpy.deserialize).toHaveBeenCalledWith(apiResponse, zAccessGroupListResponse);
-    expect(dataSource['dataSubject'].getValue()).toEqual(groups);
+    expect(serializerSpy.deserialize).toHaveBeenCalledExactlyOnceWith(apiResponse, zAccessGroupListResponse);
+    expect(dataSource['dataSubject'].getValue()).toStrictEqual(groups);
     expect(dataSource.totalItems).toBe(groups.length);
     expect(dataSource.pageAfter).toBe('next-cursor');
     expect(dataSource.pageBefore).toBe('previous-cursor');
@@ -120,7 +120,7 @@ describe('AccessGroupsDataSource', () => {
 
     dataSource.loadAll(query);
 
-    expect(globalServiceSpy.getAll).toHaveBeenCalledWith(
+    expect(globalServiceSpy.getAll).toHaveBeenCalledExactlyOnceWith(
       SERV.ACCESS_GROUPS,
       {
         page: { size: dataSource.pageSize },
@@ -141,7 +141,7 @@ describe('AccessGroupsDataSource', () => {
 
     dataSource.loadAll();
 
-    expect(globalServiceSpy.getAll).toHaveBeenCalledWith(
+    expect(globalServiceSpy.getAll).toHaveBeenCalledExactlyOnceWith(
       SERV.ACCESS_GROUPS,
       {
         page: { size: dataSource.pageSize },
@@ -155,16 +155,18 @@ describe('AccessGroupsDataSource', () => {
   it('omits empty filters and handles missing pagination links and zero results', () => {
     const emptyResult = mockResponse();
     globalServiceSpy.getAll.mockReturnValue(of(emptyResult));
+    serializerSpy.deserialize.mockReturnValueOnce([]);
+
     const emptyFilter: Filter = { field: 'groupName', operator: FilterType.ICONTAINS, value: '' };
 
     dataSource.loadAll(emptyFilter);
 
-    expect(globalServiceSpy.getAll).toHaveBeenCalledWith(
+    expect(globalServiceSpy.getAll).toHaveBeenCalledExactlyOnceWith(
       SERV.ACCESS_GROUPS,
       { page: { size: dataSource.pageSize }, include: ['userMembers', 'agentMembers'] },
       expect.any(Object)
     );
-    expect(dataSource['dataSubject'].getValue()).toEqual(groups);
+    expect(dataSource['dataSubject'].getValue()).toStrictEqual([]);
     expect(dataSource.totalItems).toBe(0);
     expect(dataSource.pageAfter).toBeNull();
     expect(dataSource.pageBefore).toBeNull();
@@ -179,8 +181,8 @@ describe('AccessGroupsDataSource', () => {
 
     dataSource.loadAll();
 
-    expect(filterErrors).toEqual(['Invalid group filter']);
-    expect(dataSource['dataSubject'].getValue()).toEqual(groups);
+    expect(filterErrors).toStrictEqual(['Invalid group filter']);
+    expect(dataSource['dataSubject'].getValue()).toStrictEqual(groups);
     expect(dataSource['loadingSubject'].getValue()).toBe(false);
   });
 
@@ -207,7 +209,7 @@ describe('AccessGroupsDataSource', () => {
     dataSource.reload();
 
     expect(dataSource.hasSelected()).toBe(false);
-    expect(globalServiceSpy.getAll).toHaveBeenCalledWith(
+    expect(globalServiceSpy.getAll).toHaveBeenCalledExactlyOnceWith(
       SERV.ACCESS_GROUPS,
       {
         page: { size: dataSource.pageSize },
@@ -233,7 +235,7 @@ describe('AccessGroupsDataSource', () => {
     expect(dataSource.pageAfter).toBeNull();
     expect(dataSource.pageBefore).toBeNull();
     expect(dataSource.hasSelected()).toBe(false);
-    expect(globalServiceSpy.getAll).toHaveBeenCalledWith(
+    expect(globalServiceSpy.getAll).toHaveBeenCalledExactlyOnceWith(
       SERV.ACCESS_GROUPS,
       { page: { size: dataSource.pageSize }, include: ['userMembers', 'agentMembers'] },
       expect.any(Object)
