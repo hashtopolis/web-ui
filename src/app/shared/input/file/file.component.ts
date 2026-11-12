@@ -43,14 +43,28 @@ export class InputFileComponent extends AbstractInputComponent<FileList> {
 
   handleFileInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const fileToUpload = input.files![0];
-    const fileSize = fileToUpload.size;
-    const fileName = fileToUpload.name;
-    this.fileInfoText = fileName + ' / Size: ' + this.fs.transform(fileSize, false);
-    const files = input.files!;
+    const files = input.files;
+    if (!files || files.length === 0) {
+      return;
+    }
+    this.fileInfoText = this.buildFileInfoText(Array.from(files));
     this.filesSelected.emit(files);
     this.value = files;
     this.onChange(files);
     this.onTouched();
+  }
+
+  /**
+   * Builds the label shown next to the button: name and size for a single file,
+   * count, names and total size when several files are selected.
+   */
+  private buildFileInfoText(files: File[]): string {
+    const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+    const size = this.fs.transform(totalSize, false);
+    if (files.length === 1) {
+      return `${files[0].name} / Size: ${size}`;
+    }
+    const names = files.map((file) => file.name).join(', ');
+    return `${files.length} files (${names}) / Total size: ${size}`;
   }
 }
