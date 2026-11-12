@@ -8,7 +8,8 @@ import { FilterType } from '@models/request-params.model';
 import { SERV } from '@services/main.config';
 
 import { HealthChecksDataSource } from '@datasources/health-checks.datasource';
-import { setupDatasource } from '@datasources/specs/datasource-test-setup-util';
+
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 
 describe('HealthChecksDataSource', () => {
   it('loads health checks with their hash type relationship', () => {

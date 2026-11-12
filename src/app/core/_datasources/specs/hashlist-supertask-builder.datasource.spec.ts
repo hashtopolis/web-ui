@@ -10,7 +10,7 @@ import { JSuperTask } from '@models/supertask.model';
 import { SERV } from '@services/main.config';
 
 import { HashlistSupertaskBuilderDataSource } from '@src/app/core/_datasources/hashlist-supertask-builder.datasource';
-import { setupDatasource } from '@src/app/core/_datasources/specs/datasource-test-setup-util';
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 import { mockValidResponse } from '@src/app/testing/mock-response';
 
 const SUPERTASK = { id: 2, type: 'supertask', supertaskName: 'builder', crackerBinaryTypeId: 1 } as JSuperTask;

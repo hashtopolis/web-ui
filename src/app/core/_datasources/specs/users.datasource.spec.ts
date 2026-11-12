@@ -7,8 +7,9 @@ import { FilterType } from '@models/request-params.model';
 
 import { SERV } from '@services/main.config';
 
-import { setupDatasource } from '@datasources/specs/datasource-test-setup-util';
 import { UsersDataSource } from '@datasources/users.datasource';
+
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 
 describe('UsersDataSource', () => {
   it('loads users with global permission group data', () => {

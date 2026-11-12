@@ -11,7 +11,7 @@ import { SERV } from '@services/main.config';
 import { UIConfigService } from '@services/shared/storage.service';
 
 import { HashlistPretaskBuilderDataSource } from '@src/app/core/_datasources/hashlist-pretask-builder.datasource';
-import { setupDatasource } from '@src/app/core/_datasources/specs/datasource-test-setup-util';
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 import { mockValidResponse } from '@src/app/testing/mock-response';
 
 const PRETASK = {

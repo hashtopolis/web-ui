@@ -7,8 +7,9 @@ import { FilterType } from '@models/request-params.model';
 
 import { SERV } from '@services/main.config';
 
-import { setupDatasource } from '@datasources/specs/datasource-test-setup-util';
 import { SuperTasksDataSource } from '@datasources/supertasks.datasource';
+
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 
 describe('SuperTasksDataSource', () => {
   it('loads supertasks', () => {

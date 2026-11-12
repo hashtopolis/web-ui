@@ -10,7 +10,7 @@ import { Filter, FilterType, RequestParams } from '@models/request-params.model'
 import { SERV } from '@services/main.config';
 
 import { HashtypesDataSource } from '@src/app/core/_datasources/hashtypes.datasource';
-import { setupDatasource } from '@src/app/core/_datasources/specs/datasource-test-setup-util';
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 import { mockValidResponse } from '@src/app/testing/mock-response';
 
 const HASHTYPE = { id: 3, type: 'hashType', description: 'SHA256', isSalted: false, isSlowHash: false } as JHashtype;

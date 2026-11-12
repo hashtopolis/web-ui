@@ -8,7 +8,8 @@ import { FilterType } from '@models/request-params.model';
 import { SERV } from '@services/main.config';
 
 import { LogsDataSource } from '@datasources/logs.datasource';
-import { setupDatasource } from '@datasources/specs/datasource-test-setup-util';
+
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 
 describe('LogsDataSource', () => {
   it('loads logs from the logs resource', () => {

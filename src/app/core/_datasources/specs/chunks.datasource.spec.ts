@@ -9,7 +9,7 @@ import { SERV } from '@services/main.config';
 
 import { ChunksDataSource } from '@datasources/chunks.datasource';
 
-import { setupDatasource } from '@src/app/core/_datasources/specs/datasource-test-setup-util';
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 import { mockValidResponse } from '@src/app/testing/mock-response';
 
 const CHUNK: JChunk = {

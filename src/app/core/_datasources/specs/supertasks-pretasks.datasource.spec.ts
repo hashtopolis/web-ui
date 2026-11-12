@@ -2,15 +2,15 @@ import { throwError } from 'rxjs';
 
 import { SERV } from '@services/main.config';
 
-import { setupDatasource } from '@datasources/specs/datasource-test-setup-util';
 import { SuperTasksPretasksDataSource } from '@datasources/supertasks-pretasks.datasource';
+
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 
 describe('SuperTasksPretasksDataSource', () => {
   it('loads pretasks from the selected supertask and requests the pretask relationship', () => {
     const { dataSource, service } = setupDatasource(SuperTasksPretasksDataSource);
-    const ds = dataSource;
-    ds.setSuperTaskId(8);
-    ds.loadAll();
+    dataSource.setSuperTaskId(8);
+    dataSource.loadAll();
     expect(service.get).toHaveBeenCalledExactlyOnceWith(
       SERV.SUPER_TASKS,
       8,

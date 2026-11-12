@@ -8,15 +8,15 @@ import { FilterType } from '@models/request-params.model';
 
 import { SERV } from '@services/main.config';
 
-import { setupDatasource } from '@datasources/specs/datasource-test-setup-util';
 import { TasksChunksDataSource } from '@datasources/tasks-chunks.datasource';
+
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 
 describe('TasksChunksDataSource', () => {
   it('loads chunks scoped to the selected task', async () => {
     const { dataSource, service } = setupDatasource(TasksChunksDataSource);
-    const ds = dataSource;
-    ds.setTaskId(4);
-    await ds.loadAll();
+    dataSource.setTaskId(4);
+    await dataSource.loadAll();
     const [resource, params] = service.getAll.mock.lastCall!;
     expect(resource).toBe(SERV.CHUNKS);
     expect(params!.filter).toStrictEqual(
@@ -112,6 +112,6 @@ describe('TasksChunksDataSource', () => {
     await Promise.resolve();
 
     expect(dataSource.selection.hasValue()).toBe(false);
-    expect(service.getAll).toHaveBeenCalledWith(SERV.CHUNKS, expect.anything(), expect.anything());
+    expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.CHUNKS, expect.anything(), expect.anything());
   });
 });
