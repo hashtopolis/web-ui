@@ -1,12 +1,20 @@
-import { expectContextMenuConfiguration } from '@services/context-menu/context-menu-test-helpers';
 import { NotificationsContextMenuService } from '@services/context-menu/notifications-menu.service';
 
+import {
+  expectAllowedContextMenuConfiguration,
+  expectDeniedContextMenuConfiguration
+} from '@src/app/testing/context-menu-test-helpers';
+
 describe('NotificationsContextMenuService', () => {
-  it('configures the row and bulk actions and filters them by permission', () => {
-    expectContextMenuConfiguration(
+  it('adds the configured row and bulk actions when permitted', () => {
+    expectAllowedContextMenuConfiguration(
       (permissionService) => new NotificationsContextMenuService(permissionService),
       ['Deactivate Notification', 'Activate Notification', 'Delete Notification'],
       ['Activate Notification', 'Deactivate Notification', 'Delete Notification']
     );
+  });
+
+  it('omits row and bulk actions when permission is denied', () => {
+    expectDeniedContextMenuConfiguration((permissionService) => new NotificationsContextMenuService(permissionService));
   });
 });

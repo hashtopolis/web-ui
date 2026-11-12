@@ -1,12 +1,20 @@
 import { HashTypesContextMenuService } from '@services/context-menu/config/hashtypes-menu.service';
-import { expectContextMenuConfiguration } from '@services/context-menu/context-menu-test-helpers';
+
+import {
+  expectAllowedContextMenuConfiguration,
+  expectDeniedContextMenuConfiguration
+} from '@src/app/testing/context-menu-test-helpers';
 
 describe('HashTypesContextMenuService', () => {
-  it('configures the row and bulk actions and filters them by permission', () => {
-    expectContextMenuConfiguration(
+  it('adds the configured row and bulk actions when permitted', () => {
+    expectAllowedContextMenuConfiguration(
       (permissionService) => new HashTypesContextMenuService(permissionService),
       ['Edit Hashtype', 'Delete Hashtype'],
       ['Delete Hashtypes']
     );
+  });
+
+  it('omits row and bulk actions when permission is denied', () => {
+    expectDeniedContextMenuConfiguration((permissionService) => new HashTypesContextMenuService(permissionService));
   });
 });
