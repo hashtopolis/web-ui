@@ -1,6 +1,7 @@
 import { Subject } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Injector } from '@angular/core';
 
 import { BaseModel } from '@models/base.model';
@@ -18,7 +19,7 @@ import { BaseDataSource } from '@datasources/base.datasource';
 
 class TestBaseDataSource extends BaseDataSource<BaseModel> {
   public reload = vi.fn().mockName('reload');
-  public handleError(error: never): void {
+  public handleError(error: HttpErrorResponse): void {
     this.handleFilterError(error);
   }
 }
@@ -173,37 +174,78 @@ describe('BaseDataSource Pagination', () => {
     expect(dataSource['applySorting']([low, high, mixed])).toStrictEqual([high, low, mixed]);
   });
 
-  it('supports row selection, select all, and toggle behavior', () => {
+  it('starts with no rows selected', () => {
     const first = { id: 1, type: 'sample' } as BaseModel;
     const second = { id: 2, type: 'sample' } as BaseModel;
     dataSource.setData([first, second]);
     expect(dataSource.hasSelected()).toBe(false);
-    dataSource.toggleRow(first);
-    expect(dataSource.isSelected(first)).toBe(true);
-    expect(dataSource.indeterminate()).toBe(true);
-    dataSource.toggleAll();
-    expect(dataSource.isAllSelected()).toBe(true);
-    dataSource.toggleAll();
-    expect(dataSource.hasSelected()).toBe(false);
-    dataSource.selection.select(first);
-    dataSource.clearSelection();
-    expect(dataSource.selection.hasValue()).toBe(false);
   });
 
-  it('resets filter, data and selection and optionally returns paginator to its first page', () => {
+  it('selects one row and marks the selection as indeterminate', () => {
+    const first = { id: 1, type: 'sample' } as BaseModel;
+    const second = { id: 2, type: 'sample' } as BaseModel;
+    dataSource.setData([first, second]);
+    dataSource.toggleRow(first);
+    expect(dataSource.isSelected(first)).toBe(true);
+    expect(dataSource.isSelected(second)).toBe(false);
+    expect(dataSource.indeterminate()).toBe(true);
+  });
+
+  it('deselects a selected row when toggled', () => {
+    const first = { id: 1, type: 'sample' } as BaseModel;
+    dataSource.selection.select(first);
+    dataSource.toggleRow(first);
+    expect(dataSource.isSelected(first)).toBe(false);
+  });
+
+  it('selects all rows when only some are selected', () => {
+    const first = { id: 1, type: 'sample' } as BaseModel;
+    const second = { id: 2, type: 'sample' } as BaseModel;
+    dataSource.setData([first, second]);
+    dataSource.selection.select(first);
+    dataSource.toggleAll();
+    expect(dataSource.isAllSelected()).toBe(true);
+    expect(dataSource.indeterminate()).toBe(false);
+  });
+
+  it('clears the selection when all rows are selected', () => {
+    const first = { id: 1, type: 'sample' } as BaseModel;
+    const second = { id: 2, type: 'sample' } as BaseModel;
+    dataSource.setData([first, second]);
+    dataSource.selection.select(first, second);
+    dataSource.toggleAll();
+    expect(dataSource.hasSelected()).toBe(false);
+  });
+
+  it('clears the selection', () => {
+    const first = { id: 1, type: 'sample' } as BaseModel;
+    dataSource.selection.select(first);
+    dataSource.clearSelection();
+    expect(dataSource.hasSelected()).toBe(false);
+  });
+
+  it('resets filter, selection, and visible rows without changing pages', () => {
     const row = { id: 1, type: 'sample' } as BaseModel;
-    const firstPage = vi.fn();
+    const firstPage = vi.fn().mockName('paginator.firstPage');
     dataSource.setData([row]);
+    dataSource['dataSubject'].next([]);
     dataSource.paginator = { firstPage } as never;
     dataSource.filter = 'needle';
     dataSource.selection.select(row);
     dataSource.reset(false);
     expect(dataSource.filter).toBe('');
-    expect(dataSource.selection.hasValue()).toBe(false);
+    expect(dataSource.hasSelected()).toBe(false);
+    expect(dataSource['dataSubject'].getValue()).toStrictEqual([row]);
     expect(firstPage).not.toHaveBeenCalled();
+  });
+
+  it('returns to the first page when reset requests it', () => {
+    const row = { id: 1, type: 'sample' } as BaseModel;
+    const firstPage = vi.fn().mockName('paginator.firstPage');
+    dataSource.setData([row]);
+    dataSource.paginator = { firstPage } as never;
     dataSource.reset(true);
     expect(firstPage).toHaveBeenCalledOnce();
-    expect(dataSource['dataSubject'].getValue()).toStrictEqual([row]);
   });
 
   it('synchronizes valid pagination with the paginator and keeps prior total when omitted', () => {
@@ -217,20 +259,38 @@ describe('BaseDataSource Pagination', () => {
     expect(dataSource.paginator).toMatchObject({ length: 12, pageIndex: 1 });
   });
 
-  it('invalidates cache on force reload and wires auto-refresh lifecycle actions', () => {
+  it('invalidates cache and reloads on force reload', () => {
     dataSource.forceReload();
     expect(cacheService.invalidate).toHaveBeenCalledOnce();
     expect(dataSource.reload).toHaveBeenCalledOnce();
+  });
 
+  it('enables auto-refresh and refreshes immediately when toggled on', () => {
     dataSource.toggleAutoRefresh(true);
     expect(autoRefreshService.toggleAutoRefresh).toHaveBeenCalledExactlyOnceWith(true, { immediate: true });
+    expect(dataSource.autoRefreshEnabled).toBe(true);
+  });
+
+  it('disables auto-refresh and refreshes immediately when toggled off', () => {
+    dataSource.autoRefreshEnabled = true;
     dataSource.toggleAutoRefresh(false);
+    expect(autoRefreshService.toggleAutoRefresh).toHaveBeenCalledExactlyOnceWith(false, { immediate: true });
     expect(dataSource.autoRefreshEnabled).toBe(false);
+  });
+
+  it('starts auto-refresh without refreshing immediately', () => {
     dataSource.startAutoRefresh();
     expect(autoRefreshService.startAutoRefresh).toHaveBeenCalledExactlyOnceWith({ immediate: false });
+    expect(dataSource.autoRefreshEnabled).toBe(true);
+  });
+
+  it('stops auto-refresh and no longer reloads on refresh events', () => {
+    dataSource.startAutoRefresh();
     dataSource.stopAutoRefresh();
+    refresh$.next();
     expect(autoRefreshService.stopAutoRefresh).toHaveBeenCalledOnce();
     expect(dataSource.autoRefreshEnabled).toBe(false);
+    expect(dataSource.reload).not.toHaveBeenCalled();
   });
 
   it('restores the active cursor and reloads when auto-refresh emits', () => {
@@ -250,17 +310,18 @@ describe('BaseDataSource Pagination', () => {
   it('emits normalized HTTP filter error messages', () => {
     const errors: string[] = [];
     dataSource.filterError$.subscribe((error) => errors.push(error));
-    dataSource.handleError({ error: { title: 'Forbidden details' }, status: 403 } as never);
-    dataSource.handleError({ status: 403 } as never);
-    dataSource.handleError({ status: 400 } as never);
-    dataSource.handleError({ status: 500, statusText: 'Server error' } as never);
-    dataSource.handleError({} as never);
+    dataSource.handleError(new HttpErrorResponse({ error: { title: 'Forbidden details' }, status: 403 }));
+    dataSource.handleError(new HttpErrorResponse({ status: 403 }));
+    dataSource.handleError(new HttpErrorResponse({ status: 400 }));
+    dataSource.handleError(new HttpErrorResponse({ status: 500, statusText: 'Server error' }));
+    dataSource.handleError(new HttpErrorResponse({ status: 200 }));
 
     expect(errors).toStrictEqual([
       'Forbidden details',
       'Access forbidden. Please check your permissions.',
       'Invalid filter parameter',
-      'Server error'
+      'Server error',
+      'Unknown Error'
     ]);
   });
 });
