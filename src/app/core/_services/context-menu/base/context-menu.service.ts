@@ -26,7 +26,7 @@ export abstract class ContextMenuService {
 
   protected constructor(protected permissionService: PermissionService) {}
 
-  abstract addContextMenu(item: ContextMenuType): ContextMenuService;
+  abstract addContextMenu(): ContextMenuService;
 
   /**
    * Check, if we have to render a context menu
