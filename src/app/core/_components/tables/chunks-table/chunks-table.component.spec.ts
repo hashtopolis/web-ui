@@ -323,8 +323,8 @@ describe('ChunksTableComponent', () => {
       { state: 7, label: 'Aborted', pillClass: 'pill-aborted' },
       { state: 8, label: 'Quit', pillClass: 'pill-quit' },
       { state: 9, label: 'Bypass', pillClass: 'pill-bypass' },
-      { state: 10, label: 'Aborted at checkpoint', pillClass: 'pill-aborted-checkpoint' },
-      { state: 11, label: 'Aborted at runtime', pillClass: 'pill-aborted' },
+      { state: 10, label: 'Trimmed', pillClass: 'pill-trimmed' },
+      { state: 11, label: 'Aborting...', pillClass: 'pill-aborting' },
       { state: 13, label: 'Error', pillClass: 'pill-error' },
       { state: 14, label: 'Aborted at finish', pillClass: 'pill-aborted' },
       { state: 16, label: 'Autodetect', pillClass: 'pill-autodetect' }

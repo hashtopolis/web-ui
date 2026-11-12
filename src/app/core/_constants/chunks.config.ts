@@ -34,8 +34,8 @@ export const ChunkStateLabels: Record<ChunkState, string> = {
   [ChunkState.ABORTED]: 'Aborted',
   [ChunkState.QUIT]: 'Quit',
   [ChunkState.BYPASS]: 'Bypass',
-  [ChunkState.ABORTED_CHECKPOINT]: 'Aborted at checkpoint',
-  [ChunkState.ABORTED_RUNTIME]: 'Aborted at runtime',
+  [ChunkState.ABORTED_CHECKPOINT]: 'Trimmed',
+  [ChunkState.ABORTED_RUNTIME]: 'Aborting...',
   [ChunkState.ERROR]: 'Error',
   [ChunkState.ABORTED_FINISH]: 'Aborted at finish',
   [ChunkState.AUTODETECT]: 'Autodetect'
@@ -53,8 +53,8 @@ export const ChunkStatePillClass: Record<ChunkState, string> = {
   [ChunkState.ABORTED]: 'pill-aborted',
   [ChunkState.QUIT]: 'pill-quit',
   [ChunkState.BYPASS]: 'pill-bypass',
-  [ChunkState.ABORTED_CHECKPOINT]: 'pill-aborted-checkpoint',
-  [ChunkState.ABORTED_RUNTIME]: 'pill-aborted',
+  [ChunkState.ABORTED_CHECKPOINT]: 'pill-trimmed',
+  [ChunkState.ABORTED_RUNTIME]: 'pill-aborting',
   [ChunkState.ERROR]: 'pill-error',
   [ChunkState.ABORTED_FINISH]: 'pill-aborted',
   [ChunkState.AUTODETECT]: 'pill-autodetect'
