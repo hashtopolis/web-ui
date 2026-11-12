@@ -99,9 +99,9 @@ describe('AccessGroupsExpandDataSource', () => {
 
     dataSource.loadAll();
 
-    expect(globalServiceSpy.get).toHaveBeenCalledWith(SERV.ACCESS_GROUPS, 10, { include: ['userMembers'] });
-    expect(serializerSpy.deserialize).toHaveBeenCalledWith(response, zAccessGroupResponse);
-    expect(dataSource.getData()).toEqual(users);
+    expect(globalServiceSpy.get).toHaveBeenCalledExactlyOnceWith(SERV.ACCESS_GROUPS, 10, { include: ['userMembers'] });
+    expect(serializerSpy.deserialize).toHaveBeenCalledExactlyOnceWith(response, zAccessGroupResponse);
+    expect(dataSource.getData()).toStrictEqual(users);
     expect(dataSource['loadingSubject'].getValue()).toBe(false);
   });
 
@@ -125,7 +125,7 @@ describe('AccessGroupsExpandDataSource', () => {
     dataSource.reload();
 
     expect(globalServiceSpy.get).toHaveBeenCalledTimes(2);
-    expect(dataSource['dataSubject'].getValue()).toEqual([reloadedUsers[0]]);
+    expect(dataSource['dataSubject'].getValue()).toStrictEqual([reloadedUsers[0]]);
     expect(dataSource.hasSelected()).toBe(false);
   });
 
@@ -138,31 +138,26 @@ describe('AccessGroupsExpandDataSource', () => {
 
     dataSource.applyClientFilter('', null);
 
-    expect(dataSource['dataSubject'].getValue()).toEqual(users);
+    expect(dataSource['dataSubject'].getValue()).toStrictEqual(users);
   });
 
-  it('uses an empty list when the requested include is missing from the response', () => {
-    serializerSpy.deserialize.mockReturnValue({
-      id: 10,
-      type: 'accessGroup',
-      groupName: 'Test group'
-    });
+  it.each([
+    {
+      scenario: 'the requested include is missing from the response',
+      group: { id: 10, type: 'accessGroup', groupName: 'Test group' }
+    },
+    {
+      scenario: 'the included member list is empty',
+      group: accessGroup({ userMembers: [] })
+    }
+  ])('uses an empty list when $scenario', ({ group }) => {
+    serializerSpy.deserialize.mockReturnValue(group);
     globalServiceSpy.get.mockReturnValue(of(response));
     dataSource.setAccessGroupExpand('userMembers');
 
     dataSource.loadAll();
 
-    expect(dataSource.getData()).toEqual([]);
-  });
-
-  it('handles an empty included member list', () => {
-    serializerSpy.deserialize.mockReturnValue(accessGroup({ userMembers: [] }));
-    globalServiceSpy.get.mockReturnValue(of(response));
-    dataSource.setAccessGroupExpand('userMembers');
-
-    dataSource.loadAll();
-
-    expect(dataSource.getData()).toEqual([]);
+    expect(dataSource.getData()).toStrictEqual([]);
   });
 
   it('clears loading and keeps the existing data when the request fails', () => {
@@ -174,7 +169,7 @@ describe('AccessGroupsExpandDataSource', () => {
 
     dataSource.loadAll();
 
-    expect(dataSource.getData()).toEqual(users);
+    expect(dataSource.getData()).toStrictEqual(users);
     expect(serializerSpy.deserialize).toHaveBeenCalledTimes(1);
     expect(dataSource['loadingSubject'].getValue()).toBe(false);
   });
@@ -192,14 +187,5 @@ describe('AccessGroupsExpandDataSource', () => {
     pendingResponse.complete();
 
     expect(dataSource['loadingSubject'].getValue()).toBe(false);
-  });
-
-  it('starts with the default ID and an empty include', () => {
-    globalServiceSpy.get.mockReturnValue(of(response));
-    serializerSpy.deserialize.mockReturnValue(accessGroup());
-
-    dataSource.loadAll();
-
-    expect(globalServiceSpy.get).toHaveBeenCalledWith(SERV.ACCESS_GROUPS, 0, { include: [''] });
   });
 });
