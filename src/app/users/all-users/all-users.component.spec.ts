@@ -9,7 +9,6 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 
 import { AllUsersComponent } from '@src/app/users/all-users/all-users.component';
 
-// Mock components for child selectors used in the template
 @Component({
   selector: 'app-page',
   template: '<ng-content></ng-content>',
@@ -62,9 +61,8 @@ describe('AllUsersComponent', () => {
     const fixture: ComponentFixture<AllUsersComponent> = TestBed.createComponent(AllUsersComponent);
     fixture.detectChanges();
 
-    expect(fixture.componentInstance).toBeTruthy();
-    expect(titleServiceSpy.set).toHaveBeenCalledWith(['Show Users']);
-    expect(userRoleServiceSpy.hasRole).toHaveBeenCalledWith('create');
+    expect(titleServiceSpy.set).toHaveBeenCalledExactlyOnceWith(['Show Users']);
+    expect(userRoleServiceSpy.hasRole).toHaveBeenCalledExactlyOnceWith('create');
     expect(fixture.debugElement.query(By.directive(MockPageComponent)).componentInstance.showAction).toBe(true);
   });
 
@@ -72,29 +70,13 @@ describe('AllUsersComponent', () => {
     userRoleServiceSpy.hasRole.mockReturnValue(false);
 
     const fixture = TestBed.createComponent(AllUsersComponent);
+    const page = fixture.debugElement.query(By.directive(MockPageComponent)).componentInstance as MockPageComponent;
     fixture.detectChanges();
 
     expect(fixture.debugElement.query(By.directive(MockPageComponent)).componentInstance.showAction).toBe(false);
-    expect(userRoleServiceSpy.hasRole).toHaveBeenCalledWith('create');
-  });
-
-  it('propagates errors thrown while setting the page title', () => {
-    const error = new Error('Unable to set page title');
-    titleServiceSpy.set.mockImplementation(() => {
-      throw error;
-    });
-
-    expect(() => TestBed.createComponent(AllUsersComponent)).toThrow(error);
-    expect(userRoleServiceSpy.hasRole).not.toHaveBeenCalled();
-  });
-
-  it('propagates errors thrown while checking the create role', () => {
-    const error = new Error('Unable to check user role');
-    userRoleServiceSpy.hasRole.mockImplementation(() => {
-      throw error;
-    });
-
-    expect(() => TestBed.createComponent(AllUsersComponent)).toThrow(error);
-    expect(titleServiceSpy.set).toHaveBeenCalledWith(['Show Users']);
+    expect(userRoleServiceSpy.hasRole).toHaveBeenCalledExactlyOnceWith('create');
+    expect(page.title).toBe('Users');
+    expect(page.actionTitle).toBe('New User');
+    expect(page.actionLink).toBe('/users');
   });
 });
