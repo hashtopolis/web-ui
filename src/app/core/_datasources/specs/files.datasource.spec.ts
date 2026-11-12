@@ -32,6 +32,7 @@ const MOCK_FILE: JFile = {
   fileType: FileType.WORDLIST,
   accessGroupId: 1,
   lineCount: 2473033125,
+  checksum: 'af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262',
   accessGroup: { id: 1, groupName: 'Default Group' }
 } as unknown as JFile;
 

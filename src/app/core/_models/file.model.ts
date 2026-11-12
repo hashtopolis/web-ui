@@ -37,6 +37,13 @@ export interface JFile extends BaseModel {
   fileType: number;
   accessGroupId: AccessGroupId;
   lineCount: number;
+  /**
+   * BLAKE3-256 checksum of the stored bytes, 64 lowercase hex characters.
+   *
+   * `null` means the checksum has not been computed yet, not that it failed: the backend computes
+   * it in a background job and resets it to `null` whenever the bytes on disk change.
+   */
+  checksum: string | null;
   accessGroup?: JAccessGroup;
 }
 export interface TaskSelectFile {

@@ -65,6 +65,7 @@ export type FileResponse = {
       fileType: 0 | 1 | 2 | 100;
       accessGroupId: number;
       lineCount: number;
+      checksum: string | null;
     };
     links: {
       self: string;
@@ -109,6 +110,7 @@ export type FileSingleResponse = {
       fileType: 0 | 1 | 2 | 100;
       accessGroupId: number;
       lineCount: number;
+      checksum: string | null;
     };
     links: {
       self: string;
@@ -153,6 +155,7 @@ export type FilePostPatchResponse = {
       fileType: 0 | 1 | 2 | 100;
       accessGroupId: number;
       lineCount: number;
+      checksum: string | null;
     };
     links: {
       self: string;
@@ -206,6 +209,7 @@ export type FileListResponse = {
       fileType: 0 | 1 | 2 | 100;
       accessGroupId: number;
       lineCount: number;
+      checksum: string | null;
     };
     links: {
       self: string;

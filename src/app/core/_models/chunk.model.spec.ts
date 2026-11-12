@@ -19,7 +19,7 @@ describe('ChunkState / zChunkResponse drift guardrail', () => {
 
   it('rejects every value in a surrounding range that is not a declared ChunkState value', () => {
     const declared = new Set<number>(Object.values(ChunkState));
-    const probeRange = Array.from({ length: 21 }, (_, i) => i - 5); // -5..15, straddling the known 0-10 range
+    const probeRange = Array.from({ length: 23 }, (_, i) => i - 5); // -5..17, straddling the known 0-16 range with its gaps
     const outOfRange = probeRange.filter((value) => !declared.has(value));
 
     expect(outOfRange.length).toBeGreaterThan(0);

@@ -275,12 +275,28 @@ const TASK_GET_BODY = {
     {
       id: 100,
       type: 'file',
-      attributes: { filename: 'rockyou.txt', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 }
+      attributes: {
+        filename: 'rockyou.txt',
+        size: 0,
+        isSecret: false,
+        fileType: 0,
+        accessGroupId: 1,
+        lineCount: 0,
+        checksum: null
+      }
     },
     {
       id: 101,
       type: 'file',
-      attributes: { filename: 'rules.txt', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 }
+      attributes: {
+        filename: 'rules.txt',
+        size: 0,
+        isSecret: false,
+        fileType: 0,
+        accessGroupId: 1,
+        lineCount: 0,
+        checksum: null
+      }
     },
     {
       id: 10,
@@ -313,7 +329,15 @@ const MOCK_PRETASK_GET_RESPONSE = mockValidResponse(zPreTaskResponse, {
     {
       id: 200,
       type: 'file',
-      attributes: { filename: 'mask.hcmask', size: 0, isSecret: false, fileType: 0, accessGroupId: 1, lineCount: 0 }
+      attributes: {
+        filename: 'mask.hcmask',
+        size: 0,
+        isSecret: false,
+        fileType: 0,
+        accessGroupId: 1,
+        lineCount: 0,
+        checksum: null
+      }
     }
   ]
 });
