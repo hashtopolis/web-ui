@@ -69,7 +69,8 @@ export const zFileResponse = z.object({
       isSecret: z.boolean(),
       fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
       accessGroupId: z.int(),
-      lineCount: z.number()
+      lineCount: z.number(),
+      checksum: z.string().nullable()
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/files/1')
@@ -119,7 +120,8 @@ export const zFileSingleResponse = z.object({
       isSecret: z.boolean(),
       fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
       accessGroupId: z.int(),
-      lineCount: z.number()
+      lineCount: z.number(),
+      checksum: z.string().nullable()
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/files/1')
@@ -169,7 +171,8 @@ export const zFilePostPatchResponse = z.object({
       isSecret: z.boolean(),
       fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
       accessGroupId: z.int(),
-      lineCount: z.number()
+      lineCount: z.number(),
+      checksum: z.string().nullable()
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/files/1')
@@ -244,7 +247,8 @@ export const zFileListResponse = z.object({
         isSecret: z.boolean(),
         fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
         accessGroupId: z.int(),
-        lineCount: z.number()
+        lineCount: z.number(),
+        checksum: z.string().nullable()
       }),
       links: z.object({
         self: z.string().default('/api/v2/ui/files/1')

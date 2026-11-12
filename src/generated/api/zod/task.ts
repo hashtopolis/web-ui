@@ -415,7 +415,8 @@ export const zTaskResponse = z.object({
             isSecret: z.boolean(),
             fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
             accessGroupId: z.int(),
-            lineCount: z.number()
+            lineCount: z.number(),
+            checksum: z.string().nullable()
           })
         }),
         z.object({
@@ -636,7 +637,8 @@ export const zTaskPostPatchResponse = z.object({
             isSecret: z.boolean(),
             fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
             accessGroupId: z.int(),
-            lineCount: z.number()
+            lineCount: z.number(),
+            checksum: z.string().nullable()
           })
         }),
         z.object({
@@ -883,7 +885,8 @@ export const zTaskListResponse = z.object({
             isSecret: z.boolean(),
             fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
             accessGroupId: z.int(),
-            lineCount: z.number()
+            lineCount: z.number(),
+            checksum: z.string().nullable()
           })
         }),
         z.object({

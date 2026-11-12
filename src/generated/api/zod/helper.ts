@@ -248,6 +248,10 @@ export const zRebuildChunkCacheHelperApiResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
+export const zRecomputeFileChecksumHelperApi = z.object({
+  fileId: z.int().optional()
+});
+
 export const zRecountFileLinesHelperApi = z.object({
   fileId: z.int().optional()
 });
@@ -729,6 +733,16 @@ export const zPostRebuildChunkCacheBody = zRebuildChunkCacheHelperApi;
  * successful operation
  */
 export const zPostRebuildChunkCacheResponse = zRebuildChunkCacheHelperApiResponse;
+
+/**
+ * FileId is the id of the file whose checksum needs to be recomputed.
+ */
+export const zPostRecomputeFileChecksumBody = zRecomputeFileChecksumHelperApi;
+
+/**
+ * successful operation
+ */
+export const zPostRecomputeFileChecksumResponse = zFileSingleResponse;
 
 /**
  * FileId is the id of the file that needs to be recounted.
