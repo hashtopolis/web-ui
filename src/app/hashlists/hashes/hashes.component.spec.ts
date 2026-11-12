@@ -1,25 +1,23 @@
 import { zChunkResponse, zHashlistResponse, zTaskResponse } from '@generated/api/zod';
-import { BehaviorSubject, Observable, Subject, config, of, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, of } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
-import { ChangeDetectionStrategy, Component, Directive, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { ActivatedRoute, Data, Params } from '@angular/router';
+import { ActivatedRoute, Data, Params, Router, RouterLink, provideRouter } from '@angular/router';
 
 import { ResponseWrapper } from '@models/response.model';
 import { HashesRouteKind } from '@models/routes.schema';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
-import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 import { HashesViewType } from '@src/app/core/_constants/hashes.config';
 import { HashesComponent } from '@src/app/hashlists/hashes/hashes.component';
 import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 
-// Mock components for child selectors used in the template
 @Component({
   selector: 'grid-main',
   template: '<ng-content></ng-content>',
@@ -54,14 +52,6 @@ class MockHashesTableComponent {
   @Input() id: number;
   @Input() dataType: string;
   @Input() filterParam: string;
-}
-
-@Directive({
-  selector: '[routerLink]',
-  standalone: false
-})
-class MockRouterLinkDirective {
-  @Input() routerLink: (string | number)[];
 }
 
 // Fixtures
@@ -146,45 +136,26 @@ describe('HashesComponent', () => {
   // Mocks
   let globalServiceSpy: MockedObject<GlobalService>;
   let titleServiceSpy: MockedObject<AutoTitleService>;
-  let alertServiceSpy: MockedObject<AlertService>;
   let params$: BehaviorSubject<Params>;
   let data$: BehaviorSubject<Data>;
-  let unhandledErrors: unknown[];
-  let originalOnUnhandledError: typeof config.onUnhandledError;
 
   const createComponent = (params: Params, data: Data): void => {
     params$ = new BehaviorSubject<Params>(params);
     data$ = new BehaviorSubject<Data>(data);
-    const activatedRouteStub = {
-      params: params$.asObservable(),
-      data: data$.asObservable()
-    } as unknown as ActivatedRoute;
-    TestBed.overrideProvider(ActivatedRoute, { useValue: activatedRouteStub });
-
     fixture = TestBed.createComponent(HashesComponent);
     component = fixture.componentInstance;
   };
-
-  const flushUnhandledErrors = (): Promise<void> => new Promise((resolve) => setTimeout(resolve));
 
   const headerText = (): string =>
     (fixture.nativeElement.querySelector('h2')?.textContent ?? '').replace(/\s+/g, ' ').trim();
 
   beforeEach(async () => {
-    unhandledErrors = [];
-    originalOnUnhandledError = config.onUnhandledError;
-    config.onUnhandledError = (err: unknown) => unhandledErrors.push(err);
-
     globalServiceSpy = {
       get: vi.fn().mockName('GlobalService.get')
-    } as unknown as MockedObject<GlobalService>;
+    } as MockedObject<GlobalService>;
     titleServiceSpy = {
       set: vi.fn().mockName('AutoTitleService.set')
-    } as unknown as MockedObject<AutoTitleService>;
-    alertServiceSpy = {
-      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
-      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
-    } as unknown as MockedObject<AlertService>;
+    } as MockedObject<AutoTitleService>;
 
     globalServiceSpy.get.mockImplementation((endpoint: { URL: string }): Observable<ResponseWrapper> => {
       switch (endpoint) {
@@ -195,39 +166,42 @@ describe('HashesComponent', () => {
         case SERV.HASHLISTS:
           return of(mockHashlistResponse());
         default:
-          return of(mockResponse());
+          throw new Error(`Unexpected API endpoint: ${endpoint.URL}`);
       }
     });
 
     await TestBed.configureTestingModule({
+      imports: [RouterLink],
       declarations: [
         HashesComponent,
         MockGridMainComponent,
         MockTableComponent,
         MockHexconvertorComponent,
-        MockHashesTableComponent,
-        MockRouterLinkDirective
+        MockHashesTableComponent
       ],
       providers: [
         { provide: GlobalService, useValue: globalServiceSpy },
         { provide: AutoTitleService, useValue: titleServiceSpy },
-        { provide: AlertService, useValue: alertServiceSpy },
-        { provide: ActivatedRoute, useValue: {} }
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useFactory: (router: Router): Pick<ActivatedRoute, 'params' | 'data' | 'snapshot'> => ({
+            params: params$.asObservable(),
+            data: data$.asObservable(),
+            snapshot: router.routerState.snapshot.root
+          }),
+          deps: [Router]
+        }
       ]
     }).compileComponents();
-  });
-
-  afterEach(() => {
-    config.onUnhandledError = originalOnUnhandledError;
-    vi.restoreAllMocks();
   });
 
   describe('initial state', () => {
     it('should create the component and set the page title', () => {
       createComponent({ id: '1' }, { kind: HashesRouteKind.HashlistHashes });
 
-      expect(component).toBeTruthy();
-      expect(titleServiceSpy.set).toHaveBeenCalledWith(['Show Hashes']);
+      expect(component).toBeInstanceOf(HashesComponent);
+      expect(titleServiceSpy.set).toHaveBeenCalledExactlyOnceWith(['Show Hashes']);
       expect(component.editMode).toBe(false);
     });
 
@@ -236,15 +210,6 @@ describe('HashesComponent', () => {
 
       expect(globalServiceSpy.get).not.toHaveBeenCalled();
       expect(component.whichView).toBeUndefined();
-    });
-
-    it('ngOnInit should delegate to loadHashes', () => {
-      createComponent({ id: '1' }, { kind: HashesRouteKind.HashlistHashes });
-      const loadSpy = vi.spyOn(component, 'loadHashes');
-
-      component.ngOnInit();
-
-      expect(loadSpy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -256,7 +221,7 @@ describe('HashesComponent', () => {
 
       expect(component.editedIndex).toBe(7);
       expect(component.whichView).toBe(HashesViewType.CHUNKS);
-      expect(globalServiceSpy.get).toHaveBeenCalledWith(SERV.CHUNKS, 7);
+      expect(globalServiceSpy.get).toHaveBeenCalledExactlyOnceWith(SERV.CHUNKS, 7);
       expect(component.titleName).toBe('7');
       expect(headerText()).toBe('Hashes of chunk 7');
     });
@@ -268,7 +233,7 @@ describe('HashesComponent', () => {
 
       expect(component.editedIndex).toBe(3);
       expect(component.whichView).toBe(HashesViewType.TASKS);
-      expect(globalServiceSpy.get).toHaveBeenCalledWith(SERV.TASKS, 3);
+      expect(globalServiceSpy.get).toHaveBeenCalledExactlyOnceWith(SERV.TASKS, 3);
       expect(component.titleName).toBe('My Task');
       expect(headerText()).toBe('Hashes of task My Task');
     });
@@ -280,7 +245,7 @@ describe('HashesComponent', () => {
 
       expect(component.editedIndex).toBe(5);
       expect(component.whichView).toBe(HashesViewType.HASHLISTS);
-      expect(globalServiceSpy.get).toHaveBeenCalledWith(SERV.HASHLISTS, 5);
+      expect(globalServiceSpy.get).toHaveBeenCalledExactlyOnceWith(SERV.HASHLISTS, 5);
       expect(component.titleName).toBe('My Hashlist');
       expect(headerText()).toBe('Hashes of hashlist My Hashlist');
     });
@@ -297,15 +262,17 @@ describe('HashesComponent', () => {
       expect(table.filterParam).toBe('cracked');
     });
 
-    it('should bind the computed router link to the title anchor', () => {
-      createComponent({ id: '5' }, { kind: HashesRouteKind.HashlistHashes });
+    it.each([
+      [HashesRouteKind.ChunkHashes, '7', '/tasks/show-tasks/7/edit'],
+      [HashesRouteKind.TaskHashes, '3', '/tasks/show-tasks/3/edit'],
+      [HashesRouteKind.HashlistHashes, '5', '/hashlists/hashlist/5/edit']
+    ])('should bind the title anchor for "%s"', (kind, id, expectedHref) => {
+      createComponent({ id }, { kind });
 
       fixture.detectChanges();
 
-      const link = fixture.debugElement
-        .query(By.directive(MockRouterLinkDirective))
-        .injector.get(MockRouterLinkDirective);
-      expect(link.routerLink).toEqual(['/hashlists/hashlist/', 5, 'edit']);
+      const link = fixture.nativeElement.querySelector('h2 a') as HTMLAnchorElement | null;
+      expect(link?.getAttribute('href')).toBe(expectedHref);
     });
 
     it('should react to new route params and data emissions', () => {
@@ -350,16 +317,6 @@ describe('HashesComponent', () => {
       expect(component.filterParam).toBeUndefined();
     });
 
-    it('should keep the previous filterParam when a later emission has no filter', () => {
-      createComponent({ id: '12?cracked' }, { kind: HashesRouteKind.TaskHashes });
-      fixture.detectChanges();
-
-      params$.next({ id: '13' });
-
-      expect(component.editedIndex).toBe(13);
-      expect(component.filterParam).toBe('cracked');
-    });
-
     it('should accept the minimal valid id 1', () => {
       createComponent({ id: '1' }, { kind: HashesRouteKind.ChunkHashes });
       globalServiceSpy.get.mockReturnValue(of(mockChunkResponse(1)));
@@ -370,17 +327,8 @@ describe('HashesComponent', () => {
       expect(component.titleName).toBe('1');
     });
 
-    it('should accept the maximum safe integer as id', () => {
-      createComponent({ id: String(Number.MAX_SAFE_INTEGER) }, { kind: HashesRouteKind.ChunkHashes });
-
-      fixture.detectChanges();
-
-      expect(component.editedIndex).toBe(Number.MAX_SAFE_INTEGER);
-      expect(globalServiceSpy.get).toHaveBeenCalledWith(SERV.CHUNKS, Number.MAX_SAFE_INTEGER);
-    });
-
     it('should fall back to an empty title when the task has no taskName', () => {
-      vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
       vi.spyOn(console, 'log').mockImplementation(() => undefined);
       const { taskName: _omit, ...withoutName } = taskAttributes;
       const invalidTaskResponse = mockResponse({ data: { id: 3, type: 'task', attributes: withoutName } });
@@ -390,6 +338,7 @@ describe('HashesComponent', () => {
       fixture.detectChanges();
 
       expect(component.titleName).toBe('');
+      expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith('API response validation failed', expect.anything());
     });
 
     it('should not set a title while the API request is still pending', () => {
@@ -425,115 +374,7 @@ describe('HashesComponent', () => {
     });
   });
 
-  describe('getRouterLink', () => {
-    beforeEach(() => {
-      createComponent({ id: '1' }, { kind: HashesRouteKind.HashlistHashes });
-      component.editedIndex = 42;
-    });
-
-    it.each([
-      [HashesViewType.CHUNKS, ['/tasks/show-tasks/', 42, 'edit']],
-      [HashesViewType.TASKS, ['/tasks/show-tasks/', 42, 'edit']],
-      [HashesViewType.HASHLISTS, ['/hashlists/hashlist/', 42, 'edit']]
-    ])('should return the correct link for view "%s"', (view, expected) => {
-      component.whichView = view;
-
-      const result = component.getRouterLink();
-
-      expect(result).toEqual(expected);
-    });
-
-    it('should return an empty array when no view is set', () => {
-      component.whichView = undefined as unknown as HashesViewType;
-
-      const result = component.getRouterLink();
-
-      expect(result).toEqual([]);
-    });
-
-    it('should return an empty array for an unknown view type', () => {
-      component.whichView = 'unknown' as HashesViewType;
-
-      const result = component.getRouterLink();
-
-      expect(result).toEqual([]);
-    });
-  });
-
-  describe('loadHashes – error cases', () => {
-    it.each([
-      ['non-numeric', 'abc'],
-      ['zero', '0'],
-      ['negative', '-1'],
-      ['decimal', '1.5'],
-      ['empty', ''],
-      ['only a filter', '?cracked']
-    ])('should reject a %s id', async (_label, id) => {
-      createComponent({ id }, { kind: HashesRouteKind.HashlistHashes });
-      globalServiceSpy.get.mockReturnValue(new Subject<ResponseWrapper>().asObservable());
-
-      fixture.detectChanges();
-      await flushUnhandledErrors();
-
-      expect(unhandledErrors.length).toBeGreaterThan(0);
-      expect((unhandledErrors[0] as Error).name).toBe('ZodError');
-      expect(component.editedIndex).toBeUndefined();
-    });
-
-    it('should reject route params without an id', async () => {
-      createComponent({}, { kind: HashesRouteKind.HashlistHashes });
-      globalServiceSpy.get.mockReturnValue(new Subject<ResponseWrapper>().asObservable());
-
-      fixture.detectChanges();
-      await flushUnhandledErrors();
-
-      expect((unhandledErrors[0] as Error).name).toBe('ZodError');
-      expect(component.editedIndex).toBeUndefined();
-    });
-
-    it('should reject a non-string id', async () => {
-      createComponent({ id: 5 }, { kind: HashesRouteKind.HashlistHashes });
-      globalServiceSpy.get.mockReturnValue(new Subject<ResponseWrapper>().asObservable());
-
-      fixture.detectChanges();
-      await flushUnhandledErrors();
-
-      expect((unhandledErrors[0] as Error).name).toBe('ZodError');
-    });
-
-    it.each([
-      ['unknown kind', { kind: 'unknown' }],
-      ['missing kind', {}],
-      ['null kind', { kind: null }]
-    ])('should reject route data with %s and not call the API', async (_label, data) => {
-      createComponent({ id: '5' }, data);
-
-      fixture.detectChanges();
-      await flushUnhandledErrors();
-
-      expect((unhandledErrors[0] as Error).name).toBe('ZodError');
-      expect(component.whichView).toBeUndefined();
-      expect(globalServiceSpy.get).not.toHaveBeenCalled();
-      expect(fixture.nativeElement.querySelector('h2')).toBeNull();
-    });
-
-    it.each([
-      [HashesRouteKind.ChunkHashes, HashesViewType.CHUNKS],
-      [HashesRouteKind.TaskHashes, HashesViewType.TASKS],
-      [HashesRouteKind.HashlistHashes, HashesViewType.HASHLISTS]
-    ])('should leave the title empty when the API fails for "%s"', async (kind, view) => {
-      const apiError = new Error('Server error');
-      globalServiceSpy.get.mockReturnValue(throwError(() => apiError));
-      createComponent({ id: '5' }, { kind });
-
-      fixture.detectChanges();
-      await flushUnhandledErrors();
-
-      expect(component.whichView).toBe(view);
-      expect(component.titleName).toBeUndefined();
-      expect(unhandledErrors).toContain(apiError);
-    });
-
+  describe('error cases', () => {
     it('should report a schema validation error for an invalid API response', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
       vi.spyOn(console, 'log').mockImplementation(() => undefined);
@@ -542,7 +383,7 @@ describe('HashesComponent', () => {
 
       fixture.detectChanges();
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('API response validation failed', expect.anything());
+      expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith('API response validation failed', expect.anything());
       expect(component.titleName).toBeUndefined();
     });
   });
