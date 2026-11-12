@@ -1,3 +1,5 @@
+import type { MockedObject } from 'vitest';
+
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
@@ -6,50 +8,67 @@ import { LocalStorageService } from '@services/storage/local-storage.service';
 
 describe('LoginRedirectService', () => {
   let service: LoginRedirectService;
-  let router: { navigate: ReturnType<typeof vi.fn> };
-  let localStorage: { getItem: ReturnType<typeof vi.fn>; setItem: ReturnType<typeof vi.fn> };
+  let router: MockedObject<Router>;
+  let storage: MockedObject<LocalStorageService<string>>;
 
   beforeEach(() => {
-    router = { navigate: vi.fn().mockName('Router.navigate') };
-    localStorage = {
+    router = { navigate: vi.fn().mockName('Router.navigate').mockResolvedValue(true) } as MockedObject<Router>;
+    storage = {
       getItem: vi.fn().mockName('LocalStorageService.getItem'),
       setItem: vi.fn().mockName('LocalStorageService.setItem')
-    };
+    } as MockedObject<LocalStorageService<string>>;
 
     TestBed.configureTestingModule({
       providers: [
         LoginRedirectService,
         { provide: Router, useValue: router },
-        { provide: LocalStorageService, useValue: localStorage }
+        { provide: LocalStorageService, useValue: storage }
       ]
     });
     service = TestBed.inject(LoginRedirectService);
   });
 
   it('returns the same user to the supplied redirect URL', () => {
-    localStorage.getItem.mockReturnValue('user-1');
+    storage.getItem.mockReturnValue('user-1');
 
     service.handlePostLoginRedirect('user-1', '/tasks');
 
-    expect(localStorage.getItem).toHaveBeenCalledWith('lastLoggedInUser');
-    expect(localStorage.setItem).toHaveBeenCalledWith('lastLoggedInUser', 'user-1', 0);
-    expect(router.navigate).toHaveBeenCalledWith(['/tasks']);
+    expect(storage.getItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser');
+    expect(storage.setItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser', 'user-1', 0);
+    expect(storage.getItem.mock.invocationCallOrder[0]).toBeLessThan(storage.setItem.mock.invocationCallOrder[0]);
+    expect(router.navigate).toHaveBeenCalledExactlyOnceWith(['/tasks']);
   });
 
   it('sends a different user to the dashboard', () => {
-    localStorage.getItem.mockReturnValue('user-1');
+    storage.getItem.mockReturnValue('user-1');
 
     service.handlePostLoginRedirect('user-2', '/tasks');
 
-    expect(localStorage.setItem).toHaveBeenCalledWith('lastLoggedInUser', 'user-2', 0);
-    expect(router.navigate).toHaveBeenCalledWith(['/']);
+    expect(storage.getItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser');
+    expect(storage.setItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser', 'user-2', 0);
+    expect(storage.getItem.mock.invocationCallOrder[0]).toBeLessThan(storage.setItem.mock.invocationCallOrder[0]);
+    expect(router.navigate).toHaveBeenCalledExactlyOnceWith(['/']);
   });
 
   it('sends the same user to the dashboard when no redirect URL is supplied', () => {
-    localStorage.getItem.mockReturnValue('user-1');
+    storage.getItem.mockReturnValue('user-1');
 
     service.handlePostLoginRedirect('user-1', '');
 
-    expect(router.navigate).toHaveBeenCalledWith(['/']);
+    expect(storage.getItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser');
+    expect(storage.setItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser', 'user-1', 0);
+    expect(storage.getItem.mock.invocationCallOrder[0]).toBeLessThan(storage.setItem.mock.invocationCallOrder[0]);
+    expect(router.navigate).toHaveBeenCalledExactlyOnceWith(['/']);
+  });
+
+  it('sends a first-time user to the dashboard', () => {
+    storage.getItem.mockReturnValue(null);
+
+    service.handlePostLoginRedirect('user-1', '/tasks');
+
+    expect(storage.getItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser');
+    expect(storage.setItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser', 'user-1', 0);
+    expect(storage.getItem.mock.invocationCallOrder[0]).toBeLessThan(storage.setItem.mock.invocationCallOrder[0]);
+    expect(router.navigate).toHaveBeenCalledExactlyOnceWith(['/']);
   });
 });
