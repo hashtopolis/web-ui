@@ -1,4 +1,4 @@
-import { ChunkState } from '@constants/chunks.config';
+import { isChunkActive } from '@constants/chunks.config';
 import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
 import { zChunkListResponse } from '@generated/api/zod';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
@@ -60,7 +60,7 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
           if (chunk.agent != undefined) {
             chunk.agentName = chunk.agent.agentName;
           }
-          chunk.isRunning = chunk.state === ChunkState.RUNNING;
+          chunk.isRunning = isChunkActive(chunk.state);
         });
 
         const length = response.meta.page.total_elements;

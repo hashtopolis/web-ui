@@ -1,4 +1,4 @@
-import { ChunkState } from '@constants/chunks.config';
+import { isChunkActive } from '@constants/chunks.config';
 import { EMPTY, Observable, catchError, map } from 'rxjs';
 
 import { Injectable } from '@angular/core';
@@ -19,7 +19,7 @@ export class ChunkActionsService {
   /**
    * Resets or aborts a chunk based on its current state.
    *
-   * If the chunk's state is `ChunkState.RUNNING` (in-progress), the request will
+   * If an agent is working on the chunk (see `isChunkActive`), the request will
    * abort it. Otherwise, the request will reset it to its initial state.
    *
    * @param chunk The chunk to reset or abort.
@@ -28,7 +28,7 @@ export class ChunkActionsService {
    *          an error message via AlertService.
    */
   resetChunk(chunk: JChunk): Observable<void> {
-    const path = chunk.state === ChunkState.RUNNING ? 'abortChunk' : 'resetChunk';
+    const path = isChunkActive(chunk.state) ? 'abortChunk' : 'resetChunk';
     const payload = { chunkId: chunk.id };
 
     return this.gs.chelper(SERV.HELPER, path, payload).pipe(
