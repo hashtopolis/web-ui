@@ -33,8 +33,7 @@
     aborted: var(--destructive),
     quit: var(--destructive),
     bypass: var(--warning),
-    trimmed: var(--warning),
-    aborting: var(--destructive),
+    aborted-checkpoint: var(--warning),
     error: var(--destructive),
     autodetect: var(--info)
   );

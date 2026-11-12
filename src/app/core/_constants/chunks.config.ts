@@ -34,11 +34,11 @@ export const ChunkStateLabels: Record<ChunkState, string> = {
   [ChunkState.ABORTED]: 'Aborted',
   [ChunkState.QUIT]: 'Quit',
   [ChunkState.BYPASS]: 'Bypass',
-  [ChunkState.ABORTED_CHECKPOINT]: 'Trimmed',
-  [ChunkState.ABORTED_RUNTIME]: 'Aborting...',
-  [ChunkState.ERROR]: 'Errored',
-  [ChunkState.ABORTED_FINISH]: 'Aborted',
-  [ChunkState.AUTODETECT]: 'Autodetecting'
+  [ChunkState.ABORTED_CHECKPOINT]: 'Aborted at checkpoint',
+  [ChunkState.ABORTED_RUNTIME]: 'Aborted at runtime',
+  [ChunkState.ERROR]: 'Error',
+  [ChunkState.ABORTED_FINISH]: 'Aborted at finish',
+  [ChunkState.AUTODETECT]: 'Autodetect'
 };
 
 /** Maps each `ChunkState` code to the state pill CSS class defined in `styles/components/_pill.scss`. */
@@ -53,9 +53,37 @@ export const ChunkStatePillClass: Record<ChunkState, string> = {
   [ChunkState.ABORTED]: 'pill-aborted',
   [ChunkState.QUIT]: 'pill-quit',
   [ChunkState.BYPASS]: 'pill-bypass',
-  [ChunkState.ABORTED_CHECKPOINT]: 'pill-trimmed',
-  [ChunkState.ABORTED_RUNTIME]: 'pill-aborting',
+  [ChunkState.ABORTED_CHECKPOINT]: 'pill-aborted-checkpoint',
+  [ChunkState.ABORTED_RUNTIME]: 'pill-aborted',
   [ChunkState.ERROR]: 'pill-error',
   [ChunkState.ABORTED_FINISH]: 'pill-aborted',
   [ChunkState.AUTODETECT]: 'pill-autodetect'
 };
+
+/**
+ * Whether an agent's hashcat is working on a chunk in each `ChunkState`. Such a chunk has to be aborted:
+ * resetting it does not stop the agent, whose next progress report overwrites the reset. Exhaustive by
+ * construction - a new `ChunkState` member is a compile error here until it is decided.
+ */
+export const ChunkStateIsActive: Record<ChunkState, boolean> = {
+  [ChunkState.INIT]: false,
+  [ChunkState.AUTOTUNE]: true,
+  [ChunkState.SELFTEST]: true,
+  [ChunkState.RUNNING]: true,
+  [ChunkState.PAUSED]: true,
+  [ChunkState.EXHAUSTED]: false,
+  [ChunkState.CRACKED]: false,
+  [ChunkState.ABORTED]: false,
+  [ChunkState.QUIT]: false,
+  [ChunkState.BYPASS]: false,
+  [ChunkState.ABORTED_CHECKPOINT]: false,
+  [ChunkState.ABORTED_RUNTIME]: false,
+  [ChunkState.ERROR]: false,
+  [ChunkState.ABORTED_FINISH]: false,
+  [ChunkState.AUTODETECT]: true
+};
+
+/** Whether an agent's hashcat is working on a chunk in this state, see `ChunkStateIsActive`. */
+export function isChunkActive(state: ChunkState | undefined): boolean {
+  return state !== undefined && ChunkStateIsActive[state] === true;
+}
