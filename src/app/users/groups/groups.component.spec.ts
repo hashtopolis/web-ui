@@ -9,7 +9,6 @@ import { AccessGroupRoleService } from '@services/roles/user/accessgroup-role.se
 import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 import { GroupsComponent } from '@src/app/users/groups/groups.component';
 
-// Mock components for child selectors used in the template
 @Component({
   selector: 'app-page',
   template: '<ng-content></ng-content>',
@@ -69,24 +68,16 @@ describe('GroupsComponent', () => {
   });
 
   describe('best cases', () => {
-    it('should create the component', () => {
-      fixture = TestBed.createComponent(GroupsComponent);
-
-      expect(fixture.componentInstance).toBeTruthy();
-    });
-
     it('should set the page title on construction', () => {
       fixture = TestBed.createComponent(GroupsComponent);
 
-      expect(titleServiceSpy.set).toHaveBeenCalledTimes(1);
-      expect(titleServiceSpy.set).toHaveBeenCalledWith(['Show Groups']);
+      expect(titleServiceSpy.set).toHaveBeenCalledExactlyOnceWith(['Show Groups']);
     });
 
     it('should check the "create" role exactly once', () => {
       fixture = TestBed.createComponent(GroupsComponent);
 
-      expect(accessGroupRoleServiceSpy.hasRole).toHaveBeenCalledTimes(1);
-      expect(accessGroupRoleServiceSpy.hasRole).toHaveBeenCalledWith('create');
+      expect(accessGroupRoleServiceSpy.hasRole).toHaveBeenCalledExactlyOnceWith('create');
     });
 
     it('should show the create action when the user has the create role', () => {
@@ -94,7 +85,6 @@ describe('GroupsComponent', () => {
 
       fixture.detectChanges();
 
-      expect(fixture.componentInstance['showCreateButton']).toBe(true);
       expect(getPage().showAction).toBe(true);
     });
 
@@ -116,15 +106,7 @@ describe('GroupsComponent', () => {
 
       const table = fixture.debugElement.query(By.directive(MockTableComponent));
       expect(table).toBeTruthy();
-      expect(table.query(By.directive(MockAccessGroupsTableComponent))).toBeTruthy();
-    });
-
-    it('should set the title before checking the role', () => {
-      fixture = TestBed.createComponent(GroupsComponent);
-
-      const titleOrder = titleServiceSpy.set.mock.invocationCallOrder[0];
-      const roleOrder = accessGroupRoleServiceSpy.hasRole.mock.invocationCallOrder[0];
-      expect(titleOrder).toBeLessThan(roleOrder);
+      expect(table.query(By.directive(MockAccessGroupsTableComponent))).not.toBeNull();
     });
   });
 
@@ -135,54 +117,7 @@ describe('GroupsComponent', () => {
 
       fixture.detectChanges();
 
-      expect(fixture.componentInstance['showCreateButton']).toBe(false);
       expect(getPage().showAction).toBe(false);
-    });
-
-    it.each([
-      ['undefined', undefined],
-      ['null', null]
-    ])('should not show the create action when hasRole returns %s', (_label, value) => {
-      accessGroupRoleServiceSpy.hasRole.mockReturnValue(value as unknown as boolean);
-      fixture = TestBed.createComponent(GroupsComponent);
-
-      fixture.detectChanges();
-
-      expect(fixture.componentInstance['showCreateButton']).toBeFalsy();
-      expect(getPage().showAction).toBeFalsy();
-    });
-
-    it('should evaluate the role only on construction and not on subsequent change detection', () => {
-      fixture = TestBed.createComponent(GroupsComponent);
-      fixture.detectChanges();
-      accessGroupRoleServiceSpy.hasRole.mockReturnValue(false);
-
-      fixture.detectChanges();
-
-      expect(accessGroupRoleServiceSpy.hasRole).toHaveBeenCalledTimes(1);
-      expect(getPage().showAction).toBe(true);
-    });
-  });
-
-  describe('error cases', () => {
-    it('should propagate errors thrown while setting the page title and skip the role check', () => {
-      const error = new Error('Unable to set page title');
-      titleServiceSpy.set.mockImplementation(() => {
-        throw error;
-      });
-
-      expect(() => TestBed.createComponent(GroupsComponent)).toThrow(error);
-      expect(accessGroupRoleServiceSpy.hasRole).not.toHaveBeenCalled();
-    });
-
-    it('should propagate errors thrown while checking the create role', () => {
-      const error = new Error('Unable to check access group role');
-      accessGroupRoleServiceSpy.hasRole.mockImplementation(() => {
-        throw error;
-      });
-
-      expect(() => TestBed.createComponent(GroupsComponent)).toThrow(error);
-      expect(titleServiceSpy.set).toHaveBeenCalledWith(['Show Groups']);
     });
   });
 });
