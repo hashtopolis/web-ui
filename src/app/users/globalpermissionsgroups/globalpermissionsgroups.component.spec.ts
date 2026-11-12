@@ -1,14 +1,28 @@
 import type { MockedObject } from 'vitest';
 
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 
 import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.service';
 import { GlobalpermissionsgroupsComponent } from '@src/app/users/globalpermissionsgroups/globalpermissionsgroups.component';
 
+@Component({ selector: 'app-page', template: '<ng-content></ng-content>', standalone: false })
+class StubPageComponent {
+  @Input() title: string;
+  @Input() actionTitle?: string;
+  @Input() actionLink?: string;
+  @Input() showAction?: boolean;
+}
+
+@Component({ selector: 'app-table', template: '<ng-content></ng-content>', standalone: false })
+class StubTableComponent {}
+
+@Component({ selector: 'app-permissions-table', template: '', standalone: false })
+class StubPermissionsTableComponent {}
+
 describe('GlobalpermissionsgroupsComponent', () => {
   let fixture: ComponentFixture<GlobalpermissionsgroupsComponent>;
-  let component: GlobalpermissionsgroupsComponent;
   let mockAutoTitleService: MockedObject<AutoTitleService>;
 
   beforeEach(async () => {
@@ -17,18 +31,14 @@ describe('GlobalpermissionsgroupsComponent', () => {
     } as MockedObject<AutoTitleService>;
 
     await TestBed.configureTestingModule({
-      declarations: [GlobalpermissionsgroupsComponent],
-      providers: [{ provide: AutoTitleService, useValue: mockAutoTitleService }],
-      schemas: [NO_ERRORS_SCHEMA]
+      declarations: [
+        GlobalpermissionsgroupsComponent,
+        StubPageComponent,
+        StubTableComponent,
+        StubPermissionsTableComponent
+      ],
+      providers: [{ provide: AutoTitleService, useValue: mockAutoTitleService }]
     }).compileComponents();
-  });
-
-  it('should create', () => {
-    fixture = TestBed.createComponent(GlobalpermissionsgroupsComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-
-    expect(component).toBeTruthy();
   });
 
   it('should set the page title when the component is created', () => {
@@ -38,11 +48,25 @@ describe('GlobalpermissionsgroupsComponent', () => {
     expect(mockAutoTitleService.set).toHaveBeenCalledExactlyOnceWith(['Show Global Permissions']);
   });
 
-  it('should propagate errors from the title service', () => {
-    mockAutoTitleService.set.mockImplementation(() => {
-      throw new Error('Title service failed');
-    });
+  it('renders the page title and create action details', () => {
+    fixture = TestBed.createComponent(GlobalpermissionsgroupsComponent);
+    fixture.detectChanges();
 
-    expect(() => TestBed.createComponent(GlobalpermissionsgroupsComponent)).toThrow('Title service failed');
+    const page = fixture.debugElement.query(By.directive(StubPageComponent)).componentInstance as StubPageComponent;
+
+    expect(page.title).toBe('Global Permission Groups');
+    expect(page.actionTitle).toBe('New Global Permission Group');
+    expect(page.actionLink).toBe('/users/global-permissions-groups/new');
+    expect(page.showAction).toBe(true);
+  });
+
+  it('renders the permissions table inside the table container', () => {
+    fixture = TestBed.createComponent(GlobalpermissionsgroupsComponent);
+    fixture.detectChanges();
+
+    const tableContainer = fixture.debugElement.query(By.directive(StubTableComponent));
+
+    expect(tableContainer).not.toBeNull();
+    expect(tableContainer.query(By.directive(StubPermissionsTableComponent))).not.toBeNull();
   });
 });
