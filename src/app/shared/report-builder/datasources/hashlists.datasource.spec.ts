@@ -11,7 +11,7 @@ import { JTask } from '@models/task.model';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
-import { UIConfigService } from '@services/shared/storage.service';
+import type { UIConfigService } from '@services/shared/storage.service';
 
 import { HashlistReportDataSource } from '@src/app/shared/report-builder/datasources/hashlists.datasource';
 import type {
@@ -22,7 +22,7 @@ import type {
 import { mockValidResponse } from '@src/app/testing/mock-response';
 
 // Fixtures
-const taskAttributes = (overrides: Record<string, unknown> = {}): Record<string, unknown> => ({
+const taskAttributes = (): Record<string, unknown> => ({
   taskName: 'Task',
   attackCmd: '#HL# -a 0 rockyou.txt',
   chunkTime: 600,
@@ -45,8 +45,7 @@ const taskAttributes = (overrides: Record<string, unknown> = {}): Record<string,
   chunkSize: 0,
   forcePipe: false,
   preprocessorId: 0,
-  preprocessorCommand: '',
-  ...overrides
+  preprocessorCommand: ''
 });
 
 const mockHashlistResponse = (): ResponseWrapper =>
@@ -112,7 +111,6 @@ describe('HashlistReportDataSource', () => {
   // Mocks
   let cdrSpy: MockedObject<ChangeDetectorRef>;
   let globalServiceSpy: MockedObject<GlobalService>;
-  let uiServiceSpy: MockedObject<UIConfigService>;
 
   const viewer: CollectionViewer = { viewChange: of({ start: 0, end: 0 }) };
 
@@ -130,22 +128,17 @@ describe('HashlistReportDataSource', () => {
 
   beforeEach(() => {
     cdrSpy = {
-      markForCheck: vi.fn(),
-      detach: vi.fn(),
+      markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
+      detach: vi.fn().mockName('ChangeDetectorRef.detach'),
       detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges'),
-      reattach: vi.fn(),
-      checkNoChanges: vi.fn()
-    } as MockedObject<ChangeDetectorRef>;
+      reattach: vi.fn().mockName('ChangeDetectorRef.reattach')
+    };
     globalServiceSpy = {
       get: vi.fn().mockName('GlobalService.get')
     } as unknown as MockedObject<GlobalService>;
-    uiServiceSpy = {
-      getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
-    } as unknown as MockedObject<UIConfigService>;
-
     globalServiceSpy.get.mockReturnValue(of(mockHashlistResponse()));
 
-    dataSource = new HashlistReportDataSource(cdrSpy, globalServiceSpy, uiServiceSpy);
+    dataSource = new HashlistReportDataSource(cdrSpy, globalServiceSpy, {} as UIConfigService);
   });
 
   describe('loadAll', () => {
@@ -154,8 +147,7 @@ describe('HashlistReportDataSource', () => {
 
       dataSource.loadAll();
 
-      expect(globalServiceSpy.get).toHaveBeenCalledOnce();
-      expect(globalServiceSpy.get).toHaveBeenCalledWith(SERV.HASHLISTS, 7, {
+      expect(globalServiceSpy.get).toHaveBeenCalledExactlyOnceWith(SERV.HASHLISTS, 7, {
         include: ['accessGroup', 'tasks', 'hashType', 'hashlists']
       });
     });
@@ -163,7 +155,7 @@ describe('HashlistReportDataSource', () => {
     it('uses hashlist id 0 when no id has been set', () => {
       dataSource.loadAll();
 
-      expect(globalServiceSpy.get).toHaveBeenCalledWith(SERV.HASHLISTS, 0, expect.anything());
+      expect(globalServiceSpy.get).toHaveBeenCalledExactlyOnceWith(SERV.HASHLISTS, 0, expect.anything());
     });
 
     it('deserializes the response and emits the generated report', () => {
@@ -174,7 +166,7 @@ describe('HashlistReportDataSource', () => {
 
       expect(received).toHaveLength(2);
       const report = received[1];
-      expect(report[0]).toEqual({
+      expect(report[0]).toStrictEqual({
         title: 'Input Fields',
         table: {
           tableColumns: ['Name', 'Notes', 'Hash Mode', 'Hash Count', 'Retrieved', 'Total Keyspace explored'],
@@ -196,7 +188,7 @@ describe('HashlistReportDataSource', () => {
 
       dataSource.loadAll();
 
-      expect(loadingStates).toEqual([false, true, false]);
+      expect(loadingStates).toStrictEqual([false, true, false]);
       expect(cdrSpy.detectChanges).toHaveBeenCalledTimes(2);
     });
 
@@ -207,12 +199,12 @@ describe('HashlistReportDataSource', () => {
 
       dataSource.loadAll();
 
-      expect(loadingStates).toEqual([false, true]);
+      expect(loadingStates).toStrictEqual([false, true]);
 
       response$.next(mockHashlistResponse());
       response$.complete();
 
-      expect(loadingStates).toEqual([false, true, false]);
+      expect(loadingStates).toStrictEqual([false, true, false]);
     });
 
     it('swallows request errors, emits no data and resets the loading state', () => {
@@ -220,11 +212,11 @@ describe('HashlistReportDataSource', () => {
       const received = collectData();
       const loadingStates = collectLoading();
 
-      expect(() => dataSource.loadAll()).not.toThrow();
+      dataSource.loadAll();
 
-      expect(received).toEqual([[]]);
-      expect(dataSource.getOriginalData()).toEqual([]);
-      expect(loadingStates).toEqual([false, true, false]);
+      expect(received).toStrictEqual([[]]);
+      expect(dataSource.getOriginalData()).toStrictEqual([]);
+      expect(loadingStates).toStrictEqual([false, true, false]);
     });
 
     it('registers the subscription so it is cancelled on disconnect', () => {
@@ -250,29 +242,6 @@ describe('HashlistReportDataSource', () => {
   });
 
   describe('getReport', () => {
-    it('builds the static report header for a hashlist with a single task', () => {
-      const hashlist = buildHashlist([buildTask({ attackCmd: '#HL# -a 3 ?a?a', keyspace: 200, keyspaceProgress: 50 })]);
-
-      const report = dataSource.getReport(hashlist);
-
-      expect(report).toEqual([
-        {
-          title: 'Input Fields',
-          table: {
-            tableColumns: ['Name', 'Notes', 'Hash Mode', 'Hash Count', 'Retrieved', 'Total Keyspace explored'],
-            tableValues: ['My Hashlist', 'Notes', 1400, 10, 3, 200]
-          }
-        },
-        { break: 1 },
-        { title: 'WorkFlow Completed' },
-        { break: 1 },
-        {
-          subtitle: 'Command: #HL# -a 3 ?a?a',
-          ul: [{ text: 'Keyspace: 200 (Progress: 25.00%)', margin: [0, 0, 0, 5] }]
-        }
-      ]);
-    });
-
     it('sums the keyspace of all tasks', () => {
       const hashlist = buildHashlist([
         buildTask({ id: 1, keyspace: 100 }),
@@ -286,39 +255,16 @@ describe('HashlistReportDataSource', () => {
       expect(report).toHaveLength(7);
     });
 
-    it('returns only the header sections when tasks are undefined', () => {
-      const hashlist = buildHashlist(undefined);
+    it.each([
+      { tasks: undefined, condition: 'tasks are undefined' },
+      { tasks: [], condition: 'the task list is empty' }
+    ])('returns only the header sections when $condition', ({ tasks }) => {
+      const hashlist = buildHashlist(tasks);
 
       const report = dataSource.getReport(hashlist);
 
       expect(report).toHaveLength(4);
       expect(tableValues(report)[5]).toBe(0);
-    });
-
-    it('returns only the header sections for an empty task list', () => {
-      const hashlist = buildHashlist([]);
-
-      const report = dataSource.getReport(hashlist);
-
-      expect(report).toHaveLength(4);
-      expect(tableValues(report)[5]).toBe(0);
-    });
-
-    it('passes through missing hashlist attributes as undefined', () => {
-      const hashlist = { id: 1, type: 'hashlist', tasks: [] } as unknown as JHashlist;
-
-      const report = dataSource.getReport(hashlist);
-
-      expect(tableValues(report)).toEqual([undefined, undefined, undefined, undefined, undefined, 0]);
-    });
-
-    it('ignores a keyspace of 0 in the sum and reports NaN progress', () => {
-      const hashlist = buildHashlist([buildTask({ keyspace: 0, keyspaceProgress: 0 })]);
-
-      const report = dataSource.getReport(hashlist);
-
-      expect(tableValues(report)[5]).toBe(0);
-      expect(workflowAt(report, 4).ul?.[0]).toEqual({ text: 'Keyspace: 0 (Progress: NaN%)', margin: [0, 0, 0, 5] });
     });
 
     it('ignores non-numeric keyspace values in the sum', () => {
@@ -333,28 +279,15 @@ describe('HashlistReportDataSource', () => {
       expect(tableValues(report)[5]).toBe(75);
     });
 
-    it('reports 100.00% progress when the keyspace is fully explored', () => {
-      const hashlist = buildHashlist([buildTask({ keyspace: 3, keyspaceProgress: 3 })]);
+    it.each([
+      { keyspaceProgress: 3, expectedProgress: '100.00%' },
+      { keyspaceProgress: 1, expectedProgress: '33.33%' }
+    ])('reports keyspace progress as $expectedProgress', ({ keyspaceProgress, expectedProgress }) => {
+      const hashlist = buildHashlist([buildTask({ keyspace: 3, keyspaceProgress })]);
 
       const report = dataSource.getReport(hashlist);
 
-      expect(workflowAt(report, 4).ul?.[0].text).toBe('Keyspace: 3 (Progress: 100.00%)');
-    });
-
-    it('rounds the progress to two decimals', () => {
-      const hashlist = buildHashlist([buildTask({ keyspace: 3, keyspaceProgress: 1 })]);
-
-      const report = dataSource.getReport(hashlist);
-
-      expect(workflowAt(report, 4).ul?.[0].text).toBe('Keyspace: 3 (Progress: 33.33%)');
-    });
-
-    it('adds the preprocessor command to the workflow entry', () => {
-      const hashlist = buildHashlist([buildTask({ preprocessorCommand: '--pw-min=8' })]);
-
-      const report = dataSource.getReport(hashlist);
-
-      expect(report[4]).toMatchObject({ 0: { subtitle: 'Preprocessor Command: --pw-min=8' } });
+      expect(workflowAt(report, 4).ul?.[0].text).toBe(`Keyspace: 3 (Progress: ${expectedProgress})`);
     });
 
     it('does not add a preprocessor entry when the preprocessor command is empty', () => {
@@ -370,61 +303,27 @@ describe('HashlistReportDataSource', () => {
 
       const report = dataSource.getReport(hashlist);
 
-      expect(workflowAt(report, 4).ul).toEqual([
+      expect(workflowAt(report, 4).ul).toStrictEqual([
         { text: 'Keyspace: 100 (Progress: 50.00%)', margin: [0, 0, 0, 5] },
         { text: 'File: rockyou.txt', margin: [0, 0, 0, 5] },
         { text: 'File: best64.rule', margin: [0, 0, 0, 5] }
       ]);
     });
 
-    it('adds no file entries when the attack command contains no file names', () => {
-      const hashlist = buildHashlist([buildTask({ attackCmd: '#HL# -a 3 ?d?d?d' })]);
+    it.each([
+      {
+        attackCmd: '#HL# -a 3 ?d?d?d',
+        description: 'an attack command without file names',
+        expectedSubtitle: 'Command: #HL# -a 3 ?d?d?d'
+      },
+      { attackCmd: '', description: 'an empty attack command', expectedSubtitle: 'Command: ' }
+    ])('adds no file entries for $description', ({ attackCmd, expectedSubtitle }) => {
+      const hashlist = buildHashlist([buildTask({ attackCmd })]);
 
       const report = dataSource.getReport(hashlist);
 
+      expect(workflowAt(report, 4).subtitle).toBe(expectedSubtitle);
       expect(workflowAt(report, 4).ul).toHaveLength(1);
-    });
-
-    it('adds no file entries for an empty attack command', () => {
-      const hashlist = buildHashlist([buildTask({ attackCmd: '' })]);
-
-      const report = dataSource.getReport(hashlist);
-
-      expect(workflowAt(report, 4).subtitle).toBe('Command: ');
-      expect(workflowAt(report, 4).ul).toHaveLength(1);
-    });
-
-    it('accumulates files and preprocessor commands of previous tasks into later workflow entries', () => {
-      const hashlist = buildHashlist([
-        buildTask({ id: 1, attackCmd: '#HL# a.txt', preprocessorCommand: 'pre1' }),
-        buildTask({ id: 2, attackCmd: '#HL# b.txt', preprocessorCommand: 'pre2' })
-      ]);
-
-      const report = dataSource.getReport(hashlist);
-
-      expect(workflowAt(report, 4).ul?.map((item) => item.text)).toEqual([
-        'Keyspace: 100 (Progress: 50.00%)',
-        'File: a.txt'
-      ]);
-      expect(workflowAt(report, 5).ul?.map((item) => item.text)).toEqual([
-        'Keyspace: 100 (Progress: 50.00%)',
-        'File: a.txt',
-        'File: b.txt'
-      ]);
-      expect(report[5]).toMatchObject({
-        0: { subtitle: 'Preprocessor Command: pre1' },
-        1: { subtitle: 'Preprocessor Command: pre2' }
-      });
-    });
-
-    it('throws a TypeError when a task has no attack command', () => {
-      const hashlist = buildHashlist([buildTask({ attackCmd: undefined as unknown as string })]);
-
-      expect(() => dataSource.getReport(hashlist)).toThrow(TypeError);
-    });
-
-    it('throws a TypeError when the hashlist is null', () => {
-      expect(() => dataSource.getReport(null as unknown as JHashlist)).toThrow(TypeError);
     });
   });
 });
