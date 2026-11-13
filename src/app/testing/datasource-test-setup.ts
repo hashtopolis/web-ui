@@ -17,7 +17,7 @@ import { mockResponse } from '@src/app/testing/mock-response';
 export function setupDatasource<T>(type: Type<T>) {
   const serializer = {
     deserialize: vi.fn().mockName('JsonAPISerializer.deserialize').mockReturnValue([])
-  };
+  } as unknown as MockedObject<Pick<JsonAPISerializer, 'deserialize'>>;
   const service = {
     getAll: vi.fn().mockName('GlobalService.getAll').mockReturnValue(of(mockResponse())),
     get: vi.fn().mockName('GlobalService.get').mockReturnValue(of(mockResponse()))

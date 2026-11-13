@@ -8,7 +8,7 @@ import { SERV } from '@services/main.config';
 
 import { CrackersDataSource } from '@datasources/crackers.datasource';
 
-import { setupDatasource } from '@src/app/core/_datasources/specs/datasource-test-setup-util';
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 import { mockValidResponse } from '@src/app/testing/mock-response';
 
 const CRACKER_TYPE: JCrackerBinaryType = {
@@ -56,8 +56,8 @@ describe('CrackersDataSource', () => {
     expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.CRACKERS_TYPES, expect.anything(), expect.anything());
     expect(serializer.deserialize).toHaveBeenCalledExactlyOnceWith(crackerResponse, zCrackerBinaryTypeListResponse);
     const params = service.getAll.mock.lastCall![1] as RequestParams;
-    expect(params.include).toContain('crackerVersions');
-    expect(params.filter).toContainEqual(expect.objectContaining({ field: 'name', value: 'hashcat' }));
+    expect(params!.include).toContain('crackerVersions');
+    expect(params!.filter).toContainEqual(expect.objectContaining({ field: 'name', value: 'hashcat' }));
     expect(dataSource.getOriginalData()).toStrictEqual([CRACKER_TYPE]);
     expect(dataSource.totalItems).toBe(17);
     expect(dataSource.pageAfter).toBe('next-cracker');
@@ -78,7 +78,7 @@ describe('CrackersDataSource', () => {
     dataSource.clearFilter();
 
     const params = service.getAll.mock.calls[2][1] as RequestParams;
-    expect(params.filter ?? []).not.toContainEqual(query);
+    expect(params!.filter ?? []).not.toContainEqual(query);
     expect(params.page?.after).toBeUndefined();
     expect(dataSource.index).toBe(0);
     expect(service.getAll).toHaveBeenCalledTimes(3);

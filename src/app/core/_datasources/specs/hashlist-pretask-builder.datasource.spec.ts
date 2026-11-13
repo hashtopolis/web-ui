@@ -11,7 +11,7 @@ import { SERV } from '@services/main.config';
 import { UIConfigService } from '@services/shared/storage.service';
 
 import { HashlistPretaskBuilderDataSource } from '@src/app/core/_datasources/hashlist-pretask-builder.datasource';
-import { setupDatasource } from '@src/app/core/_datasources/specs/datasource-test-setup-util';
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 import { mockValidResponse } from '@src/app/testing/mock-response';
 
 const PRETASK = {
@@ -87,9 +87,9 @@ describe('HashlistPretaskBuilderDataSource', () => {
     expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.PRETASKS, expect.anything(), expect.anything());
     const params = service.getAll.mock.lastCall![1] as RequestParams;
     const options = service.getAll.mock.lastCall![2];
-    expect(params.include).toContain('pretaskFiles');
+    expect(params!.include).toContain('pretaskFiles');
     expect(options?.headers?.get(HttpHeaderName.SKIP_ERROR_DIALOG)).toBe('true');
-    expect(params.filter).toStrictEqual([{ field: 'isMaskImport', operator: FilterType.EQUAL, value: false }]);
+    expect(params!.filter).toStrictEqual([{ field: 'isMaskImport', operator: FilterType.EQUAL, value: false }]);
     expect(serializer.deserialize).toHaveBeenCalledExactlyOnceWith(expect.anything(), zPreTaskListResponse);
     expect(dataSource.getOriginalData()).toStrictEqual([PRETASK]);
     expect(dataSource.totalItems).toBe(27);

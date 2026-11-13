@@ -6,7 +6,7 @@ import { Filter, FilterType, RequestParams } from '@models/request-params.model'
 import { SERV } from '@services/main.config';
 
 import { AgentErrorDatasource } from '@src/app/core/_datasources/agent-error.datasource';
-import { setupDatasource } from '@src/app/core/_datasources/specs/datasource-test-setup-util';
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 import { mockValidResponse } from '@src/app/testing/mock-response';
 
 const AGENT_ERROR = {
@@ -56,15 +56,15 @@ describe('AgentErrorDatasource', () => {
 
     expect(service.getAll).toHaveBeenCalledExactlyOnceWith(SERV.AGENT_ERRORS, expect.anything());
     const params = service.getAll.mock.lastCall![1] as RequestParams;
-    expect(params.include).toContain('task');
-    expect(params.filter).toContainEqual({ field: 'agentId', operator: FilterType.EQUAL, value: 23 });
+    expect(params!.include).toContain('task');
+    expect(params!.filter).toContainEqual({ field: 'agentId', operator: FilterType.EQUAL, value: 23 });
   });
 
   it('omits the agent ID filter when no ID is set', () => {
     dataSource.loadAll();
 
     const params = service.getAll.mock.lastCall![1] as RequestParams;
-    expect(params.filter ?? []).not.toContainEqual(expect.objectContaining({ field: 'agentId' }));
+    expect(params!.filter ?? []).not.toContainEqual(expect.objectContaining({ field: 'agentId' }));
   });
 
   it('deserializes errors, updates pagination cursors, and ends loading', () => {

@@ -7,7 +7,7 @@ import { Filter, FilterType, RequestParams } from '@models/request-params.model'
 import { SERV } from '@services/main.config';
 
 import { AgentBinariesDataSource } from '@src/app/core/_datasources/agent-binaries.datasource';
-import { setupDatasource } from '@src/app/core/_datasources/specs/datasource-test-setup-util';
+import { setupDatasource } from '@src/app/testing/datasource-test-setup';
 import { mockValidResponse } from '@src/app/testing/mock-response';
 
 const BINARY = {
