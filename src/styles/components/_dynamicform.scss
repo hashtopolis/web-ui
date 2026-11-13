@@ -12,6 +12,10 @@
   text-overflow: ellipsis;
 }
 
+.custom-form__sections .field-stack__label mat-icon {
+  flex: none;
+}
+
 .custom-form__checkbox .mat-mdc-checkbox {
   display: block;
   max-width: 100%;
