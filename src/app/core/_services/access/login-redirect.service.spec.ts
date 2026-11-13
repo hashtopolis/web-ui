@@ -35,7 +35,7 @@ describe('LoginRedirectService', () => {
 
     expect(storage.getItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser');
     expect(storage.setItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser', 'user-1', 0);
-    expect(storage.getItem.mock.invocationCallOrder[0]).toBeLessThan(storage.setItem.mock.invocationCallOrder[0]);
+    expect(storage.getItem).toHaveBeenCalledBefore(storage.setItem);
     expect(router.navigate).toHaveBeenCalledExactlyOnceWith(['/tasks']);
   });
 
@@ -46,7 +46,7 @@ describe('LoginRedirectService', () => {
 
     expect(storage.getItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser');
     expect(storage.setItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser', 'user-2', 0);
-    expect(storage.getItem.mock.invocationCallOrder[0]).toBeLessThan(storage.setItem.mock.invocationCallOrder[0]);
+    expect(storage.getItem).toHaveBeenCalledBefore(storage.setItem);
     expect(router.navigate).toHaveBeenCalledExactlyOnceWith(['/']);
   });
 
@@ -57,7 +57,7 @@ describe('LoginRedirectService', () => {
 
     expect(storage.getItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser');
     expect(storage.setItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser', 'user-1', 0);
-    expect(storage.getItem.mock.invocationCallOrder[0]).toBeLessThan(storage.setItem.mock.invocationCallOrder[0]);
+    expect(storage.getItem).toHaveBeenCalledBefore(storage.setItem);
     expect(router.navigate).toHaveBeenCalledExactlyOnceWith(['/']);
   });
 
@@ -68,7 +68,7 @@ describe('LoginRedirectService', () => {
 
     expect(storage.getItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser');
     expect(storage.setItem).toHaveBeenCalledExactlyOnceWith('lastLoggedInUser', 'user-1', 0);
-    expect(storage.getItem.mock.invocationCallOrder[0]).toBeLessThan(storage.setItem.mock.invocationCallOrder[0]);
+    expect(storage.getItem).toHaveBeenCalledBefore(storage.setItem);
     expect(router.navigate).toHaveBeenCalledExactlyOnceWith(['/']);
   });
 });
