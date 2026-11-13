@@ -1,3 +1,4 @@
+import { HttpStatus } from '@constants/http.config';
 import { zPreTaskResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
 import type { MockedObject } from 'vitest';
@@ -27,6 +28,7 @@ describe('EditPreconfiguredTasksComponent', () => {
   let gs: MockedObject<GlobalService>;
   let router: MockedObject<Router>;
   let alert: MockedObject<AlertService>;
+  let roleService: MockedObject<PreconfiguredTasksRoleService>;
 
   beforeEach(async () => {
     gs = {
@@ -42,6 +44,9 @@ describe('EditPreconfiguredTasksComponent', () => {
       showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
       showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
     } as MockedObject<AlertService>;
+    roleService = {
+      hasRole: vi.fn().mockName('PreconfiguredTasksRoleService.hasRole').mockReturnValue(true)
+    } as MockedObject<PreconfiguredTasksRoleService>;
     await TestBed.configureTestingModule({
       declarations: [EditPreconfiguredTasksComponent],
       providers: [
@@ -50,9 +55,9 @@ describe('EditPreconfiguredTasksComponent', () => {
         { provide: GlobalService, useValue: gs },
         { provide: Router, useValue: router },
         { provide: AlertService, useValue: alert },
-        { provide: AutoTitleService, useValue: { set: vi.fn() } },
+        { provide: AutoTitleService, useValue: { set: vi.fn().mockName('AutoTitleService.set') } },
         { provide: ConfigService, useValue: { getEndpoint: () => 'http://localhost/api/v2' } },
-        { provide: PreconfiguredTasksRoleService, useValue: { hasRole: () => true } },
+        { provide: PreconfiguredTasksRoleService, useValue: roleService },
         { provide: ActivatedRoute, useValue: { snapshot: { params: { id: '3' } } } }
       ],
       schemas: [NO_ERRORS_SCHEMA]
@@ -88,6 +93,19 @@ describe('EditPreconfiguredTasksComponent', () => {
 
   afterEach(() => httpMock.verify());
 
+  async function restartComponent(): Promise<void> {
+    fixture.destroy();
+    fixture = TestBed.createComponent(EditPreconfiguredTasksComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  }
+
+  async function rejectPretaskRequest(status: number, statusText: string): Promise<void> {
+    await restartComponent();
+    httpMock.expectOne('http://localhost/api/v2' + SERV.PRETASKS.URL + '/3').flush('Error', { status, statusText });
+    await fixture.whenStable();
+  }
+
   it('loads the pretask data into its form', () => {
     expect(component.isLoading).toBe(false);
     expect(component.pretaskName).toBe('Baseline');
@@ -98,10 +116,6 @@ describe('EditPreconfiguredTasksComponent', () => {
       })
     );
     expect(alert.showErrorMessage).not.toHaveBeenCalled();
-    expect(gs.getAll).toHaveBeenCalledExactlyOnceWith(SERV.PRETASKS, {
-      filter: [{ field: 'pretaskId', operator: FilterType.EQUAL, value: 3 }],
-      include: ['pretaskFiles']
-    });
   });
 
   it('updates a valid pretask and navigates on success', () => {
@@ -125,10 +139,65 @@ describe('EditPreconfiguredTasksComponent', () => {
     expect(gs.update).not.toHaveBeenCalled();
   });
 
-  it('loads pretask file relationships using the configured endpoint', () => {
+  it('requests files for the edited pretask', () => {
     expect(gs.getAll).toHaveBeenCalledExactlyOnceWith(SERV.PRETASKS, {
       include: ['pretaskFiles'],
       filter: [{ field: 'pretaskId', operator: FilterType.EQUAL, value: 3 }]
     });
+  });
+
+  it('navigates to forbidden when loading is denied', async () => {
+    await rejectPretaskRequest(HttpStatus.FORBIDDEN, 'Forbidden');
+
+    expect(router.navigateByUrl).toHaveBeenCalledExactlyOnceWith('/forbidden');
+  });
+
+  it('navigates to not-found when the pretask does not exist', async () => {
+    await rejectPretaskRequest(HttpStatus.NOT_FOUND, 'Not Found');
+
+    expect(router.navigateByUrl).toHaveBeenCalledExactlyOnceWith('/not-found');
+  });
+
+  it('shows an error and stops loading when the server fails', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    await rejectPretaskRequest(HttpStatus.INTERNAL_SERVER_ERROR, 'Internal Server Error');
+
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+    expect(alert.showErrorMessage).toHaveBeenCalledExactlyOnceWith('Error loading pretask (server returned 500).');
+    expect(component.isLoading).toBe(false);
+  });
+
+  it('does not update a pretask in read-only mode', async () => {
+    roleService.hasRole.mockReturnValue(false);
+    await restartComponent();
+    httpMock.expectOne('http://localhost/api/v2' + SERV.PRETASKS.URL + '/3').flush(
+      mockValidResponse(zPreTaskResponse, {
+        data: {
+          id: 3,
+          type: 'preTask',
+          attributes: {
+            taskName: 'Baseline',
+            attackCmd: '-a 0 #HL# words.txt',
+            chunkTime: 600,
+            color: '#112233',
+            priority: 2,
+            maxAgents: 4,
+            isCpuTask: false,
+            isSmall: true,
+            statusTimer: 5,
+            useNewBench: true,
+            isMaskImport: false,
+            crackerBinaryTypeId: 1
+          }
+        }
+      })
+    );
+    await fixture.whenStable();
+
+    expect(component.updateForm.valid).toBe(true);
+    component.onSubmit();
+
+    expect(component.isReadOnly).toBe(true);
+    expect(gs.update).not.toHaveBeenCalled();
   });
 });

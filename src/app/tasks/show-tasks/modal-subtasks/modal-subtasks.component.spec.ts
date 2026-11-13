@@ -1,8 +1,19 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, EventEmitter, Input, NO_ERRORS_SCHEMA, Output } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { By } from '@angular/platform-browser';
 
 import { ModalSubtasksComponent } from '@src/app/tasks/show-tasks/modal-subtasks/modal-subtasks.component';
+
+@Component({
+  selector: 'app-tasks-supertasks-table',
+  template: '',
+  standalone: false
+})
+class TasksSupertasksTableStub {
+  @Input() supertaskId: number;
+  @Output() linkClicked = new EventEmitter<void>();
+}
 
 describe('ModalSubtasksComponent', () => {
   let fixture: ComponentFixture<ModalSubtasksComponent>;
@@ -12,7 +23,7 @@ describe('ModalSubtasksComponent', () => {
   beforeEach(async () => {
     dialogRef = { close: vi.fn().mockName('MatDialogRef.close') };
     await TestBed.configureTestingModule({
-      declarations: [ModalSubtasksComponent],
+      declarations: [ModalSubtasksComponent, TasksSupertasksTableStub],
       imports: [MatDialogModule],
       providers: [
         { provide: MAT_DIALOG_DATA, useValue: { supertaskId: 17, supertaskName: 'Nightly run' } },
@@ -33,6 +44,14 @@ describe('ModalSubtasksComponent', () => {
 
   it('closes the dialog', () => {
     component.close();
+    expect(dialogRef.close).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  it('closes when a subtask link is clicked', () => {
+    const table = fixture.debugElement.query(By.directive(TasksSupertasksTableStub)).componentInstance;
+
+    table.linkClicked.emit();
+
     expect(dialogRef.close).toHaveBeenCalledExactlyOnceWith();
   });
 });
