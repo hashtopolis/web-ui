@@ -1,4 +1,5 @@
 import { ChunkState } from '@constants/chunks.config';
+import { zSpeedListResponse } from '@generated/api/zod';
 import { of } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
@@ -18,7 +19,7 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 import { UIConfigService } from '@services/shared/storage.service';
 
 import { ChunkDetailComponent } from '@src/app/tasks/chunk-detail/chunk-detail.component';
-import { mockResponse } from '@src/app/testing/mock-response';
+import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 
 describe('ChunkDetailComponent', () => {
   let fixture: ComponentFixture<ChunkDetailComponent>;
@@ -41,13 +42,18 @@ describe('ChunkDetailComponent', () => {
         { provide: GlobalService, useValue: gs },
         { provide: Clipboard, useValue: clipboard },
         { provide: AlertService, useValue: alert },
-        { provide: AutoTitleService, useValue: { set: vi.fn() } },
+        { provide: AutoTitleService, useValue: { set: vi.fn().mockName('AutoTitleService.set') } },
         { provide: UIConfigService, useValue: { getUISettings: () => ({ hashlistAlias: '#HL#' }) } },
         {
           provide: JsonAPISerializer,
           useValue: {
             deserialize: (response: ResponseWrapper) => {
-              if (Array.isArray(response.data)) return [];
+              if (Array.isArray(response.data)) {
+                return response.data.map((resource) => ({
+                  id: resource.id,
+                  ...(resource.attributes as Record<string, unknown>)
+                }));
+              }
               const resource = response.data as { id: number; attributes: Record<string, unknown> };
               return { id: resource.id, ...resource.attributes };
             }
@@ -86,7 +92,19 @@ describe('ChunkDetailComponent', () => {
       }
     });
     gs.get.mockImplementation((serviceConfig) => of(serviceConfig === SERV.TASKS ? task : chunk));
-    gs.getAll.mockReturnValue(of(mockResponse()));
+    gs.getAll.mockReturnValue(
+      of(
+        mockValidResponse(zSpeedListResponse, {
+          data: [
+            {
+              id: 101,
+              type: 'speed',
+              attributes: { agentId: 5, taskId: 7, speed: 1234, time: 1050 }
+            }
+          ]
+        })
+      )
+    );
     fixture = TestBed.createComponent(ChunkDetailComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -99,7 +117,7 @@ describe('ChunkDetailComponent', () => {
     expect(component.isActive).toBe(true);
     expect(component.taskKeyspace).toBe(1000);
     expect(component.chunkSegment.width).toBe(20);
-    expect(component.speeds).toStrictEqual([]);
+    expect(component.speeds).toStrictEqual([{ id: 101, agentId: 5, taskId: 7, speed: 1234, time: 1050 }]);
     expect(component.isLoading).toBe(false);
     expect(gs.get).toHaveBeenNthCalledWith(1, SERV.CHUNKS, 12, { include: ['task', 'agent'] });
     expect(gs.get).toHaveBeenNthCalledWith(2, SERV.TASKS, 7, { include: ['hashlist', 'crackerBinary', 'files'] });
@@ -130,6 +148,15 @@ describe('ChunkDetailComponent', () => {
     component.copyCommand();
     expect(clipboard.copy).toHaveBeenCalledExactlyOnceWith(component.command);
     expect(alert.showSuccessMessage).toHaveBeenCalledExactlyOnceWith('Command copied to clipboard');
+  });
+
+  it('does not report success when copying the command fails', () => {
+    clipboard.copy.mockReturnValue(false);
+
+    component.copyCommand();
+
+    expect(clipboard.copy).toHaveBeenCalledExactlyOnceWith(component.command);
+    expect(alert.showSuccessMessage).not.toHaveBeenCalled();
   });
 
   describe('isActive', () => {
