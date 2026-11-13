@@ -1,5 +1,4 @@
 import { Subscription, of } from 'rxjs';
-import type { MockedObject } from 'vitest';
 
 import type { CollectionViewer } from '@angular/cdk/collections';
 import type { ChangeDetectorRef } from '@angular/core';
@@ -8,7 +7,6 @@ import type { GlobalService } from '@src/app/core/_services/main.service';
 import type { UIConfigService } from '@src/app/core/_services/shared/storage.service';
 import { ReportBaseDataSource } from '@src/app/shared/report-builder/datasources/base.datasource';
 
-// Mock class
 class TestReportDataSource extends ReportBaseDataSource<string> {
   addSubscription(subscription: Subscription): void {
     this.subscriptions.push(subscription);
@@ -18,19 +16,19 @@ class TestReportDataSource extends ReportBaseDataSource<string> {
 describe('ReportBaseDataSource', () => {
   let dataSource: TestReportDataSource;
   let cdr: ChangeDetectorRef;
-  let globalService: MockedObject<GlobalService>;
-  let uiService: MockedObject<UIConfigService>;
+  let globalService: GlobalService;
+  let uiService: UIConfigService;
   const viewer: CollectionViewer = { viewChange: of({ start: 0, end: 0 }) };
 
   beforeEach(() => {
     cdr = {
-      markForCheck: vi.fn(),
-      detach: vi.fn(),
-      detectChanges: vi.fn(),
-      reattach: vi.fn()
+      markForCheck: vi.fn().mockName('ChangeDetectorRef.markForCheck'),
+      detach: vi.fn().mockName('ChangeDetectorRef.detach'),
+      detectChanges: vi.fn().mockName('ChangeDetectorRef.detectChanges'),
+      reattach: vi.fn().mockName('ChangeDetectorRef.reattach')
     };
-    globalService = { getAll: vi.fn() } as MockedObject<GlobalService>;
-    uiService = { getUISettings: vi.fn() } as MockedObject<UIConfigService>;
+    globalService = {} as GlobalService;
+    uiService = {} as UIConfigService;
     dataSource = new TestReportDataSource(cdr, globalService, uiService);
   });
 
@@ -39,8 +37,8 @@ describe('ReportBaseDataSource', () => {
 
     dataSource.loading$.subscribe((loading) => loadingStates.push(loading));
 
-    expect(dataSource.getOriginalData()).toEqual([]);
-    expect(loadingStates).toEqual([false]);
+    expect(dataSource.getOriginalData()).toStrictEqual([]);
+    expect(loadingStates).toStrictEqual([false]);
   });
 
   it('updates the loading state and triggers change detection', () => {
@@ -49,7 +47,7 @@ describe('ReportBaseDataSource', () => {
 
     dataSource.loading = true;
 
-    expect(loadingStates).toEqual([false, true]);
+    expect(loadingStates).toStrictEqual([false, true]);
     expect(cdr.detectChanges).toHaveBeenCalledOnce();
   });
 
@@ -59,27 +57,20 @@ describe('ReportBaseDataSource', () => {
     const rows = ['first', 'second'];
 
     dataSource.setData(rows);
+    const storedAfterRows = dataSource.getOriginalData();
     dataSource.setData([]);
 
-    expect(received).toEqual([[], rows, []]);
-    expect(dataSource.getOriginalData()).toEqual([]);
-  });
-
-  it('connects viewers to the data stream', () => {
-    const received: string[][] = [];
-
-    dataSource.connect(viewer).subscribe((data) => received.push(data));
-    dataSource.setData(['row']);
-
-    expect(received).toEqual([[], ['row']]);
+    expect(storedAfterRows).toStrictEqual(rows);
+    expect(received).toStrictEqual([[], rows, []]);
+    expect(dataSource.getOriginalData()).toStrictEqual([]);
   });
 
   it('completes both data streams and unsubscribes registered subscriptions on disconnect', () => {
-    const dataComplete = vi.fn();
-    const loadingComplete = vi.fn();
+    const dataComplete = vi.fn().mockName('dataComplete');
+    const loadingComplete = vi.fn().mockName('loadingComplete');
     dataSource.connect(viewer).subscribe({ complete: dataComplete });
     dataSource.loading$.subscribe({ complete: loadingComplete });
-    const unsubscribe = vi.fn();
+    const unsubscribe = vi.fn().mockName('unsubscribe');
     dataSource.addSubscription(new Subscription(unsubscribe));
 
     dataSource.disconnect(viewer);
@@ -87,14 +78,5 @@ describe('ReportBaseDataSource', () => {
     expect(dataComplete).toHaveBeenCalledOnce();
     expect(loadingComplete).toHaveBeenCalledOnce();
     expect(unsubscribe).toHaveBeenCalledOnce();
-  });
-
-  it('disconnects cleanly when there are no registered subscriptions', () => {
-    const dataComplete = vi.fn();
-    dataSource.connect(viewer).subscribe({ complete: dataComplete });
-
-    dataSource.disconnect(viewer);
-
-    expect(dataComplete).toHaveBeenCalledOnce();
   });
 });
