@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 /**
- * This service redirects the user to the dashboard, if current logged-in user is another user then the last logged in
- * user and uses LocalStorageService to keep track of current and last logged-in user.
+ * This service redirects to the dashboard when the current logged-in user differs from the last logged-in user.
+ * It uses LocalStorageService to keep track of the current and last logged-in user.
  *
  * The service is meant to be used after successful login in the login workflow.
  */
@@ -19,7 +19,8 @@ export class LoginRedirectService {
   ) {}
 
   /**
-   * Redirect to redirect URL, if current and last user are the same, otherwise redirect to dashboard
+   * Redirect to redirect URL, if current and last user are the same, otherwise redirect to dashboard.
+   *
    * @param userId ID of current user
    * @param redirectUrl Redirect URL used if current user is the same as the last logged-in user
    */

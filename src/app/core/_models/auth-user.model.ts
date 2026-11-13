@@ -2,11 +2,11 @@ import { UserId } from '@models/id.types';
 
 /**
  * Interface for authentication data
- * @prop _expires   Token expiry datetime
- * @prop _token     access token
- * @prop _username  Name of user
+ * @prop _expires           Token expiry datetime
+ * @prop _token             access token
+ * @prop userId             ID of user
+ * @prop canonicalUsername  Name of user
  */
-
 export interface AuthData {
   _expires: Date | string;
   _token: string;
