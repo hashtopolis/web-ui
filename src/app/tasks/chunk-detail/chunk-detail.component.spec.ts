@@ -1,5 +1,4 @@
 import { ChunkState } from '@constants/chunks.config';
-import { SERV } from '@services/main.config';
 import { of } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
@@ -8,10 +7,11 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 
-import { ResponseWrapper } from '@models/response.model';
 import { FilterType } from '@models/request-params.model';
+import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
+import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -146,7 +146,7 @@ describe('ChunkDetailComponent', () => {
     });
 
     it('is false before the chunk has loaded', () => {
-      component.chunk = undefined;
+      component.chunk = null;
 
       expect(component.isActive).toBe(false);
     });
