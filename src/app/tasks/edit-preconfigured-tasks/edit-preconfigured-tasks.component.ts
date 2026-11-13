@@ -90,12 +90,12 @@ export class EditPreconfiguredTasksComponent implements OnInit {
     } catch (e: unknown) {
       const status = e instanceof HttpErrorResponse ? e.status : undefined;
       if (status === HttpStatus.FORBIDDEN) {
-        this.router.navigateByUrl('/forbidden');
+        void this.router.navigateByUrl('/forbidden');
         return;
       }
 
       if (status === HttpStatus.NOT_FOUND) {
-        this.router.navigateByUrl('/not-found');
+        void this.router.navigateByUrl('/not-found');
         return;
       }
 
@@ -199,7 +199,7 @@ export class EditPreconfiguredTasksComponent implements OnInit {
           next: () => {
             this.alert.showSuccessMessage('Preconfigured Task saved');
             this.isUpdatingLoading = false;
-            this.router.navigate(['tasks/preconfigured-tasks']);
+            void this.router.navigate(['tasks/preconfigured-tasks']);
           },
           error: (err) => {
             console.error('Error updating preconfigured Task', err);
