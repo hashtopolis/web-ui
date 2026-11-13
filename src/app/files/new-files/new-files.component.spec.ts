@@ -200,9 +200,50 @@ describe('NewFilesComponent', () => {
           sourceType: 'import',
           sourceData: file.name
         },
-        ['/files', expectedRedirect] // redirect path
+        null // redirect is handled by the component once all uploads finish
+      );
+
+      const router = TestBed.inject(Router) as unknown as MockRouter;
+      expect(router.navigate).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledWith(['/files', expectedRedirect]);
+    });
+  });
+
+  it('should upload every selected file with its own filename and redirect once', () => {
+    setup(cases[0].kind);
+
+    const files = [
+      new File(['a'], 'first.txt', { type: 'text/plain' }),
+      new File(['b'], 'second.txt', { type: 'text/plain' })
+    ];
+    component.selectedFiles = {
+      0: files[0],
+      1: files[1],
+      length: files.length,
+      item: (i: number) => files[i],
+      [Symbol.iterator]: function* () {
+        yield* files;
+      }
+    } as unknown as FileList;
+
+    const uploadService = TestBed.inject(UploadTUSService) as unknown as MockUploadTUSService;
+    const router = TestBed.inject(Router) as unknown as MockRouter;
+
+    component.onuploadFile(component.selectedFiles);
+
+    expect(uploadService.uploadFile).toHaveBeenCalledTimes(2);
+    files.forEach((file) => {
+      expect(uploadService.uploadFile).toHaveBeenCalledWith(
+        file,
+        file.name,
+        SERV.FILES,
+        expect.objectContaining({ filename: file.name, sourceData: file.name }),
+        null
       );
     });
+    expect(router.navigate).toHaveBeenCalledTimes(1);
+    expect(component.uploadProgress).toBe(100);
+    expect(component.isCreatingLoading).toBe(false);
   });
 
   cases.forEach(({ kind, expectedRedirect }) => {

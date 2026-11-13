@@ -1,6 +1,6 @@
 import { HttpMethod } from '@constants/http.config';
 import { zGetAccessGroupsHelperApiResponse } from '@generated/api/zod';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { firstValueFrom, forkJoin, last, lastValueFrom, tap } from 'rxjs';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -332,28 +332,41 @@ export class NewFilesComponent implements OnInit {
       this.alert.showErrorMessage('Please select a file to upload.');
       return;
     }
-    const form = this.onBeforeSubmit(this.form.value as FormGroup<NewFilesForm>['value'], false);
+    const baseForm = this.onBeforeSubmit(this.form.value as FormGroup<NewFilesForm>['value'], false).update;
+    const fileList = Array.from(files);
+    const progressPerFile = fileList.map(() => 0);
     this.isCreatingLoading = true;
-    for (let i = 0; i < files.length; i++) {
+    this.uploadProgress = 0;
+
+    // Upload each file with its own payload; redirect is handled once all uploads have finished.
+    const uploads = fileList.map((file, index) =>
       this.uploadService
-        .uploadFile(files[0], files[0].name, SERV.FILES, form.update, ['/files', this.redirect])
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (progress) => {
-            this.uploadProgress = progress;
+        .uploadFile(file, file.name, SERV.FILES, { ...baseForm, filename: file.name, sourceData: file.name }, null)
+        .pipe(
+          tap((progress) => {
+            progressPerFile[index] = progress;
+            this.uploadProgress = Math.round(progressPerFile.reduce((sum, p) => sum + p, 0) / fileList.length);
             this.changeDetectorRef.detectChanges();
-            if (this.uploadProgress === 100) {
-              this.isCreatingLoading = false;
-            }
-          },
-          error: (error) => {
-            this.uploadProgress = 0;
-            this.isCreatingLoading = false;
-            this.alert.showErrorMessage(this.buildUploadErrorMessage(error));
-            this.changeDetectorRef.detectChanges();
-          }
-        });
-    }
+          }),
+          last()
+        )
+    );
+
+    forkJoin(uploads)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.uploadProgress = 100;
+          this.isCreatingLoading = false;
+          void this.router.navigate(['/files', this.redirect]);
+        },
+        error: (error) => {
+          this.uploadProgress = 0;
+          this.isCreatingLoading = false;
+          this.alert.showErrorMessage(this.buildUploadErrorMessage(error));
+          this.changeDetectorRef.detectChanges();
+        }
+      });
   }
 
   private buildUploadErrorMessage(error: unknown): string {
