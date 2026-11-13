@@ -176,3 +176,20 @@ export const formatSeconds = (seconds: number) => {
   formatted += timeString;
   return formatted;
 };
+
+/**
+ * Formats a session lifetime as a label: whole days in days, everything else in hours.
+ *
+ * @param seconds - The session lifetime in seconds.
+ * @returns A label such as '12 hours' or '2 days'.
+ */
+export const formatSessionLifetime = (seconds: Seconds): string => {
+  const hours = Math.round((seconds / 3600) * 100) / 100;
+
+  if (hours >= 24 && hours % 24 === 0) {
+    const days = hours / 24;
+    return days === 1 ? '1 day' : `${days} days`;
+  }
+
+  return hours === 1 ? '1 hour' : `${hours} hours`;
+};

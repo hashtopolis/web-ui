@@ -1,5 +1,3 @@
-import { DEFAULT_INTERRUPTSOURCES, Idle } from '@ng-idle/core';
-import { Keepalive } from '@ng-idle/keepalive';
 import { filter } from 'rxjs';
 
 import { isPlatformBrowser } from '@angular/common';
@@ -12,26 +10,18 @@ import {
   PLATFORM_ID,
   inject
 } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 
 import { Layout } from '@models/config-ui.model';
-import { UiSettings, uisSettingsSchema } from '@models/config-ui.schema';
-import { UserData, userDataSchema } from '@models/user-data.schema';
 
 import { AuthService } from '@services/access/auth.service';
 import { CheckTokenService } from '@services/access/checktoken.service';
-import { ReloadService } from '@services/reload.service';
 import { BreakpointService } from '@services/shared/breakpoint.service';
 import { CookieService } from '@services/shared/cookies.service';
 import { UIConfigService } from '@services/shared/storage.service';
 import { ThemeCatalogService } from '@services/shared/theme-catalog.service';
 import { ThemeService } from '@services/shared/theme.service';
 import { UiSettingsService } from '@services/shared/ui-settings.service';
-import '@services/storage/local-storage';
-
-import { TimeoutDialogComponent } from '@src/app/shared/dialog/timeout/timeout-dialog.component';
-import { DialogData } from '@src/app/shared/dialog/timeout/timeout-dialog.model';
 
 @Component({
   selector: 'app-root',
@@ -41,79 +31,21 @@ import { DialogData } from '@src/app/shared/dialog/timeout/timeout-dialog.model'
 })
 export class AppComponent implements OnInit, AfterViewInit {
   private cookieService = inject(CookieService);
-  private reloadService = inject(ReloadService);
   private uicService = inject(UIConfigService);
   private authService = inject(AuthService);
-  private dialog = inject(MatDialog);
-  private keepalive = inject(Keepalive);
   private router = inject(Router);
-  private idle = inject(Idle);
   private themeService = inject(ThemeService);
   private themeCatalog = inject(ThemeCatalogService);
   screen = inject(BreakpointService);
   private elementRef = inject(ElementRef);
   private platformId = inject(PLATFORM_ID);
-
-  timedOut = false;
-  timeoutCountdown: number | null = null;
-  timeoutMax = this.onTimeout();
-  idleTime: number = this.onTimeout();
-  showingModal = false;
   uiSettings = inject(UiSettingsService);
-  isLogged: boolean;
-
-  private dialogRef: MatDialogRef<TimeoutDialogComponent> | null = null;
-  private dialogData: DialogData = { message: '', value: 0, bufferValue: 100, timedOut: false };
 
   constructor() {
-    const idle = this.idle;
-
     inject(CheckTokenService);
     this.router.events.pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd)).subscribe(() => {
       if (isPlatformBrowser(this.platformId)) {
         window.scrollTo(0, 0);
-      }
-    });
-
-    idle.setIdle(this.idleTime);
-    idle.setTimeout(this.timeoutMax);
-    idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);
-
-    idle.onIdleStart.subscribe(() => {
-      idle.clearInterrupts();
-      this.checkLogin();
-    });
-
-    idle.onIdleEnd.subscribe(() => {
-      this.dialogData.timedOut = false;
-      this.timeoutCountdown = null;
-      this.reset();
-      this.closeModal();
-    });
-
-    idle.onTimeout.subscribe(() => {
-      this.timedOut = true;
-      this.timeoutCountdown = null;
-      this.dialogData.timedOut = true;
-      this.onLogOut();
-    });
-
-    idle.onTimeoutWarning.subscribe((countdown) => {
-      if (!this.showingModal && this.idleTime > 1) {
-        this.openModal();
-      }
-      this.timeoutCountdown = this.timeoutMax - countdown + 1;
-      this.dialogData.value = (this.timeoutCountdown / this.timeoutMax) * 100;
-    });
-
-    this.keepalive.interval(15);
-
-    this.authService.getUserLoggedIn().subscribe((userLoggedIn) => {
-      if (userLoggedIn) {
-        idle.watch();
-        this.timedOut = false;
-      } else {
-        idle.stop();
       }
     });
   }
@@ -124,7 +56,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
 
     this.authService.isLogged.subscribe((status) => {
-      this.isLogged = status;
       if (status) {
         this.storageInit();
       }
@@ -165,62 +96,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
   }
 
-  checkLogin() {
-    const userData = localStorage.getItem<UserData>(AuthService.STORAGE_KEY, userDataSchema);
-    if (!userData) {
-      return;
-    }
-    if (new Date(userData._expires) < new Date()) {
-      this.idle.stop();
-      this.reloadService.reloadPage();
-    }
-  }
-
-  reset() {
-    this.idle.setTimeout(false);
-    this.idle.watch();
-    this.idle.setInterrupts(DEFAULT_INTERRUPTSOURCES);
-    this.timedOut = false;
-    this.timeoutCountdown = 0;
-    this.closeModal();
-  }
-
-  onLogOut() {
-    this.authService.logOut();
-    this.closeModal();
-  }
-
   storageInit() {
     this.cookieService.checkDefaultCookies();
     this.uicService.checkStorage();
-  }
-
-  onTimeout(): number {
-    const settings = localStorage.getItem<UiSettings>('uis', uisSettingsSchema);
-    let timeoutidle = 1;
-    if (settings !== null) {
-      const hours = settings.maxSessionLength;
-      if (!isNaN(hours) && hours > 0) {
-        timeoutidle = hours * 60 * 60; // Convert max session hours to seconds
-      }
-    }
-    return timeoutidle;
-  }
-
-  openModal() {
-    if (this.isLogged) {
-      this.showingModal = true;
-      this.dialogData = { message: "You'll be logged out soon!", value: 0, bufferValue: 100, timedOut: false };
-      this.dialogRef = this.dialog.open(TimeoutDialogComponent, {
-        data: this.dialogData,
-        disableClose: true
-      });
-    }
-  }
-
-  closeModal() {
-    this.showingModal = false;
-    this.dialogRef?.close();
-    this.dialogRef = null;
   }
 }

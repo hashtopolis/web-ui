@@ -35,6 +35,6 @@ Checklist from #842. The upgrade pinned old behaviour wherever a default changed
 
 ## Found during testing, also on master
 
-- [ ] Idle timeout never starts: no `setUserLoggedIn(true)` since 8cc4e386f
+- [x] Idle timeout never starts: no `setUserLoggedIn(true)` since 8cc4e386f; ng-idle removed in #859
 - [ ] Network error dialog missing on table reload / Hashlists
 - [x] Safari blue status colours (oklch): #844

@@ -368,6 +368,36 @@ describe('AuthService refresh token', () => {
     expect(received!._token).toBe(fresh._token);
   });
 
+  it('renews on request even when another tab already did', async () => {
+    storage._store[AuthService.STORAGE_KEY] = storedSession(3_600_000);
+    let renewed = false;
+
+    service.refreshToken({ force: true }).subscribe(() => (renewed = true));
+    await wait();
+    httpMock.expectOne(REFRESH_URL).flush({ token: tokenForUser1(), expires: Math.floor(Date.now() / 1000) + 3600 });
+    await wait();
+
+    expect(renewed).toBe(true);
+  });
+
+  it('lets a forced renewal wait for the one already under way', async () => {
+    // Both would send the same single-use cookie if they ran side by side
+    let forcedRenewed = false;
+
+    service.refreshToken().subscribe();
+    service.refreshToken({ force: true }).subscribe(() => (forcedRenewed = true));
+    await wait();
+    httpMock.expectOne(REFRESH_URL).flush({ token: tokenForUser1(), expires: Math.floor(Date.now() / 1000) + 3600 });
+    await wait();
+
+    expect(forcedRenewed).toBe(false);
+
+    httpMock.expectOne(REFRESH_URL).flush({ token: tokenForUser1(), expires: Math.floor(Date.now() / 1000) + 3600 });
+    await wait();
+
+    expect(forcedRenewed).toBe(true);
+  });
+
   it('falls back to renewing directly where Web Locks is unavailable', async () => {
     // Blank rather than delete: deleting the stub would uncover the browser's real implementation
     Object.defineProperty(navigator, 'locks', { configurable: true, value: undefined });
@@ -386,6 +416,10 @@ describe('AuthService refresh token', () => {
     expect(service.isAccessTokenExpiring()).toBe(true);
 
     storage._store[AuthService.STORAGE_KEY] = storedSession(30_000);
+    expect(service.isAccessTokenExpired()).toBe(false);
+    expect(service.isAccessTokenExpiring()).toBe(true);
+
+    storage._store[AuthService.STORAGE_KEY] = storedSession(4 * 60_000);
     expect(service.isAccessTokenExpired()).toBe(false);
     expect(service.isAccessTokenExpiring()).toBe(true);
 
