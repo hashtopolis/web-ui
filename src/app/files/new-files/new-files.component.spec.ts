@@ -1,4 +1,4 @@
-import { concat, of } from 'rxjs';
+import { Subject, concat, of } from 'rxjs';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -14,7 +14,7 @@ import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
 
 import { ACCESS_GROUP_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { NewFilesComponent } from '@src/app/files/new-files/new-files.component';
+import { NewFilesComponent, computeBatchUploadProgress } from '@src/app/files/new-files/new-files.component';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { ComponentsModule } from '@src/app/shared/components.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
@@ -244,6 +244,65 @@ describe('NewFilesComponent', () => {
     expect(router.navigate).toHaveBeenCalledTimes(1);
     expect(component.uploadProgress).toBe(100);
     expect(component.isCreatingLoading).toBe(false);
+  });
+
+  it('should keep batch progress below 100 until every upload has completed', () => {
+    setup(cases[0].kind);
+
+    const small = new File(['a'], 'small.txt', { type: 'text/plain' });
+    const large = new File(['b'.repeat(999)], 'large.txt', { type: 'text/plain' });
+    const files = [small, large];
+    const smallUpload = new Subject<number>();
+    const largeUpload = new Subject<number>();
+
+    const uploadService = TestBed.inject(UploadTUSService) as unknown as MockUploadTUSService;
+    uploadService.uploadFile.mockReturnValueOnce(smallUpload).mockReturnValueOnce(largeUpload);
+    const router = TestBed.inject(Router) as unknown as MockRouter;
+
+    component.onuploadFile({
+      0: small,
+      1: large,
+      length: files.length,
+      item: (i: number) => files[i],
+      [Symbol.iterator]: function* () {
+        yield* files;
+      }
+    } as unknown as FileList);
+
+    smallUpload.next(100);
+    smallUpload.complete();
+    expect(component.uploadProgress).toBe(0);
+
+    largeUpload.next(100);
+    expect(component.uploadProgress).toBe(99);
+    expect(router.navigate).not.toHaveBeenCalled();
+
+    largeUpload.complete();
+    expect(component.uploadProgress).toBe(100);
+    expect(router.navigate).toHaveBeenCalledTimes(1);
+  });
+
+  describe('computeBatchUploadProgress', () => {
+    it('should weight progress by file size', () => {
+      expect(computeBatchUploadProgress([100, 0], [1024, 1024 ** 3])).toBe(0);
+      expect(computeBatchUploadProgress([0, 50], [100, 300])).toBe(37);
+    });
+
+    it('should not round [100, 99] up to 100', () => {
+      expect(computeBatchUploadProgress([100, 99], [10, 10])).toBe(99);
+    });
+
+    it('should cap at 99 even when every file reports 100', () => {
+      expect(computeBatchUploadProgress([100, 100], [10, 20])).toBe(99);
+    });
+
+    it('should weight empty files equally when the whole selection is empty', () => {
+      expect(computeBatchUploadProgress([100, 0], [0, 0])).toBe(50);
+    });
+
+    it('should return 0 for an empty selection', () => {
+      expect(computeBatchUploadProgress([], [])).toBe(0);
+    });
   });
 
   cases.forEach(({ kind, expectedRedirect }) => {

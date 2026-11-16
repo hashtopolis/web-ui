@@ -36,6 +36,31 @@ const NewFileTab = {
 } as const;
 type NewFileTab = (typeof NewFileTab)[keyof typeof NewFileTab];
 
+/** Highest progress shown while a batch is in flight; 100 is reserved for the forkJoin success handler. */
+const MAX_INTERMEDIATE_PROGRESS = 99;
+
+/**
+ * Aggregates per-file upload percentages into one batch percentage, weighted by file size so that a
+ * finished tiny file does not dominate a large one still in flight. If every file is empty (total size 0),
+ * each file counts equally. The result is floored and capped at {@link MAX_INTERMEDIATE_PROGRESS}, so the
+ * UI only reaches 100% (and shows "Upload completed!") once every upload has actually completed.
+ *
+ * @param progressPerFile - Upload percentage (0-100) for each file
+ * @param fileSizes - Size in bytes for each file, same order as `progressPerFile`
+ * @returns Batch progress in the range 0-99
+ */
+export function computeBatchUploadProgress(progressPerFile: readonly number[], fileSizes: readonly number[]): number {
+  const totalBytes = fileSizes.reduce((sum, size) => sum + size, 0);
+  const weights = totalBytes > 0 ? fileSizes : fileSizes.map(() => 1);
+  const totalWeight = totalBytes > 0 ? totalBytes : fileSizes.length;
+  if (totalWeight === 0) {
+    return 0;
+  }
+
+  const weighted = progressPerFile.reduce((sum, progress, i) => sum + progress * weights[i], 0) / totalWeight;
+  return Math.min(MAX_INTERMEDIATE_PROGRESS, Math.floor(weighted));
+}
+
 /**
  * Represents the NewFilesComponent responsible for creating and uploading files
  */
@@ -335,6 +360,7 @@ export class NewFilesComponent implements OnInit {
     const baseForm = this.onBeforeSubmit(this.form.value as FormGroup<NewFilesForm>['value'], false).update;
     const fileList = Array.from(files);
     const progressPerFile = fileList.map(() => 0);
+    const fileSizes = fileList.map((file) => file.size);
     this.isCreatingLoading = true;
     this.uploadProgress = 0;
 
@@ -345,7 +371,7 @@ export class NewFilesComponent implements OnInit {
         .pipe(
           tap((progress) => {
             progressPerFile[index] = progress;
-            this.uploadProgress = Math.round(progressPerFile.reduce((sum, p) => sum + p, 0) / fileList.length);
+            this.uploadProgress = computeBatchUploadProgress(progressPerFile, fileSizes);
             this.changeDetectorRef.detectChanges();
           }),
           last()
