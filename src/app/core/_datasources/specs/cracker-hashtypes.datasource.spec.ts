@@ -113,6 +113,6 @@ describe('CrackerHashtypesDataSource', () => {
     dataSource.reload();
 
     const params = gsSpy.getAll.mock.lastCall![1] as RequestParams;
-    expect(params.filter).toStrictEqual([filter]);
+    expect(params!.filter).toStrictEqual([filter]);
   });
 });

@@ -1,7 +1,7 @@
 import { isChunkActive } from '@constants/chunks.config';
 import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
 import { zChunkListResponse } from '@generated/api/zod';
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+import { EMPTY, catchError, finalize, forkJoin } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
@@ -46,7 +46,7 @@ export class ChunksDataSource extends BaseDataSource<JChunk> {
       .pipe(
         catchError((error) => {
           this.handleFilterError(error);
-          return of([] as ResponseWrapper[]);
+          return EMPTY;
         }),
         finalize(() => (this.loading = false))
       )
