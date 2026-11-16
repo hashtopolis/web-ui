@@ -263,7 +263,7 @@ describe('AccountSettingsComponent', () => {
         SERV.HELPER,
         Number(component['gs'].userId),
         'currentUser',
-        { email: 'test@example.com', sessionLifetime: 3 * 3600 }
+        { email: 'test@example.com' }
       );
       expect(component['alert'].showSuccessMessage).toHaveBeenCalled();
     });
@@ -280,12 +280,26 @@ describe('AccountSettingsComponent', () => {
 
       component.onSubmit();
 
-      expect(uhelperSpy).toHaveBeenCalledExactlyOnceWith(
-        SERV.HELPER,
-        Number(component['gs'].userId),
-        'currentUser',
-        expect.objectContaining({ sessionLifetime: 8 * 3600 })
-      );
+      expect(uhelperSpy).toHaveBeenCalledExactlyOnceWith(SERV.HELPER, Number(component['gs'].userId), 'currentUser', {
+        email: 'test@example.com',
+        sessionLifetime: 8 * 3600
+      });
+    });
+
+    it('keeps a stored session lifetime above the maximum when only the email changes', () => {
+      uiSettings = { maxSessionLength: 6 };
+      deserializeSpy.mockReturnValue({ ...mockUser, sessionLifetime: 24 * 3600 });
+      component['loadUserSettings']();
+
+      const uhelperSpy = vi.spyOn(component['gs'], 'uhelper').mockReturnValue(of({}));
+      component.form.patchValue({ email: 'changed@example.com' });
+
+      component.onSubmit();
+
+      expect(uhelperSpy).toHaveBeenCalledExactlyOnceWith(SERV.HELPER, Number(component['gs'].userId), 'currentUser', {
+        email: 'changed@example.com'
+      });
+      expect(authSpy.refreshToken).not.toHaveBeenCalled();
     });
 
     it('renews the session once the session lifetime changed', () => {

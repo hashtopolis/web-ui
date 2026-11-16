@@ -59,7 +59,10 @@ export class AccountSettingsComponent implements OnInit {
   /** Session lifetimes the user may choose from, in seconds. */
   sessionLifetimeOptions: SelectOption<number>[] = [];
 
-  /** Session lifetime in effect on the server, in seconds, to tell whether a save changes it. */
+  /**
+   * Session lifetime the form was loaded with or last saved, in seconds, to tell whether the user changed it. A
+   * stored lifetime above the maximum is held here clamped, as the form shows it.
+   */
   private savedSessionLifetime: number | null = null;
 
   pageTitle = 'Account Settings';
@@ -209,10 +212,15 @@ export class AccountSettingsComponent implements OnInit {
   onSubmit() {
     if (this.form.valid) {
       this.isUpdatingLoading = true;
-      const payload = {
-        email: this.form.controls.email.value,
-        sessionLifetime: this.form.controls.sessionLifetime.value
-      };
+
+      const sessionLifetime = this.form.controls.sessionLifetime.value;
+      const lifetimeChanged = sessionLifetime !== this.savedSessionLifetime;
+
+      /* The server checks a lifetime it is sent against the current maximum. Sending only a changed one
+         keeps an email-only save from failing on a lifetime the user did not touch, such as their stored
+         one when the administrator has lowered the maximum below it since the settings were cached. */
+      const payload = { email: this.form.controls.email.value, ...(lifetimeChanged ? { sessionLifetime } : {}) };
+
       this.gs
         .uhelper(SERV.HELPER, this.gs.userId!, 'currentUser', payload)
         .pipe(takeUntilDestroyed(this.destroyRef))
@@ -221,8 +229,8 @@ export class AccountSettingsComponent implements OnInit {
             this.alert.showSuccessMessage('User saved');
             this.isUpdatingLoading = false;
 
-            if (payload.sessionLifetime !== this.savedSessionLifetime) {
-              this.savedSessionLifetime = payload.sessionLifetime;
+            if (lifetimeChanged) {
+              this.savedSessionLifetime = sessionLifetime;
               this.renewSession();
             }
           },
