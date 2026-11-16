@@ -300,6 +300,11 @@ describe('NewFilesComponent', () => {
       expect(computeBatchUploadProgress([100, 0], [0, 0])).toBe(50);
     });
 
+    it('should treat non-finite progress (zero-byte TUS uploads) as 0', () => {
+      expect(computeBatchUploadProgress([NaN, 50], [0, 100])).toBe(50);
+      expect(computeBatchUploadProgress([NaN, Infinity, 100], [0, 0, 0])).toBe(33);
+    });
+
     it('should return 0 for an empty selection', () => {
       expect(computeBatchUploadProgress([], [])).toBe(0);
     });

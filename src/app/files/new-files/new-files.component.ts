@@ -42,8 +42,9 @@ const MAX_INTERMEDIATE_PROGRESS = 99;
 /**
  * Aggregates per-file upload percentages into one batch percentage, weighted by file size so that a
  * finished tiny file does not dominate a large one still in flight. If every file is empty (total size 0),
- * each file counts equally. The result is floored and capped at {@link MAX_INTERMEDIATE_PROGRESS}, so the
- * UI only reaches 100% (and shows "Upload completed!") once every upload has actually completed.
+ * each file counts equally. Non-finite progress values (e.g. NaN from a zero-byte TUS upload) count as 0.
+ * The result is floored and capped at {@link MAX_INTERMEDIATE_PROGRESS}, so the UI only reaches 100%
+ * (and shows "Upload completed!") once every upload has actually completed.
  *
  * @param progressPerFile - Upload percentage (0-100) for each file
  * @param fileSizes - Size in bytes for each file, same order as `progressPerFile`
@@ -57,7 +58,11 @@ export function computeBatchUploadProgress(progressPerFile: readonly number[], f
     return 0;
   }
 
-  const weighted = progressPerFile.reduce((sum, progress, i) => sum + progress * weights[i], 0) / totalWeight;
+  // UploadTUSService computes bytesUploaded / bytesTotal, which is NaN for a zero-byte file. NaN * 0 is still
+  // NaN, so normalize non-finite values before weighting or one empty file poisons the whole batch.
+  const weighted =
+    progressPerFile.reduce((sum, progress, i) => sum + (Number.isFinite(progress) ? progress : 0) * weights[i], 0) /
+    totalWeight;
   return Math.min(MAX_INTERMEDIATE_PROGRESS, Math.floor(weighted));
 }
 
