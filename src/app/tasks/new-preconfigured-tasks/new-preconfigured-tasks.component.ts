@@ -42,10 +42,6 @@ export class NewPreconfiguredTasksComponent implements OnInit {
   selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
   isCreatingLoading = false;
 
-  selectCrackertypeMap = {
-    fieldMapping: CRACKER_TYPE_FIELD_MAPPING
-  };
-
   copyMode = false;
   editedIndex: number;
   whichView: string;
@@ -183,7 +179,7 @@ export class NewPreconfiguredTasksComponent implements OnInit {
           next: () => {
             this.alert.showSuccessMessage('New Preconfigured Task created');
             this.isCreatingLoading = false;
-            this.router.navigate(['tasks/preconfigured-tasks']);
+            void this.router.navigate(['tasks/preconfigured-tasks']);
           },
           error: (err) => {
             console.error('Error creating Preconfigured Task', err);

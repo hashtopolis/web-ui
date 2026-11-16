@@ -1,11 +1,13 @@
+import { HttpHeaderName } from '@constants/http.config';
 import { zBackgroundJobListResponse } from '@generated/api/zod';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { RequestParams } from '@models/request-params.model';
+import { FilterType, RequestParams } from '@models/request-params.model';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
@@ -95,11 +97,12 @@ describe('BackgroundJobsDataSource', () => {
 
   afterEach(() => TestBed.resetTestingModule());
 
-  it('requests SERV.BACKGROUND_JOBS with the user included', () => {
+  it('requests SERV.BACKGROUND_JOBS with the user included and skip-error header', () => {
     dataSource.loadAll();
-    const [serviceConfig, params] = gsSpy.getAll.mock.lastCall!;
+    const [serviceConfig, params, options] = gsSpy.getAll.mock.lastCall!;
     expect(serviceConfig).toStrictEqual(SERV.BACKGROUND_JOBS);
     expect((params as RequestParams).include).toContain('user');
+    expect(options?.headers?.get(HttpHeaderName.SKIP_ERROR_DIALOG)).toBe('true');
   });
 
   it('deserializes the jobs including the user', () => {
@@ -110,5 +113,31 @@ describe('BackgroundJobsDataSource', () => {
     expect(jobs[0].payload).toStrictEqual({ fileId: 7 });
     expect(jobs[0].user?.name).toBe('admin');
     expect(dataSource.totalItems).toBe(1);
+  });
+
+  it('retains filter state and clears it when requested', () => {
+    const filter = { field: 'status', operator: FilterType.EQUAL, value: 2 };
+    dataSource.loadAll(filter);
+    dataSource.loadAll();
+    expect((gsSpy.getAll.mock.lastCall![1] as RequestParams).filter).toContainEqual(filter);
+
+    dataSource.clearFilter();
+    expect((gsSpy.getAll.mock.lastCall![1] as RequestParams).filter ?? []).not.toContainEqual(filter);
+  });
+
+  it('emits filter errors and keeps existing rows after a failed request', () => {
+    dataSource.loadAll();
+    const existingJobs = dataSource.getOriginalData();
+    const errors: string[] = [];
+    dataSource.filterError$.subscribe((message) => errors.push(message));
+    gsSpy.getAll.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 400, error: { title: 'Invalid filter' } }))
+    );
+
+    dataSource.loadAll({ field: 'invalid', operator: FilterType.EQUAL, value: 'x' });
+
+    expect(dataSource['loadingSubject'].getValue()).toBe(false);
+    expect(dataSource.getOriginalData()).toBe(existingJobs);
+    expect(errors).toStrictEqual(['Invalid filter']);
   });
 });

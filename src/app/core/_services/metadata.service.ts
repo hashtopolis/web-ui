@@ -713,7 +713,7 @@ export class MetadataService {
       name: 'hcErrorIgnore',
       label: 'Ignore Error Messages Containing the Following String from Crackers',
       type: 'textarea',
-      tooltip: false
+      tooltip: 'Values must be separated by commas'
     },
     {
       name: 'numLogEntries',

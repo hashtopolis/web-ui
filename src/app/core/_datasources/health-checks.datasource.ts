@@ -1,6 +1,6 @@
 import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
 import { zHealthCheckListResponse } from '@generated/api/zod';
-import { catchError, finalize, forkJoin, of } from 'rxjs';
+import { EMPTY, catchError, finalize, forkJoin } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
 
@@ -37,7 +37,7 @@ export class HealthChecksDataSource extends BaseDataSource<JHealthCheck> {
         .pipe(
           catchError((error) => {
             this.handleFilterError(error);
-            return of([] as ResponseWrapper[]);
+            return EMPTY;
           }),
           finalize(() => (this.loading = false))
         )
