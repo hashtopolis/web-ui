@@ -216,6 +216,7 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
       {
         id: TaskTableCol.HASHLISTS,
         dataKey: 'hashlistName',
+        cssClass: 'cell-hashlist-name',
         routerLink: (wrapper: JTaskWrapperDisplayOverview) => this.renderHashlistLinkFromWrapper(wrapper),
         icon: (wrapper: JTaskWrapperDisplayOverview) => {
           if (wrapper.hashlistIsSecret) {
@@ -923,18 +924,15 @@ export class TasksTableComponent extends BaseTableComponent implements OnInit, O
    */
   private renderHashlistLinkFromWrapper(wrapper: JTaskWrapperDisplayOverview): Observable<HTTableRouterLink[]> {
     const links: HTTableRouterLink[] = [];
-    const maxHashlistLabelLength = 20;
 
     if (wrapper && wrapper.hashlistId !== undefined) {
       const id = wrapper.hashlistId;
-      const fullName = wrapper.hashlistName || String(id);
-      const truncatedName =
-        fullName.length > maxHashlistLabelLength ? `${fullName.substring(0, maxHashlistLabelLength)}...` : fullName;
+      const name = wrapper.hashlistName || String(id);
 
       links.push({
         routerLink: ['/hashlists', 'hashlist', id, 'edit'],
-        label: truncatedName,
-        tooltip: fullName
+        label: name,
+        tooltip: name
       });
     }
     return of(links);
