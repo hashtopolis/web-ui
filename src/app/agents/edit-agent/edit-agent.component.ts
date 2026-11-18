@@ -336,11 +336,13 @@ export class EditAgentComponent implements OnInit {
   }
 
   /**
-   * Reloads the agent after saving and refills the forms, staying on this page.
+   * Reloads the agent after saving and refills the forms, staying on this page. Also reloads the assignable tasks,
+   * since they depend on the saved settings (e.g. CPU only).
    */
   private async reloadAgent(): Promise<void> {
     try {
       await this.loadAgent();
+      this.loadSelectTasks();
       this.initForm();
     } catch (error) {
       // The error interceptor already told the user; the page keeps showing the last loaded agent

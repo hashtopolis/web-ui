@@ -31,6 +31,7 @@ import { PipesModule } from '@src/app/shared/pipes.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
 import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
+import { wait } from '@src/app/testing/wait';
 
 // Mock components - only for components not included in imported modules
 @Component({
@@ -378,6 +379,23 @@ describe('EditAgentComponent', () => {
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'assignAgent', { taskId: 5, agentId: 1 });
     expect(globalServiceSpy.update).toHaveBeenCalled();
     expect(globalServiceSpy.get).toHaveBeenCalledTimes(2);
+  });
+
+  it('should reload the assignable tasks after saving, since they depend on the saved settings', async () => {
+    agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update' || role === 'readAssignment');
+
+    fixture = TestBed.createComponent(EditAgentComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    globalServiceSpy.ghelper.mockReturnValue(of(mockValidResponse(zGetBestTasksAgentResponse, { data: [mockTask] })));
+    component.updateForm.patchValue({ cpuOnly: false });
+    component.onSubmit();
+    await wait();
+
+    expect(globalServiceSpy.ghelper).toHaveBeenCalledTimes(2);
+    expect(component.assignTasks.map((option) => option.id)).toStrictEqual([mockTask.id]);
   });
 
   it('should not submit form if it is invalid', async () => {
