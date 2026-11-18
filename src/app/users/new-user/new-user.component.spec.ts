@@ -154,7 +154,7 @@ describe('NewUserComponent', () => {
       email: 'test@example.com',
       globalPermissionGroupId: 1,
       isValid: true,
-      sessionLifetime: 3600
+      sessionLifetime: 7200
     });
     expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('User created');
     expect(mockRouter.navigate).toHaveBeenCalledWith(['users/all-users']);

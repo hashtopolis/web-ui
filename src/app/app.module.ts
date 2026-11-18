@@ -1,5 +1,4 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgIdleKeepaliveModule } from '@ng-idle/keepalive';
 
 import { CommonModule } from '@angular/common';
 import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
@@ -57,8 +56,7 @@ import { PipesModule } from '@src/app/shared/pipes.module';
     MatSnackBarModule,
     CoreComponentsModule,
     LayoutHeaderModule,
-    AppRoutingModule, // Main routes for the App
-    NgIdleKeepaliveModule.forRoot()
+    AppRoutingModule // Main routes for the App
   ],
   providers: [
     Title,
