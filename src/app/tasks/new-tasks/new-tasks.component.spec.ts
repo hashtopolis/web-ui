@@ -660,7 +660,7 @@ describe('NewTasksComponent', () => {
     it('should patch form with copied task name and notes', async () => {
       await initComponent(fixture);
 
-      expect(component.form.controls.taskName.value).toBe('Original Task_(Copied_task_id_42)');
+      expect(component.form.controls.taskName.value).toBe('Original Task');
       expect(component.form.controls.notes.value).toBe('Copied from task id 42');
     });
 
@@ -902,7 +902,7 @@ describe('NewTasksComponent', () => {
     it('should patch form with copied pretask name and notes', async () => {
       await initComponent(fixture);
 
-      expect(component.form.controls.taskName.value).toBe('My Pretask_(Copied_pretask_id_7)');
+      expect(component.form.controls.taskName.value).toBe('My Pretask');
       expect(component.form.controls.notes.value).toBe('Copied from pretask id 7');
     });
 

@@ -544,7 +544,7 @@ export class NewTasksComponent implements OnInit {
       this.copyFiles = copyData.files;
 
       this.form.patchValue({
-        taskName: task.taskName + `_(Copied_${isTask ? 'task_id' : 'pretask_id'}_${this.editedIndex})`,
+        taskName: task.taskName ?? '',
         notes: `Copied from ${isTask ? 'task' : 'pretask'} id ${this.editedIndex}`,
         attackCmd: task.attackCmd,
         maxAgents: task.maxAgents,
