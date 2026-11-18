@@ -10,11 +10,21 @@ app-tasks-table table.hashtopolis-table {
     }
   }
 
-  .mat-column-8 {
+  .cell-hashlist-name {
     max-width: 16rem;
 
-    .flex-container {
-      max-width: 100%;
+    // Only the link shrinks; the status icon (cracked/secret) must always stay fully visible.
+    // .mat-icon has overflow:hidden, so as a flex item it would otherwise shrink to nothing.
+    app-ht-table-link {
+      flex: 0 1 auto;
+      min-width: 0;
+    }
+
+    .mat-icon {
+      flex: none;
+    }
+
+    .link-wrapper {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;

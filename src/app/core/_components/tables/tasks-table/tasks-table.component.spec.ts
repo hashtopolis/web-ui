@@ -477,7 +477,7 @@ describe('TasksTableComponent', () => {
       expect(links[0].routerLink).toStrictEqual(['/hashlists', 'hashlist', 5, 'edit']);
     });
 
-    it('should truncate long HASHLISTS label and keep full name in tooltip', async () => {
+    it('should pass the full hashlist name to the HASHLISTS label and tooltip (CSS handles truncation)', async () => {
       const columns = component.getColumns();
       const hashlistsColumn = columns.find((col) => col.id === TaskTableCol.HASHLISTS);
       const longName = 'This is a very long hashlist name that should be truncated';
@@ -487,7 +487,7 @@ describe('TasksTableComponent', () => {
       } as JTaskWrapperDisplay;
 
       const links = await firstValueFrom(hashlistsColumn!.routerLink!(taskWrapper));
-      expect(links[0].label).toBe('This is a very long ...');
+      expect(links[0].label).toBe(longName);
       expect(links[0].tooltip).toBe(longName);
       expect(links[0].routerLink).toStrictEqual(['/hashlists', 'hashlist', 11, 'edit']);
     });
