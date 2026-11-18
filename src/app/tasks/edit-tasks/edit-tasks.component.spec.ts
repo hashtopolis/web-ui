@@ -420,20 +420,22 @@ describe('EditTasksComponent', () => {
       roleServiceSpy.hasRole.mockImplementation((role: string) => role === 'edit');
     });
 
-    it('should call gs.update and navigate when form is valid and attackCmd unchanged', async () => {
+    it('should save the task and reload it on the page instead of navigating', async () => {
       globalServiceSpy.update.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
       await wait();
 
       component.onSubmit();
+      respondToTaskRequest(mockTaskResponse());
+      await wait();
 
       expect(globalServiceSpy.update).toHaveBeenCalledWith(
         SERV.TASKS,
         1,
         expect.objectContaining({ taskName: 'Test Task', attackCmd: '-a 0 #HL# rockyou.txt' })
       );
-      expect(routerSpy.navigate).toHaveBeenCalledWith(['tasks/show-tasks']);
+      expect(routerSpy.navigate).not.toHaveBeenCalled();
     });
 
     it('should show success message after successful update', async () => {
@@ -443,6 +445,7 @@ describe('EditTasksComponent', () => {
       await wait();
 
       component.onSubmit();
+      respondToTaskRequest(mockTaskResponse());
       await wait();
 
       expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('Task data has been updated successfully.');
@@ -470,6 +473,7 @@ describe('EditTasksComponent', () => {
 
       component.updateForm.get('updateData.attackCmd')?.setValue('-a 3 #HL#');
       component.onSubmit();
+      respondToTaskRequest(mockTaskResponse());
 
       expect(globalServiceSpy.update).toHaveBeenCalled();
     });
@@ -507,13 +511,14 @@ describe('EditTasksComponent', () => {
   });
 
   describe('purgeTask', () => {
-    it('should call chelper and show success message on confirmation', () => {
+    it('should call chelper, show success message and reload the task on confirmation', () => {
       confirmDialogSpy.confirmYesNo.mockReturnValue(of(true));
       globalServiceSpy.chelper.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
 
       component.purgeTask();
+      respondToTaskRequest(mockTaskResponse());
 
       expect(globalServiceSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'purgeTask', { taskId: 1 });
       expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('Purged task id 1');

@@ -132,70 +132,8 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     this.buildForm();
 
     try {
-      const task = await this.loadTask();
-
-      this.originalValue = task;
-      this.pageTitle = 'Task ' + (task.taskName ?? '');
-      this.searched = task.searched ?? '';
-      this.color = task.color ?? '';
-      this.crackerinfo = task.crackerBinary;
-      this.taskWrapperId = task.taskWrapperId;
-      this.tkeyspace = task.keyspace;
-      this.tusepreprocessor = task.preprocessorId;
-      this.preprocessorCommand = task.preprocessorCommand;
-      this.originalPreprocessorCommand = task.preprocessorCommand;
-      this.ctimespent = task.timeSpent ?? 0;
-      this.currenspeed = task.currentSpeed ?? 0;
-      this.estimatedTime = task.estimatedTime ?? 0;
-      this.cprogress = task.cprogress ?? 0;
-
-      if (this.roleService.hasRole('editTaskAgents') && this.roleService.hasRole('editTaskAssignAgents')) {
-        this.assingAgentInit((task.assignedAgents ?? []).map((entry) => entry.id));
-      }
-
-      if (this.roleService.hasRole('editTaskSpeed')) {
-        this.getTaskSpeeds((task.assignedAgents ?? []).length);
-      }
-
-      if (task.hashlist && this.roleService.hasRole('editTaskInfoHashlist')) {
-        this.hashlistinform = task.hashlist;
-        this.gs.get(SERV.HASHTYPES, task.hashlist.hashTypeId).subscribe((response: ResponseWrapper) => {
-          const hashtype: JHashtype = this.serializer.deserialize(response, zHashTypeResponse);
-          this.hashlistDescrip = hashtype.description;
-        });
-      }
-
-      this.updateForm.setValue({
-        taskId: task.id,
-        forcePipe: task.forcePipe ? 'Yes' : 'No',
-        staticChunks: this.getStaticChunkingLabel(task.staticChunks, task.chunkSize),
-        skipKeyspace: task.skipKeyspace > 0 ? task.skipKeyspace : 'N/A',
-        keyspace: task.keyspace,
-        keyspaceProgress: task.keyspaceProgress,
-        crackerBinaryId: task.crackerBinaryId,
-        chunkSize: task.chunkSize,
-        totalNumberOfChunks: task.totalNumberOfChunks,
-        preprocessorCommand: task.preprocessorCommand,
-        updateData: {
-          taskName: task.taskName,
-          attackCmd: task.attackCmd,
-          notes: task.notes,
-          color: task.color,
-          chunkTime: Number(task.chunkTime),
-          statusTimer: task.statusTimer,
-          priority: task.priority,
-          maxAgents: task.maxAgents,
-          isCpuTask: task.isCpuTask,
-          isSmall: task.isSmall
-        }
-      });
-
+      await this.loadTaskData();
       this.assignChunksInit();
-
-      if (this.editedTaskIndex && this.roleService.hasRole('editTaskChunks')) {
-        this.loadTaskProgressImage();
-      }
-
       this.isLoading = false;
     } catch (e: unknown) {
       const status = e instanceof HttpErrorResponse ? e.status : undefined;
@@ -228,6 +166,93 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     if (this.rawTaskProgressObjectUrl) {
       URL.revokeObjectURL(this.rawTaskProgressObjectUrl);
       this.rawTaskProgressObjectUrl = null;
+    }
+  }
+
+  /**
+   * Loads the task and fills the page and the form with it. Runs on init and again after an action changed
+   * the task, so the page shows the saved state without navigating away.
+   */
+  private async loadTaskData(): Promise<void> {
+    const task = await this.loadTask();
+
+    this.originalValue = task;
+    this.pageTitle = 'Task ' + (task.taskName ?? '');
+    this.searched = task.searched ?? '';
+    this.color = task.color ?? '';
+    this.crackerinfo = task.crackerBinary;
+    this.taskWrapperId = task.taskWrapperId;
+    this.tkeyspace = task.keyspace;
+    this.tusepreprocessor = task.preprocessorId;
+    this.preprocessorCommand = task.preprocessorCommand;
+    this.originalPreprocessorCommand = task.preprocessorCommand;
+    this.ctimespent = task.timeSpent ?? 0;
+    this.currenspeed = task.currentSpeed ?? 0;
+    this.estimatedTime = task.estimatedTime ?? 0;
+    this.cprogress = task.cprogress ?? 0;
+
+    if (this.roleService.hasRole('editTaskAgents') && this.roleService.hasRole('editTaskAssignAgents')) {
+      this.assingAgentInit((task.assignedAgents ?? []).map((entry) => entry.id));
+    }
+
+    if (this.roleService.hasRole('editTaskSpeed')) {
+      this.getTaskSpeeds((task.assignedAgents ?? []).length);
+    }
+
+    if (task.hashlist && this.roleService.hasRole('editTaskInfoHashlist')) {
+      this.hashlistinform = task.hashlist;
+      this.gs.get(SERV.HASHTYPES, task.hashlist.hashTypeId).subscribe((response: ResponseWrapper) => {
+        const hashtype: JHashtype = this.serializer.deserialize(response, zHashTypeResponse);
+        this.hashlistDescrip = hashtype.description;
+      });
+    }
+
+    this.updateForm.setValue({
+      taskId: task.id,
+      forcePipe: task.forcePipe ? 'Yes' : 'No',
+      staticChunks: this.getStaticChunkingLabel(task.staticChunks, task.chunkSize),
+      skipKeyspace: task.skipKeyspace > 0 ? task.skipKeyspace : 'N/A',
+      keyspace: task.keyspace,
+      keyspaceProgress: task.keyspaceProgress,
+      crackerBinaryId: task.crackerBinaryId,
+      chunkSize: task.chunkSize,
+      totalNumberOfChunks: task.totalNumberOfChunks,
+      preprocessorCommand: task.preprocessorCommand,
+      updateData: {
+        taskName: task.taskName,
+        attackCmd: task.attackCmd,
+        notes: task.notes,
+        color: task.color,
+        chunkTime: Number(task.chunkTime),
+        statusTimer: task.statusTimer,
+        priority: task.priority,
+        maxAgents: task.maxAgents,
+        isCpuTask: task.isCpuTask,
+        isSmall: task.isSmall
+      }
+    });
+
+    if (this.editedTaskIndex && this.roleService.hasRole('editTaskChunks')) {
+      this.loadTaskProgressImage();
+    }
+  }
+
+  /**
+   * Reloads the task after an action changed it and stays on the page. A purge (also caused by a new attack
+   * or preprocessor command) deletes the task's chunks and resets the agents' benchmarks, so their tables
+   * reload too.
+   */
+  private async refreshTask(purged: boolean): Promise<void> {
+    try {
+      await this.loadTaskData();
+    } catch (e: unknown) {
+      // The error interceptor already told the user; the page keeps showing the last loaded task
+      console.error('Error reloading task:', e);
+    }
+
+    if (purged) {
+      this.chunkTable?.reload();
+      this.agentsTable?.reload();
     }
   }
 
@@ -345,6 +370,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     const updatePayload = this.updateForm.value['updateData'];
     const preprocessorCommandChanged =
       this.updateForm.value['preprocessorCommand'] !== this.originalPreprocessorCommand;
+    const purged = preprocessorCommandChanged || updatePayload.attackCmd !== this.originalValue.attackCmd;
 
     // If preprocessor command changed, make the update request first
     if (preprocessorCommandChanged) {
@@ -354,12 +380,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
           next: () => {
             // After preprocessor command is updated, update the task data
             this.gs.update(SERV.TASKS, this.editedTaskIndex, updatePayload).subscribe({
-              next: () => {
-                this.isUpdatingLoading = false;
-                this.router.navigate(['tasks/show-tasks']).then(() => {
-                  this.alertService.showSuccessMessage('Task data has been updated successfully.');
-                });
-              },
+              next: () => this.onTaskUpdated(purged),
               error: (err) => {
                 console.error('Error updating task', err);
                 this.isUpdatingLoading = false;
@@ -374,18 +395,19 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     } else {
       // No preprocessor command change, just update task data normally
       this.gs.update(SERV.TASKS, this.editedTaskIndex, updatePayload).subscribe({
-        next: () => {
-          this.isUpdatingLoading = false;
-          this.router.navigate(['tasks/show-tasks']).then(() => {
-            this.alertService.showSuccessMessage('Task data has been updated successfully.');
-          });
-        },
+        next: () => this.onTaskUpdated(purged),
         error: (err) => {
           console.error('Error updating task', err);
           this.isUpdatingLoading = false;
         }
       });
     }
+  }
+
+  private onTaskUpdated(purged: boolean): void {
+    this.isUpdatingLoading = false;
+    this.alertService.showSuccessMessage('Task data has been updated successfully.');
+    void this.refreshTask(purged);
   }
 
   /**
@@ -506,6 +528,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         const payload = { taskId: this.editedTaskIndex };
         this.gs.chelper(SERV.HELPER, 'purgeTask', payload).subscribe(() => {
           this.alertService.showSuccessMessage(`Purged task id ${this.editedTaskIndex}`);
+          void this.refreshTask(true);
         });
       } else {
         this.alertService.showInfoMessage('Purge was cancelled');

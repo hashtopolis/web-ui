@@ -346,7 +346,7 @@ describe('EditHashlistComponent', () => {
   });
 
   describe('onSubmit', () => {
-    it('should update hashlist and navigate on valid form submission', async () => {
+    it('should save the hashlist and reload it on the page instead of navigating', async () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
       await wait();
@@ -355,25 +355,29 @@ describe('EditHashlistComponent', () => {
       gsSpy.update.mockReturnValue(of({}));
 
       component.onSubmit();
+      respondToHashlistRequest(mockHashlistResponse());
+      await wait();
 
       expect(gsSpy.update).toHaveBeenCalledWith(SERV.HASHLISTS, 1, expect.objectContaining({ name: 'Updated Name' }));
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Hashlist saved');
-      expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/hashlist']);
+      expect(routerSpy.navigate).not.toHaveBeenCalled();
     });
 
-    it('should navigate to /hashlists/superhashlist when type is 3', async () => {
+    it('should stay on a superhashlist after saving and let the user leave without a warning', async () => {
       initComponent();
       respondToHashlistRequest(mockSuperHashlistResponse());
       await wait();
 
       component.updateForm.get('updateData.name')?.setValue('Updated Name');
+      component.updateForm.markAsDirty();
       gsSpy.update.mockReturnValue(of({}));
 
       component.onSubmit();
+      respondToHashlistRequest(mockSuperHashlistResponse());
+      await wait();
 
-      expect(gsSpy.update).toHaveBeenCalledWith(SERV.HASHLISTS, 1, expect.objectContaining({ name: 'Updated Name' }));
-      expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Hashlist saved');
-      expect(routerSpy.navigate).toHaveBeenCalledWith(['/hashlists/superhashlist']);
+      expect(routerSpy.navigate).not.toHaveBeenCalled();
+      expect(component.canDeactivate()).toBe(true);
     });
 
     it('should mark all fields as touched on invalid form', () => {

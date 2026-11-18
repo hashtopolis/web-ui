@@ -231,13 +231,26 @@ export class EditHashlistComponent implements OnInit, CanComponentDeactivate {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.alert.showSuccessMessage('Hashlist saved');
-          this.updateForm.reset(); // success, we reset form
-          const path = this.isSuperhashlist ? '/hashlists/superhashlist' : '/hashlists/hashlist';
-          this.router.navigate([path]);
+
+          // Saved, so the leave-page guard has no unsaved changes to warn about
+          this.updateForm.markAsPristine();
+          void this.reloadHashlist();
         });
     } else {
       this.updateForm.markAllAsTouched();
       this.updateForm.updateValueAndValidity();
+    }
+  }
+
+  /**
+   * Reloads the hashlist after saving, staying on this page.
+   */
+  private async reloadHashlist(): Promise<void> {
+    try {
+      await this.loadHashlist();
+    } catch (e: unknown) {
+      // The error interceptor already told the user; the page keeps showing the last loaded hashlist
+      console.error('Error reloading hashlist:', e);
     }
   }
 

@@ -214,7 +214,7 @@ export class EditGroupsComponent implements OnInit {
 
   /**
    * Handles the form submission for updating access group data.
-   * If the form is valid, it triggers the update process and navigates to the user list.
+   * If the form is valid, it triggers the update process and reloads the access group on this page.
    */
   onSubmit() {
     if (this.updateForm.valid) {
@@ -224,9 +224,8 @@ export class EditGroupsComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.isUpdatingLoading = false;
-          this.router
-            .navigate(['/users/access-groups'])
-            .then(() => this.alert.showSuccessMessage('Access Group saved'));
+          this.alert.showSuccessMessage('Access Group saved');
+          this.loadData();
         });
     } else {
       this.updateForm.markAllAsTouched();
