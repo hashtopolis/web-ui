@@ -241,6 +241,8 @@ export class NewTasksComponent implements OnInit {
         this.form.controls.preprocessorCommand.setValue('', { emitEvent: false });
       }
       this.handleChangePreprocessor(newValue);
+      // Attack command validity depends on whether a preprocessor is selected
+      this.form.controls.attackCmd.updateValueAndValidity();
     });
   }
 

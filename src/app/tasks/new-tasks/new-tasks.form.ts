@@ -57,7 +57,11 @@ export const getNewTaskForm = (uiService: UIConfigService) => {
     hashlistId: new FormControl<number | null>(null, [Validators.required]),
     attackCmd: new FormControl<string>(uiService.getUISettings()?.hashlistAlias ?? '', {
       nonNullable: true,
-      validators: [Validators.required, attackCommandWithAliasValidator()]
+      validators: [
+        Validators.required,
+        // With a preprocessor, the attack command may consist of the hashlist alias only
+        attackCommandWithAliasValidator(undefined, (control) => !!control.parent?.get('preprocessorId')?.value)
+      ]
     }),
     priority: new FormControl<number>(priority, {
       nonNullable: true,
