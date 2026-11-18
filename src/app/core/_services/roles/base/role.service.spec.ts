@@ -35,12 +35,12 @@ describe('RoleService', () => {
 
   it('denies a role as soon as one of its permissions is missing', () => {
     const roles = { read: [Perm.Agent.READ, Perm.AgentStat.READ] };
-    const { permissionService, service } = createService(roles, [Perm.Agent.READ]);
+    const { permissionService, service } = createService(roles, [Perm.AgentStat.READ]);
 
     const result = service.hasRole('read');
 
     expect(result).toBe(false);
-    expect(permissionService.hasPermissionSync).toHaveBeenCalledTimes(2);
+    expect(permissionService.hasPermissionSync).toHaveBeenCalledExactlyOnceWith(Perm.Agent.READ);
   });
 
   it('denies an unknown role and a role with no required permissions', () => {
