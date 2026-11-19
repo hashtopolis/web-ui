@@ -21,10 +21,13 @@ describe('HeatmapChartComponent', () => {
   });
 
   it('labels the bottom row with the current weekday', () => {
-    jasmine.clock().install();
-    jasmine.clock().mockDate(new Date(2026, 9, 21)); // Wednesday
-    component.ngOnChanges();
-    jasmine.clock().uninstall();
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date(2026, 9, 21)); // Wednesday
+      component.ngOnChanges();
+    } finally {
+      vi.useRealTimers();
+    }
 
     expect(component.dayLabels).toEqual(['Thu', '', 'Sat', '', 'Mon', '', 'Wed']);
     expect(component.cellAt(component.weeks.length - 1, 6)?.date).toBe('2026-10-21');
