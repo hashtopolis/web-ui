@@ -131,7 +131,7 @@ export class ExportService {
   }
 
   /**
-   * Handles an expoprt data event inside a table component
+   * Handles an export data event inside a table component
    * @param event - event data to handle
    * @param tableColumns - table columns
    * @param columnLabels - column labels
