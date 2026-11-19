@@ -1,5 +1,5 @@
 import { HttpStatus } from '@constants/http.config';
-import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod';
+import { zSupertaskResponse } from '@generated/api/zod';
 import { finalize } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
@@ -17,7 +17,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { CrackerBinaryTypeId, PretaskId } from '@models/id.types';
+import { CrackerBinaryTypeId } from '@models/id.types';
 import { JPretask } from '@models/pretask.model';
 import { ResponseWrapper } from '@models/response.model';
 import { zIdRouteParams } from '@models/routes.schema';
@@ -28,15 +28,11 @@ import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { CrackerBinaryTypesService, fallbackCrackerTypeName } from '@services/crackers/cracker-binary-types.service';
 import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 
 import { PretasksTableComponent } from '@components/tables/pretasks-table/pretasks-table.component';
-
-import { SUPER_TASK_FIELD_MAPPING } from '@src/app/core/_constants/select.config';
-import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
 
 @Component({
   selector: 'app-edit-supertasks',
@@ -45,18 +41,10 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
   standalone: false
 })
 export class EditSupertasksComponent implements OnInit {
-  /** Flag indicating whether data is still loading. */
-  isLoading = true;
-
   /** Flag indicating whether the supertask name is currently being updated. */
   isUpdatingSupertask = false;
 
-  /** Form group for the new Supertask. */
-  updateForm: FormGroup;
   viewForm: FormGroup; //Supertask details
-
-  /** List of Preconfigured Tasks. */
-  selectPretasks: SelectOption<PretaskId>[] | undefined;
 
   // Edit
   private _editedSTIndex: number;
@@ -118,39 +106,19 @@ export class EditSupertasksComponent implements OnInit {
       supertaskName: new FormControl({ value: '', disabled: !canEdit }, canEdit ? [Validators.required] : []),
       crackerBinaryType: new FormControl({ value: '', disabled: true })
     });
-
-    // Form add pretasks
-    this.updateForm = new FormGroup({
-      pretasks: new FormControl('')
-    });
   }
 
   /**
-   * Loads data, specifically hashlists, for the component.
+   * Loads the supertask.
    */
   loadData(): void {
-    const params = new RequestParamBuilder().addInclude('pretasks').create();
     this.gs
-      .get(SERV.SUPER_TASKS, this.editedSTIndex, params)
+      .get(SERV.SUPER_TASKS, this.editedSTIndex)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: ResponseWrapper) => {
           const supertask: JSuperTask = this.serializer.deserialize(response, zSupertaskResponse);
           this.applySupertask(supertask);
-
-          if (this.roleService.hasRole('editSupertaskPreTasks')) {
-            this.gs
-              .getAll(SERV.PRETASKS)
-              .pipe(takeUntilDestroyed(this.destroyRef))
-              .subscribe((responsePT: ResponseWrapper) => {
-                const pretasks: JPretask[] = this.serializer.deserialize(responsePT, zPreTaskListResponse);
-                const availablePretasks = this.getAvailablePretasks(supertask.pretasks ?? [], pretasks);
-
-                this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
-                this.isLoading = false;
-                this.changeDetectorRef.detectChanges();
-              });
-          }
         },
         error: (err: unknown) => {
           const status = err instanceof HttpErrorResponse ? err.status : undefined;
@@ -163,59 +131,19 @@ export class EditSupertasksComponent implements OnInit {
             return;
           }
 
-          // For server errors try a fallback request without includes to at least load primary data
-          if (err instanceof HttpErrorResponse && status && status >= HttpStatus.INTERNAL_SERVER_ERROR) {
-            console.warn('loadData(): request with includes failed, retrying without includes', err);
-            this.gs
-              .get(SERV.SUPER_TASKS, this.editedSTIndex)
-              .pipe(takeUntilDestroyed(this.destroyRef))
-              .subscribe({
-                next: (response2: ResponseWrapper) => {
-                  const supertask2: JSuperTask = this.serializer.deserialize(response2, zSupertaskResponse);
-                  this.applySupertask(supertask2);
-                  // still try to load pretasks list for selection
-                  this.gs
-                    .getAll(SERV.PRETASKS)
-                    .pipe(takeUntilDestroyed(this.destroyRef))
-                    .subscribe((responsePT: ResponseWrapper) => {
-                      const pretasks: JPretask[] = this.serializer.deserialize(responsePT, zPreTaskListResponse);
-                      const availablePretasks = this.getAvailablePretasks(supertask2.pretasks ?? [], pretasks);
-                      this.selectPretasks = transformSelectOptions(availablePretasks, SUPER_TASK_FIELD_MAPPING);
-                      this.isLoading = false;
-                      this.changeDetectorRef.detectChanges();
-                    });
-                },
-                error: (err2: unknown) => {
-                  // Show friendly message for other server errors
-
-                  console.error('Error loading supertask:', err2);
-                  const msg =
-                    err2 instanceof HttpErrorResponse && err2.status
-                      ? `Error loading supertask (server returned ${err2.status}).`
-                      : 'Error loading supertask.';
-                  this.alert.showErrorMessage(msg);
-                  this.isLoading = false;
-                }
-              });
-            return;
-          }
-
           // For any other errors show a friendly message
 
           console.error('Error loading supertask:', err);
           const msg = status ? `Error loading supertask (server returned ${status}).` : 'Error loading supertask.';
           this.alert.showErrorMessage(msg);
-          this.isLoading = false;
         }
       });
   }
 
   /**
-   * Reload data
-   *
+   * Reloads the supertask.
    */
   refresh(): void {
-    this.isLoading = true;
     this.loadData();
   }
 
@@ -248,52 +176,7 @@ export class EditSupertasksComponent implements OnInit {
   }
 
   /**
-   * Retrieves the available pre-tasks that are not assigned.
-   *
-   * @param assigning An array of assigned tasks with pre-task information.
-   * @param  pretasks An array of all available pre-tasks.
-   * @returns An array containing pre-tasks that are not assigned.
-   */
-  getAvailablePretasks(assigning: JPretask[], pretasks: JPretask[]) {
-    // not assigned yet, and of the cracker binary type of the supertask
-    return pretasks.filter(
-      (pretask) =>
-        assigning.findIndex((assignedTask) => assignedTask.id === pretask.id) === -1 &&
-        (this.crackerBinaryTypeId === null || pretask.crackerBinaryTypeId === this.crackerBinaryTypeId)
-    );
-  }
-
-  /**
-   * Handles the form submission for updating super tasks.
-   * Validates the form, concatenates the current and new pre-task values,
-   * and updates the super task with the new pre-task payload.
-   */
-  onSubmit() {
-    if (this.updateForm.valid) {
-      const pretasks: { type: string; id: number }[] = [];
-
-      (this.updateForm.value['pretasks'] as number[]).forEach((pretask: number) => {
-        pretasks.push({ type: RelationshipType.PRETASKS, id: pretask });
-      });
-
-      const responseBody = { data: pretasks };
-
-      this.gs
-        .postRelationships(SERV.SUPER_TASKS, this.editedSTIndex, RelationshipType.PRETASKS, responseBody)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => {
-          this.alert.showSuccessMessage('Supertask saved');
-          this.refresh(); // Reload the Pretask-Select-Component
-          this.superTasksPretasksTable.reload(); // reload Supertasks table
-        });
-    } else {
-      this.updateForm.markAllAsTouched();
-      this.updateForm.updateValueAndValidity();
-    }
-  }
-
-  /**
-   * Handles updating the supertask
+   * Renames the supertask and reloads it on this page.
    */
   onUpdate(): void {
     const nameControl = this.viewForm.get('supertaskName');
@@ -311,9 +194,8 @@ export class EditSupertasksComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.router.navigate(['tasks/supertasks']).then(() => {
-            this.alert.showSuccessMessage('Supertask data has been updated successfully');
-          });
+          this.alert.showSuccessMessage('Supertask data has been updated successfully');
+          this.refresh();
         },
         error: (err: unknown) => {
           console.error('Error updating Supertask:', err);
@@ -342,7 +224,6 @@ export class EditSupertasksComponent implements OnInit {
       .subscribe({
         next: () => {
           this.alert.showSuccessMessage(`${pretasks.length} pretask(s) added to Supertask`);
-          this.refresh(); // reload select / data in parent
           this.onPretaskChanged();
         },
         error: (err) => {

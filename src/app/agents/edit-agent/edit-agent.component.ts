@@ -2,7 +2,7 @@ import { HttpStatus } from '@constants/http.config';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
 import { zAgentResponse, zGetBestTasksAgentResponse, zUserListResponse } from '@generated/api/zod';
-import { lastValueFrom } from 'rxjs';
+import { Observable, forkJoin, lastValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
@@ -282,7 +282,8 @@ export class EditAgentComponent implements OnInit {
   }
 
   /**
-   * Handles the form submission for updating an agent.
+   * Handles the form submission for updating an agent: saves the agent and a changed assignment, then reloads
+   * the agent on this page.
    */
   onSubmit(): void {
     if (this.updateForm.invalid) {
@@ -291,20 +292,24 @@ export class EditAgentComponent implements OnInit {
       return;
     }
 
+    const requests: Observable<unknown>[] = [this.gs.update(SERV.AGENTS, this.editedAgentIndex, this.updateForm.value)];
     if (this.updateAssignForm.valid && this.updateAssignForm.value.taskId !== this.currentAssignment?.taskId) {
-      this.onUpdateAssign(this.updateAssignForm.value.taskId ?? null);
+      const assignment$ = this.assignmentRequest(this.updateAssignForm.value.taskId ?? null);
+      if (assignment$) {
+        requests.push(assignment$);
+      }
     }
 
     this.isUpdatingLoading = true;
 
-    this.gs
-      .update(SERV.AGENTS, this.editedAgentIndex, this.updateForm.value)
+    // Wait for the assignment change too, so the reload shows the new assignment
+    forkJoin(requests)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.alert.showSuccessMessage('Agent saved');
           this.isUpdatingLoading = false;
-          this.router.navigate(['agents/show-agents']);
+          void this.reloadAgent();
         },
         error: () => {
           this.isUpdatingLoading = false;
@@ -314,25 +319,34 @@ export class EditAgentComponent implements OnInit {
   }
 
   /**
-   * Updates agent assignment based on the provided value.
-   * Assigns the agent to the provided taskID or removes a current assignment
+   * The request that assigns the agent to the given task, or removes its current assignment when no task is
+   * given; undefined when there is nothing to remove.
    * @param taskId The task ID.
    */
-  onUpdateAssign(taskId: number | null): void {
-    let request$;
-
+  assignmentRequest(taskId: number | null): Observable<unknown> | undefined {
     if (taskId) {
-      const payload = {
-        taskId,
-        agentId: this.editedAgentIndex
-      };
-      request$ = this.gs.chelper(SERV.HELPER, 'assignAgent', payload);
-    } else if (this.assignId) {
-      request$ = this.gs.delete(SERV.AGENT_ASSIGN, this.assignId);
+      return this.gs.chelper(SERV.HELPER, 'assignAgent', { taskId, agentId: this.editedAgentIndex });
     }
 
-    if (request$) {
-      request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+    if (this.assignId) {
+      return this.gs.delete(SERV.AGENT_ASSIGN, this.assignId);
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Reloads the agent after saving and refills the forms, staying on this page. Also reloads the assignable tasks,
+   * since they depend on the saved settings (e.g. CPU only).
+   */
+  private async reloadAgent(): Promise<void> {
+    try {
+      await this.loadAgent();
+      this.loadSelectTasks();
+      this.initForm();
+    } catch (error) {
+      // The error interceptor already told the user; the page keeps showing the last loaded agent
+      console.error('Error reloading agent:', error);
     }
   }
 

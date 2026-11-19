@@ -31,6 +31,7 @@ import { PipesModule } from '@src/app/shared/pipes.module';
 import { TableModule } from '@src/app/shared/table/table-actions.module';
 import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
+import { wait } from '@src/app/testing/wait';
 
 // Mock components - only for components not included in imported modules
 @Component({
@@ -332,7 +333,7 @@ describe('EditAgentComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/forbidden']);
   });
 
-  it('should submit form and update agent successfully', async () => {
+  it('should save the agent and reload it on the page instead of navigating', async () => {
     agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update');
 
     fixture = TestBed.createComponent(EditAgentComponent);
@@ -347,6 +348,7 @@ describe('EditAgentComponent', () => {
     });
 
     component.onSubmit();
+    await fixture.whenStable();
 
     expect(globalServiceSpy.update).toHaveBeenCalledWith(
       SERV.AGENTS,
@@ -358,7 +360,42 @@ describe('EditAgentComponent', () => {
       })
     );
     expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('Agent saved');
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['agents/show-agents']);
+    expect(globalServiceSpy.get).toHaveBeenCalledTimes(2);
+    expect(routerSpy.navigate).not.toHaveBeenCalled();
+  });
+
+  it('should save a changed assignment together with the agent before reloading', async () => {
+    agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update' || role === 'updateAssignment');
+
+    fixture = TestBed.createComponent(EditAgentComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component.updateAssignForm.patchValue({ taskId: 5 });
+    component.onSubmit();
+    await fixture.whenStable();
+
+    expect(globalServiceSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'assignAgent', { taskId: 5, agentId: 1 });
+    expect(globalServiceSpy.update).toHaveBeenCalled();
+    expect(globalServiceSpy.get).toHaveBeenCalledTimes(2);
+  });
+
+  it('should reload the assignable tasks after saving, since they depend on the saved settings', async () => {
+    agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update' || role === 'readAssignment');
+
+    fixture = TestBed.createComponent(EditAgentComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    globalServiceSpy.ghelper.mockReturnValue(of(mockValidResponse(zGetBestTasksAgentResponse, { data: [mockTask] })));
+    component.updateForm.patchValue({ cpuOnly: false });
+    component.onSubmit();
+    await wait();
+
+    expect(globalServiceSpy.ghelper).toHaveBeenCalledTimes(2);
+    expect(component.assignTasks.map((option) => option.id)).toStrictEqual([mockTask.id]);
   });
 
   it('should not submit form if it is invalid', async () => {
@@ -406,11 +443,10 @@ describe('EditAgentComponent', () => {
     expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith('Error updating agent');
   });
 
-  it('should update assignment when task is changed', () => {
+  it('should build an assign request when a task is chosen', () => {
     fixture.detectChanges();
 
-    component.updateAssignForm.patchValue({ taskId: 5 });
-    component.onUpdateAssign(5);
+    component.assignmentRequest(5);
 
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'assignAgent', {
       taskId: 5,
@@ -418,11 +454,11 @@ describe('EditAgentComponent', () => {
     });
   });
 
-  it('should delete assignment when task is set to null', () => {
+  it('should build a delete request when the assignment is removed', () => {
     component.assignId = 10;
     fixture.detectChanges();
 
-    component.onUpdateAssign(null);
+    component.assignmentRequest(null);
 
     expect(globalServiceSpy.delete).toHaveBeenCalledWith(SERV.AGENT_ASSIGN, 10);
   });

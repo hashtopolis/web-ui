@@ -21,6 +21,30 @@ import { ConfigService } from '@services/shared/config.service';
 import { EditPreconfiguredTasksComponent } from '@src/app/tasks/edit-preconfigured-tasks/edit-preconfigured-tasks.component';
 import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
 
+const PRETASK_URL = 'http://localhost/api/v2' + SERV.PRETASKS.URL + '/3';
+
+const pretaskResponse = (taskName: string) =>
+  mockValidResponse(zPreTaskResponse, {
+    data: {
+      id: 3,
+      type: 'preTask',
+      attributes: {
+        taskName,
+        attackCmd: '-a 0 #HL# words.txt',
+        chunkTime: 600,
+        color: '#112233',
+        priority: 2,
+        maxAgents: 4,
+        isCpuTask: false,
+        isSmall: true,
+        statusTimer: 5,
+        useNewBench: true,
+        isMaskImport: false,
+        crackerBinaryTypeId: 1
+      }
+    }
+  });
+
 describe('EditPreconfiguredTasksComponent', () => {
   let fixture: ComponentFixture<EditPreconfiguredTasksComponent>;
   let component: EditPreconfiguredTasksComponent;
@@ -66,28 +90,7 @@ describe('EditPreconfiguredTasksComponent', () => {
     fixture = TestBed.createComponent(EditPreconfiguredTasksComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    httpMock.expectOne('http://localhost/api/v2' + SERV.PRETASKS.URL + '/3').flush(
-      mockValidResponse(zPreTaskResponse, {
-        data: {
-          id: 3,
-          type: 'preTask',
-          attributes: {
-            taskName: 'Baseline',
-            attackCmd: '-a 0 #HL# words.txt',
-            chunkTime: 600,
-            color: '#112233',
-            priority: 2,
-            maxAgents: 4,
-            isCpuTask: false,
-            isSmall: true,
-            statusTimer: 5,
-            useNewBench: true,
-            isMaskImport: false,
-            crackerBinaryTypeId: 1
-          }
-        }
-      })
-    );
+    httpMock.expectOne(PRETASK_URL).flush(pretaskResponse('Baseline'));
     await fixture.whenStable();
   });
 
@@ -102,7 +105,7 @@ describe('EditPreconfiguredTasksComponent', () => {
 
   async function rejectPretaskRequest(status: number, statusText: string): Promise<void> {
     await restartComponent();
-    httpMock.expectOne('http://localhost/api/v2' + SERV.PRETASKS.URL + '/3').flush('Error', { status, statusText });
+    httpMock.expectOne(PRETASK_URL).flush('Error', { status, statusText });
     await fixture.whenStable();
   }
 
@@ -118,17 +121,22 @@ describe('EditPreconfiguredTasksComponent', () => {
     expect(alert.showErrorMessage).not.toHaveBeenCalled();
   });
 
-  it('updates a valid pretask and navigates on success', () => {
+  it('saves a valid pretask and reloads it on the page instead of navigating', async () => {
     gs.update.mockReturnValue(of(mockResponse()));
     component.updateForm.get('updateData.taskName')?.setValue('Updated');
+
     component.onSubmit();
+    httpMock.expectOne(PRETASK_URL).flush(pretaskResponse('Updated'));
+    await fixture.whenStable();
+
     expect(gs.update).toHaveBeenCalledExactlyOnceWith(
       SERV.PRETASKS,
       3,
       expect.objectContaining({ taskName: 'Updated' })
     );
     expect(alert.showSuccessMessage).toHaveBeenCalledExactlyOnceWith('Preconfigured Task saved');
-    expect(router.navigate).toHaveBeenCalledExactlyOnceWith(['tasks/preconfigured-tasks']);
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(component.pretaskName).toBe('Updated');
   });
 
   it('does not submit invalid form values and marks controls touched', () => {
@@ -170,28 +178,7 @@ describe('EditPreconfiguredTasksComponent', () => {
   it('does not update a pretask in read-only mode', async () => {
     roleService.hasRole.mockReturnValue(false);
     await restartComponent();
-    httpMock.expectOne('http://localhost/api/v2' + SERV.PRETASKS.URL + '/3').flush(
-      mockValidResponse(zPreTaskResponse, {
-        data: {
-          id: 3,
-          type: 'preTask',
-          attributes: {
-            taskName: 'Baseline',
-            attackCmd: '-a 0 #HL# words.txt',
-            chunkTime: 600,
-            color: '#112233',
-            priority: 2,
-            maxAgents: 4,
-            isCpuTask: false,
-            isSmall: true,
-            statusTimer: 5,
-            useNewBench: true,
-            isMaskImport: false,
-            crackerBinaryTypeId: 1
-          }
-        }
-      })
-    );
+    httpMock.expectOne(PRETASK_URL).flush(pretaskResponse('Baseline'));
     await fixture.whenStable();
 
     expect(component.updateForm.valid).toBe(true);

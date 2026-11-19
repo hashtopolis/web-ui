@@ -187,7 +187,7 @@ export class EditPreconfiguredTasksComponent implements OnInit {
 
   /**
    * Handles form submission, edit Pretask
-   * If the form is valid, it makes an API request and navigates to the Pretask page.
+   * If the form is valid, it makes an API request and reloads the pretask on this page.
    */
   onSubmit(): void {
     if (this.updateForm.valid && !this.isReadOnly) {
@@ -199,7 +199,7 @@ export class EditPreconfiguredTasksComponent implements OnInit {
           next: () => {
             this.alert.showSuccessMessage('Preconfigured Task saved');
             this.isUpdatingLoading = false;
-            void this.router.navigate(['tasks/preconfigured-tasks']);
+            void this.reloadPretask();
           },
           error: (err) => {
             console.error('Error updating preconfigured Task', err);
@@ -209,6 +209,18 @@ export class EditPreconfiguredTasksComponent implements OnInit {
     } else {
       this.updateForm.markAllAsTouched();
       this.updateForm.updateValueAndValidity();
+    }
+  }
+
+  /**
+   * Reloads the pretask after saving, staying on this page.
+   */
+  private async reloadPretask(): Promise<void> {
+    try {
+      await this.loadPretask();
+    } catch (e: unknown) {
+      // The error interceptor already told the user; the page keeps showing the last loaded pretask
+      console.error('Error reloading pretask:', e);
     }
   }
 }
