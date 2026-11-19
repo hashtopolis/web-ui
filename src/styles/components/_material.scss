@@ -3,23 +3,11 @@
 .mat-mdc-button,
 .mat-mdc-outlined-button,
 .mat-mdc-unelevated-button,
-.mat-mdc-raised-button,
-.mat-mdc-icon-button {
+.mat-mdc-raised-button {
   --mat-button-text-container-shape: var(--radius-md);
   --mat-button-outlined-container-shape: var(--radius-md);
   --mat-button-filled-container-shape: var(--radius-md);
   --mat-button-protected-container-shape: var(--radius-md);
-}
-
-.mat-mdc-icon-button.mat-mdc-icon-button {
-  border-radius: var(--radius-md);
-}
-.mat-mdc-icon-button .mat-mdc-button-persistent-ripple,
-.mat-mdc-icon-button .mat-mdc-button-ripple {
-  border-radius: var(--radius-md);
-}
-.mat-mdc-icon-button .mat-mdc-button-touch-target {
-  border-radius: var(--radius-md);
 }
 
 .mat-mdc-unelevated-button,

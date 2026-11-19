@@ -1,4 +1,4 @@
-import { ChunkState, ChunkStateLabels, ChunkStatePillClass } from '@constants/chunks.config';
+import { ChunkState, ChunkStateLabels, ChunkStatePillClass, isChunkActive } from '@constants/chunks.config';
 import { zChunkResponse, zSpeedListResponse, zTaskResponse } from '@generated/api/zod';
 import { Observable, catchError, map, of, switchMap, tap } from 'rxjs';
 
@@ -158,7 +158,7 @@ export class ChunkDetailComponent implements OnInit {
   }
 
   get isActive(): boolean {
-    return this.chunk?.state === ChunkState.RUNNING || this.chunk?.state === ChunkState.INIT;
+    return isChunkActive(this.chunk?.state);
   }
 
   get usesPipe(): boolean {

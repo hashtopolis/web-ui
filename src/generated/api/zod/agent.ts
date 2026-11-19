@@ -253,7 +253,11 @@ export const zAgentResponse = z.object({
               z.literal(7),
               z.literal(8),
               z.literal(9),
-              z.literal(10)
+              z.literal(10),
+              z.literal(11),
+              z.literal(13),
+              z.literal(14),
+              z.literal(16)
             ]),
             cracked: z.int(),
             speed: z.number()
@@ -501,7 +505,11 @@ export const zAgentPostPatchResponse = z.object({
               z.literal(7),
               z.literal(8),
               z.literal(9),
-              z.literal(10)
+              z.literal(10),
+              z.literal(11),
+              z.literal(13),
+              z.literal(14),
+              z.literal(16)
             ]),
             cracked: z.int(),
             speed: z.number()
@@ -775,7 +783,11 @@ export const zAgentListResponse = z.object({
               z.literal(7),
               z.literal(8),
               z.literal(9),
-              z.literal(10)
+              z.literal(10),
+              z.literal(11),
+              z.literal(13),
+              z.literal(14),
+              z.literal(16)
             ]),
             cracked: z.int(),
             speed: z.number()
@@ -968,11 +980,17 @@ export const zDeleteAgentsBody = zAgentDeleteMultiple;
 export const zDeleteAgentsResponse = z.void();
 
 export const zGetAgentsQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
+  'page[after]': z
+    .string()
+    .regex(/^[A-Za-z0-9+\/]*={0,2}$/)
+    .optional(),
+  'page[before]': z
+    .string()
+    .regex(/^[A-Za-z0-9+\/]*={0,2}$/)
+    .optional(),
   'page[size]': z
     .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .gte(1)
     .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
     .optional(),
   filter: z.record(z.string(), z.string()).optional(),

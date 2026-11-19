@@ -248,6 +248,10 @@ export const zRebuildChunkCacheHelperApiResponse = z.object({
   data: z.array(z.record(z.string(), z.unknown())).max(0)
 });
 
+export const zRecomputeFileChecksumHelperApi = z.object({
+  fileId: z.int().optional()
+});
+
 export const zRecountFileLinesHelperApi = z.object({
   fileId: z.int().optional()
 });
@@ -403,11 +407,17 @@ export const zUnassignAgentHelperApiResponse = z.object({
 });
 
 export const zGetTaskwrapperdisplaysQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
+  'page[after]': z
+    .string()
+    .regex(/^[A-Za-z0-9+\/]*={0,2}$/)
+    .optional(),
+  'page[before]': z
+    .string()
+    .regex(/^[A-Za-z0-9+\/]*={0,2}$/)
+    .optional(),
   'page[size]': z
     .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .gte(1)
     .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
     .optional(),
   filter: z.record(z.string(), z.string()).optional(),
@@ -723,6 +733,16 @@ export const zPostRebuildChunkCacheBody = zRebuildChunkCacheHelperApi;
  * successful operation
  */
 export const zPostRebuildChunkCacheResponse = zRebuildChunkCacheHelperApiResponse;
+
+/**
+ * FileId is the id of the file whose checksum needs to be recomputed.
+ */
+export const zPostRecomputeFileChecksumBody = zRecomputeFileChecksumHelperApi;
+
+/**
+ * successful operation
+ */
+export const zPostRecomputeFileChecksumResponse = zFileSingleResponse;
 
 /**
  * FileId is the id of the file that needs to be recounted.

@@ -1,6 +1,6 @@
 import { catchError } from 'rxjs';
 
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JAgentBinary } from '@models/agent-binary.model';
@@ -28,6 +28,7 @@ import { environment } from '@src/environments/environment';
 @Component({
   selector: 'app-agent-binaries-table',
   templateUrl: './agent-binaries-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class AgentBinariesTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

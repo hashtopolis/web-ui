@@ -1,7 +1,9 @@
+import type { MockedObject } from 'vitest';
+
 import { Clipboard } from '@angular/cdk/clipboard';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { AlertService } from '@services/shared/alert.service';
 
@@ -11,17 +13,25 @@ describe('RevealApiKeyDialogComponent', () => {
   let component: RevealApiKeyDialogComponent;
   let fixture: ComponentFixture<RevealApiKeyDialogComponent>;
 
-  let mockClipboard: jasmine.SpyObj<Clipboard>;
-  let mockAlert: jasmine.SpyObj<AlertService>;
-  let mockDialogRef: jasmine.SpyObj<MatDialogRef<RevealApiKeyDialogComponent>>;
+  let mockClipboard: MockedObject<Clipboard>;
+  let mockAlert: MockedObject<AlertService>;
+  let mockDialogRef: MockedObject<MatDialogRef<RevealApiKeyDialogComponent>>;
 
   beforeEach(async () => {
-    mockClipboard = jasmine.createSpyObj('Clipboard', ['copy']);
-    mockAlert = jasmine.createSpyObj('AlertService', ['showSuccessMessage', 'showErrorMessage']);
-    mockDialogRef = jasmine.createSpyObj('MatDialogRef', ['close']);
+    mockClipboard = {
+      copy: vi.fn().mockName('Clipboard.copy')
+    } as MockedObject<Clipboard>;
+    mockAlert = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage'),
+      showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage')
+    } as MockedObject<AlertService>;
+    mockDialogRef = {
+      close: vi.fn().mockName('MatDialogRef.close')
+    } as MockedObject<MatDialogRef<RevealApiKeyDialogComponent>>;
 
     await TestBed.configureTestingModule({
       declarations: [RevealApiKeyDialogComponent],
+      imports: [MatDialogModule],
       providers: [
         { provide: Clipboard, useValue: mockClipboard },
         { provide: AlertService, useValue: mockAlert },
@@ -40,7 +50,7 @@ describe('RevealApiKeyDialogComponent', () => {
   });
 
   it('shows a success message when the clipboard write succeeds', () => {
-    mockClipboard.copy.and.returnValue(true);
+    mockClipboard.copy.mockReturnValue(true);
 
     component.copy();
 
@@ -49,15 +59,20 @@ describe('RevealApiKeyDialogComponent', () => {
   });
 
   it('shows an error message when the clipboard write fails', () => {
-    mockClipboard.copy.and.returnValue(false);
+    mockClipboard.copy.mockReturnValue(false);
 
     component.copy();
 
     expect(mockAlert.showErrorMessage).toHaveBeenCalled();
   });
 
-  it('closes the dialog when done() is called', () => {
-    component.done();
+  it('closes the dialog when Done is clicked', () => {
+    fixture.detectChanges();
+    const doneButton = [...fixture.nativeElement.querySelectorAll('button')].find(
+      (button: HTMLButtonElement) => button.textContent?.trim() === 'Done'
+    ) as HTMLButtonElement;
+
+    doneButton.click();
 
     expect(mockDialogRef.close).toHaveBeenCalled();
   });

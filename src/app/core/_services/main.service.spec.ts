@@ -1,3 +1,5 @@
+import type { MockedObject } from 'vitest';
+
 import { HttpHeaders, provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
@@ -10,7 +12,7 @@ import { ConfigService } from '@services/shared/config.service';
 describe('GlobalService downloads', () => {
   let service: GlobalService;
   let httpMock: HttpTestingController;
-  let anchor: jasmine.SpyObj<HTMLAnchorElement>;
+  let anchor: MockedObject<HTMLAnchorElement>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -25,10 +27,12 @@ describe('GlobalService downloads', () => {
     service = TestBed.inject(GlobalService);
     httpMock = TestBed.inject(HttpTestingController);
 
-    anchor = jasmine.createSpyObj<HTMLAnchorElement>('a', ['click']);
-    spyOn(document, 'createElement').and.returnValue(anchor);
-    spyOn(window.URL, 'createObjectURL').and.returnValue('blob:mock');
-    spyOn(window.URL, 'revokeObjectURL');
+    anchor = {
+      click: vi.fn().mockName('a.click')
+    } as MockedObject<HTMLAnchorElement>;
+    vi.spyOn(document, 'createElement').mockReturnValue(anchor as HTMLAnchorElement);
+    vi.spyOn(window.URL, 'createObjectURL').mockReturnValue('blob:mock');
+    vi.spyOn(window.URL, 'revokeObjectURL').mockReturnValue(undefined);
   });
 
   afterEach(() => httpMock.verify());
@@ -48,7 +52,7 @@ describe('GlobalService downloads', () => {
     expect(anchor.href).toBe('blob:mock');
     expect(anchor.click).toHaveBeenCalled();
     expect(window.URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock');
-    expect(done).toBeTrue();
+    expect(done).toBe(true);
   });
 
   it('downloadFromUrl bypasses the http cache so archives are not kept in memory', () => {
@@ -131,14 +135,14 @@ describe('GlobalService relationships', () => {
     const req = httpMock.expectOne('http://localhost:8080/api/v2/ui/crackers/12/relationships/hashtypes');
     expect(req.request.method).toBe('POST');
     expect(req.request.headers.get('X-Test')).toBe('1');
-    expect(req.request.body).toEqual({ data: [{ type: 'hashType', id: 0 }] });
+    expect(req.request.body).toStrictEqual({ data: [{ type: 'hashType', id: 0 }] });
     req.flush({});
   });
 
   it('postRelationships sends no extra headers without options', () => {
     service.postRelationships(SERV.CRACKERS, 12, 'hashtypes', { data: [] }).subscribe();
     const req = httpMock.expectOne('http://localhost:8080/api/v2/ui/crackers/12/relationships/hashtypes');
-    expect(req.request.headers.keys()).toEqual([]);
+    expect(req.request.headers.keys()).toStrictEqual([]);
     req.flush({});
   });
 });

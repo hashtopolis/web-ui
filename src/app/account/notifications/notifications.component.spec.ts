@@ -1,4 +1,6 @@
-import { Component, Input } from '@angular/core';
+import type { MockedObject } from 'vitest';
+
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
@@ -10,6 +12,7 @@ import { AutoTitleService } from '@src/app/core/_services/shared/autotitle.servi
 @Component({
   selector: 'app-table',
   template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true
 })
 class MockTableComponent {}
@@ -19,19 +22,26 @@ class MockTableComponent {}
 @Component({
   selector: 'app-page',
   template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true
 })
 class MockPageComponent {
-  @Input() title: string;
-  @Input() subtitle?: string;
-  @Input() actionTitle?: string;
-  @Input() actionLink?: string;
-  @Input() showAction?: boolean;
+  @Input()
+  title: string;
+  @Input()
+  subtitle?: string;
+  @Input()
+  actionTitle?: string;
+  @Input()
+  actionLink?: string;
+  @Input()
+  showAction?: boolean;
 }
 
 @Component({
   selector: 'app-notifications-table',
   template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true
 })
 class MockNotificationsTableComponent {}
@@ -39,12 +49,16 @@ class MockNotificationsTableComponent {}
 describe('NotificationsComponent', () => {
   let component: NotificationsComponent;
   let fixture: ComponentFixture<NotificationsComponent>;
-  let titleService: jasmine.SpyObj<AutoTitleService>;
-  let mockRoleService: jasmine.SpyObj<NotificationsRoleService>;
+  let titleService: MockedObject<AutoTitleService>;
+  let mockRoleService: MockedObject<NotificationsRoleService>;
 
   beforeEach(() => {
-    const titleServiceSpy = jasmine.createSpyObj('AutoTitleService', ['set']);
-    mockRoleService = jasmine.createSpyObj('NotificationsRoleService', ['hasRole']);
+    const titleServiceSpy = {
+      set: vi.fn().mockName('AutoTitleService.set')
+    };
+    mockRoleService = {
+      hasRole: vi.fn().mockName('NotificationsRoleService.hasRole')
+    } as MockedObject<NotificationsRoleService>;
 
     TestBed.configureTestingModule({
       declarations: [NotificationsComponent],
@@ -57,7 +71,7 @@ describe('NotificationsComponent', () => {
 
     fixture = TestBed.createComponent(NotificationsComponent);
     component = fixture.componentInstance;
-    titleService = TestBed.inject(AutoTitleService) as jasmine.SpyObj<AutoTitleService>;
+    titleService = TestBed.inject(AutoTitleService) as MockedObject<AutoTitleService>;
     fixture.detectChanges();
   });
 

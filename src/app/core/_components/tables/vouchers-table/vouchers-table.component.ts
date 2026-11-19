@@ -1,9 +1,7 @@
 import { catchError } from 'rxjs';
 
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
-import { BaseModel } from '@models/base.model';
 
 import { VoucherContextMenuService } from '@services/context-menu/agents/voucher-menu.service';
 
@@ -27,6 +25,7 @@ import { formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 @Component({
   selector: 'app-vouchers-table',
   templateUrl: './vouchers-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class VouchersTableComponent extends BaseTableComponent implements OnInit {
@@ -75,7 +74,7 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
         id: VouchersTableCol.KEY,
         dataKey: 'voucher',
         isSortable: true,
-        isCopy: true,
+        copy: { label: 'Voucher key', value: (voucher: JVoucher) => voucher.voucher },
         isSearchable: true,
         export: async (voucher: JVoucher) => voucher.voucher
       },
@@ -123,14 +122,6 @@ export class VouchersTableComponent extends BaseTableComponent implements OnInit
       VouchersTableColumnLabel,
       'hashtopolis-vouchers'
     );
-  }
-
-  protected receiveCopyData(event: BaseModel): void {
-    if (this.clipboard.copy(String((event as JVoucher).voucher))) {
-      this.alertService.showSuccessMessage('Voucher key successfully copied to clipboard.');
-    } else {
-      this.alertService.showErrorMessage('Could not copy Voucher key clipboard.');
-    }
   }
 
   rowActionClicked(event: ActionMenuEvent<JVoucher>): void {

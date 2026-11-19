@@ -300,6 +300,10 @@ export type RebuildChunkCacheHelperApiResponse = {
   }>;
 };
 
+export type RecomputeFileChecksumHelperApi = {
+  fileId?: number;
+};
+
 export type RecountFileLinesHelperApi = {
   fileId?: number;
 };
@@ -458,7 +462,7 @@ export type GetTaskwrapperdisplaysData = {
      */
     'page[before]'?: string;
     /**
-     * Amout of data to retrieve inside a single page
+     * Amount of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**
@@ -1888,6 +1892,47 @@ export type PostRebuildChunkCacheResponses = {
 };
 
 export type PostRebuildChunkCacheResponse = PostRebuildChunkCacheResponses[keyof PostRebuildChunkCacheResponses];
+
+export type PostRecomputeFileChecksumData = {
+  /**
+   * FileId is the id of the file whose checksum needs to be recomputed.
+   */
+  body: RecomputeFileChecksumHelperApi;
+  path?: never;
+  query?: never;
+  url: '/api/v2/helper/recomputeFileChecksum';
+};
+
+export type PostRecomputeFileChecksumErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostRecomputeFileChecksumError = PostRecomputeFileChecksumErrors[keyof PostRecomputeFileChecksumErrors];
+
+export type PostRecomputeFileChecksumResponses = {
+  /**
+   * successful operation
+   */
+  200: FileSingleResponse;
+};
+
+export type PostRecomputeFileChecksumResponse =
+  PostRecomputeFileChecksumResponses[keyof PostRecomputeFileChecksumResponses];
 
 export type PostRecountFileLinesData = {
   /**

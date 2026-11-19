@@ -67,8 +67,4 @@ export class CookieService {
     const cpath = path ? `; path=${path}` : '';
     document.cookie = `${name}=${value}; ${expires}${cpath}; SameSite=Lax`;
   }
-
-  public deleteCookie(name: string): void {
-    this.setCookie(name, '', -1);
-  }
 }

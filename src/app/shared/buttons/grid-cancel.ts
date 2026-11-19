@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 /**
  * Component for displaying a row with buttons in a grid layout.
@@ -36,6 +36,7 @@ import { Component } from '@angular/core';
       }
     `
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class GridButtonsComponent {}

@@ -1,3 +1,5 @@
+import { FocusMonitor } from '@angular/cdk/a11y';
+import { Clipboard } from '@angular/cdk/clipboard';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -21,11 +23,11 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort, SortDirection } from '@angular/material/sort';
 
 import { BaseModel } from '@models/base.model';
-import { Sorting, TableSettingsKey, UIConfig } from '@models/config-ui.model';
-import { JHash } from '@models/hash.model';
+import { Sorting, TableSettingsKey } from '@models/config-ui.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
+import { AlertService } from '@services/shared/alert.service';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuComponent } from '@components/menus/bulk-action-menu/bulk-action-menu.component';
@@ -39,13 +41,12 @@ import {
   ColumnDefId,
   DataType,
   HTTableColumn,
+  HTTableCopy,
   HTTableEditable,
   SortingColumn
 } from '@components/tables/ht-table/ht-table.models';
 
 import { BaseDataSource } from '@datasources/base.datasource';
-
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 
 /**
  * The `HTTableComponent` is a custom table component that allows you to display tabular data with
@@ -99,7 +100,9 @@ import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewInit, OnDestroy {
   dialog = inject(MatDialog);
   private cd = inject(ChangeDetectorRef);
-  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
+  private clipboard = inject(Clipboard);
+  private focusMonitor = inject(FocusMonitor);
+  private alertService = inject(AlertService);
   private host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /** Stringified column enum IDs for mat-table binding, built by {@link setDisplayedColumns}. */
@@ -225,14 +228,12 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   /** Event emitter for checkbox attack */
   @Output() temperatureInformationClicked: EventEmitter<void> = new EventEmitter();
   @Output() selectedFilterColumnChanged: EventEmitter<HTTableColumn> = new EventEmitter();
-  @Output() emitCopyRowData: EventEmitter<BaseModel> = new EventEmitter();
-  @Output() emitFullHashModal: EventEmitter<JHash> = new EventEmitter();
   @Output() linkClicked = new EventEmitter();
 
   /** Fetches user customizations */
   @Output() backendSqlFilter: EventEmitter<string> = new EventEmitter();
 
-  private uiSettings: UISettingsUtilityClass;
+  private uiSettings = inject(UiSettingsService);
   private destroyRef = inject(DestroyRef);
 
   @ViewChild('bulkMenu') bulkMenu: BulkActionMenuComponent;
@@ -261,7 +262,6 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
   filterError: string | null = null;
 
   ngOnInit(): void {
-    this.uiSettings = new UISettingsUtilityClass(this.storage);
     const displayedColumns = this.uiSettings.getTableSettings(this.name);
     const tableSettings = this.uiSettings.getTableConfig(this.name);
 
@@ -482,12 +482,25 @@ export class HTTableComponent<T extends BaseModel> implements OnInit, AfterViewI
     this.linkClicked.emit();
   }
 
-  copyRowDataEmit(event: JHash) {
-    this.emitCopyRowData.emit(event);
-  }
-
-  showFullHashModalEmit(event: JHash): void {
-    this.emitFullHashModal.emit(event);
+  /**
+   * Copies the value of a cell to the clipboard and informs the user about the result.
+   * @param copy - copy configuration of the column
+   * @param element - row the cell belongs to
+   * @param event - click event of the copy button
+   */
+  copyCellValue(copy: HTTableCopy, element: T, event: MouseEvent): void {
+    const copied = this.clipboard.copy(copy.value(element));
+    // The clipboard refocuses the button programmatically, which makes Material keep its focus highlight.
+    // Re-attribute the focus to the actual interaction, like mat-dialog-close does.
+    const button = event.currentTarget;
+    if (button instanceof HTMLElement) {
+      this.focusMonitor.focusVia(button, event.screenX === 0 && event.screenY === 0 ? 'keyboard' : 'mouse');
+    }
+    if (copied) {
+      this.alertService.showSuccessMessage(`${copy.label} successfully copied to clipboard.`);
+    } else {
+      this.alertService.showErrorMessage(`Could not copy ${copy.label.toLowerCase()} to clipboard.`);
+    }
   }
 
   /**

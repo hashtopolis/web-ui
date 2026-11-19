@@ -1,22 +1,25 @@
 import { Perm } from '@constants/userpermissions.config';
+import type { MockedObject } from 'vitest';
 
 import { PermissionService } from '@services/permission/permission.service';
 import { BackgroundJobRoleService } from '@services/roles/config/background-job-role.service';
 
 describe('BackgroundJobRoleService', () => {
   function service(granted: string[]) {
-    const permissionService = jasmine.createSpyObj<PermissionService>('PermissionService', ['hasPermissionSync']);
-    permissionService.hasPermissionSync.and.callFake((key) => granted.includes(key));
+    const permissionService = {
+      hasPermissionSync: vi.fn().mockName('PermissionService.hasPermissionSync')
+    } as MockedObject<PermissionService>;
+    permissionService.hasPermissionSync.mockImplementation((key) => granted.includes(key));
     return new BackgroundJobRoleService(permissionService);
   }
 
   it('grants read with permBackgroundJobRead', () => {
-    expect(service([Perm.BackgroundJob.READ]).hasRole('read')).toBeTrue();
-    expect(service([]).hasRole('read')).toBeFalse();
+    expect(service([Perm.BackgroundJob.READ]).hasRole('read')).toBe(true);
+    expect(service([]).hasRole('read')).toBe(false);
   });
 
   it('grants delete with permBackgroundJobDelete', () => {
-    expect(service([Perm.BackgroundJob.DELETE]).hasRole('delete')).toBeTrue();
-    expect(service([Perm.BackgroundJob.READ]).hasRole('delete')).toBeFalse();
+    expect(service([Perm.BackgroundJob.DELETE]).hasRole('delete')).toBe(true);
+    expect(service([Perm.BackgroundJob.READ]).hasRole('delete')).toBe(false);
   });
 });

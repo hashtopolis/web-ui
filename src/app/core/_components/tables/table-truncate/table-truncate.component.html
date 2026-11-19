@@ -1,8 +1,10 @@
-<div class="flex relative max-w-full font-mono">
-  @if (!expanded) {
-    <div>{{ abbr }}</div>
-  }
-  @if (expanded) {
-    <div>{{ displayText }}</div>
+<div class="flex max-w-full font-mono">
+  <div>{{ abbr }}</div>
+  @if (isTruncated) {
+    <span class="icon-actions">
+      <button matIconButton color="primary" aria-label="Show full value" (click)="showFullText()">
+        <mat-icon>visibility</mat-icon>
+      </button>
+    </span>
   }
 </div>

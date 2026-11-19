@@ -382,6 +382,7 @@ export type TaskResponse = {
           fileType: 0 | 1 | 2 | 100;
           accessGroupId: number;
           lineCount: number;
+          checksum: string | null;
         };
       }
     | {
@@ -590,6 +591,7 @@ export type TaskPostPatchResponse = {
           fileType: 0 | 1 | 2 | 100;
           accessGroupId: number;
           lineCount: number;
+          checksum: string | null;
         };
       }
     | {
@@ -807,6 +809,7 @@ export type TaskListResponse = {
           fileType: 0 | 1 | 2 | 100;
           accessGroupId: number;
           lineCount: number;
+          checksum: string | null;
         };
       }
     | {
@@ -991,7 +994,7 @@ export type GetTasksData = {
      */
     'page[before]'?: string;
     /**
-     * Amout of data to retrieve inside a single page
+     * Amount of data to retrieve inside a single page
      */
     'page[size]'?: number;
     /**

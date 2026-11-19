@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 
@@ -7,30 +7,56 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 
 import { HashtypesComponent } from '@src/app/config/hashtypes/hashtypes.component';
 
-@Component({ selector: 'app-page', template: '<ng-content></ng-content>', standalone: false })
+@Component({
+  selector: 'app-page',
+  template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false
+})
 class StubPageComponent {
-  @Input() title: string;
-  @Input() actionTitle?: string;
-  @Input() actionLink?: string;
-  @Input() showAction?: boolean;
+  @Input()
+  title: string;
+  @Input()
+  actionTitle?: string;
+  @Input()
+  actionLink?: string;
+  @Input()
+  showAction?: boolean;
 }
 
-@Component({ selector: 'app-table', template: '<ng-content></ng-content>', standalone: false })
+@Component({
+  selector: 'app-table',
+  template: '<ng-content></ng-content>',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false
+})
 class StubTableComponent {}
 
-@Component({ selector: 'app-hashtypes-table', template: '', standalone: false })
+@Component({
+  selector: 'app-hashtypes-table',
+  template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false
+})
 class StubHashtypesTableComponent {}
 
 describe('HashtypesComponent', () => {
   let fixture: ComponentFixture<HashtypesComponent>;
 
   beforeEach(async () => {
-    const roles = jasmine.createSpyObj('HashTypesRoleService', ['hasRole']);
-    roles.hasRole.and.returnValue(true);
+    const roles = {
+      hasRole: vi.fn().mockName('HashTypesRoleService.hasRole')
+    };
+    roles.hasRole.mockReturnValue(true);
     await TestBed.configureTestingModule({
       declarations: [HashtypesComponent, StubPageComponent, StubTableComponent, StubHashtypesTableComponent],
       providers: [
-        { provide: AutoTitleService, useValue: jasmine.createSpyObj('AutoTitleService', ['set']) },
+        {
+          provide: AutoTitleService,
+          useValue: {
+            set: vi.fn().mockName('AutoTitleService.set')
+          }
+        },
         { provide: HashTypesRoleService, useValue: roles }
       ]
     }).compileComponents();
@@ -43,7 +69,7 @@ describe('HashtypesComponent', () => {
     expect(page.title).toBe('Hashtypes');
     expect(page.actionTitle).toBeUndefined();
     expect(page.actionLink).toBeUndefined();
-    expect(page.showAction).toBeFalsy();
+    expect(page.showAction).toBeUndefined();
   });
 
   it('shows the hashtypes table', () => {

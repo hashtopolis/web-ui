@@ -39,13 +39,17 @@ describe('TaskSpeedGraphComponent', () => {
     const option = drawWith([speedStat(100, 5_000_000), speedStat(110, 800_000)]);
     const plotted = option.series[0].data.map((point: { value: [number, number] }) => point.value[1]);
 
-    expect(plotted).toEqual([5, 0.8]);
+    expect(plotted).toStrictEqual([5, 0.8]);
     expect(option.yAxis[0].name).toBe('MH/s');
   });
 
   it('places the Max/Min markers on the true extremes with the shared unit', () => {
     const option = drawWith([speedStat(100, 5_000_000), speedStat(110, 800_000)]);
-    const markPoints = option.series[0].markPoint.data as { name: string; coord: [number, number]; value: string }[];
+    const markPoints = option.series[0].markPoint.data as {
+      name: string;
+      coord: [number, number];
+      value: string;
+    }[];
     const max = markPoints.find((point) => point.name === 'Max');
     const min = markPoints.find((point) => point.name === 'Min');
 
@@ -60,7 +64,7 @@ describe('TaskSpeedGraphComponent', () => {
     const option = drawWith([speedStat(100, 3_000_000, 1), speedStat(105, 3_000_000, 2)]);
     const plotted = option.series[0].data.map((point: { value: [number, number] }) => point.value[1]);
 
-    expect(plotted).toEqual([6]);
+    expect(plotted).toStrictEqual([6]);
   });
 
   it('keeps only the latest sample per agent within a bucket, never double-counting one agent', () => {
@@ -68,7 +72,7 @@ describe('TaskSpeedGraphComponent', () => {
     const option = drawWith([speedStat(100, 3_000_000, 1), speedStat(105, 4_000_000, 1)]);
     const plotted = option.series[0].data.map((point: { value: [number, number] }) => point.value[1]);
 
-    expect(plotted).toEqual([4]);
+    expect(plotted).toStrictEqual([4]);
   });
 
   it('carries an agent through a bucket it skipped so the total has no false dip', () => {
@@ -83,7 +87,7 @@ describe('TaskSpeedGraphComponent', () => {
     ]);
     const plotted = option.series[0].data.map((point: { value: [number, number] }) => point.value[1]);
 
-    expect(plotted).toEqual([8, 8, 8]);
+    expect(plotted).toStrictEqual([8, 8, 8]);
   });
 
   it('drops an agent from the total once it stops reporting past the activity window', () => {
@@ -105,7 +109,7 @@ describe('TaskSpeedGraphComponent', () => {
     const plotted = option.series[0].data.map((point: { value: [number, number] }) => point.value[1]);
 
     expect(option.yAxis[0].name).toBe('GH/s');
-    expect(plotted).toEqual([2.5, 0.02]);
+    expect(plotted).toStrictEqual([2.5, 0.02]);
   });
 
   it('rounds each plotted value to two decimals', () => {
@@ -154,7 +158,7 @@ describe('TaskSpeedGraphComponent', () => {
     const plotted = option.series[0].data.map((point: { value: [number, number] }) => point.value[1]);
 
     expect(option.yAxis[0].name).toBe('H/s');
-    expect(plotted).toEqual([500]);
+    expect(plotted).toStrictEqual([500]);
   });
 
   it('breaks the line where reporting pauses longer than the activity window', () => {
@@ -169,7 +173,11 @@ describe('TaskSpeedGraphComponent', () => {
 
   it('places both Max and Min markers on the sole point when there is only one sample', () => {
     const option = drawWith([speedStat(100, 5_000_000, 1)]);
-    const markPoints = option.series[0].markPoint.data as { name: string; coord: [number, number]; value: string }[];
+    const markPoints = option.series[0].markPoint.data as {
+      name: string;
+      coord: [number, number];
+      value: string;
+    }[];
     const max = markPoints.find((point) => point.name === 'Max');
     const min = markPoints.find((point) => point.name === 'Min');
 
@@ -221,7 +229,7 @@ describe('TaskSpeedGraphComponent', () => {
     drawWith([speedStat(100, 5_000_000)]);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const chart = (component as any).chart;
-    spyOn(chart, 'clear').and.callThrough();
+    vi.spyOn(chart, 'clear');
 
     component.speeds = [];
     component.ngOnChanges({ speeds: new SimpleChange([speedStat(100, 5_000_000)], [], false) });

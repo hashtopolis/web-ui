@@ -43,6 +43,7 @@ export const HELPER_ENDPOINTS = [
   'rebuildChunkCache',
   'rescanGlobalFiles',
   'recountFileLines',
+  'recomputeFileChecksum',
   'resetUserPassword'
 ] as const;
 
@@ -58,7 +59,6 @@ export class SERV {
   // AGENTS
   public static AGENTS = { URL: '/ui/agents', RESOURCE: 'Agents' };
   public static AGENT_ERRORS = { URL: '/ui/agenterrors', RESOURCE: 'AgentErrors' };
-  public static AGENTS_STATS = { URL: '/ui/agentstats', RESOURCE: 'AgentStats' };
   public static AGENT_ASSIGN = { URL: '/ui/agentassignments', RESOURCE: 'AgentAssignments' };
   public static AGENTS_COUNT = { URL: '/ui/agents/count', RESOURCE: 'AgentsCount' };
   public static VOUCHER = { URL: '/ui/vouchers', RESOURCE: 'Vouchers' };
@@ -79,7 +79,6 @@ export class SERV {
   // HASHLISTS
   public static HASHES = { URL: '/ui/hashes', RESOURCE: 'Hashes' };
   public static HASHLISTS = { URL: '/ui/hashlists', RESOURCE: 'Hashlists' };
-  public static SUPER_HASHLISTS = { URL: '/ui/superhashlists', RESOURCE: 'Superhashlists' };
   public static HASHES_COUNT = { URL: '/ui/hashes/count', RESOURCE: 'HashesCount' };
   // TASKS
   public static CHUNKS = { URL: '/ui/chunks', RESOURCE: 'Chunks' };
@@ -95,8 +94,6 @@ export class SERV {
   public static USERS = { URL: '/ui/users', RESOURCE: 'Users' };
   // API TOKENS
   public static API_TOKENS = { URL: '/ui/apiTokens', RESOURCE: 'apiToken' };
-  // PROJECTS
-  public static PROJECTS = { URL: '/ui/tasks', RESOURCE: 'Projects' };
 }
 
 /**

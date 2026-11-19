@@ -20,6 +20,7 @@ import type { TopLevelFormatterParams } from 'echarts/types/dist/shared';
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   Input,
@@ -29,14 +30,12 @@ import {
   inject
 } from '@angular/core';
 
-import { UIConfig } from '@models/config-ui.model';
 import { AgentId } from '@models/id.types';
 
-import { LocalStorageService } from '@services/storage/local-storage.service';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
 
 import { SpeedStat } from '@src/app/core/_models/speed-stat.model';
 import { getHashRateFormatComponents } from '@src/app/core/_pipes/hashrate-pipe';
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { TimePrecision, formatDate, formatUnixTimestamp } from '@src/app/shared/utils/datetime';
 
 /**
@@ -81,6 +80,7 @@ use([
 
 @Component({
   selector: 'app-task-speed-graph',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<div #chart style="height: 310px;"></div>`
 })
 export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
@@ -90,7 +90,7 @@ export class TaskSpeedGraphComponent implements AfterViewInit, OnChanges {
 
   private chart: EChartsType;
 
-  private uiSettings = new UISettingsUtilityClass(inject<LocalStorageService<UIConfig>>(LocalStorageService));
+  private uiSettings = inject(UiSettingsService);
   private dateTimeFormat = this.uiSettings.getDateTimeFormat(TimePrecision.SECONDS);
   private timeFormat = this.uiSettings.getTimeFormat(TimePrecision.SECONDS);
 

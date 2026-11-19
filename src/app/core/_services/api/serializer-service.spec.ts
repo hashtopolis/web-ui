@@ -82,17 +82,17 @@ describe('JsonAPISerializer', () => {
     it('logs an error but does not throw when user data is validated against access group schema', () => {
       // Validation is intentionally non-fatal: schema mismatches are reported via
       // console.error (and an alert in dev mode), but deserialization still proceeds.
-      const consoleSpy = spyOn(console, 'error');
+      const consoleSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
 
       expect(() => {
         serializer.deserialize(userListBody, zAccessGroupListResponse);
       }).not.toThrow();
 
-      expect(consoleSpy).toHaveBeenCalledWith('API response validation failed', jasmine.anything());
+      expect(consoleSpy).toHaveBeenCalledWith('API response validation failed', expect.anything());
     });
 
     it('logs an error when an attribute is present but has the wrong type', () => {
-      const consoleSpy = spyOn(console, 'error');
+      const consoleSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
       const wrongTypeBody = {
         jsonapi,
         data: {
@@ -104,7 +104,7 @@ describe('JsonAPISerializer', () => {
 
       serializer.deserialize(wrongTypeBody, zUserResponse);
 
-      expect(consoleSpy).toHaveBeenCalledWith('API response validation failed', jasmine.anything());
+      expect(consoleSpy).toHaveBeenCalledWith('API response validation failed', expect.anything());
     });
   });
 
@@ -115,7 +115,7 @@ describe('JsonAPISerializer', () => {
     const strippedUser = mockResource('user', 1, { name: 'admin' }, USER_RELATIONS);
 
     it('does not log an error for a stripped single-object response', () => {
-      const consoleSpy = spyOn(console, 'error');
+      const consoleSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
 
       const user = serializer.deserialize(mockResponse({ data: strippedUser }), zUserResponse);
 
@@ -124,7 +124,7 @@ describe('JsonAPISerializer', () => {
     });
 
     it('does not log an error for a stripped list response', () => {
-      const consoleSpy = spyOn(console, 'error');
+      const consoleSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
 
       const users = serializer.deserialize(mockResponse({ data: [strippedUser] }), zUserListResponse);
 
@@ -133,7 +133,7 @@ describe('JsonAPISerializer', () => {
     });
 
     it('does not log an error for a stripped user included by another entity', () => {
-      const consoleSpy = spyOn(console, 'error');
+      const consoleSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
       const apiToken = mockResource(
         'apiToken',
         22,
@@ -148,12 +148,12 @@ describe('JsonAPISerializer', () => {
     });
 
     it('still logs an error when a stripped user misses its public attribute', () => {
-      const consoleSpy = spyOn(console, 'error');
+      const consoleSpy = vi.spyOn(console, 'error').mockReturnValue(undefined);
       const body = mockResponse({ data: [mockResource('user', 1, {}, USER_RELATIONS)] });
 
       serializer.deserialize(body, zUserListResponse);
 
-      expect(consoleSpy).toHaveBeenCalledWith('API response validation failed', jasmine.anything());
+      expect(consoleSpy).toHaveBeenCalledWith('API response validation failed', expect.anything());
     });
   });
 });

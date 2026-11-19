@@ -1,16 +1,14 @@
 import { HTTP_SKIP_CACHE_HEADER_CONFIG } from '@constants/http.config';
-import { HttpCacheInterceptor } from '@interceptors/http-cache.interceptor';
+import { DEFAULT_STALE_TIME_MS, DEFAULT_TTL_MS, HttpCacheInterceptor } from '@interceptors/http-cache.interceptor';
 import { lastValueFrom } from 'rxjs';
 
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
 import { CacheGetResult, HttpCacheService } from '@services/shared/http-cache.service';
 import { SessionStorageService } from '@services/storage/session-storage.service';
-
-import { DEFAULT_STALE_TIME_MS, DEFAULT_TTL_MS } from './http-cache.interceptor';
 
 describe('HttpCacheInterceptor', () => {
   let httpClient: HttpClient;
@@ -18,8 +16,9 @@ describe('HttpCacheInterceptor', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
         SessionStorageService,
         HttpCacheService,
         {
@@ -47,7 +46,7 @@ describe('HttpCacheInterceptor', () => {
 
     // First request - should hit the network
     httpClient.get(testUrl).subscribe((data) => {
-      expect(data).toEqual(testData);
+      expect(data).toStrictEqual(testData);
     });
 
     const firstReq = httpMock.expectOne(testUrl);
@@ -55,7 +54,7 @@ describe('HttpCacheInterceptor', () => {
 
     // Second request - served from a fresh cache entry, no network call
     httpClient.get(testUrl).subscribe((data) => {
-      expect(data).toEqual(testData);
+      expect(data).toStrictEqual(testData);
     });
 
     httpMock.expectNone(testUrl);
@@ -67,7 +66,7 @@ describe('HttpCacheInterceptor', () => {
     const response = { id: 1, ...postData };
 
     httpClient.post(testUrl, postData).subscribe((data) => {
-      expect(data).toEqual(response);
+      expect(data).toStrictEqual(response);
     });
 
     const req = httpMock.expectOne(testUrl);
@@ -91,8 +90,7 @@ describe('HttpCacheInterceptor', () => {
 
     // Next GET should hit the network again
     httpClient.get(getUrl).subscribe();
-    const secondGetReq = httpMock.expectOne(getUrl);
-    secondGetReq.flush({ id: 3, name: 'Updated' });
+    expect(() => httpMock.expectOne(getUrl).flush({ id: 3, name: 'Updated' })).not.toThrow();
   });
 
   it('should invalidate cache on PUT', () => {
@@ -111,8 +109,7 @@ describe('HttpCacheInterceptor', () => {
 
     // Next GET should hit the network again
     httpClient.get(getUrl).subscribe();
-    const secondGetReq = httpMock.expectOne(getUrl);
-    secondGetReq.flush({ id: 1, name: 'Updated' });
+    expect(() => httpMock.expectOne(getUrl).flush({ id: 1, name: 'Updated' })).not.toThrow();
   });
 
   it('should invalidate cache on DELETE', () => {
@@ -131,8 +128,7 @@ describe('HttpCacheInterceptor', () => {
 
     // Next GET should hit the network again
     httpClient.get(getUrl).subscribe();
-    const secondGetReq = httpMock.expectOne(getUrl);
-    secondGetReq.flush({ id: 1, name: 'Test' }); // Or 404 if deleted
+    expect(() => httpMock.expectOne(getUrl).flush({ id: 1, name: 'Test' })).not.toThrow(); // Or 404 if deleted
   });
 
   it('should skip caching when X-Cache-Skip header is present', () => {
@@ -141,7 +137,7 @@ describe('HttpCacheInterceptor', () => {
 
     // First request with X-Cache-Skip
     httpClient.get(testUrl, { headers: HTTP_SKIP_CACHE_HEADER_CONFIG }).subscribe((data) => {
-      expect(data).toEqual(testData);
+      expect(data).toStrictEqual(testData);
     });
 
     const firstReq = httpMock.expectOne(testUrl);
@@ -149,26 +145,28 @@ describe('HttpCacheInterceptor', () => {
 
     // Second request should also hit the network (not cached)
     httpClient.get(testUrl, { headers: HTTP_SKIP_CACHE_HEADER_CONFIG }).subscribe((data) => {
-      expect(data).toEqual(testData);
+      expect(data).toStrictEqual(testData);
     });
 
     const secondReq = httpMock.expectOne(testUrl);
     secondReq.flush(testData);
   });
 
-  it('should return cached response synchronously', (done) => {
+  it('should return cached response synchronously', async () => {
     const testUrl = 'https://api.test.com/data';
     const testData = { id: 1, name: 'Test Data' };
 
     // First request - populate cache
+    let done!: () => void;
+    const finished = new Promise<void>((resolve) => (done = resolve));
     httpClient.get(testUrl).subscribe((data) => {
-      expect(data).toEqual(testData);
+      expect(data).toStrictEqual(testData);
 
       // After first request is cached, second request should be instant
       let subscribeFinished = false;
 
       httpClient.get(testUrl).subscribe((cachedData) => {
-        expect(cachedData).toEqual(testData);
+        expect(cachedData).toStrictEqual(testData);
         subscribeFinished = true;
       });
 
@@ -179,12 +177,12 @@ describe('HttpCacheInterceptor', () => {
       // could have fired a background revalidation request. Flush it so
       // that httpMock.verify() in afterEach does not fail.
       httpMock.match(testUrl).forEach((req) => req.flush(testData));
-
       done();
     });
 
     const firstReq = httpMock.expectOne(testUrl);
     firstReq.flush(testData);
+    await finished;
   });
 
   describe('Cache-Control header (RFC 5861)', () => {
@@ -196,36 +194,31 @@ describe('HttpCacheInterceptor', () => {
 
     it('should use max-age and stale-while-revalidate from response headers', () => {
       const testUrl = 'https://api.test.com/data';
-      const setSpy = spyOn(cacheService, 'set').and.callThrough();
+      const setSpy = vi.spyOn(cacheService, 'set');
 
       httpClient.get(testUrl).subscribe();
 
       const req = httpMock.expectOne(testUrl);
       req.flush({ ok: true }, { headers: { 'Cache-Control': 'max-age=10, stale-while-revalidate=20' } });
 
-      expect(setSpy).toHaveBeenCalledWith(jasmine.anything(), jasmine.anything(), 10_000, 20_000);
+      expect(setSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), 10000, 20000);
     });
 
     it('should fall back to defaults when Cache-Control header is absent', () => {
       const testUrl = 'https://api.test.com/data';
-      const setSpy = spyOn(cacheService, 'set').and.callThrough();
+      const setSpy = vi.spyOn(cacheService, 'set');
 
       httpClient.get(testUrl).subscribe();
 
       const req = httpMock.expectOne(testUrl);
       req.flush({ ok: true });
 
-      expect(setSpy).toHaveBeenCalledWith(
-        jasmine.anything(),
-        jasmine.anything(),
-        DEFAULT_TTL_MS,
-        DEFAULT_STALE_TIME_MS
-      );
+      expect(setSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), DEFAULT_TTL_MS, DEFAULT_STALE_TIME_MS);
     });
 
     it('should not cache when Cache-Control: no-store is present', () => {
       const testUrl = 'https://api.test.com/data';
-      const setSpy = spyOn(cacheService, 'set');
+      const setSpy = vi.spyOn(cacheService, 'set').mockReturnValue(undefined);
 
       httpClient.get(testUrl).subscribe();
 
@@ -237,7 +230,7 @@ describe('HttpCacheInterceptor', () => {
 
     it('should not cache when Cache-Control: no-cache is present', () => {
       const testUrl = 'https://api.test.com/data';
-      const setSpy = spyOn(cacheService, 'set');
+      const setSpy = vi.spyOn(cacheService, 'set').mockReturnValue(undefined);
 
       httpClient.get(testUrl).subscribe();
 
@@ -249,7 +242,7 @@ describe('HttpCacheInterceptor', () => {
 
     it('should not cache when Cache-Control: private is present', () => {
       const testUrl = 'https://api.test.com/data';
-      const setSpy = spyOn(cacheService, 'set');
+      const setSpy = vi.spyOn(cacheService, 'set').mockReturnValue(undefined);
 
       httpClient.get(testUrl).subscribe();
 
@@ -261,14 +254,14 @@ describe('HttpCacheInterceptor', () => {
 
     it('should fall back to default stale window when only max-age is present', () => {
       const testUrl = 'https://api.test.com/data';
-      const setSpy = spyOn(cacheService, 'set').and.callThrough();
+      const setSpy = vi.spyOn(cacheService, 'set');
 
       httpClient.get(testUrl).subscribe();
 
       const req = httpMock.expectOne(testUrl);
       req.flush({ ok: true }, { headers: { 'Cache-Control': 'max-age=5' } });
 
-      expect(setSpy).toHaveBeenCalledWith(jasmine.anything(), jasmine.anything(), 5_000, DEFAULT_STALE_TIME_MS);
+      expect(setSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), 5000, DEFAULT_STALE_TIME_MS);
     });
   });
 
@@ -293,8 +286,8 @@ describe('HttpCacheInterceptor', () => {
         }),
         isStale: true
       };
-      spyOn(cacheService, 'get').and.returnValue(staleResult);
-      const setSpy = spyOn(cacheService, 'set').and.callThrough();
+      vi.spyOn(cacheService, 'get').mockReturnValue(staleResult);
+      const setSpy = vi.spyOn(cacheService, 'set');
 
       let receivedData: unknown;
       httpClient.get(testUrl).subscribe((data) => {
@@ -302,7 +295,7 @@ describe('HttpCacheInterceptor', () => {
       });
 
       // The stale response should be returned synchronously without any network request for the caller
-      expect(receivedData).toEqual(staleData);
+      expect(receivedData).toStrictEqual(staleData);
 
       // A background revalidation request must have been fired
       const revalidationReq = httpMock.expectOne(testUrl);
@@ -320,7 +313,7 @@ describe('HttpCacheInterceptor', () => {
       const staleData = { id: 1, name: 'Stale' };
       const freshData = { id: 1, name: 'Fresh' };
 
-      spyOn(cacheService, 'get').and.returnValue({
+      vi.spyOn(cacheService, 'get').mockReturnValue({
         response: new HttpResponse({ body: staleData, status: 200, statusText: 'OK' }),
         isStale: true
       } as CacheGetResult);
@@ -330,7 +323,7 @@ describe('HttpCacheInterceptor', () => {
       // Stale is served synchronously; the background revalidation fires — answer it with fresh data.
       httpMock.expectOne(testUrl).flush(freshData);
 
-      await expectAsync(result).toBeResolvedTo(freshData);
+      await expect(result).resolves.toStrictEqual(freshData);
     });
 
     it('should not trigger a background revalidation for a fresh cache hit', () => {
@@ -345,17 +338,18 @@ describe('HttpCacheInterceptor', () => {
         }),
         isStale: false
       };
-      spyOn(cacheService, 'get').and.returnValue(freshResult);
+      vi.spyOn(cacheService, 'get').mockReturnValue(freshResult);
 
       httpClient.get(testUrl).subscribe();
 
       // No network request should be made for a fresh hit
-      httpMock.expectNone(testUrl);
+      expect(() => httpMock.expectNone(testUrl)).not.toThrow();
     });
 
     it('should serve stale data and refresh the cache end-to-end when TTL elapses within the stale window', () => {
-      jasmine.clock().install();
-      jasmine.clock().mockDate(new Date());
+      // The cache compares Date.now() with the entry's expiry, so only the clock needs to be fake.
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(new Date());
       try {
         const testUrl = 'https://api.test.com/data';
         const staleData = { id: 1, name: 'v1' };
@@ -367,14 +361,14 @@ describe('HttpCacheInterceptor', () => {
         first.flush(staleData, { headers: { 'Cache-Control': 'max-age=1, stale-while-revalidate=60' } });
 
         // Advance past the TTL but stay inside the stale window
-        jasmine.clock().tick(5_000);
+        vi.setSystemTime(Date.now() + 5000);
 
         // Second GET: stale entry is served immediately, background revalidation fires
         let firstRead: unknown;
         httpClient.get(testUrl).subscribe((data) => {
           firstRead = data;
         });
-        expect(firstRead).toEqual(staleData);
+        expect(firstRead).toStrictEqual(staleData);
 
         const revalidation = httpMock.expectOne(testUrl);
         revalidation.flush(freshData, { headers: { 'Cache-Control': 'max-age=60, stale-while-revalidate=60' } });
@@ -384,10 +378,10 @@ describe('HttpCacheInterceptor', () => {
         httpClient.get(testUrl).subscribe((data) => {
           secondRead = data;
         });
-        expect(secondRead).toEqual(freshData);
+        expect(secondRead).toStrictEqual(freshData);
         httpMock.expectNone(testUrl);
       } finally {
-        jasmine.clock().uninstall();
+        vi.useRealTimers();
       }
     });
   });

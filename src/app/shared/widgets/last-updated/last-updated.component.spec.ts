@@ -1,33 +1,34 @@
 import { ChangeDetectorRef } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
+
 import { LastUpdatedComponent } from '@src/app/shared/widgets/last-updated/last-updated.component';
 
 describe('LastUpdatedComponent', () => {
   let component: LastUpdatedComponent;
   let fixture: ComponentFixture<LastUpdatedComponent>;
 
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LastUpdatedComponent],
-      providers: [ChangeDetectorRef]
-    })
-      // The component provides UISettingsUtilityClass itself, so the mock has to replace that
-      // provider rather than a module-level one.
-      .overrideComponent(LastUpdatedComponent, {
-        set: {
-          providers: [
-            {
-              provide: UISettingsUtilityClass,
-              useValue: {
-                getDateTimeFormat: jasmine.createSpy('getDateTimeFormat').and.returnValue('dd/MM/yyyy HH:mm:ss')
-              }
-            }
-          ]
+      providers: [
+        ChangeDetectorRef,
+        {
+          provide: UiSettingsService,
+          useValue: {
+            getDateTimeFormat: vi.fn().mockName('getDateTimeFormat').mockReturnValue('dd/MM/yyyy HH:mm:ss')
+          }
         }
-      })
-      .compileComponents();
+      ]
+    }).compileComponents();
 
     fixture = TestBed.createComponent(LastUpdatedComponent);
     component = fixture.componentInstance;
@@ -45,7 +46,7 @@ describe('LastUpdatedComponent', () => {
     expect(component.lastUpdatedDisplay).toContain('26/09/2025 10:30:00');
   });
 
-  it('should display countdown if nextRefreshTimestamp is in the future and not refreshing', fakeAsync(() => {
+  it('should display countdown if nextRefreshTimestamp is in the future and not refreshing', async () => {
     component.nextRefreshTimestamp = Date.now() + 5000; // 5s in the future
     component.refreshing = false;
     component.ngOnChanges({
@@ -57,14 +58,14 @@ describe('LastUpdatedComponent', () => {
       }
     });
 
-    tick(1000); // allow interval to run
+    await vi.advanceTimersByTimeAsync(1000); // allow interval to run
     fixture.detectChanges();
 
     expect(component.nextUpdateDisplay).not.toBeNull();
     expect(component.nextUpdateDisplay).toMatch(/\d{2}:\d{2}/); // mm:ss format
-  }));
+  });
 
-  it('should stop countdown if nextRefreshTimestamp is in the past', fakeAsync(() => {
+  it('should stop countdown if nextRefreshTimestamp is in the past', async () => {
     component.nextRefreshTimestamp = Date.now() - 1000; // past
     component.refreshing = false;
     component.ngOnChanges({
@@ -75,12 +76,12 @@ describe('LastUpdatedComponent', () => {
         isFirstChange: () => true
       }
     });
-    tick(300);
+    await vi.advanceTimersByTimeAsync(300);
 
     expect(component.nextUpdateDisplay).toBe('00:00');
-  }));
+  });
 
-  it('should hide countdown if refreshing is true', fakeAsync(() => {
+  it('should hide countdown if refreshing is true', async () => {
     component.nextRefreshTimestamp = Date.now() + 5000; // future
     component.refreshing = true;
     component.ngOnChanges({
@@ -91,8 +92,8 @@ describe('LastUpdatedComponent', () => {
         isFirstChange: () => true
       }
     });
-    tick(300);
+    await vi.advanceTimersByTimeAsync(300);
 
     expect(component.nextUpdateDisplay).toBeNull();
-  }));
+  });
 });

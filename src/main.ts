@@ -5,7 +5,7 @@ import '@src/app/core/_services/storage/local-storage';
 import '@src/app/core/_services/storage/session-storage';
 
 import { enableProdMode, provideZoneChangeDetection } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { platformBrowser } from '@angular/platform-browser';
 
 import { AppModule } from '@src/app/app.module';
 import { registerEChartsModules } from '@src/app/shared/graphs/echarts/echarts.config';
@@ -17,7 +17,7 @@ if (environment.production) {
 
 registerEChartsModules();
 
-platformBrowserDynamic()
+platformBrowser()
   .bootstrapModule(AppModule, { applicationProviders: [provideZoneChangeDetection()] })
   .then((ref) => {
     // Ensure Angular destroys itself on hot reloads.

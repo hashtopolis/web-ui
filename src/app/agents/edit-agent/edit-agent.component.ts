@@ -5,7 +5,7 @@ import { zAgentResponse, zGetBestTasksAgentResponse, zUserListResponse } from '@
 import { lastValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -23,7 +23,6 @@ import { RequestParamBuilder } from '@services/params/builder-implementation.ser
 import { AgentRoleService } from '@services/roles/agents/agent-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
-import { UIConfigService } from '@services/shared/storage.service';
 
 import {
   EditAgentForm,
@@ -46,6 +45,7 @@ type ShownAgent = JAgentWith<'agentStats' | 'accessGroups' | 'assignments' | 'cr
 @Component({
   selector: 'app-edit-agent',
   templateUrl: './edit-agent.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class EditAgentComponent implements OnInit {
@@ -83,7 +83,6 @@ export class EditAgentComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
   private titleService = inject(AutoTitleService);
-  private uiService = inject(UIConfigService);
   private route = inject(ActivatedRoute);
   private alert = inject(AlertService);
   private gs = inject(GlobalService);

@@ -1,5 +1,4 @@
 FROM node:24.18-trixie AS hashtopolis-web-ui-base
-ENV PUPPETEER_SKIP_DOWNLOAD='true'
 EXPOSE 4200
 
 # Enable possible build args for injecting user commands

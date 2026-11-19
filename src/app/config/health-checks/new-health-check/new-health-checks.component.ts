@@ -1,6 +1,6 @@
 import { zCrackerBinaryListResponse, zCrackerBinaryTypeListResponse } from '@generated/api/zod';
 
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -35,6 +35,7 @@ export interface NewHealthCheckForm {
 @Component({
   selector: 'app-new-health-checks',
   templateUrl: './new-health-checks.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class NewHealthChecksComponent implements OnInit {
@@ -110,7 +111,7 @@ export class NewHealthChecksComponent implements OnInit {
    * @param {string} id - The ID of the selected cracker binary type.
    * @returns {void}
    */
-  handleChangeBinary(id: string) {
+  handleChangeBinary(id: string): void {
     const filter = new Array<Filter>({ field: 'crackerBinaryTypeId', operator: FilterType.EQUAL, value: id });
     const params = { filter: filter };
     this.gs
@@ -129,7 +130,7 @@ export class NewHealthChecksComponent implements OnInit {
    *
    * @returns {void}
    */
-  onSubmit() {
+  onSubmit(): void {
     if (this.form.valid) {
       this.isCreatingLoading = true;
       const { checkType, hashtypeId, crackerBinaryId } = this.form.value;
@@ -145,7 +146,7 @@ export class NewHealthChecksComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.alert.showSuccessMessage('New Health Check created');
-          this.router.navigate(['/config/health-checks']);
+          void this.router.navigate(['/config/health-checks']);
           this.isCreatingLoading = false;
         });
     } else {

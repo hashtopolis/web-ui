@@ -1,33 +1,31 @@
 import { DateFormat, Setting, TimeFormat, dateFormats, layouts, themes, timeFormats } from '@constants/settings.config';
 
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 
-import { UIConfig } from '@models/config-ui.model';
 import { BuiltInTheme } from '@models/config-ui.model';
 
 import { ReloadService } from '@services/reload.service';
 import { AlertService } from '@services/shared/alert.service';
 import { RuntimeThemeOption, ThemeCatalogService } from '@services/shared/theme-catalog.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
 
 import { UiSettingsFormGroup } from '@src/app/account/settings/ui-settings/ui-settings.form';
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { TimePrecision, dateTimeFormat, formatDate } from '@src/app/shared/utils/datetime';
 
 @Component({
   selector: 'app-ui-settings',
   templateUrl: './ui-settings.component.html',
   styleUrls: ['./ui-settings.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class UiSettingsComponent implements OnInit {
-  private service = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private alertService = inject(AlertService);
   private reloadService = inject(ReloadService);
   private themeCatalog = inject(ThemeCatalogService);
 
   form = new UiSettingsFormGroup();
-  util: UISettingsUtilityClass;
+  util = inject(UiSettingsService);
 
   pageTitle = 'UI Settings';
 
@@ -58,7 +56,6 @@ export class UiSettingsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.util = new UISettingsUtilityClass(this.service);
     this.themeCatalog.getThemes().subscribe((themeOptions) => {
       this.themes = themeOptions;
     });
@@ -66,22 +63,23 @@ export class UiSettingsComponent implements OnInit {
   }
 
   /**
-   * Patch the form with the current UI settings from the utility class.
+   * Patch the form with the current UI settings.
    */
   loadSettings(): void {
+    const config = this.util.config();
     this.form.patchValue({
-      dateFmt: this.util.uiConfig.dateFmt,
-      timeFmt: this.util.uiConfig.timeFmt,
-      layout: this.util.uiConfig.layout,
-      theme: this.util.uiConfig.theme,
-      refreshPage: this.util.uiConfig.refreshPage,
-      refreshInterval: this.util.uiConfig.refreshInterval
+      dateFmt: config.dateFmt,
+      timeFmt: config.timeFmt,
+      layout: config.layout,
+      theme: config.theme,
+      refreshPage: config.refreshPage,
+      refreshInterval: config.refreshInterval
     });
   }
 
   /**
    * Handles form submission to update UI settings.
-   * Updates the settings using the utility class and shows an alert message.
+   * Updates the settings and shows an alert message.
    */
   onSubmit(): void {
     this.isUpdatingLoading = true;

@@ -1,6 +1,6 @@
 import { zCrackerBinaryTypeListResponse, zPreTaskResponse, zTaskResponse } from '@generated/api/zod';
 
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -31,6 +31,7 @@ import { NewPretaskForm, getNewPretaskForm } from '@src/app/tasks/new-preconfigu
   templateUrl: './new-preconfigured-tasks.component.html',
   styleUrls: ['./new-preconfigured-tasks.component.scss'],
   host: { class: 'block' },
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class NewPreconfiguredTasksComponent implements OnInit {
@@ -40,10 +41,6 @@ export class NewPreconfiguredTasksComponent implements OnInit {
   selectBenchmarktype = BenchmarkTypeOptions;
   selectCrackertype: SelectOption<CrackerBinaryTypeId>[];
   isCreatingLoading = false;
-
-  selectCrackertypeMap = {
-    fieldMapping: CRACKER_TYPE_FIELD_MAPPING
-  };
 
   copyMode = false;
   editedIndex: number;
@@ -182,7 +179,7 @@ export class NewPreconfiguredTasksComponent implements OnInit {
           next: () => {
             this.alert.showSuccessMessage('New Preconfigured Task created');
             this.isCreatingLoading = false;
-            this.router.navigate(['tasks/preconfigured-tasks']);
+            void this.router.navigate(['tasks/preconfigured-tasks']);
           },
           error: (err) => {
             console.error('Error creating Preconfigured Task', err);

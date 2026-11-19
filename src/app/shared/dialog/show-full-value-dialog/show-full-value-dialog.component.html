@@ -1,0 +1,13 @@
+<mat-dialog-content
+  cdkDrag
+  cdkDragRootElement=".cdk-overlay-pane"
+  cdkDragHandle
+  class="moveable-cursor break-all whitespace-pre-wrap"
+>
+  <h2 mat-dialog-title>{{ data.title }}</h2>
+
+  <p>{{ data.value }}</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button matButton="outlined" class="btn-submit" mat-dialog-close>Close</button>
+</mat-dialog-actions>

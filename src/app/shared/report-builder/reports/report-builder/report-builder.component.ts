@@ -3,7 +3,7 @@ import vfsFonts from 'pdfmake/build/vfs_fonts';
 import { firstValueFrom } from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 
 import {
@@ -24,6 +24,7 @@ pdfMake.vfs = vfsFonts.vfs;
 @Component({
   selector: 'app-report-builder',
   templateUrl: './report-builder.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class ReportBuilderComponent implements OnInit {
@@ -73,10 +74,6 @@ export class ReportBuilderComponent implements OnInit {
       ownerpassword: [this.templates[this.templateName]?.settings.ownerpassword]
     });
     this.isLoaded = true;
-  }
-
-  get formControls() {
-    return this.reportForm.controls;
   }
 
   async loadTemplate(templateName: string): Promise<void> {

@@ -12,7 +12,8 @@ describe('FilesAttackTableComponent', () => {
     isSecret: false,
     fileType: FileType.RULES,
     accessGroupId: 1,
-    lineCount: 0
+    lineCount: 0,
+    checksum: null
   });
 
   const unchecked = (row: JFile): CheckboxChangeEvent => ({
@@ -34,7 +35,7 @@ describe('FilesAttackTableComponent', () => {
     );
 
     expect(result.attackCmd).toBe('#HL# -r dive.rule');
-    expect(result.files).toEqual([10]);
+    expect(result.files).toStrictEqual([10]);
   });
 
   it('removes only the flag paired with the unchecked rule', () => {
@@ -47,6 +48,6 @@ describe('FilesAttackTableComponent', () => {
     );
 
     expect(result.attackCmd).toBe('#HL# -r dive.rule');
-    expect(result.files).toEqual([10]);
+    expect(result.files).toStrictEqual([10]);
   });
 });

@@ -1,4 +1,5 @@
 import { of } from 'rxjs';
+import type { Mock, MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -13,7 +14,12 @@ import { SERV } from '@services/main.config';
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { RowActionMenuAction } from '@components/menus/row-action-menu/row-action-menu.constants';
 import { FilesTableComponent } from '@components/tables/files-table/files-table.component';
-import { FilesRowAction, FilesTableColumnLabel } from '@components/tables/files-table/files-table.constants';
+import {
+  CHECKSUM_PENDING_LABEL,
+  FilesRowAction,
+  FilesTableCol,
+  FilesTableColumnLabel
+} from '@components/tables/files-table/files-table.constants';
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 
@@ -42,12 +48,16 @@ class TestFilesTableComponent extends FilesTableComponent {
 describe('FilesTableComponent', () => {
   let component: TestFilesTableComponent;
   let fixture: ComponentFixture<TestFilesTableComponent>;
-  let mockExportService: jasmine.SpyObj<ExportService>;
-  let mockHTTable: jasmine.SpyObj<HTTableComponent<BaseModel>>;
+  let mockExportService: MockedObject<ExportService>;
+  let mockHTTable: MockedObject<HTTableComponent<BaseModel>>;
 
   beforeEach(async () => {
-    mockExportService = jasmine.createSpyObj('ExportService', ['handleExportAction']);
-    mockHTTable = jasmine.createSpyObj('HTTableComponent', ['reload']);
+    mockExportService = {
+      handleExportAction: vi.fn().mockName('ExportService.handleExportAction')
+    } as MockedObject<ExportService>;
+    mockHTTable = {
+      reload: vi.fn().mockName('HTTableComponent.reload')
+    } as MockedObject<HTTableComponent<BaseModel>>;
 
     await TestBed.configureTestingModule({
       declarations: [TestFilesTableComponent],
@@ -75,27 +85,85 @@ describe('FilesTableComponent', () => {
     });
 
     it('should offer the auto-refresh toggle', () => {
-      const table = fixture.nativeElement.querySelector('ht-table') as { supportsAutoRefresh?: boolean };
-      expect(table.supportsAutoRefresh).toBeTrue();
+      const table = fixture.nativeElement.querySelector('ht-table') as {
+        supportsAutoRefresh?: boolean;
+      };
+      expect(table.supportsAutoRefresh).toBe(true);
     });
 
     it('should not offer auto-refresh when embedded as detail list', () => {
       component.isDetailPage = true;
       fixture.detectChanges();
-      const table = fixture.nativeElement.querySelector('ht-table') as { supportsAutoRefresh?: boolean };
-      expect(table.supportsAutoRefresh).toBeFalse();
+      const table = fixture.nativeElement.querySelector('ht-table') as {
+        supportsAutoRefresh?: boolean;
+      };
+      expect(table.supportsAutoRefresh).toBe(false);
+    });
+  });
+
+  describe('checksum column', () => {
+    const CHECKSUM = 'af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262';
+
+    function checksumColumn(): HTTableColumn {
+      const column = component.tableColumns.find((col) => col.id === FilesTableCol.CHECKSUM);
+      expect(column).toBeDefined();
+      return column!;
+    }
+
+    it('should offer a checksum column bound to the backend attribute', () => {
+      const column = checksumColumn();
+
+      expect(column.dataKey).toBe('checksum');
+      expect(column.isSearchable).toBe(true);
+    });
+
+    it('should render a computed checksum in full', () => {
+      const file = { id: 7, filename: 'a.txt', checksum: CHECKSUM } as JFile;
+
+      expect(checksumColumn().render!(file)).toBe(CHECKSUM);
+    });
+
+    it('should render a pending checksum as not yet computed rather than blank', () => {
+      const file = { id: 7, filename: 'a.txt', checksum: null } as JFile;
+
+      expect(checksumColumn().render!(file)).toBe(CHECKSUM_PENDING_LABEL);
+    });
+
+    it('should copy the full checksum and title the truncation dialog with the filename', () => {
+      const file = { id: 7, filename: 'a.txt', checksum: CHECKSUM } as JFile;
+      const column = checksumColumn();
+
+      expect(column.copy!.value(file)).toBe(CHECKSUM);
+      expect(column.truncate!.dialogTitle!(file)).toBe('Checksum for: a.txt');
+    });
+
+    it('should export the checksum, and an empty cell while it is pending', async () => {
+      const column = checksumColumn();
+
+      await expect(column.export!({ id: 7, filename: 'a.txt', checksum: CHECKSUM } as JFile)).resolves.toBe(CHECKSUM);
+      // Empty rather than the placeholder, so a spreadsheet cell stays blank.
+      await expect(column.export!({ id: 7, filename: 'a.txt', checksum: null } as JFile)).resolves.toBe('');
+    });
+
+    it('should copy an empty string when there is no checksum to copy', () => {
+      const file = { id: 7, filename: 'a.txt', checksum: null } as JFile;
+
+      expect(checksumColumn().copy!.value(file)).toBe('');
     });
   });
 
   describe('rowActionClicked', () => {
-    let gs: { update: jasmine.Spy; chelper: jasmine.Spy };
+    let gs: {
+      update: Mock;
+      chelper: Mock;
+    };
 
     beforeEach(() => {
       gs = component['gs'] as unknown as typeof gs;
-      spyOn(gs, 'update').and.returnValue(of({}));
-      spyOn(gs, 'chelper').and.returnValue(of({}));
-      spyOn(component['alertService'], 'showSuccessMessage');
-      spyOn(component, 'reload');
+      vi.spyOn(gs, 'update').mockReturnValue(of({}));
+      vi.spyOn(gs, 'chelper').mockReturnValue(of({}));
+      vi.spyOn(component['alertService'], 'showSuccessMessage').mockReturnValue(undefined);
+      vi.spyOn(component, 'reload').mockReturnValue(undefined);
     });
 
     it('should set a non-secret file to secret', () => {
@@ -124,8 +192,24 @@ describe('FilesTableComponent', () => {
       expect(component.reload).not.toHaveBeenCalled();
     });
 
+    it('should queue the checksum recomputation without reloading the stale checksum', () => {
+      const file = { id: 7, filename: 'a.txt', isSecret: false } as JFile;
+      component.rowActionClicked({ data: file, menuItem: { action: FilesRowAction.RECOMPUTE_CHECKSUM, label: '' } });
+
+      expect(gs.chelper).toHaveBeenCalledWith(SERV.HELPER, 'recomputeFileChecksum', { fileId: 7 });
+      expect(component['alertService'].showSuccessMessage).toHaveBeenCalledWith(
+        'Checksum recomputation for a.txt queued. The checksum updates once the background job has finished.'
+      );
+      expect(component.reload).not.toHaveBeenCalled();
+    });
+
     it('should not update or recount on a plain edit action', () => {
-      spyOn(component as unknown as { rowActionEdit: () => void }, 'rowActionEdit');
+      vi.spyOn(
+        component as unknown as {
+          rowActionEdit: () => void;
+        },
+        'rowActionEdit'
+      ).mockReturnValue(undefined);
       const file = { id: 7, filename: 'a.txt', isSecret: false } as JFile;
       component.rowActionClicked({ data: file, menuItem: { action: RowActionMenuAction.EDIT, label: '' } });
 
@@ -142,7 +226,7 @@ describe('FilesTableComponent', () => {
     it('resumes auto-refresh on init when it is enabled in the settings', () => {
       const ds = mockDataSource();
       ds.autoRefreshService.refreshPage = true;
-      spyOn(ds, 'startAutoRefresh');
+      vi.spyOn(ds, 'startAutoRefresh').mockReturnValue(undefined);
 
       component.ngAfterViewInit();
 
@@ -151,7 +235,7 @@ describe('FilesTableComponent', () => {
 
     it('does not start auto-refresh on init when it is disabled in the settings', () => {
       const ds = mockDataSource();
-      spyOn(ds, 'startAutoRefresh');
+      vi.spyOn(ds, 'startAutoRefresh').mockReturnValue(undefined);
 
       component.ngAfterViewInit();
 
@@ -160,7 +244,7 @@ describe('FilesTableComponent', () => {
 
     it('stops auto-refresh when the table is destroyed', () => {
       const ds = mockDataSource();
-      spyOn(ds, 'stopAutoRefresh');
+      vi.spyOn(ds, 'stopAutoRefresh').mockReturnValue(undefined);
 
       fixture.destroy();
 
@@ -170,8 +254,8 @@ describe('FilesTableComponent', () => {
     it('leaves the shared auto-refresh alone when embedded as detail list', () => {
       const ds = mockDataSource();
       ds.autoRefreshService.refreshPage = true;
-      spyOn(ds, 'startAutoRefresh');
-      spyOn(ds, 'stopAutoRefresh');
+      vi.spyOn(ds, 'startAutoRefresh').mockReturnValue(undefined);
+      vi.spyOn(ds, 'stopAutoRefresh').mockReturnValue(undefined);
       component.isDetailPage = true;
 
       component.ngAfterViewInit();
@@ -190,7 +274,7 @@ describe('FilesTableComponent', () => {
 
       component.exportActionClicked(event);
 
-      expect(mockExportService.handleExportAction).toHaveBeenCalledOnceWith(
+      expect(mockExportService.handleExportAction).toHaveBeenCalledExactlyOnceWith(
         event,
         component.tableColumns,
         FilesTableColumnLabel,

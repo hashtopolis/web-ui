@@ -132,7 +132,8 @@ export const zPreTaskResponse = z.object({
           isSecret: z.boolean(),
           fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
           accessGroupId: z.int(),
-          lineCount: z.number()
+          lineCount: z.number(),
+          checksum: z.string().nullable()
         })
       })
     )
@@ -196,7 +197,8 @@ export const zPreTaskPostPatchResponse = z.object({
           isSecret: z.boolean(),
           fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
           accessGroupId: z.int(),
-          lineCount: z.number()
+          lineCount: z.number(),
+          checksum: z.string().nullable()
         })
       })
     )
@@ -286,7 +288,8 @@ export const zPreTaskListResponse = z.object({
           isSecret: z.boolean(),
           fileType: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(100)]),
           accessGroupId: z.int(),
-          lineCount: z.number()
+          lineCount: z.number(),
+          checksum: z.string().nullable()
         })
       })
     )
@@ -331,11 +334,17 @@ export const zDeletePretasksBody = zPreTaskDeleteMultiple;
 export const zDeletePretasksResponse = z.void();
 
 export const zGetPretasksQuery = z.object({
-  'page[after]': z.string().optional(),
-  'page[before]': z.string().optional(),
+  'page[after]': z
+    .string()
+    .regex(/^[A-Za-z0-9+\/]*={0,2}$/)
+    .optional(),
+  'page[before]': z
+    .string()
+    .regex(/^[A-Za-z0-9+\/]*={0,2}$/)
+    .optional(),
   'page[size]': z
     .int()
-    .min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' })
+    .gte(1)
     .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
     .optional(),
   filter: z.record(z.string(), z.string()).optional(),

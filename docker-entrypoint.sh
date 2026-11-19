@@ -107,7 +107,6 @@ if [ "$environment" = "development" ]; then
   echo "DONE"
 
   # Install/Update required Node.js packages
-  export PUPPETEER_SKIP_DOWNLOAD='true'
   npm install
 
   # Prepare configuration

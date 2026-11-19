@@ -95,7 +95,7 @@ type CopyData = Pick<
   selector: 'app-new-tasks',
   templateUrl: './new-tasks.component.html',
   styleUrls: ['./new-tasks.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: { class: 'block' },
   standalone: false
 })
@@ -544,7 +544,7 @@ export class NewTasksComponent implements OnInit {
       this.copyFiles = copyData.files;
 
       this.form.patchValue({
-        taskName: task.taskName + `_(Copied_${isTask ? 'task_id' : 'pretask_id'}_${this.editedIndex})`,
+        taskName: task.taskName ?? '',
         notes: `Copied from ${isTask ? 'task' : 'pretask'} id ${this.editedIndex}`,
         attackCmd: task.attackCmd,
         maxAgents: task.maxAgents,

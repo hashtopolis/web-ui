@@ -3,7 +3,7 @@ import { zPreTaskResponse } from '@generated/api/zod';
 import { lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -32,6 +32,7 @@ import { attackCommandWithAliasValidator } from '@src/app/core/_validators/attac
 @Component({
   selector: 'app-edit-preconfigured-tasks',
   templateUrl: './edit-preconfigured-tasks.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class EditPreconfiguredTasksComponent implements OnInit {
@@ -89,12 +90,12 @@ export class EditPreconfiguredTasksComponent implements OnInit {
     } catch (e: unknown) {
       const status = e instanceof HttpErrorResponse ? e.status : undefined;
       if (status === HttpStatus.FORBIDDEN) {
-        this.router.navigateByUrl('/forbidden');
+        void this.router.navigateByUrl('/forbidden');
         return;
       }
 
       if (status === HttpStatus.NOT_FOUND) {
-        this.router.navigateByUrl('/not-found');
+        void this.router.navigateByUrl('/not-found');
         return;
       }
 
@@ -198,7 +199,7 @@ export class EditPreconfiguredTasksComponent implements OnInit {
           next: () => {
             this.alert.showSuccessMessage('Preconfigured Task saved');
             this.isUpdatingLoading = false;
-            this.router.navigate(['tasks/preconfigured-tasks']);
+            void this.router.navigate(['tasks/preconfigured-tasks']);
           },
           error: (err) => {
             console.error('Error updating preconfigured Task', err);

@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 interface Cell {
@@ -57,6 +57,7 @@ const BUCKET_ALPHAS = [0.18, 0.32, 0.55, 0.85];
       }
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       .heatmap {

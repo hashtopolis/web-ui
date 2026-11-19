@@ -2,11 +2,11 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { JFile } from '@models/file.model';
 
 import { FilePreviewDialogComponent } from '@src/app/shared/dialog/file-preview-dialog/file-preview-dialog.component';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 /** A 30-line file, small enough that one window covers it and every page boundary is predictable. */
 const LINES = Array.from({ length: 30 }, (unused, index) => `line${index + 1}`);
@@ -20,7 +20,8 @@ const FILE: JFile = {
   isSecret: false,
   fileType: 0,
   accessGroupId: 1,
-  lineCount: LINES.length
+  lineCount: LINES.length,
+  checksum: null
 };
 
 describe('FilePreviewDialogComponent', () => {
@@ -42,8 +43,8 @@ describe('FilePreviewDialogComponent', () => {
   /** Clicks one of the navigation buttons and serves the page it requests. */
   const navigate = (label: string): void => {
     const button: HTMLButtonElement | null = fixture.nativeElement.querySelector(`button[aria-label="${label}"]`);
-    expect(button).withContext(`button "${label}"`).not.toBeNull();
-    expect(button!.disabled).withContext(`button "${label}" is enabled`).toBeFalse();
+    expect(button, `button "${label}"`).not.toBeNull();
+    expect(button!.disabled, `button "${label}" is enabled`).toBe(false);
     button!.click();
     fixture.detectChanges();
     serveRange();
@@ -66,9 +67,9 @@ describe('FilePreviewDialogComponent', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideNoopAnimations(),
+        provideDisabledMaterialAnimations(),
         { provide: MAT_DIALOG_DATA, useValue: { file: FILE } },
-        { provide: MatDialogRef, useValue: { close: jasmine.createSpy('close') } }
+        { provide: MatDialogRef, useValue: { close: vi.fn().mockName('close') } }
       ]
     }).compileComponents();
 
@@ -89,9 +90,9 @@ describe('FilePreviewDialogComponent', () => {
   it('opens on the first lines of the file', () => {
     expect(visibleRows()[0]).toBe('1 line1');
     expect(visibleRows()[9]).toBe('10 line10');
-    expect(isEnabled('Start of file')).toBeFalse();
-    expect(isEnabled('Previous page')).toBeFalse();
-    expect(isEnabled('Next page')).toBeTrue();
+    expect(isEnabled('Start of file')).toBe(false);
+    expect(isEnabled('Previous page')).toBe(false);
+    expect(isEnabled('Next page')).toBe(true);
   });
 
   it('pages forwards and back again through the lines it already walked', () => {
@@ -108,12 +109,12 @@ describe('FilePreviewDialogComponent', () => {
 
     expect(visibleRows().length).toBe(10);
     expect(visibleRows()[9]).toContain('line30');
-    expect(isEnabled('Next page')).toBeFalse();
+    expect(isEnabled('Next page')).toBe(false);
   });
 
   it('steps back from the end of the file, which it was never paged to', () => {
     navigate('End of file');
-    expect(isEnabled('Previous page')).withContext('previous is reachable from the end').toBeTrue();
+    expect(isEnabled('Previous page'), 'previous is reachable from the end').toBe(true);
 
     navigate('Previous page');
     expect(visibleRows()[0]).toContain('line11');
@@ -128,8 +129,8 @@ describe('FilePreviewDialogComponent', () => {
 
     navigate('Previous page');
     expect(visibleRows()[0]).toBe('1 line1');
-    expect(isEnabled('Previous page')).toBeFalse();
-    expect(isEnabled('Start of file')).toBeFalse();
+    expect(isEnabled('Previous page')).toBe(false);
+    expect(isEnabled('Start of file')).toBe(false);
   });
 
   it('reads pages that butt up against each other with no lines lost between them', () => {
@@ -139,6 +140,6 @@ describe('FilePreviewDialogComponent', () => {
     const previousPage = visibleRows();
 
     const strip = (rows: string[]): string[] => rows.map((row) => row.replace(/^\S+ /, ''));
-    expect(strip(previousPage).concat(strip(lastPage))).toEqual(LINES.slice(10));
+    expect(strip(previousPage).concat(strip(lastPage))).toStrictEqual(LINES.slice(10));
   });
 });

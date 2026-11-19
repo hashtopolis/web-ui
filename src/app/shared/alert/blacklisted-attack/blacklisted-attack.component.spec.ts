@@ -12,8 +12,10 @@ describe('BlacklistAttackComponent', () => {
   let fixture: ComponentFixture<BlacklistAttackComponent>;
 
   beforeEach(() => {
-    const globalServiceSpy = jasmine.createSpyObj('GlobalService', ['getAll']);
-    globalServiceSpy.getAll.and.returnValue(of({}));
+    const globalServiceSpy = {
+      getAll: vi.fn().mockName('GlobalService.getAll')
+    };
+    globalServiceSpy.getAll.mockReturnValue(of({}));
 
     TestBed.configureTestingModule({
       declarations: [BlacklistAttackComponent],
@@ -36,7 +38,9 @@ describe('BlacklistAttackComponent', () => {
       component.value = '';
 
       Object.defineProperty(component, 'uiService', {
-        value: jasmine.createSpyObj('UIConfigService', ['getUISettings'])
+        value: {
+          getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+        }
       });
       component.checkForBanChars();
       expect(component.hasErrors).toBe(false);
@@ -44,18 +48,22 @@ describe('BlacklistAttackComponent', () => {
 
     it('should find errors when input contains blacklisted characters', () => {
       component.value = 'test@#$';
-      const mockService = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-      mockService.getUISettings.and.returnValue({ blacklistChars: '@#$' });
+      const mockService = {
+        getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+      };
+      mockService.getUISettings.mockReturnValue({ blacklistChars: '@#$' });
       Object.defineProperty(component, 'uiService', { value: mockService });
       component.checkForBanChars();
       expect(component.hasErrors).toBe(true);
-      expect(component.blacklistedChars).toEqual(['@', '#', '$']);
+      expect(component.blacklistedChars).toStrictEqual(['@', '#', '$']);
     });
 
     it('should handle escaped special regex characters', () => {
       component.value = 'test[(){}^$*+?';
-      const mockService = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-      mockService.getUISettings.and.returnValue({ blacklistChars: '[(){}^$*+?' });
+      const mockService = {
+        getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+      };
+      mockService.getUISettings.mockReturnValue({ blacklistChars: '[(){}^$*+?' });
       Object.defineProperty(component, 'uiService', { value: mockService });
       component.checkForBanChars();
       expect(component.hasErrors).toBe(true);
@@ -63,8 +71,10 @@ describe('BlacklistAttackComponent', () => {
 
     it('should not find errors for valid input', () => {
       component.value = 'xyz';
-      const mockService = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-      mockService.getUISettings.and.returnValue({ blacklistChars: 'abc' });
+      const mockService = {
+        getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+      };
+      mockService.getUISettings.mockReturnValue({ blacklistChars: 'abc' });
       Object.defineProperty(component, 'uiService', { value: mockService });
       component.checkForBanChars();
       expect(component.hasErrors).toBe(false);
@@ -74,32 +84,38 @@ describe('BlacklistAttackComponent', () => {
       component.value = 'test@#$';
       component.hasErrors = true;
       component.blacklistedChars = ['@', '#', '$'];
-      const mockService = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-      mockService.getUISettings.and.returnValue({ blacklistChars: '@#$' });
+      const mockService = {
+        getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+      };
+      mockService.getUISettings.mockReturnValue({ blacklistChars: '@#$' });
       Object.defineProperty(component, 'uiService', { value: mockService });
       component.checkForBanChars();
-      expect(component.blacklistedChars).toEqual(['@', '#', '$']);
+      expect(component.blacklistedChars).toStrictEqual(['@', '#', '$']);
       expect(component.hasErrors).toBe(true);
     });
 
     it('should return early when no chars are configured', () => {
       component.value = 'test';
-      const mockService = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-      mockService.getUISettings.and.returnValue({ blacklistChars: '' });
+      const mockService = {
+        getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+      };
+      mockService.getUISettings.mockReturnValue({ blacklistChars: '' });
       Object.defineProperty(component, 'uiService', { value: mockService });
       component.checkForBanChars();
       expect(component.hasErrors).toBe(false);
-      expect(component.blacklistedChars).toEqual([]);
+      expect(component.blacklistedChars).toStrictEqual([]);
     });
 
     it('should treat dash as literal character, not a range operator', () => {
       component.value = 'by';
-      const mockService = jasmine.createSpyObj('UIConfigService', ['getUISettings']);
-      mockService.getUISettings.and.returnValue({ blacklistChars: 'a-z' });
+      const mockService = {
+        getUISettings: vi.fn().mockName('UIConfigService.getUISettings')
+      };
+      mockService.getUISettings.mockReturnValue({ blacklistChars: 'a-z' });
       Object.defineProperty(component, 'uiService', { value: mockService });
       component.checkForBanChars();
       expect(component.hasErrors).toBe(false);
-      expect(component.blacklistedChars).toEqual([]);
+      expect(component.blacklistedChars).toStrictEqual([]);
     });
   });
 });

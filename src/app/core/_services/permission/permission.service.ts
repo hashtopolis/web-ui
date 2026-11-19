@@ -1,5 +1,5 @@
 import { zGetUserPermissionHelperApiResponse } from '@generated/api/zod';
-import { BehaviorSubject, Observable, forkJoin, last, map } from 'rxjs';
+import { BehaviorSubject, Observable, last, map } from 'rxjs';
 
 import { Injectable } from '@angular/core';
 
@@ -77,27 +77,6 @@ export class PermissionService {
     return this.getPermissions().pipe(map((permissions) => !!permissions[key]));
   }
 
-  /**
-   * Asynchronously checks multiple permissions.
-   *
-   * @param keys - Array of permission keys.
-   * @returns An observable that emits an array of booleans.
-   */
-  hasPermissions(keys: PermissionValues[]): Observable<boolean[]> {
-    const observables = keys.map((key) => this.hasPermission(key));
-    return forkJoin(observables);
-  }
-
-  /**
-   * Asynchronously checks whether all specified permissions are granted.
-   *
-   * @param keys - Array of permission keys.
-   * @returns An observable that emits `true` if all permissions are granted.
-   */
-  hasAllPermissions(keys: PermissionValues[]): Observable<boolean> {
-    return this.hasPermissions(keys).pipe(map((results) => results.every(Boolean)));
-  }
-
   // ----------- Synchronous Methods -----------
 
   /**
@@ -108,16 +87,6 @@ export class PermissionService {
    */
   hasPermissionSync(key: PermissionValues): boolean {
     return !!this.currentPermissions?.[key];
-  }
-
-  /**
-   * Synchronously checks multiple permissions.
-   *
-   * @param keys - Array of permission keys.
-   * @returns Array of booleans indicating whether each permission is granted.
-   */
-  hasPermissionsSync(keys: PermissionValues[]): boolean[] {
-    return keys.map((key) => this.hasPermissionSync(key));
   }
 
   /**

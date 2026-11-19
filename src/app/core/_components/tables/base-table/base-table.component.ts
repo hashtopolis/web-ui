@@ -3,6 +3,7 @@ import { Observable, of } from 'rxjs';
 
 import { Clipboard } from '@angular/cdk/clipboard';
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   DestroyRef,
@@ -23,11 +24,11 @@ import { JAccessGroup } from '@models/access-group.model';
 import { JAgent } from '@models/agent.model';
 import { BaseModel } from '@models/base.model';
 import { JChunk } from '@models/chunk.model';
-import { TableSettingsKey, UIConfig } from '@models/config-ui.model';
+import { TableSettingsKey } from '@models/config-ui.model';
 import { JHashlist } from '@models/hashlist.model';
 import { JNotification } from '@models/notification.model';
 import { JSuperTask } from '@models/supertask.model';
-import { JTask, JTaskWith, JTaskWrapperDisplay, TaskType } from '@models/task.model';
+import { JTaskWith, JTaskWrapperDisplay, TaskType } from '@models/task.model';
 import { JUser } from '@models/user.model';
 
 import { ContextMenuService } from '@services/context-menu/base/context-menu.service';
@@ -39,7 +40,7 @@ import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { ConfigService } from '@services/shared/config.service';
 import { UIConfigService } from '@services/shared/storage.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
 
 import { HTTableComponent } from '@components/tables/ht-table/ht-table.component';
 import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-table.models';
@@ -47,13 +48,13 @@ import { HTTableIcon, HTTableRouterLink } from '@components/tables/ht-table/ht-t
 import { BaseDataSource } from '@datasources/base.datasource';
 
 import { JAgentErrors } from '@src/app/core/_models/agent-errors.model';
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { TimePrecision } from '@src/app/shared/utils/datetime';
 import { formatPercentage } from '@src/app/shared/utils/util';
 
 @Component({
   selector: 'app-base-table',
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class BaseTableComponent {
@@ -62,7 +63,6 @@ export class BaseTableComponent {
   protected cs = inject(ConfigService);
   protected clipboard = inject(Clipboard);
   protected router = inject(Router);
-  protected settingsService = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   protected sanitizer = inject(DomSanitizer);
   protected alertService = inject(AlertService);
   protected uiService = inject(UIConfigService);
@@ -85,15 +85,12 @@ export class BaseTableComponent {
   @Input() hasTemperatureInformation = true;
 
   protected destroyRef = inject(DestroyRef);
-  protected uiSettings: UISettingsUtilityClass;
+  protected uiSettings = inject(UiSettingsService);
   protected dateTimeFormat: string;
   protected columnLabels: Record<string, string> = {};
   protected contextMenuService: ContextMenuService;
 
   constructor() {
-    const settingsService = this.settingsService;
-
-    this.uiSettings = new UISettingsUtilityClass(settingsService);
     this.dateTimeFormat = this.uiSettings.getDateTimeFormat(TimePrecision.SECONDS);
   }
 
@@ -376,22 +373,6 @@ export class BaseTableComponent {
       links.push({
         routerLink: ['/tasks', 'show-tasks', model.taskId, 'edit'],
         label: idLink ? model.taskId.toString() : model.task?.taskName?.toString()
-      });
-    }
-    return of(links);
-  }
-
-  /* Render edit link for subtask
-   * @param model - agent or chunk to render tasl link for
-   * @param idLink - if true, the task ID will be used as label, otherwise the task name
-   * @return observable object containing a router link array
-   */
-  renderTaskLinkSubtasks(model: JTask, idLink: boolean = false): Observable<HTTableRouterLink[]> {
-    const links: HTTableRouterLink[] = [];
-    if (model) {
-      links.push({
-        routerLink: ['/tasks', 'show-tasks', model.id, 'edit'],
-        label: idLink ? model.id.toString() : model.taskName?.toString()
       });
     }
     return of(links);

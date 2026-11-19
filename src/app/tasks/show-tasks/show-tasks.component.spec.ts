@@ -1,3 +1,5 @@
+import type { MockedObject } from 'vitest';
+
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
@@ -12,17 +14,23 @@ import { ShowTasksComponent } from '@src/app/tasks/show-tasks/show-tasks.compone
 describe('ShowTasksComponent', () => {
   let component: ShowTasksComponent;
   let fixture: ComponentFixture<ShowTasksComponent>;
-  let mockTitleService: jasmine.SpyObj<AutoTitleService>;
-  let mockRoleService: jasmine.SpyObj<TasksRoleService>;
-  let mockTable: jasmine.SpyObj<TasksTableComponent>;
+  let mockTitleService: MockedObject<AutoTitleService>;
+  let mockRoleService: MockedObject<TasksRoleService>;
+  let mockTable: MockedObject<TasksTableComponent>;
 
   describe('with create role', () => {
     beforeEach(async () => {
-      mockTitleService = jasmine.createSpyObj('AutoTitleService', ['set']);
-      mockRoleService = jasmine.createSpyObj('TasksRoleService', ['hasRole']);
-      mockTable = jasmine.createSpyObj<TasksTableComponent>('TasksTableComponent', ['setIsArchived']);
+      mockTitleService = {
+        set: vi.fn().mockName('AutoTitleService.set')
+      } as MockedObject<AutoTitleService>;
+      mockRoleService = {
+        hasRole: vi.fn().mockName('TasksRoleService.hasRole')
+      } as MockedObject<TasksRoleService>;
+      mockTable = {
+        setIsArchived: vi.fn().mockName('TasksTableComponent.setIsArchived')
+      } as MockedObject<TasksTableComponent>;
 
-      mockRoleService.hasRole.and.returnValue(true);
+      mockRoleService.hasRole.mockReturnValue(true);
 
       await TestBed.configureTestingModule({
         declarations: [ShowTasksComponent],
@@ -36,7 +44,11 @@ describe('ShowTasksComponent', () => {
       fixture = TestBed.createComponent(ShowTasksComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
-      (component as unknown as { table: jasmine.SpyObj<TasksTableComponent> }).table = mockTable;
+      (
+        component as unknown as {
+          table: MockedObject<TasksTableComponent>;
+        }
+      ).table = mockTable;
     });
 
     it('should create', () => {
@@ -52,7 +64,7 @@ describe('ShowTasksComponent', () => {
     });
 
     it('should set showCreateButton to true when user has create role', () => {
-      expect(component.showCreateButton).toBeTrue();
+      expect(component.showCreateButton).toBe(true);
       expect(mockRoleService.hasRole).toHaveBeenCalledWith('create');
     });
 
@@ -83,11 +95,17 @@ describe('ShowTasksComponent', () => {
 
   describe('without create role', () => {
     beforeEach(async () => {
-      mockTitleService = jasmine.createSpyObj('AutoTitleService', ['set']);
-      mockRoleService = jasmine.createSpyObj('TasksRoleService', ['hasRole']);
-      mockTable = jasmine.createSpyObj<TasksTableComponent>('TasksTableComponent', ['setIsArchived']);
+      mockTitleService = {
+        set: vi.fn().mockName('AutoTitleService.set')
+      } as MockedObject<AutoTitleService>;
+      mockRoleService = {
+        hasRole: vi.fn().mockName('TasksRoleService.hasRole')
+      } as MockedObject<TasksRoleService>;
+      mockTable = {
+        setIsArchived: vi.fn().mockName('TasksTableComponent.setIsArchived')
+      } as MockedObject<TasksTableComponent>;
 
-      mockRoleService.hasRole.and.returnValue(false);
+      mockRoleService.hasRole.mockReturnValue(false);
 
       await TestBed.configureTestingModule({
         declarations: [ShowTasksComponent],
@@ -101,11 +119,15 @@ describe('ShowTasksComponent', () => {
       fixture = TestBed.createComponent(ShowTasksComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
-      (component as unknown as { table: jasmine.SpyObj<TasksTableComponent> }).table = mockTable;
+      (
+        component as unknown as {
+          table: MockedObject<TasksTableComponent>;
+        }
+      ).table = mockTable;
     });
 
     it('should set showCreateButton to false when user lacks create role', () => {
-      expect(component.showCreateButton).toBeFalse();
+      expect(component.showCreateButton).toBe(false);
       expect(mockRoleService.hasRole).toHaveBeenCalledWith('create');
     });
   });

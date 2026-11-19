@@ -4,6 +4,7 @@ import {
   TimePrecision,
   dateTimeFormat,
   formatDate,
+  formatSessionLifetime,
   formatUnixTimestamp,
   lastValidSecond,
   startOfNextDay,
@@ -118,5 +119,15 @@ describe('startOfNextDay', () => {
 describe('lastValidSecond', () => {
   it('returns the input minus one', () => {
     expect(lastValidSecond(1_000)).toBe(999);
+  });
+});
+
+describe('formatSessionLifetime', () => {
+  it('names whole days in days and everything else in hours', () => {
+    expect(formatSessionLifetime(3600)).toBe('1 hour');
+    expect(formatSessionLifetime(2.5 * 3600)).toBe('2.5 hours');
+    expect(formatSessionLifetime(36 * 3600)).toBe('36 hours');
+    expect(formatSessionLifetime(24 * 3600)).toBe('1 day');
+    expect(formatSessionLifetime(7 * 24 * 3600)).toBe('7 days');
   });
 });

@@ -1,6 +1,6 @@
 import { Observable, catchError, of } from 'rxjs';
 
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { JPretask } from '@models/pretask.model';
@@ -26,6 +26,7 @@ import { SuperTasksPretasksDataSource } from '@datasources/supertasks-pretasks.d
 @Component({
   selector: 'app-supertasks-pretasks-table',
   templateUrl: './supertasks-pretasks-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class SuperTasksPretasksTableComponent extends BaseTableComponent implements OnInit, AfterViewInit {

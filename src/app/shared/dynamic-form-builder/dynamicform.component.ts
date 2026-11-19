@@ -2,6 +2,7 @@ import { Subject, Subscription, takeUntil } from 'rxjs';
 
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   EventEmitter,
@@ -16,7 +17,6 @@ import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@a
 import { ResponseWrapper } from '@models/response.model';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
-import { GlobalService } from '@services/main.service';
 import { FieldType, MetadataFormField } from '@services/metadata.service';
 
 import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/forms';
@@ -28,6 +28,7 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
   selector: 'app-dynamic-form',
   templateUrl: 'dynamicform.component.html',
   styleUrls: ['./dynamicform.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -98,7 +99,6 @@ export class DynamicFormComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Output() selectTypeChange: EventEmitter<number> = new EventEmitter<number>();
 
-  private gs = inject(GlobalService);
   private cdr = inject(ChangeDetectorRef);
   private fb = inject(FormBuilder);
 

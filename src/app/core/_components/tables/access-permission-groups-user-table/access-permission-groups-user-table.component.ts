@@ -1,6 +1,16 @@
 import { catchError } from 'rxjs';
 
-import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { Permission, UserPermissions } from '@models/global-permission-group.model';
@@ -51,6 +61,7 @@ const VERB_TO_ACTION: Record<CrudVerb, string> = {
 @Component({
   selector: 'access-permission-groups-user-table',
   templateUrl: './access-permission-groups-user-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class AccessPermissionGroupsUserTableComponent

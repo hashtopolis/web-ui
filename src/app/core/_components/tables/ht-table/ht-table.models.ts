@@ -106,6 +106,25 @@ export interface CheckboxFiles {
 
 export type HTTableColumnType = 'default' | 'link' | 'editable';
 
+/**
+ * Truncates long cell values with a middle ellipsis. Truncated values get a button
+ * that opens a dialog showing the full value.
+ */
+export interface HTTableTruncate {
+  /** Title of the dialog showing the full value */
+  dialogTitle?(data: BaseModel): string;
+}
+
+/**
+ * Adds a button to the cell that copies a value of the row to the clipboard.
+ */
+export interface HTTableCopy {
+  /** Name of the copied value used in the user feedback messages, e.g. 'Hash value' */
+  label: string;
+  /** Returns the value to copy */
+  value(data: BaseModel): string;
+}
+
 export interface HTTableColumn {
   type?: HTTableColumnType;
   id: number;
@@ -128,13 +147,13 @@ export interface HTTableColumn {
   render?(data: BaseModel): SafeHtml;
   async?(data: BaseModel): Promise<SafeHtml>;
   export?(data: BaseModel): Promise<string>;
-  truncate?(data: BaseModel): boolean;
+  truncate?: HTTableTruncate;
   editable?(data: BaseModel): HTTableEditable<BaseModel>;
   checkbox?(data: BaseModel): HTTableEditable<BaseModel>;
   customCellColor?: customCellColorInput;
   routerLink?(data: BaseModel): Observable<HTTableRouterLink[]>;
   icon?(data: BaseModel): HTTableIcon;
-  isCopy?: boolean;
+  copy?: HTTableCopy;
   parent?: string; //parent is to build relation sort query in format "task.taskName"
 }
 

@@ -5,6 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
 import { FlatCompat } from '@eslint/eslintrc';
+import angular from 'angular-eslint';
+import vitest from '@vitest/eslint-plugin';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,13 +21,13 @@ export default defineConfig([
   {
     files: ['**/*.ts'],
 
-    extends: compat.extends(
-      'eslint:recommended',
-      'plugin:@typescript-eslint/recommended',
-      'plugin:@angular-eslint/recommended',
-      'plugin:@angular-eslint/template/process-inline-templates',
-      'plugin:prettier/recommended'
-    ),
+    extends: [
+      ...compat.extends('eslint:recommended', 'plugin:@typescript-eslint/recommended'),
+      ...angular.configs.tsRecommended,
+      ...compat.extends('plugin:prettier/recommended')
+    ],
+
+    processor: angular.processInlineTemplates,
 
     plugins: {
       import: fixupPluginRules(_import)
@@ -42,6 +44,10 @@ export default defineConfig([
       ],
 
       '@angular-eslint/prefer-standalone': 'off',
+
+      // The Angular 22 migration pinned the existing components to Eager change detection so the
+      // upgrade keeps their behaviour; moving them to OnPush is a change of its own
+      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
 
       'no-console': [
         'error',
@@ -154,10 +160,7 @@ export default defineConfig([
   {
     files: ['**/*.html'],
 
-    extends: compat.extends(
-      'plugin:@angular-eslint/template/recommended',
-      'plugin:@angular-eslint/template/accessibility'
-    ),
+    extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
 
     rules: {}
   },
@@ -166,6 +169,39 @@ export default defineConfig([
     files: ['**/*.service.ts'],
     rules: {
       '@angular-eslint/prefer-inject': 'off'
+    }
+  },
+  // === Specs: advance fake timers only with the async variants ===
+  {
+    files: ['**/*.spec.ts'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "MemberExpression[object.property.name='location'][property.name='reload']",
+          message: 'Use ReloadService.reloadPage() instead of window.location.reload().'
+        },
+        {
+          selector:
+            "CallExpression[callee.object.name='vi'][callee.property.name=/^(advanceTimersByTime|advanceTimersToNextTimer|runAllTimers|runOnlyPendingTimers)$/]",
+          message:
+            'Use the ...Async variant (e.g. await vi.advanceTimersByTimeAsync(ms)): the sync one does not flush promise and RxJS microtasks between timers, so assertions can run before the work they check.'
+        }
+      ]
+    }
+  },
+  // === Specs: Vitest rules ===
+  {
+    files: ['**/*.spec.ts'],
+    plugins: { vitest },
+    rules: {
+      // A `.resolves` / `.rejects` assertion that is not awaited runs after the test has ended.
+      // Two arguments, because `expect(value, message)` replaces Jasmine's withContext().
+      'vitest/valid-expect': ['error', { maxArgs: 2 }],
+      // `it.only` / `describe.only` left in a spec would silently skip the rest of the suite.
+      'vitest/no-focused-tests': 'error',
+      // Vitest's toEqual ignores undefined keys and the object's class, which Jasmine's toEqual checked.
+      'vitest/prefer-strict-equal': 'error'
     }
   },
   // === Allow window.location.reload() only in ReloadService ===

@@ -1,18 +1,16 @@
-import { AfterViewInit, Component, DestroyRef, ElementRef, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { UIConfig } from '@models/config-ui.model';
 import { BuiltInTheme } from '@models/config-ui.model';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AlertService } from '@services/shared/alert.service';
-import { LocalStorageService } from '@services/storage/local-storage.service';
+import { UiSettingsService } from '@services/shared/ui-settings.service';
 
 import { emailValidator } from '@src/app/core/_validators/email.validator';
-import { UISettingsUtilityClass } from '@src/app/shared/utils/config';
 import { HeaderConfig } from '@src/config/default/app/config.model';
 import { environment } from '@src/environments/environment';
 
@@ -25,11 +23,11 @@ export interface ForgotPasswordForm {
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class ForgotPasswordComponent implements AfterViewInit {
   private destroyRef = inject(DestroyRef);
-  private storage = inject<LocalStorageService<UIConfig>>(LocalStorageService);
   private gs = inject(GlobalService);
   private alert = inject(AlertService);
   private router = inject(Router);
@@ -37,7 +35,7 @@ export class ForgotPasswordComponent implements AfterViewInit {
 
   forgotForm: FormGroup<ForgotPasswordForm>;
 
-  protected uiSettings: UISettingsUtilityClass;
+  protected uiSettings = inject(UiSettingsService);
   headerConfig: HeaderConfig;
   isDarkMode = false;
 
@@ -46,7 +44,6 @@ export class ForgotPasswordComponent implements AfterViewInit {
 
   constructor() {
     this.headerConfig = environment.config.header;
-    this.uiSettings = new UISettingsUtilityClass(this.storage);
     this.isDarkMode = this.uiSettings.getSetting('theme') === BuiltInTheme.DARK;
     this.buildForm();
   }

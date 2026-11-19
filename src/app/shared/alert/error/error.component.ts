@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 interface ErrorModalData {
   message: string;
@@ -10,15 +10,11 @@ interface ErrorModalData {
   selector: 'app-timeout',
   templateUrl: './error.component.html',
   styleUrls: ['./error.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class ErrorModalComponent {
-  public dialogRef = inject<MatDialogRef<ErrorModalComponent>>(MatDialogRef);
   public data: ErrorModalData = inject(MAT_DIALOG_DATA);
   message: string = this.data?.message;
   status?: number = this.data?.status;
-
-  onClose() {
-    this.dialogRef.close();
-  }
 }

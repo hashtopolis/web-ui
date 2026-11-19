@@ -9,7 +9,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AlertService } from '@services/shared/alert.service';
 
@@ -17,10 +16,11 @@ import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
 import { GridModule } from '@src/app/shared/grid-containers/grid.module';
 import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/wordlist-generator.component';
 import { Wordpolis } from '@src/app/shared/wordlist-generator/wordpolis-wrapper';
+import { provideDisabledMaterialAnimations } from '@src/app/testing/material-animations';
 
 // Mock AlertService
 class MockAlertService {
-  showErrorMessage = jasmine.createSpy('showErrorMessage');
+  showErrorMessage = vi.fn().mockName('showErrorMessage');
 }
 
 describe('WordlistGeneratorComponent', () => {
@@ -33,7 +33,6 @@ describe('WordlistGeneratorComponent', () => {
       declarations: [WordlistGeneratorComponent],
       imports: [
         ReactiveFormsModule,
-        NoopAnimationsModule,
         MatDialogModule,
         MatFormFieldModule,
         MatInputModule,
@@ -46,7 +45,7 @@ describe('WordlistGeneratorComponent', () => {
         GridModule,
         ButtonsModule
       ],
-      providers: [{ provide: AlertService, useClass: MockAlertService }]
+      providers: [provideDisabledMaterialAnimations(), { provide: AlertService, useClass: MockAlertService }]
     }).compileComponents();
 
     fixture = TestBed.createComponent(WordlistGeneratorComponent);
@@ -67,19 +66,19 @@ describe('WordlistGeneratorComponent', () => {
 
   it('should be invalid if filename is empty', () => {
     component.form.controls.filename.setValue('');
-    expect(component.form.controls.filename.valid).toBeFalse();
-    expect(component.form.controls.filename.errors).toEqual({ required: true });
+    expect(component.form.controls.filename.valid).toBe(false);
+    expect(component.form.controls.filename.errors).toStrictEqual({ required: true });
   });
 
   it('should be invalid if names, specialdates and sparetext are all empty', () => {
-    expect(component.form.valid).toBeFalse();
-    expect(component.form.errors).toEqual({ atLeastOneRequired: true });
+    expect(component.form.valid).toBe(false);
+    expect(component.form.errors).toStrictEqual({ atLeastOneRequired: true });
   });
 
   it('should be valid if at least one field is filled', () => {
     const namesArray = component.form.get('names') as FormArray;
     namesArray.at(0).setValue('John Doe');
-    expect(component.form.valid).toBeTrue();
+    expect(component.form.valid).toBe(true);
   });
 
   it('should be valid with a proper filename and at least one field filled', () => {
@@ -87,7 +86,7 @@ describe('WordlistGeneratorComponent', () => {
     const namesArray = component.form.get('names') as FormArray;
     namesArray.at(0).setValue('Alice');
 
-    expect(component.form.valid).toBeTrue();
+    expect(component.form.valid).toBe(true);
     expect(component.form.controls.filename.errors).toBeNull();
     expect(component.form.errors).toBeNull();
   });
@@ -102,7 +101,7 @@ describe('WordlistGeneratorComponent', () => {
   });
 
   it('should call generateCandidates with the correct values when form is valid', () => {
-    const wordpolisSpy = spyOn(Wordpolis, 'generateCandidates').and.returnValue(undefined);
+    const wordpolisSpy = vi.spyOn(Wordpolis, 'generateCandidates').mockReturnValue(undefined);
 
     component.form.controls.names.at(0).setValue('test');
     component.form.controls.specialdates.setValue('2025-08-21');
@@ -114,7 +113,7 @@ describe('WordlistGeneratorComponent', () => {
 
     component.onSubmit();
 
-    expect(wordpolisSpy).toHaveBeenCalledOnceWith(
+    expect(wordpolisSpy).toHaveBeenCalledExactlyOnceWith(
       component.form.controls.names.value,
       component.form.controls.specialdates.value,
       component.form.controls.sparetext.value,
@@ -136,7 +135,9 @@ describe('WordlistGeneratorComponent', () => {
   });
 
   it('should call AlertService on error during submit', () => {
-    spyOn(Wordpolis, 'generateCandidates').and.throwError('test error');
+    vi.spyOn(Wordpolis, 'generateCandidates').mockImplementation(() => {
+      throw new Error('test error');
+    });
     component.form.controls.names.at(0).setValue('test');
     component.form.controls.filename.setValue('file.txt');
     component.onSubmit();

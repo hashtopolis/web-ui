@@ -7,7 +7,6 @@ import { AlertNavModule } from '@src/app/shared/alert/alert.module';
 import { CheatsheetComponent } from '@src/app/shared/alert/cheatsheet/cheatsheet.component';
 import { FixedAlertComponent } from '@src/app/shared/alert/fixed-alert/fixed-alert.component';
 import { ButtonsModule } from '@src/app/shared/buttons/buttons.module';
-import { TimeoutDialogComponent } from '@src/app/shared/dialog/timeout/timeout-dialog.component';
 import { DividerModule } from '@src/app/shared/divider/divider.module';
 import { DynamicFormModule } from '@src/app/shared/dynamic-form-builder/dynamicform.module';
 import { CoreFormsModule } from '@src/app/shared/forms.module';
@@ -26,7 +25,6 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
   declarations: [
     WordlistGeneratorComponent,
     HashtypeDetectorComponent,
-    TimeoutDialogComponent,
     HexconvertorComponent,
     PassStrenghtComponent,
     CheatsheetComponent,
@@ -51,7 +49,6 @@ import { WordlistGeneratorComponent } from '@src/app/shared/wordlist-generator/w
   exports: [
     WordlistGeneratorComponent,
     HashtypeDetectorComponent,
-    TimeoutDialogComponent,
     HexconvertorComponent,
     PassStrenghtComponent,
     HorizontalNavModule,

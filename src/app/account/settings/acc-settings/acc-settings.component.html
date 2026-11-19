@@ -10,6 +10,14 @@
         ></input-text>
       </div>
       <input-text title="Email" formControlName="email" [isRequired]="true" data-testid="input-email"></input-text>
+      <input-select
+        title="Session length"
+        formControlName="sessionLifetime"
+        [items]="sessionLifetimeOptions"
+        [isRequired]="true"
+        tooltip="How long you stay logged in while Hashtopolis is closed or your computer is asleep."
+        data-testid="input-session-lifetime"
+      ></input-select>
       <grid-buttons>
         <button-submit
           [name]="'Update'"

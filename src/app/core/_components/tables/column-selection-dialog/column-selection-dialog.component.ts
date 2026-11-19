@@ -1,13 +1,13 @@
-import { Component, inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-column-selection-dialog',
   templateUrl: './column-selection-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class ColumnSelectionDialogComponent {
-  public dialogRef = inject(MatDialogRef<ColumnSelectionDialogComponent>);
   public data = inject<{
     availableColumns: { [key: number]: string };
     selectedColumns: string[];
@@ -20,10 +20,6 @@ export class ColumnSelectionDialogComponent {
     // Initialize selectedColumns with the default columns
     this.selectedColumns = [...this.data.selectedColumns.filter((row: string) => row !== '100' && row !== '200')];
     this.availableColumns = { ...this.data.availableColumns };
-  }
-
-  closeDialog(): void {
-    this.dialogRef.close();
   }
 
   getKeys(): string[] {

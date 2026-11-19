@@ -3,7 +3,15 @@ import { zGetAccessGroupsHelperApiResponse, zHashlistResponse } from '@generated
 import { lastValueFrom } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectorRef, Component, DestroyRef, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  OnInit,
+  ViewChild,
+  inject
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -38,6 +46,7 @@ import { SelectOption, transformSelectOptions } from '@src/app/shared/utils/form
 @Component({
   selector: 'app-edit-hashlist',
   templateUrl: './edit-hashlist.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class EditHashlistComponent implements OnInit, CanComponentDeactivate {

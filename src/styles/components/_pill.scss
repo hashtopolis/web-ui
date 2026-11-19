@@ -24,7 +24,8 @@
   /* Chunk states, see ChunkStatePillClass in core/_constants/chunks.config.ts */
   $chunk-states: (
     new: var(--subtle-foreground),
-    init: var(--info),
+    autotune: var(--info),
+    selftest: var(--info),
     running: var(--info),
     paused: var(--warning),
     exhausted: var(--success),
@@ -33,7 +34,9 @@
     quit: var(--destructive),
     bypass: var(--warning),
     trimmed: var(--warning),
-    aborting: var(--destructive)
+    aborting: var(--destructive),
+    error: var(--destructive),
+    autodetect: var(--info)
   );
 
   @each $state, $color in $chunk-states {
