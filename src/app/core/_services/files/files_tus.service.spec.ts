@@ -18,10 +18,12 @@ import { ConfigService } from '@services/shared/config.service';
 import { LocalStorageService } from '@services/storage/local-storage.service';
 
 import { mockResponse } from '@src/app/testing/mock-response';
+import { environment } from '@src/environments/environment';
 
 describe('UploadTUSService', () => {
   let gs: MockedObject<GlobalService>;
   let router: MockedObject<Router>;
+  let alert: MockedObject<AlertService>;
   beforeEach(() => {
     const auth = { token: 'current-token' } as MockedObject<AuthService>;
     const storage = { getItem: vi.fn().mockName('LocalStorageService.getItem') } as MockedObject<
@@ -32,7 +34,7 @@ describe('UploadTUSService', () => {
     const config = {
       getEndpoint: vi.fn().mockName('ConfigService.getEndpoint').mockReturnValue('https://api.example')
     } as MockedObject<ConfigService>;
-    const alert = { showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage') } as MockedObject<AlertService>;
+    alert = { showErrorMessage: vi.fn().mockName('AlertService.showErrorMessage') } as MockedObject<AlertService>;
     TestBed.configureTestingModule({
       providers: [
         UploadTUSService,
@@ -270,5 +272,58 @@ describe('UploadTUSService', () => {
       { headers: expect.any(HttpHeaders) }
     );
     expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('uses an unlimited chunk size when the configured size is NaN', async () => {
+    vi.spyOn(tus.Upload.prototype, 'findPreviousUploads').mockResolvedValue([]);
+    const start = vi.spyOn(tus.Upload.prototype, 'start').mockImplementation(() => {});
+    const configuredSize = environment.config.chunkSizeTUS;
+    let service: UploadTUSService;
+    try {
+      environment.config.chunkSizeTUS = Number.NaN;
+      service = TestBed.inject(UploadTUSService);
+    } finally {
+      environment.config.chunkSizeTUS = configuredSize;
+    }
+    const result = lastValueFrom(service.uploadFile(new File(['a'], 'a.txt'), 'a.txt', SERV.FILES).pipe(toArray()));
+    await vi.waitFor(() => expect(start).toHaveBeenCalledExactlyOnceWith());
+    const upload = start.mock.contexts[0] as tus.Upload;
+    expect(upload.options.chunkSize).toBe(Infinity);
+    upload.options.onSuccess?.();
+    await expect(result).resolves.toStrictEqual([]);
+  });
+
+  it('alerts when the browser does not support uploads', async () => {
+    vi.spyOn(tus, 'isSupported', 'get').mockReturnValue(false);
+    vi.spyOn(tus.Upload.prototype, 'findPreviousUploads').mockResolvedValue([]);
+    const start = vi.spyOn(tus.Upload.prototype, 'start').mockImplementation(() => {});
+    const result = lastValueFrom(
+      TestBed.inject(UploadTUSService)
+        .uploadFile(new File(['a'], 'a.txt'), 'a.txt', SERV.FILES)
+        .pipe(toArray())
+    );
+    await vi.waitFor(() => expect(start).toHaveBeenCalledExactlyOnceWith());
+    expect(alert.showErrorMessage).toHaveBeenCalledExactlyOnceWith(
+      'This browser does not support uploads. Please use a modern browser instead.'
+    );
+    (start.mock.contexts[0] as tus.Upload).options.onSuccess?.();
+    await expect(result).resolves.toStrictEqual([]);
+  });
+
+  it('logs errors looking up previous uploads without starting an upload', async () => {
+    const error = new Error('lookup failed');
+    vi.spyOn(tus.Upload.prototype, 'findPreviousUploads').mockRejectedValue(error);
+    const start = vi.spyOn(tus.Upload.prototype, 'start').mockImplementation(() => {});
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const subscription = TestBed.inject(UploadTUSService)
+      .uploadFile(new File(['a'], 'a.txt'), 'a.txt', SERV.FILES)
+      .subscribe();
+    try {
+      await vi.waitFor(() => expect(log).toHaveBeenCalledExactlyOnceWith(error));
+      expect(start).not.toHaveBeenCalled();
+      expect(subscription.closed).toBe(false);
+    } finally {
+      subscription.unsubscribe();
+    }
   });
 });
