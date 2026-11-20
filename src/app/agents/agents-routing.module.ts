@@ -9,7 +9,7 @@ import { AgentStatusComponent } from '@src/app/agents/agent-status/agent-status.
 import { EditAgentComponent } from '@src/app/agents/edit-agent/edit-agent.component';
 import { NewAgentComponent } from '@src/app/agents/new-agent/new-agent.component';
 import { ShowAgentsComponent } from '@src/app/agents/show-agents/show-agents.component';
-import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { requireAuth } from '@src/app/core/_guards/auth.guard';
 import { CheckRole } from '@src/app/core/_guards/permission.guard';
 
 const roleServiceClass = AgentRoleService;
@@ -17,7 +17,7 @@ const roleServiceClass = AgentRoleService;
 const routes: MyRoute[] = [
   {
     path: '',
-    canActivate: [IsAuth],
+    canActivate: [requireAuth],
     children: [
       {
         path: 'agent-status',

@@ -32,13 +32,13 @@ import { HealthChecksComponent } from '@src/app/config/health-checks/health-chec
 import { NewHealthChecksComponent } from '@src/app/config/health-checks/new-health-check/new-health-checks.component';
 import { ViewHealthChecksComponent } from '@src/app/config/health-checks/view-health-check/view-health-checks.component';
 import { LogComponent } from '@src/app/config/log/log.component';
-import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { requireAuth } from '@src/app/core/_guards/auth.guard';
 import { CheckRole } from '@src/app/core/_guards/permission.guard';
 
 export const routes: MyRoute[] = [
   {
     path: '',
-    canActivate: [IsAuth],
+    canActivate: [requireAuth],
     children: [
       {
         path: 'agent',
