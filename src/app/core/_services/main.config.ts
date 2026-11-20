@@ -44,6 +44,7 @@ export const HELPER_ENDPOINTS = [
   'rescanGlobalFiles',
   'recountFileLines',
   'recomputeFileChecksum',
+  'rescanCrackerBinary',
   'resetUserPassword'
 ] as const;
 

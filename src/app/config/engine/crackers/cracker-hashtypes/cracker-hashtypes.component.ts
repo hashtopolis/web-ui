@@ -10,6 +10,7 @@ import { CrackerBinaryId, HashTypeId } from '@models/id.types';
 
 import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
 
 import { CoreComponentsModule } from '@components/core-components.module';
 import { CrackerHashtypesTableComponent } from '@components/tables/cracker-hashtypes-table/cracker-hashtypes-table.component';
@@ -24,8 +25,8 @@ import { PageTitleModule } from '@src/app/shared/page-headers/page-title.module'
 
 /**
  * Supported hashtypes of a cracker version on its edit page. The hashtypes of hashcat versions are determined by
- * the background scan and read-only, generic versions get them added (in a dialog) and removed here, applied
- * immediately.
+ * the background scan and read-only, users with the update role can trigger a rescan, e.g. after a failed scan.
+ * Generic versions get them added (in a dialog) and removed here, applied immediately.
  */
 @Component({
   selector: 'app-cracker-hashtypes',
@@ -44,13 +45,22 @@ export class CrackerHashtypesComponent implements OnInit {
   /** Ids of all assigned hashtypes (the table only holds one page), null until they are loaded */
   assignedHashtypeIds: HashTypeId[] | null = null;
 
+  /** True while the rescan request is in flight */
+  isRescanning = false;
+
   private gs = inject(GlobalService);
   private dialog = inject(MatDialog);
+  private alert = inject(AlertService);
   private destroyRef = inject(DestroyRef);
 
   /** Generic versions with the update role can change their hashtypes */
   get editable(): boolean {
     return this.canEdit && !this.isHashcat;
+  }
+
+  /** Hashcat versions with the update role can trigger a new scan */
+  get canRescan(): boolean {
+    return this.canEdit && this.isHashcat;
   }
 
   ngOnInit(): void {
@@ -101,5 +111,29 @@ export class CrackerHashtypesComponent implements OnInit {
           void this.loadAssignedHashtypeIds();
         }
       });
+  }
+
+  /**
+   * Queue a new scan of the hashcat version, e.g. after the previous scan failed. The server downloads the archive
+   * of a version referenced by an url again first. The scan runs as background job, so the table keeps its hashtypes
+   * until it has finished. Errors (e.g. a failed download) are shown by the global HTTP error dialog.
+   */
+  async rescan(): Promise<void> {
+    if (this.isRescanning) {
+      return;
+    }
+    this.isRescanning = true;
+    try {
+      await firstValueFrom(
+        this.gs.chelper(SERV.HELPER, 'rescanCrackerBinary', { crackerBinaryId: this.crackerBinaryId })
+      );
+      this.alert.showSuccessMessage(
+        'Rescan queued. The supported hashtypes update once the background job has finished.'
+      );
+    } catch (error) {
+      console.error('Failed to queue the rescan of the cracker version', error);
+    } finally {
+      this.isRescanning = false;
+    }
   }
 }
