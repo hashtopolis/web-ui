@@ -1,5 +1,5 @@
 import { zCrackerBinaryRelationHashtypesGetResponse } from '@generated/api/zod';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
@@ -9,6 +9,7 @@ import { provideRouter } from '@angular/router';
 
 import { RelationshipType, SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { AlertService } from '@services/shared/alert.service';
 
 import { CoreComponentsModule } from '@components/core-components.module';
 
@@ -41,13 +42,18 @@ describe('CrackerHashtypesComponent', () => {
   let component: CrackerHashtypesComponent;
   let gs: MockedObject<GlobalService>;
   let dialog: MockedObject<MatDialog>;
+  let alert: MockedObject<AlertService>;
   /** Result the add dialog closes with */
   let dialogResult: boolean | undefined;
 
   async function setup(inputs: { isHashcat: boolean; canEdit: boolean; canCreateHashtypes?: boolean }): Promise<void> {
     await TestBed.configureTestingModule({
       imports: [CrackerHashtypesComponent],
-      providers: [{ provide: GlobalService, useValue: gs }, provideRouter([])]
+      providers: [
+        { provide: GlobalService, useValue: gs },
+        { provide: AlertService, useValue: alert },
+        provideRouter([])
+      ]
     })
       // the imported modules provide their own MatDialog, the override replaces it on every level
       .overrideProvider(MatDialog, { useValue: dialog })
@@ -75,15 +81,24 @@ describe('CrackerHashtypesComponent', () => {
     return el().querySelector('[data-testid="open-add-hashtypes"]');
   }
 
+  function rescanButton(): HTMLButtonElement | null {
+    return el().querySelector('[data-testid="rescan-button"] button');
+  }
+
   function table(): StubCrackerHashtypesTableComponent {
     return component.table as unknown as StubCrackerHashtypesTableComponent;
   }
 
   beforeEach(() => {
     gs = {
-      getRelationshipLink: vi.fn().mockName('GlobalService.getRelationshipLink')
+      getRelationshipLink: vi.fn().mockName('GlobalService.getRelationshipLink'),
+      chelper: vi.fn().mockName('GlobalService.chelper')
     } as MockedObject<GlobalService>;
     gs.getRelationshipLink.mockReturnValue(of(assignedResponse([1000])));
+    gs.chelper.mockReturnValue(of({}));
+    alert = {
+      showSuccessMessage: vi.fn().mockName('AlertService.showSuccessMessage')
+    } as MockedObject<AlertService>;
     dialogResult = true;
     dialog = {
       open: vi.fn().mockName('MatDialog.open')
@@ -109,6 +124,41 @@ describe('CrackerHashtypesComponent', () => {
       expect(component.assignedHashtypeIds).toStrictEqual([1000]);
       expect(el().querySelector('[data-testid="hashcat-scan-pending"]')).toBeNull();
     });
+
+    it('queues a rescan of the version and confirms it', async () => {
+      rescanButton()?.click();
+      await fixture.whenStable();
+
+      expect(gs.chelper).toHaveBeenCalledWith(SERV.HELPER, 'rescanCrackerBinary', { crackerBinaryId: 12 });
+      expect(alert.showSuccessMessage).toHaveBeenCalledWith(expect.stringContaining('Rescan queued.'));
+      expect(component.isRescanning).toBe(false);
+    });
+
+    it('sends no second request while a rescan is in flight', () => {
+      component.isRescanning = true;
+
+      void component.rescan();
+
+      expect(gs.chelper).not.toHaveBeenCalled();
+    });
+
+    it('confirms nothing when the rescan failed, the global error dialog shows the reason', async () => {
+      gs.chelper.mockReturnValue(throwError(() => new Error('download failed')));
+      vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+      await component.rescan();
+
+      expect(alert.showSuccessMessage).not.toHaveBeenCalled();
+      expect(component.isRescanning).toBe(false);
+    });
+  });
+
+  describe('hashcat version without update role', () => {
+    beforeEach(async () => await setup({ isHashcat: true, canEdit: false }));
+
+    it('offers no rescan', () => {
+      expect(rescanButton()).toBeNull();
+    });
   });
 
   describe('hashcat version without hashtypes', () => {
@@ -117,9 +167,10 @@ describe('CrackerHashtypesComponent', () => {
       await setup({ isHashcat: true, canEdit: true });
     });
 
-    it('points to the background jobs', () => {
+    it('points to the background jobs and the rescan', () => {
       const note = el().querySelector('[data-testid="hashcat-scan-pending"]');
       expect(note?.textContent).toContain('No hashtypes yet.');
+      expect(note?.textContent).toContain('rescan the version');
       expect(note?.querySelector('a')?.getAttribute('href')).toBe('/config/background-jobs');
     });
   });
@@ -127,9 +178,10 @@ describe('CrackerHashtypesComponent', () => {
   describe('generic version with update role', () => {
     beforeEach(async () => await setup({ isHashcat: false, canEdit: true }));
 
-    it('passes an editable table and shows no scan note', () => {
+    it('passes an editable table and shows no scan note and no rescan', () => {
       expect(table().editable).toBe(true);
       expect(el().querySelector('[data-testid="hashcat-scan-note"]')).toBeNull();
+      expect(rescanButton()).toBeNull();
     });
 
     it('opens the add dialog with the version, the assigned ids and the create permission', () => {

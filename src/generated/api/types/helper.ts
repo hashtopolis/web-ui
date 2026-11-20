@@ -1,6 +1,7 @@
 import type { AccessGroupResourceObject } from './access-group';
 import type { ErrorResponse, Token } from './common';
 import type { ConfigResourceObject } from './config';
+import type { CrackerBinarySingleResponse } from './cracker-binary';
 import type { FileSingleResponse } from './file';
 import type { GlobalPermissionGroupResourceObject } from './global-permission-group';
 import type { HashResourceObject } from './hash';
@@ -306,6 +307,10 @@ export type RecomputeFileChecksumHelperApi = {
 
 export type RecountFileLinesHelperApi = {
   fileId?: number;
+};
+
+export type RescanCrackerBinaryHelperApi = {
+  crackerBinaryId?: number;
 };
 
 export type RescanGlobalFilesHelperApi = {
@@ -1973,6 +1978,46 @@ export type PostRecountFileLinesResponses = {
 };
 
 export type PostRecountFileLinesResponse = PostRecountFileLinesResponses[keyof PostRecountFileLinesResponses];
+
+export type PostRescanCrackerBinaryData = {
+  /**
+   * crackerBinaryId is the id of the cracker binary which should be scanned again.
+   */
+  body: RescanCrackerBinaryHelperApi;
+  path?: never;
+  query?: never;
+  url: '/api/v2/helper/rescanCrackerBinary';
+};
+
+export type PostRescanCrackerBinaryErrors = {
+  /**
+   * Invalid request
+   */
+  400: ErrorResponse;
+  /**
+   * Authentication failed
+   */
+  401: ErrorResponse;
+  /**
+   * Permission denied
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type PostRescanCrackerBinaryError = PostRescanCrackerBinaryErrors[keyof PostRescanCrackerBinaryErrors];
+
+export type PostRescanCrackerBinaryResponses = {
+  /**
+   * successful operation
+   */
+  200: CrackerBinarySingleResponse;
+};
+
+export type PostRescanCrackerBinaryResponse = PostRescanCrackerBinaryResponses[keyof PostRescanCrackerBinaryResponses];
 
 export type PostRescanGlobalFilesData = {
   body: RescanGlobalFilesHelperApi;

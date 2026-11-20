@@ -3,6 +3,7 @@ import * as z from 'zod';
 import { zAccessGroupResourceObject } from './access-group';
 import { zToken } from './common';
 import { zConfigResourceObject } from './config';
+import { zCrackerBinarySingleResponse } from './cracker-binary';
 import { zFileSingleResponse } from './file';
 import { zGlobalPermissionGroupResourceObject } from './global-permission-group';
 import { zHashResourceObject } from './hash';
@@ -254,6 +255,10 @@ export const zRecomputeFileChecksumHelperApi = z.object({
 
 export const zRecountFileLinesHelperApi = z.object({
   fileId: z.int().optional()
+});
+
+export const zRescanCrackerBinaryHelperApi = z.object({
+  crackerBinaryId: z.int().optional()
 });
 
 export const zRescanGlobalFilesHelperApi = z.record(z.string(), z.unknown());
@@ -753,6 +758,16 @@ export const zPostRecountFileLinesBody = zRecountFileLinesHelperApi;
  * successful operation
  */
 export const zPostRecountFileLinesResponse = zFileSingleResponse;
+
+/**
+ * crackerBinaryId is the id of the cracker binary which should be scanned again.
+ */
+export const zPostRescanCrackerBinaryBody = zRescanCrackerBinaryHelperApi;
+
+/**
+ * successful operation
+ */
+export const zPostRescanCrackerBinaryResponse = zCrackerBinarySingleResponse;
 
 export const zPostRescanGlobalFilesBody = zRescanGlobalFilesHelperApi;
 

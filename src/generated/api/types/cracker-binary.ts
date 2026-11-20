@@ -194,6 +194,137 @@ export type CrackerBinaryResponse = {
   >;
 };
 
+export type CrackerBinarySingleResponse = {
+  jsonapi: {
+    version: string;
+    ext?: Array<string>;
+  };
+  links: {
+    self: string;
+  };
+  data: {
+    id: number;
+    type: 'crackerBinary';
+    attributes: {
+      crackerBinaryTypeId: number;
+      version: string;
+      /**
+       * External http/https url where the agent downloads the binary archive from. The server keeps a local copy of the archive for later analysis: on creation it is downloaded from this url, and changing the url re-downloads it from the new url. The creation or change is rejected if that download fails or the archive is not a valid 7z file. Mutually exclusive with sourceType: when the archive is uploaded with sourceType, this url is set automatically to the download endpoint of this server and cannot be changed afterwards.
+       */
+      downloadUrl: string | null;
+      binaryName: string;
+      /**
+       * Filename of the locally stored 7z archive, null when the binary is downloaded from the downloadUrl. Cannot be provided.
+       */
+      filename: string | null;
+      /**
+       * Access group containing this cracker binary. Required on creation; the requesting user must belong to the group. It can be changed only when the user belongs to both the current and new groups.
+       */
+      accessGroupId: number;
+    };
+    links: {
+      self: string;
+    };
+    relationships: {
+      accessGroup: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'accessGroup';
+          id: number;
+        } | null;
+      };
+      crackerBinaryType: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: {
+          type: 'crackerBinaryType';
+          id: number;
+        } | null;
+      };
+      hashtypes: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'hashType';
+          id: number;
+        }>;
+      };
+      tasks: {
+        links: {
+          self: string;
+          related: string;
+        };
+        data?: Array<{
+          type: 'task';
+          id: number;
+        }>;
+      };
+    };
+  };
+  included?: Array<
+    | {
+        id: number;
+        type: 'crackerBinaryType';
+        attributes: {
+          typeName: string;
+          isChunkingAvailable: boolean | null;
+        };
+      }
+    | {
+        id: number;
+        type: 'accessGroup';
+        attributes: {
+          groupName: string;
+        };
+      }
+    | {
+        id: number;
+        type: 'task';
+        attributes: {
+          taskName: string;
+          attackCmd: string;
+          chunkTime: number;
+          statusTimer: number;
+          keyspace: number;
+          keyspaceProgress: number;
+          priority: number;
+          maxAgents: number;
+          color: string | null;
+          isSmall: boolean;
+          isCpuTask: boolean;
+          useNewBench: boolean;
+          skipKeyspace: number;
+          crackerBinaryId: number;
+          crackerBinaryTypeId: number | null;
+          taskWrapperId: number;
+          isArchived: boolean;
+          notes: string;
+          staticChunks: number;
+          chunkSize: number;
+          forcePipe: boolean;
+          preprocessorId: number;
+          preprocessorCommand: string;
+        };
+      }
+    | {
+        id: number;
+        type: 'hashType';
+        attributes: {
+          description: string;
+          isSalted: boolean;
+          isSlowHash: boolean;
+        };
+      }
+  >;
+};
+
 export type CrackerBinaryPostPatchResponse = {
   jsonapi: {
     version: string;
