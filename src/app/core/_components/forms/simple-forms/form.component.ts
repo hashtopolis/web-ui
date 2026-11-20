@@ -105,14 +105,7 @@ export class FormComponent implements OnInit {
   formValues: Record<string, unknown> = {};
 
   /**
-   * Constructor for the FormComponent.
-   * @param metadataService - The MetadataService for accessing form metadata.
-   * @param titleService - The AutoTitleService for setting titles.
-   * @param route - The ActivatedRoute for retrieving route data.
-   * @param alert - The AlertService for displaying alerts.
-   * @param gs - The GlobalService for handling global operations.
-   * @param router - The Angular Router for navigation.
-   * @param confirmDialog
+   * Load route data, params and metadata.
    */
   constructor() {
     // Subscribe to route data to initialize component data
@@ -171,11 +164,11 @@ export class FormComponent implements OnInit {
         error: (err: unknown) => {
           const status = err instanceof HttpErrorResponse ? err.status : undefined;
           if (status === HttpStatus.FORBIDDEN) {
-            this.router.navigateByUrl('/forbidden');
+            void this.router.navigateByUrl('/forbidden');
             return;
           }
           if (status === HttpStatus.NOT_FOUND) {
-            this.router.navigateByUrl('/not-found');
+            void this.router.navigateByUrl('/not-found');
             return;
           }
 
@@ -236,7 +229,7 @@ export class FormComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
-          this.router.navigate([this.globalMetadata.submitokredirect ?? '/']); // Navigate after alert
+          void this.router.navigate([this.globalMetadata.submitokredirect ?? '/']); // Navigate after alert
         });
     } else {
       // Update mode: Submit form data for updating an existing item
@@ -245,7 +238,7 @@ export class FormComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.alert.showSuccessMessage(this.globalMetadata.submitok ?? '');
-          this.router.navigate([this.globalMetadata.submitokredirect ?? '/']);
+          void this.router.navigate([this.globalMetadata.submitokredirect ?? '/']);
         });
     }
   }
