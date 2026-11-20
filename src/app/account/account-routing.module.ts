@@ -11,7 +11,7 @@ import { NewNotificationComponent } from '@src/app/account/notifications/notific
 import { NotificationsComponent } from '@src/app/account/notifications/notifications.component';
 import { AccountSettingsComponent } from '@src/app/account/settings/acc-settings/acc-settings.component';
 import { UiSettingsComponent } from '@src/app/account/settings/ui-settings/ui-settings.component';
-import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { requireAuth } from '@src/app/core/_guards/auth.guard';
 
 const routes: MyRoute[] = [
   {
@@ -20,42 +20,42 @@ const routes: MyRoute[] = [
       {
         path: '',
         component: AccountComponent,
-        canActivate: [IsAuth]
+        canActivate: [requireAuth]
       },
       {
         path: 'acc-settings',
         component: AccountSettingsComponent,
-        canActivate: [IsAuth]
+        canActivate: [requireAuth]
       },
       {
         path: 'ui-settings',
         component: UiSettingsComponent,
-        canActivate: [IsAuth]
+        canActivate: [requireAuth]
       },
       {
         path: 'notifications',
         component: NotificationsComponent,
-        canActivate: [IsAuth]
+        canActivate: [requireAuth]
       },
       {
         path: 'notifications/new-notification',
         component: NewNotificationComponent,
-        canActivate: [IsAuth]
+        canActivate: [requireAuth]
       },
       {
         path: 'api-keys',
         component: ApiKeysComponent,
-        canActivate: [IsAuth]
+        canActivate: [requireAuth]
       },
       {
         path: 'api-keys/new',
         component: NewApiKeyComponent,
-        canActivate: [IsAuth]
+        canActivate: [requireAuth]
       },
       {
         path: 'api-keys/:id',
         component: ApiKeyDetailComponent,
-        canActivate: [IsAuth]
+        canActivate: [requireAuth]
       }
     ]
   }

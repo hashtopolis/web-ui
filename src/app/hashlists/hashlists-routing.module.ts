@@ -10,7 +10,7 @@ import { SuperHashListRoleService } from '@services/roles/hashlists/superhashlis
 
 import { NewSuperhashlistComponent } from '@components/forms/custom-forms/superhashlist/new-superhashlist/new-superhashlist.component';
 
-import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { requireAuth } from '@src/app/core/_guards/auth.guard';
 import { CheckRole } from '@src/app/core/_guards/permission.guard';
 import { EditHashlistComponent } from '@src/app/hashlists/edit-hashlist/edit-hashlist.component';
 import { HashesComponent } from '@src/app/hashlists/hashes/hashes.component';
@@ -28,7 +28,7 @@ const hashRoleServiceClass = HashRoleService;
 const routes: MyRoute[] = [
   {
     path: '',
-    canActivate: [IsAuth],
+    canActivate: [requireAuth],
     children: [
       {
         path: 'hashlist',

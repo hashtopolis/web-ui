@@ -8,11 +8,9 @@ import { AuthService } from '@services/access/auth.service';
 @Injectable({
   providedIn: 'root'
 })
-class AuthGuard {
+class LoginGuard {
   private authService = inject(AuthService);
   private router = inject(Router);
-
-  isAuthenticated: boolean;
 
   canActivate(): Observable<boolean> {
     return this.authService.user.pipe(
@@ -20,7 +18,7 @@ class AuthGuard {
       map((user) => {
         const isAuth = !!user;
         if (isAuth) {
-          this.router.navigate(['/']); // Redirect authenticated users to home
+          void this.router.navigate(['/']); // Redirect authenticated users to home
           return false; // Block access to login page
         }
         return true; // Allow access to login page
@@ -29,6 +27,9 @@ class AuthGuard {
   }
 }
 
-export const IsAuth: CanActivateFn = (): Observable<boolean> => {
-  return inject(AuthGuard).canActivate();
+/**
+ * Allows anonymous users to reach login; redirects authenticated users home.
+ */
+export const redirectAuthenticatedUser: CanActivateFn = (): Observable<boolean> => {
+  return inject(LoginGuard).canActivate();
 };
