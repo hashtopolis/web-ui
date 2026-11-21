@@ -14,6 +14,7 @@ export class ExportUtil {
    * Converts table columns to Excel columns.
    *
    * @param tableColumns The table columns.
+   * @param columnLabels The table column labels.
    * @returns Excel columns.
    */
   toExcelColumns(tableColumns: HTTableColumn[], columnLabels: { [key: number]: string }): ExcelColumn[] {
@@ -29,6 +30,7 @@ export class ExportUtil {
    * Converts table columns to CSV columns.
    *
    * @param tableColumns The table columns.
+   * @param columnLabels The table column labels.
    * @returns CSV columns.
    */
   toCsvColumns(tableColumns: HTTableColumn[], columnLabels: { [key: number]: string }): string[] {

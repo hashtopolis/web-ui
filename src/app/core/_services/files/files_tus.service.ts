@@ -42,6 +42,7 @@ export class UploadTUSService {
    * @param gs - The GlobalService for handling global functionalities.
    * @param router - The Angular Router service for navigation.
    * @param authService - The AuthService for retrieving the current authentication token.
+   * @param alert - The AlertService for sending user alerts on error
    */
   constructor(
     protected storage: LocalStorageService<AuthData>,
@@ -83,7 +84,7 @@ export class UploadTUSService {
       // Get the current authentication token dynamically
       const token = this.getCurrentToken();
 
-      // Get Chunksize config default
+      // Get chunk size config default
       let chunkSize = this.chunked;
       if (Number.isNaN(chunkSize)) {
         chunkSize = Infinity;
