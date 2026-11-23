@@ -1,6 +1,6 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { zAgentResponse, zGetBestTasksAgentResponse, zUserListResponse } from '@generated/api/zod';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
 import { CommonModule } from '@angular/common';
@@ -333,7 +333,7 @@ describe('EditAgentComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/forbidden']);
   });
 
-  it('should save the agent and reload it on the page instead of navigating', async () => {
+  it('should save the agent and show the reloaded agent on the page instead of navigating', async () => {
     agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update');
 
     fixture = TestBed.createComponent(EditAgentComponent);
@@ -341,14 +341,15 @@ describe('EditAgentComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
+    const savedAgent = { ...mockAgent, attributes: { ...mockAgent.attributes, agentName: 'Updated Agent' } };
+    globalServiceSpy.get.mockReturnValueOnce(of(mockValidResponse(zAgentResponse, { data: savedAgent })));
     component.updateForm.patchValue({
       agentName: 'Updated Agent',
       isActive: false,
       userId: 2
     });
-
     component.onSubmit();
-    await fixture.whenStable();
+    await wait();
 
     expect(globalServiceSpy.update).toHaveBeenCalledWith(
       SERV.AGENTS,
@@ -360,11 +361,13 @@ describe('EditAgentComponent', () => {
       })
     );
     expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('Agent saved');
-    expect(globalServiceSpy.get).toHaveBeenCalledTimes(2);
+    expect(component.pageTitle).toBe('Agent Updated Agent');
+    expect(component.updateForm.controls.agentName.value).toBe('Updated Agent');
+    expect(component.isUpdatingLoading).toBe(false);
     expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 
-  it('should save a changed assignment together with the agent before reloading', async () => {
+  it('should send a changed assignment only after the agent is saved', async () => {
     agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update' || role === 'updateAssignment');
 
     fixture = TestBed.createComponent(EditAgentComponent);
@@ -372,13 +375,49 @@ describe('EditAgentComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
+    const agentSaved$ = new Subject<object>();
+    const assigned$ = new Subject<object>();
+    globalServiceSpy.update.mockReturnValue(agentSaved$);
+    globalServiceSpy.chelper.mockReturnValue(assigned$);
     component.updateAssignForm.patchValue({ taskId: 5 });
     component.onSubmit();
-    await fixture.whenStable();
+
+    expect(assigned$.observed).toBe(false);
+
+    agentSaved$.next({});
+    agentSaved$.complete();
 
     expect(globalServiceSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'assignAgent', { taskId: 5, agentId: 1 });
-    expect(globalServiceSpy.update).toHaveBeenCalled();
+    expect(assigned$.observed).toBe(true);
+    expect(globalServiceSpy.get).toHaveBeenCalledOnce();
+
+    assigned$.next({});
+    assigned$.complete();
+    await wait();
+
+    expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('Agent saved');
     expect(globalServiceSpy.get).toHaveBeenCalledTimes(2);
+  });
+
+  it('should keep the saved agent and reload it when only the assignment fails', async () => {
+    agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update' || role === 'updateAssignment');
+
+    fixture = TestBed.createComponent(EditAgentComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    globalServiceSpy.chelper.mockReturnValue(throwError(() => new Error('Limit of assignments is reached')));
+    component.updateAssignForm.patchValue({ taskId: 5 });
+    component.onSubmit();
+    await wait();
+
+    expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith(
+      'Agent saved, but its assignment could not be changed'
+    );
+    expect(alertServiceSpy.showSuccessMessage).not.toHaveBeenCalled();
+    expect(globalServiceSpy.get).toHaveBeenCalledTimes(2);
+    expect(component.isUpdatingLoading).toBe(false);
   });
 
   it('should reload the assignable tasks after saving, since they depend on the saved settings', async () => {
@@ -515,17 +554,15 @@ describe('EditAgentComponent', () => {
     });
   });
 
-  it('should handle error when loading agent', async () => {
-    const error = { status: 500 };
-    globalServiceSpy.get
-      .mockReturnValueOnce(throwError(() => error))
-      .mockReturnValueOnce(of(mockValidResponse(zAgentResponse, { data: mockAgent })));
+  it('should show an error instead of a half-loaded agent when the server fails', async () => {
+    globalServiceSpy.get.mockReturnValue(throwError(() => ({ status: 500 })));
 
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(component.showagent).toBeDefined();
-    expect(component.selectUserAgps).toStrictEqual([]);
+    expect(globalServiceSpy.get).toHaveBeenCalledOnce();
+    expect(alertServiceSpy.showErrorMessage).toHaveBeenCalledWith('Error loading agent details');
+    expect(component.showagent).toBeUndefined();
   });
 
   it('should not load tasks when readAssignment role is not enabled', async () => {

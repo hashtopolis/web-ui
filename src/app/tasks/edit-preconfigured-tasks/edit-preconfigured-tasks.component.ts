@@ -9,14 +9,12 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { JPretask } from '@models/pretask.model';
-import { FilterType } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
 import { zIdRouteParams } from '@models/routes.schema';
 
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
-import { RequestParamBuilder } from '@services/params/builder-implementation.service';
 import { PreconfiguredTasksRoleService } from '@services/roles/tasks/preconfiguredTasks-role.service';
 import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
@@ -85,7 +83,6 @@ export class EditPreconfiguredTasksComponent implements OnInit {
 
     try {
       await this.loadPretask();
-      this.loadData();
       this.isLoading = false;
     } catch (e: unknown) {
       const status = e instanceof HttpErrorResponse ? e.status : undefined;
@@ -137,6 +134,9 @@ export class EditPreconfiguredTasksComponent implements OnInit {
     });
   }
 
+  /**
+   * Loads the pretask into the form. Used when the page opens and after saving; the files table loads its own data.
+   */
   private async loadPretask(): Promise<void> {
     const url = `${this.cs.getEndpoint()}${SERV.PRETASKS.URL}/${this.editedPretaskIndex}`;
 
@@ -170,22 +170,6 @@ export class EditPreconfiguredTasksComponent implements OnInit {
   }
 
   /**
-   * Loads data, specifically Pretasks/files, for the component.
-   */
-  loadData(): void {
-    const params = new RequestParamBuilder()
-      .addFilter({
-        field: 'pretaskId',
-        operator: FilterType.EQUAL,
-        value: this.editedPretaskIndex
-      })
-      .addInclude('pretaskFiles')
-      .create();
-
-    this.gs.getAll(SERV.PRETASKS, params).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
-  }
-
-  /**
    * Handles form submission, edit Pretask
    * If the form is valid, it makes an API request and reloads the pretask on this page.
    */
@@ -198,8 +182,7 @@ export class EditPreconfiguredTasksComponent implements OnInit {
         .subscribe({
           next: () => {
             this.alert.showSuccessMessage('Preconfigured Task saved');
-            this.isUpdatingLoading = false;
-            void this.reloadPretask();
+            void this.reload();
           },
           error: (err) => {
             console.error('Error updating preconfigured Task', err);
@@ -213,14 +196,16 @@ export class EditPreconfiguredTasksComponent implements OnInit {
   }
 
   /**
-   * Reloads the pretask after saving, staying on this page.
+   * Reloads the page after saving, staying on it. The save button keeps its spinner until the saved state is shown.
    */
-  private async reloadPretask(): Promise<void> {
+  private async reload(): Promise<void> {
     try {
       await this.loadPretask();
     } catch (e: unknown) {
       // The error interceptor already told the user; the page keeps showing the last loaded pretask
       console.error('Error reloading pretask:', e);
+    } finally {
+      this.isUpdatingLoading = false;
     }
   }
 }

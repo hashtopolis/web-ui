@@ -33,13 +33,13 @@ import { PageSubTitleComponent } from '@src/app/shared/page-headers/page-subtitl
 import { mockValidResponse } from '@src/app/testing/mock-response';
 import { wait } from '@src/app/testing/wait';
 
-const mockHashlistResponse = (): ResponseWrapper =>
+const mockHashlistResponse = (name = 'Test Hashlist'): ResponseWrapper =>
   mockValidResponse(zHashlistResponse, {
     data: {
       id: 1,
       type: 'hashlist',
       attributes: {
-        name: 'Test Hashlist',
+        name,
         notes: 'Test notes',
         isSecret: false,
         useBrain: false,
@@ -69,40 +69,6 @@ const mockHashlistResponse = (): ResponseWrapper =>
           isSalted: false,
           isSlowHash: false
         }
-      }
-    ]
-  }) as ResponseWrapper;
-
-const mockSuperHashlistResponse = (): ResponseWrapper =>
-  mockValidResponse(zHashlistResponse, {
-    data: {
-      id: 1,
-      type: 'hashlist',
-      attributes: {
-        name: 'Super Hashlist',
-        notes: '',
-        isSecret: false,
-        useBrain: false,
-        format: 3,
-        hashTypeId: 0,
-        hashCount: 1000,
-        cracked: 500,
-        separator: ':',
-        isHexSalt: false,
-        isSalted: false,
-        accessGroupId: 1,
-        brainFeatures: 0,
-        isArchived: false
-      },
-      relationships: {
-        hashType: { data: { id: 0, type: 'hashType' } }
-      }
-    },
-    included: [
-      {
-        id: 0,
-        type: 'hashType',
-        attributes: { description: 'MD5', isSalted: false, isSlowHash: false }
       }
     ]
   }) as ResponseWrapper;
@@ -214,6 +180,11 @@ describe('EditHashlistComponent', () => {
     req.flush(response);
   };
 
+  const respondToHashlistRequestWithError = (status: number, statusText: string) => {
+    const req = httpMock.expectOne((request) => request.url.includes('/hashlists/') && request.params.has('include'));
+    req.flush('error', { status, statusText });
+  };
+
   describe('Component initialization', () => {
     it('should create component and initialize form', () => {
       initComponent();
@@ -264,23 +235,14 @@ describe('EditHashlistComponent', () => {
       expect(component.isLoading).toBe(true);
     });
 
-    it('should show error message on 500+ error without redirect', async () => {
-      fixture = TestBed.createComponent(EditHashlistComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-
-      const allRequests = httpMock.match((req) => req.url.includes('/hashlists/'));
-      allRequests[0].flush('error', { status: 500, statusText: 'Internal Server Error' });
-
+    it('should show an error message on a 500+ error without retrying or redirecting', async () => {
+      initComponent();
+      respondToHashlistRequestWithError(500, 'Internal Server Error');
       await wait();
 
-      const retryRequests = httpMock.match((req) => req.url.includes('/hashlists/'));
-      retryRequests[0].flush('error', { status: 500, statusText: 'Internal Server Error' });
-
-      await wait();
-
+      httpMock.expectNone((request) => request.url.includes('/hashlists/'));
       expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
-      expect(alertSpy.showErrorMessage).toHaveBeenCalledWith(expect.stringContaining('Error loading hashlist'));
+      expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('Error loading hashlist (server returned 500).');
       expect(component.isLoading).toBe(false);
     });
 
@@ -291,25 +253,6 @@ describe('EditHashlistComponent', () => {
       await wait();
 
       expect(alertSpy.showErrorMessage).toHaveBeenCalledWith('Error loading hashlist.');
-      expect(component.isLoading).toBe(false);
-    });
-
-    it('should retry without includes on 500 error from loadHashlist', async () => {
-      fixture = TestBed.createComponent(EditHashlistComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-
-      const allRequests = httpMock.match((req) => req.url.includes('/hashlists/'));
-      allRequests[0].flush('error', { status: 500, statusText: 'Internal Server Error' });
-
-      await wait();
-
-      const retryRequests = httpMock.match((req) => req.url.includes('/hashlists/'));
-      retryRequests[0].flush(mockHashlistResponse());
-
-      await wait();
-
-      expect(component.editedHashlist).toBeDefined();
       expect(component.isLoading).toBe(false);
     });
 
@@ -346,38 +289,23 @@ describe('EditHashlistComponent', () => {
   });
 
   describe('onSubmit', () => {
-    it('should save the hashlist and reload it on the page instead of navigating', async () => {
+    it('should save the hashlist and show the reloaded hashlist on the page instead of navigating', async () => {
       initComponent();
       respondToHashlistRequest(mockHashlistResponse());
       await wait();
 
       component.updateForm.get('updateData.name')?.setValue('Updated Name');
       gsSpy.update.mockReturnValue(of({}));
-
       component.onSubmit();
-      respondToHashlistRequest(mockHashlistResponse());
+      respondToHashlistRequest(mockHashlistResponse('Updated Name'));
       await wait();
 
       expect(gsSpy.update).toHaveBeenCalledWith(SERV.HASHLISTS, 1, expect.objectContaining({ name: 'Updated Name' }));
       expect(alertSpy.showSuccessMessage).toHaveBeenCalledWith('Hashlist saved');
+      expect(component.editedHashlist?.name).toBe('Updated Name');
+      expect(component.updateForm.get('updateData.name')?.value).toBe('Updated Name');
+      expect(gsSpy.ghelper).toHaveBeenCalledTimes(2);
       expect(routerSpy.navigate).not.toHaveBeenCalled();
-    });
-
-    it('should stay on a superhashlist after saving and let the user leave without a warning', async () => {
-      initComponent();
-      respondToHashlistRequest(mockSuperHashlistResponse());
-      await wait();
-
-      component.updateForm.get('updateData.name')?.setValue('Updated Name');
-      component.updateForm.markAsDirty();
-      gsSpy.update.mockReturnValue(of({}));
-
-      component.onSubmit();
-      respondToHashlistRequest(mockSuperHashlistResponse());
-      await wait();
-
-      expect(routerSpy.navigate).not.toHaveBeenCalled();
-      expect(component.canDeactivate()).toBe(true);
     });
 
     it('should mark all fields as touched on invalid form', () => {

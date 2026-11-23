@@ -54,6 +54,12 @@ type EditedTask = JTaskWith<
   'searched' | 'timeSpent' | 'currentSpeed' | 'estimatedTime' | 'cprogress' | 'totalNumberOfChunks'
 >;
 
+/** The tables to reload with the task after a change, since the server changed their data as well. */
+interface TablesToReload {
+  chunks: boolean;
+  agents: boolean;
+}
+
 @Component({
   selector: 'app-edit-tasks',
   templateUrl: './edit-tasks.component.html',
@@ -238,11 +244,10 @@ export class EditTasksComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Reloads the task after an action changed it and stays on the page. A purge (also caused by a new attack
-   * or preprocessor command) deletes the task's chunks and resets the agents' benchmarks, so their tables
-   * reload too.
+   * Reloads the task after an action changed it and stays on the page, together with the tables the change
+   * affected on the server.
    */
-  private async refreshTask(purged: boolean): Promise<void> {
+  private async refreshTask(tables: TablesToReload): Promise<void> {
     try {
       await this.loadTaskData();
     } catch (e: unknown) {
@@ -250,8 +255,11 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       console.error('Error reloading task:', e);
     }
 
-    if (purged) {
+    if (tables.chunks) {
       this.chunkTable?.reload();
+    }
+
+    if (tables.agents) {
       this.agentsTable?.reload();
     }
   }
@@ -372,6 +380,13 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       this.updateForm.value['preprocessorCommand'] !== this.originalPreprocessorCommand;
     const purged = preprocessorCommandChanged || updatePayload.attackCmd !== this.originalValue.attackCmd;
 
+    // A purge deletes the chunks and resets the agents' benchmarks; a new chunk time rescales the benchmarks of
+    // tasks using the old benchmark format
+    const tables: TablesToReload = {
+      chunks: purged,
+      agents: purged || updatePayload.chunkTime !== this.originalValue.chunkTime
+    };
+
     // If preprocessor command changed, make the update request first
     if (preprocessorCommandChanged) {
       this.gs
@@ -380,7 +395,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
           next: () => {
             // After preprocessor command is updated, update the task data
             this.gs.update(SERV.TASKS, this.editedTaskIndex, updatePayload).subscribe({
-              next: () => this.onTaskUpdated(purged),
+              next: () => void this.onTaskUpdated(tables),
               error: (err) => {
                 console.error('Error updating task', err);
                 this.isUpdatingLoading = false;
@@ -395,7 +410,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     } else {
       // No preprocessor command change, just update task data normally
       this.gs.update(SERV.TASKS, this.editedTaskIndex, updatePayload).subscribe({
-        next: () => this.onTaskUpdated(purged),
+        next: () => void this.onTaskUpdated(tables),
         error: (err) => {
           console.error('Error updating task', err);
           this.isUpdatingLoading = false;
@@ -404,10 +419,13 @@ export class EditTasksComponent implements OnInit, OnDestroy {
     }
   }
 
-  private onTaskUpdated(purged: boolean): void {
-    this.isUpdatingLoading = false;
+  /**
+   * Reloads the saved task; the save button keeps its spinner until the saved state is shown.
+   */
+  private async onTaskUpdated(tables: TablesToReload): Promise<void> {
     this.alertService.showSuccessMessage('Task data has been updated successfully.');
-    void this.refreshTask(purged);
+    await this.refreshTask(tables);
+    this.isUpdatingLoading = false;
   }
 
   /**
@@ -528,7 +546,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         const payload = { taskId: this.editedTaskIndex };
         this.gs.chelper(SERV.HELPER, 'purgeTask', payload).subscribe(() => {
           this.alertService.showSuccessMessage(`Purged task id ${this.editedTaskIndex}`);
-          void this.refreshTask(true);
+          void this.refreshTask({ chunks: true, agents: true });
         });
       } else {
         this.alertService.showInfoMessage('Purge was cancelled');

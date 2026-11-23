@@ -20,17 +20,21 @@ import { AccessGroupsUserTableComponent } from '@components/tables/access-groups
 
 import { JsonAPISerializer } from '@src/app/core/_services/api/serializer-service';
 import { mockResponse, mockValidResponse } from '@src/app/testing/mock-response';
+import { wait } from '@src/app/testing/wait';
 import { EditGroupsComponent } from '@src/app/users/edit-groups/edit-groups.component';
 
-const mockAccessGroupResponse: ResponseWrapper = mockValidResponse(zAccessGroupResponse, {
-  data: {
-    id: 1,
-    type: 'accessGroup',
-    attributes: {
-      groupName: 'Test Group'
+const accessGroupResponse = (groupName: string): ResponseWrapper =>
+  mockValidResponse(zAccessGroupResponse, {
+    data: {
+      id: 1,
+      type: 'accessGroup',
+      attributes: {
+        groupName
+      }
     }
-  }
-});
+  });
+
+const mockAccessGroupResponse = accessGroupResponse('Test Group');
 
 /**
  * Focused tests for the deserialization bug in EditGroupsComponent.loadSelectUsers().
@@ -173,6 +177,26 @@ describe('EditGroupsComponent', () => {
     } as MockedObject<AccessGroupsAgentsTableComponent>;
     component.userTable = mockUserTable;
     component.agentTable = mockAgentTable;
+  });
+
+  describe('saving', () => {
+    it('should rename the group and show the reloaded group on the page instead of navigating', async () => {
+      await wait();
+
+      mockGlobalService.update.mockReturnValue(of({}));
+      mockGlobalService.get.mockReturnValue(of(accessGroupResponse('Renamed Group')));
+      component.updateForm.patchValue({ groupName: 'Renamed Group' });
+      component.onSubmit();
+      await wait();
+
+      expect(mockGlobalService.update).toHaveBeenCalledWith(SERV.ACCESS_GROUPS, 1, { groupName: 'Renamed Group' });
+      expect(mockAlertService.showSuccessMessage).toHaveBeenCalledWith('Access Group saved');
+      expect(mockGlobalService.get).toHaveBeenCalledTimes(2);
+      expect(component.editName).toBe('Renamed Group');
+      expect(component.updateForm.value.groupName).toBe('Renamed Group');
+      expect(component.isUpdatingLoading).toBe(false);
+      expect(TestBed.inject(Router).navigate).not.toHaveBeenCalled();
+    });
   });
 
   describe('adding members', () => {

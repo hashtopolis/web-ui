@@ -112,10 +112,7 @@ export class EditHashlistComponent implements OnInit, CanComponentDeactivate {
       this.isLoading = true;
 
       try {
-        await this.loadHashlist();
-
-        await this.loadData();
-
+        await this.load();
         this.isLoading = false;
       } catch (e: unknown) {
         const status = e instanceof HttpErrorResponse ? e.status : undefined;
@@ -141,6 +138,15 @@ export class EditHashlistComponent implements OnInit, CanComponentDeactivate {
     });
   }
 
+  /**
+   * Loads the hashlist and the access group options. Used when the page opens and after saving, so both show the
+   * same data.
+   */
+  private async load(): Promise<void> {
+    await this.loadHashlist();
+    await this.loadData();
+  }
+
   private async loadHashlist(): Promise<void> {
     const base = this.cs.getEndpoint() + SERV.HASHLISTS.URL;
     const url = `${base}/${this.editedHashlistIndex}`;
@@ -148,61 +154,28 @@ export class EditHashlistComponent implements OnInit, CanComponentDeactivate {
     // Mismos includes que antes
     const params: { [k: string]: string } = { include: 'tasks,hashlists,hashType' };
 
-    try {
-      const response = await lastValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url, { params }));
-      const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
+    const response = await lastValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url, { params }));
+    const hashlist: JHashlist = new JsonAPISerializer().deserialize(response, zHashlistResponse);
 
-      this.editedHashlist = hashlist;
-      this.type = hashlist.format;
-      this.hashtype = hashlist.hashType ?? undefined;
+    this.editedHashlist = hashlist;
+    this.type = hashlist.format;
+    this.hashtype = hashlist.hashType ?? undefined;
 
-      this.updateForm.setValue({
-        hashlistId: hashlist.id,
-        accessGroupId: hashlist.accessGroupId,
-        useBrain: hashlist.useBrain,
-        format: this.format.transform(hashlist.format, StaticArrayKind.FORMATS),
-        hashCount: (hashlist.hashCount ?? 0).toLocaleString(),
-        cracked: (hashlist.cracked ?? 0).toLocaleString(),
-        remaining: ((hashlist.hashCount ?? 0) - (hashlist.cracked ?? 0)).toLocaleString(),
-        updateData: {
-          name: hashlist.name,
-          notes: hashlist.notes,
-          isSecret: hashlist.isSecret,
-          accessGroupId: hashlist.accessGroupId
-        }
-      });
-      return;
-    } catch (err: unknown) {
-      if (err instanceof HttpErrorResponse && err.status && err.status >= HttpStatus.INTERNAL_SERVER_ERROR) {
-        // Retry without includes if server failed resolving relationships
-
-        console.warn('loadHashlist(): request with includes failed, retrying without includes', err);
-        const responseFallback = await lastValueFrom<ResponseWrapper>(this.http.get<ResponseWrapper>(url));
-        const hashlist: JHashlist = new JsonAPISerializer().deserialize(responseFallback, zHashlistResponse);
-
-        this.editedHashlist = hashlist;
-        this.type = hashlist.format;
-        this.hashtype = hashlist.hashType ?? undefined;
-
-        this.updateForm.setValue({
-          hashlistId: hashlist.id,
-          accessGroupId: hashlist.accessGroupId,
-          useBrain: hashlist.useBrain,
-          format: this.format.transform(hashlist.format, StaticArrayKind.FORMATS),
-          hashCount: (hashlist.hashCount ?? 0).toLocaleString(),
-          cracked: (hashlist.cracked ?? 0).toLocaleString(),
-          remaining: ((hashlist.hashCount ?? 0) - (hashlist.cracked ?? 0)).toLocaleString(),
-          updateData: {
-            name: hashlist.name,
-            notes: hashlist.notes,
-            isSecret: hashlist.isSecret,
-            accessGroupId: hashlist.accessGroupId
-          }
-        });
-        return;
+    this.updateForm.setValue({
+      hashlistId: hashlist.id,
+      accessGroupId: hashlist.accessGroupId,
+      useBrain: hashlist.useBrain,
+      format: this.format.transform(hashlist.format, StaticArrayKind.FORMATS),
+      hashCount: (hashlist.hashCount ?? 0).toLocaleString(),
+      cracked: (hashlist.cracked ?? 0).toLocaleString(),
+      remaining: ((hashlist.hashCount ?? 0) - (hashlist.cracked ?? 0)).toLocaleString(),
+      updateData: {
+        name: hashlist.name,
+        notes: hashlist.notes,
+        isSecret: hashlist.isSecret,
+        accessGroupId: hashlist.accessGroupId
       }
-      throw err;
-    }
+    });
   }
 
   /**
@@ -231,10 +204,7 @@ export class EditHashlistComponent implements OnInit, CanComponentDeactivate {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.alert.showSuccessMessage('Hashlist saved');
-
-          // Saved, so the leave-page guard has no unsaved changes to warn about
-          this.updateForm.markAsPristine();
-          void this.reloadHashlist();
+          void this.reload();
         });
     } else {
       this.updateForm.markAllAsTouched();
@@ -243,11 +213,11 @@ export class EditHashlistComponent implements OnInit, CanComponentDeactivate {
   }
 
   /**
-   * Reloads the hashlist after saving, staying on this page.
+   * Reloads the page after saving, staying on it.
    */
-  private async reloadHashlist(): Promise<void> {
+  private async reload(): Promise<void> {
     try {
-      await this.loadHashlist();
+      await this.load();
     } catch (e: unknown) {
       // The error interceptor already told the user; the page keeps showing the last loaded hashlist
       console.error('Error reloading hashlist:', e);

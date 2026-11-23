@@ -28,8 +28,6 @@ export const HASHTYPE_FIELD_MAPPING = { name: 'description', id: 'id' } as const
 
 export const PRETASKS_FIELD_MAPPING = { name: 'taskName', id: 'id' } as const satisfies FieldMapping;
 
-export const SUPER_TASK_FIELD_MAPPING = { name: 'taskName', id: 'id' } as const satisfies FieldMapping;
-
 export const TASKS_FIELD_MAPPING = { name: 'taskName', id: 'id' } as const satisfies FieldMapping;
 
 // Access Group Permission

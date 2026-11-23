@@ -109,7 +109,7 @@ export class EditSupertasksComponent implements OnInit {
   }
 
   /**
-   * Loads the supertask.
+   * Loads the supertask. Used when the page opens and after renaming; the pretask tables load their own data.
    */
   loadData(): void {
     this.gs
@@ -138,13 +138,6 @@ export class EditSupertasksComponent implements OnInit {
           this.alert.showErrorMessage(msg);
         }
       });
-  }
-
-  /**
-   * Reloads the supertask.
-   */
-  refresh(): void {
-    this.loadData();
   }
 
   /**
@@ -195,7 +188,7 @@ export class EditSupertasksComponent implements OnInit {
       .subscribe({
         next: () => {
           this.alert.showSuccessMessage('Supertask data has been updated successfully');
-          this.refresh();
+          this.loadData();
         },
         error: (err: unknown) => {
           console.error('Error updating Supertask:', err);

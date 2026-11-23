@@ -222,10 +222,12 @@ export class EditGroupsComponent implements OnInit {
       this.gs
         .update(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, this.updateForm.value)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => {
-          this.isUpdatingLoading = false;
+        .subscribe(async () => {
           this.alert.showSuccessMessage('Access Group saved');
-          this.loadData();
+
+          // Keep the save button's spinner until the saved state is shown
+          await this.initForm();
+          this.isUpdatingLoading = false;
         });
     } else {
       this.updateForm.markAllAsTouched();

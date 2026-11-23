@@ -1,6 +1,6 @@
 import { HttpHeaderName } from '@constants/http.config';
 import { of } from 'rxjs';
-import type { MockedObject } from 'vitest';
+import type { Mock, MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -19,6 +19,9 @@ import { AlertService } from '@services/shared/alert.service';
 import { AutoTitleService } from '@services/shared/autotitle.service';
 import { ConfigService } from '@services/shared/config.service';
 
+import type { TasksAgentsTableComponent } from '@components/tables/tasks-agents-table/tasks-agents-table.component';
+import type { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
+
 import { StaticChunkingMode } from '@src/app/core/_constants/tasks.config';
 import { EditTasksComponent } from '@src/app/tasks/edit-tasks/edit-tasks.component';
 import { mockResponse } from '@src/app/testing/mock-response';
@@ -26,7 +29,7 @@ import { wait } from '@src/app/testing/wait';
 
 const API_ENDPOINT = 'http://localhost:8080/api/v2';
 
-const mockTaskResponse = (): ResponseWrapper =>
+const mockTaskResponse = (attributes: Record<string, unknown> = {}): ResponseWrapper =>
   mockResponse({
     data: {
       id: 1,
@@ -61,7 +64,8 @@ const mockTaskResponse = (): ResponseWrapper =>
         cprogress: 10,
         status: 1,
         totalNumberOfChunks: 5,
-        searched: '50'
+        searched: '50',
+        ...attributes
       }
     }
   }) as ResponseWrapper;
@@ -156,6 +160,16 @@ describe('EditTasksComponent', () => {
     const req = httpMock.expectOne((r) => r.url.includes('/ui/tasks/') && r.params.has('include'));
     expect(req.request.headers.get(HttpHeaderName.SKIP_CACHE)).toBe('true');
     req.flush(response);
+  }
+
+  /** Puts stand-ins in place of the chunks and agents tables, which the mocked roles don't render. */
+  function stubTables(): { chunks: { reload: Mock }; agents: { reload: Mock } } {
+    const chunks = { reload: vi.fn().mockName('TasksChunksTableComponent.reload') };
+    const agents = { reload: vi.fn().mockName('TasksAgentsTableComponent.reload') };
+    component.chunkTable = chunks as unknown as TasksChunksTableComponent;
+    component.agentsTable = agents as unknown as TasksAgentsTableComponent;
+
+    return { chunks, agents };
   }
 
   describe('Component initialization', () => {
@@ -420,22 +434,79 @@ describe('EditTasksComponent', () => {
       roleServiceSpy.hasRole.mockImplementation((role: string) => role === 'edit');
     });
 
-    it('should save the task and reload it on the page instead of navigating', async () => {
+    it('should save the task and show the reloaded task on the page instead of navigating', async () => {
+      globalServiceSpy.update.mockReturnValue(of({}));
+      initComponent();
+      respondToTaskRequest(mockTaskResponse());
+      await wait();
+
+      const tables = stubTables();
+      component.updateForm.get('updateData.taskName')?.setValue('Renamed Task');
+      component.onSubmit();
+      respondToTaskRequest(mockTaskResponse({ taskName: 'Renamed Task' }));
+      await wait();
+
+      expect(globalServiceSpy.update).toHaveBeenCalledWith(
+        SERV.TASKS,
+        1,
+        expect.objectContaining({ taskName: 'Renamed Task', attackCmd: '-a 0 #HL# rockyou.txt' })
+      );
+      expect(component.pageTitle).toBe('Task Renamed Task');
+      expect(component.updateForm.get('updateData.taskName')?.value).toBe('Renamed Task');
+      expect(component.isUpdatingLoading).toBe(false);
+      expect(tables.chunks.reload).not.toHaveBeenCalled();
+      expect(tables.agents.reload).not.toHaveBeenCalled();
+      expect(routerSpy.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should keep the save spinner until the reloaded task is shown', async () => {
       globalServiceSpy.update.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
       await wait();
 
       component.onSubmit();
+
+      expect(component.isUpdatingLoading).toBe(true);
+
       respondToTaskRequest(mockTaskResponse());
       await wait();
 
-      expect(globalServiceSpy.update).toHaveBeenCalledWith(
-        SERV.TASKS,
-        1,
-        expect.objectContaining({ taskName: 'Test Task', attackCmd: '-a 0 #HL# rockyou.txt' })
-      );
-      expect(routerSpy.navigate).not.toHaveBeenCalled();
+      expect(component.isUpdatingLoading).toBe(false);
+    });
+
+    it('should reload the agents table after a chunk time change, since it rescales their benchmarks', async () => {
+      globalServiceSpy.update.mockReturnValue(of({}));
+      initComponent();
+      respondToTaskRequest(mockTaskResponse());
+      await wait();
+
+      const tables = stubTables();
+      component.updateForm.get('updateData.chunkTime')?.setValue(1200);
+      component.onSubmit();
+      respondToTaskRequest(mockTaskResponse({ chunkTime: 1200 }));
+      await wait();
+
+      expect(tables.agents.reload).toHaveBeenCalledOnce();
+      expect(tables.chunks.reload).not.toHaveBeenCalled();
+    });
+
+    it('should reload the chunks and agents tables after a new attack command purged the task', async () => {
+      confirmDialogSpy.confirmYesNo.mockReturnValue(of(true));
+      globalServiceSpy.update.mockReturnValue(of({}));
+      initComponent();
+      respondToTaskRequest(mockTaskResponse());
+      await wait();
+
+      const tables = stubTables();
+      component.updateForm.get('updateData.attackCmd')?.setValue('-a 3 #HL#');
+      component.onSubmit();
+      respondToTaskRequest(mockTaskResponse({ attackCmd: '-a 3 #HL#', keyspace: 0, keyspaceProgress: 0 }));
+      await wait();
+
+      expect(component.updateForm.get('keyspace')?.value).toBe(0);
+      expect(tables.chunks.reload).toHaveBeenCalledOnce();
+      expect(tables.agents.reload).toHaveBeenCalledOnce();
     });
 
     it('should show success message after successful update', async () => {
@@ -511,17 +582,23 @@ describe('EditTasksComponent', () => {
   });
 
   describe('purgeTask', () => {
-    it('should call chelper, show success message and reload the task on confirmation', () => {
+    it('should purge the task and show the reloaded task and tables on confirmation', async () => {
       confirmDialogSpy.confirmYesNo.mockReturnValue(of(true));
       globalServiceSpy.chelper.mockReturnValue(of({}));
       initComponent();
       respondToTaskRequest(mockTaskResponse());
+      await wait();
 
+      const tables = stubTables();
       component.purgeTask();
-      respondToTaskRequest(mockTaskResponse());
+      respondToTaskRequest(mockTaskResponse({ keyspace: 0, keyspaceProgress: 0 }));
+      await wait();
 
       expect(globalServiceSpy.chelper).toHaveBeenCalledWith(SERV.HELPER, 'purgeTask', { taskId: 1 });
       expect(alertServiceSpy.showSuccessMessage).toHaveBeenCalledWith('Purged task id 1');
+      expect(component.updateForm.get('keyspace')?.value).toBe(0);
+      expect(tables.chunks.reload).toHaveBeenCalledOnce();
+      expect(tables.agents.reload).toHaveBeenCalledOnce();
     });
 
     it('should show info message when purge is cancelled', () => {
