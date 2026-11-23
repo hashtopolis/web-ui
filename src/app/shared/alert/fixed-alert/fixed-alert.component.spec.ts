@@ -12,14 +12,14 @@ describe('FixedAlertComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.componentInstance.message).toBe('');
-    expect(fixture.nativeElement.querySelector('[role="status"]').textContent).toBe('');
+    expect(fixture.nativeElement.querySelector('output.fixed-alert').textContent).toBe('');
   });
 
   it('updates the status when its message input changes', () => {
     const fixture = TestBed.createComponent(FixedAlertComponent);
     fixture.componentRef.setInput('message', 'First alert');
     fixture.detectChanges();
-    const status = fixture.nativeElement.querySelector('[role="status"]');
+    const status = fixture.nativeElement.querySelector('output.fixed-alert');
     expect(status.textContent).toBe('First alert');
 
     fixture.componentRef.setInput('message', 'Updated alert');
