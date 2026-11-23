@@ -112,7 +112,7 @@ export class EditGroupsComponent implements OnInit {
    * Loads data, access group data and select options for the component.
    */
   loadData(): void {
-    void this.initForm();
+    this.initForm().catch((error: unknown) => console.error('Failed to load access group data:', error));
   }
 
   /**
@@ -120,15 +120,11 @@ export class EditGroupsComponent implements OnInit {
    */
   async loadAccessGroup() {
     const requestParams = new RequestParamBuilder().addInclude('userMembers').addInclude('agentMembers').create();
-    try {
-      const response: ResponseWrapper = await lastValueFrom(
-        this.gs.get(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, requestParams)
-      );
+    const response: ResponseWrapper = await lastValueFrom(
+      this.gs.get(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, requestParams)
+    );
 
-      this.accessGroup = new JsonAPISerializer().deserialize(response, zAccessGroupResponse);
-    } catch (error) {
-      console.error('Failed to load access group data:', error);
-    }
+    this.accessGroup = new JsonAPISerializer().deserialize(response, zAccessGroupResponse);
   }
 
   /**
@@ -183,7 +179,7 @@ export class EditGroupsComponent implements OnInit {
   }
 
   /**
-   * Initializes the form with user data retrieved from the server.
+   * Initializes the form with user data retrieved from the server. If loading fails, the form stays as it is.
    */
   async initForm() {
     await this.loadAccessGroup();
@@ -222,16 +218,33 @@ export class EditGroupsComponent implements OnInit {
       this.gs
         .update(SERV.ACCESS_GROUPS, this.editedAccessGroupIndex, this.updateForm.value)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(async () => {
-          this.alert.showSuccessMessage('Access Group saved');
-
-          // Keep the save button's spinner until the saved state is shown
-          await this.initForm();
-          this.isUpdatingLoading = false;
+        .subscribe({
+          next: () => {
+            this.alert.showSuccessMessage('Access Group saved');
+            void this.reload();
+          },
+          error: () => {
+            this.isUpdatingLoading = false;
+          }
         });
     } else {
       this.updateForm.markAllAsTouched();
       this.updateForm.updateValueAndValidity();
+    }
+  }
+
+  /**
+   * Reloads the group after saving, staying on the page. The save button keeps its spinner until the saved state is
+   * shown.
+   */
+  private async reload(): Promise<void> {
+    try {
+      await this.initForm();
+    } catch (error: unknown) {
+      // The error interceptor already told the user; the form keeps the name that was saved
+      console.error('Error reloading access group:', error);
+    } finally {
+      this.isUpdatingLoading = false;
     }
   }
 

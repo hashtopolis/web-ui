@@ -601,6 +601,26 @@ describe('EditTasksComponent', () => {
       expect(tables.agents.reload).toHaveBeenCalledOnce();
     });
 
+    it('should keep unsaved edits when purging, since a purge does not save them', async () => {
+      roleServiceSpy.hasRole.mockImplementation((role: string) => role === 'edit');
+      confirmDialogSpy.confirmYesNo.mockReturnValue(of(true));
+      globalServiceSpy.chelper.mockReturnValue(of({}));
+      initComponent();
+      respondToTaskRequest(mockTaskResponse());
+      await wait();
+
+      component.updateForm.get('updateData.notes')?.setValue('Unsaved notes');
+      component.updateForm.get('updateData.priority')?.setValue(7);
+      component.purgeTask();
+      respondToTaskRequest(mockTaskResponse({ keyspace: 0, keyspaceProgress: 0 }));
+      await wait();
+
+      expect(component.updateForm.get('keyspace')?.value).toBe(0);
+      expect(component.updateForm.get('keyspaceProgress')?.value).toBe(0);
+      expect(component.updateForm.get('updateData.notes')?.value).toBe('Unsaved notes');
+      expect(component.updateForm.get('updateData.priority')?.value).toBe(7);
+    });
+
     it('should show info message when purge is cancelled', () => {
       confirmDialogSpy.confirmYesNo.mockReturnValue(of(false));
       initComponent();

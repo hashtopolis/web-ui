@@ -128,12 +128,10 @@ export class EditAgentComponent implements OnInit {
 
   /**
    * Loads the agent and the select options and fills the forms. Used when the page opens and after saving, so both
-   * show the same data.
+   * show the same data; it returns once all of them are loaded.
    */
   private async load(): Promise<void> {
-    await this.loadAgent();
-    this.loadSelectTasks();
-    this.loadSelectUsers();
+    await Promise.all([this.loadAgent(), this.loadSelectTasks(), this.loadSelectUsers()]);
     this.initForm();
   }
 
@@ -205,37 +203,41 @@ export class EditAgentComponent implements OnInit {
   }
 
   /**
-   * Load assignable task for the select element (All tasks not yet completed and not running)
+   * Load assignable task for the select element (All tasks not yet completed and not running). If that fails, the
+   * select keeps its options; the error interceptor already told the user.
    * @private
    */
-  private loadSelectTasks(): void {
+  private async loadSelectTasks(): Promise<void> {
     if (!this.agentRoleService.hasRole('readAssignment')) {
       return;
     }
 
-    this.gs
-      .ghelper(SERV.HELPER, 'getBestTasksAgent', { agent: this.editedAgentIndex })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((response: ResponseWrapper) => {
-        const tasks = this.serializer.deserialize(response, zGetBestTasksAgentResponse);
-        this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
-      });
+    try {
+      const response = await lastValueFrom<ResponseWrapper>(
+        this.gs.ghelper(SERV.HELPER, 'getBestTasksAgent', { agent: this.editedAgentIndex })
+      );
+      const tasks = this.serializer.deserialize(response, zGetBestTasksAgentResponse);
+      this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
+    } catch (error) {
+      console.error('Error loading assignable tasks:', error);
+    }
   }
 
   /**
-   * Load all users for the select element
+   * Load all users for the select element. If that fails, the select keeps its options; the error interceptor
+   * already told the user.
    * @private
    */
-  private loadSelectUsers(): void {
-    this.gs
-      .getAll(SERV.USERS)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((response: ResponseWrapper) => {
-        this.selectUsers = transformSelectOptions(
-          this.serializer.deserialize(response, zUserListResponse),
-          DEFAULT_FIELD_MAPPING
-        );
-      });
+  private async loadSelectUsers(): Promise<void> {
+    try {
+      const response = await lastValueFrom<ResponseWrapper>(this.gs.getAll(SERV.USERS));
+      this.selectUsers = transformSelectOptions(
+        this.serializer.deserialize(response, zUserListResponse),
+        DEFAULT_FIELD_MAPPING
+      );
+    } catch (error) {
+      console.error('Error loading users:', error);
+    }
   }
 
   /**

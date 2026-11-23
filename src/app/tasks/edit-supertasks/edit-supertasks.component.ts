@@ -1,6 +1,6 @@
 import { HttpStatus } from '@constants/http.config';
 import { zSupertaskResponse } from '@generated/api/zod';
-import { finalize } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import {
@@ -90,9 +90,28 @@ export class EditSupertasksComponent implements OnInit {
   /**
    * Lifecycle hook called after component initialization.
    */
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.editedSTIndex = zIdRouteParams.parse(this.route.snapshot.params).id;
-    this.loadData();
+
+    try {
+      await this.load();
+    } catch (err: unknown) {
+      const status = err instanceof HttpErrorResponse ? err.status : undefined;
+      if (status === HttpStatus.FORBIDDEN) {
+        this.router.navigateByUrl('/forbidden');
+        return;
+      }
+
+      if (status === HttpStatus.NOT_FOUND) {
+        this.router.navigateByUrl('/not-found');
+        return;
+      }
+
+      // For any other errors show a friendly message
+      console.error('Error loading supertask:', err);
+      const msg = status ? `Error loading supertask (server returned ${status}).` : 'Error loading supertask.';
+      this.alert.showErrorMessage(msg);
+    }
   }
 
   /**
@@ -111,33 +130,10 @@ export class EditSupertasksComponent implements OnInit {
   /**
    * Loads the supertask. Used when the page opens and after renaming; the pretask tables load their own data.
    */
-  loadData(): void {
-    this.gs
-      .get(SERV.SUPER_TASKS, this.editedSTIndex)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response: ResponseWrapper) => {
-          const supertask: JSuperTask = this.serializer.deserialize(response, zSupertaskResponse);
-          this.applySupertask(supertask);
-        },
-        error: (err: unknown) => {
-          const status = err instanceof HttpErrorResponse ? err.status : undefined;
-          if (status === HttpStatus.FORBIDDEN) {
-            this.router.navigateByUrl('/forbidden');
-            return;
-          }
-          if (status === HttpStatus.NOT_FOUND) {
-            this.router.navigateByUrl('/not-found');
-            return;
-          }
-
-          // For any other errors show a friendly message
-
-          console.error('Error loading supertask:', err);
-          const msg = status ? `Error loading supertask (server returned ${status}).` : 'Error loading supertask.';
-          this.alert.showErrorMessage(msg);
-        }
-      });
+  private async load(): Promise<void> {
+    const response = await lastValueFrom<ResponseWrapper>(this.gs.get(SERV.SUPER_TASKS, this.editedSTIndex));
+    const supertask: JSuperTask = this.serializer.deserialize(response, zSupertaskResponse);
+    this.applySupertask(supertask);
   }
 
   /**
@@ -181,20 +177,32 @@ export class EditSupertasksComponent implements OnInit {
     this.isUpdatingSupertask = true;
     this.gs
       .update(SERV.SUPER_TASKS, this.editedSTIndex, { supertaskName: nameControl.value })
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => (this.isUpdatingSupertask = false))
-      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.alert.showSuccessMessage('Supertask data has been updated successfully');
-          this.loadData();
+          void this.reload();
         },
         error: (err: unknown) => {
           console.error('Error updating Supertask:', err);
           this.alert.showErrorMessage(`Error updating Supertask`);
+          this.isUpdatingSupertask = false;
         }
       });
+  }
+
+  /**
+   * Reloads the page after renaming, staying on it. The save button keeps its spinner until the saved state is shown.
+   */
+  private async reload(): Promise<void> {
+    try {
+      await this.load();
+    } catch (err: unknown) {
+      // The error interceptor already told the user; the page keeps showing the last loaded supertask
+      console.error('Error reloading supertask:', err);
+    } finally {
+      this.isUpdatingSupertask = false;
+    }
   }
 
   /**

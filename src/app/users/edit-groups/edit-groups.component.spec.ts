@@ -1,5 +1,5 @@
 import { zAccessGroupListResponse, zAccessGroupResponse, zUserListResponse } from '@generated/api/zod';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -196,6 +196,31 @@ describe('EditGroupsComponent', () => {
       expect(component.updateForm.value.groupName).toBe('Renamed Group');
       expect(component.isUpdatingLoading).toBe(false);
       expect(TestBed.inject(Router).navigate).not.toHaveBeenCalled();
+    });
+
+    it('should keep the saved name in the form when the reload after saving fails', async () => {
+      await wait();
+
+      vi.spyOn(console, 'error').mockReturnValue(undefined);
+      mockGlobalService.update.mockReturnValue(of({}));
+      mockGlobalService.get.mockReturnValue(throwError(() => ({ status: 500 })));
+      component.updateForm.patchValue({ groupName: 'Renamed Group' });
+      component.onSubmit();
+      await wait();
+
+      expect(component.updateForm.value.groupName).toBe('Renamed Group');
+      expect(component.isUpdatingLoading).toBe(false);
+    });
+
+    it('should stop the save spinner when saving fails', async () => {
+      await wait();
+
+      mockGlobalService.update.mockReturnValue(throwError(() => ({ status: 500 })));
+      component.updateForm.patchValue({ groupName: 'Renamed Group' });
+      component.onSubmit();
+
+      expect(component.isUpdatingLoading).toBe(false);
+      expect(mockGlobalService.get).toHaveBeenCalledOnce();
     });
   });
 

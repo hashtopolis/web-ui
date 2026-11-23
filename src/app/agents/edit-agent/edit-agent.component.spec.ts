@@ -15,6 +15,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatStepperModule } from '@angular/material/stepper';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { ResponseWrapper } from '@models/response.model';
+
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { AgentRoleService } from '@services/roles/agents/agent-role.service';
@@ -435,6 +437,50 @@ describe('EditAgentComponent', () => {
 
     expect(globalServiceSpy.ghelper).toHaveBeenCalledTimes(2);
     expect(component.assignTasks.map((option) => option.id)).toStrictEqual([mockTask.id]);
+  });
+
+  it('should keep the save spinner until the assignable tasks are reloaded', async () => {
+    agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update' || role === 'readAssignment');
+
+    fixture = TestBed.createComponent(EditAgentComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const tasksLoaded$ = new Subject<ResponseWrapper>();
+    globalServiceSpy.ghelper.mockReturnValue(tasksLoaded$);
+    component.onSubmit();
+    await wait();
+
+    expect(component.isUpdatingLoading).toBe(true);
+    expect(component.assignTasks).toStrictEqual([]);
+
+    tasksLoaded$.next(mockValidResponse(zGetBestTasksAgentResponse, { data: [mockTask] }));
+    tasksLoaded$.complete();
+    await wait();
+
+    expect(component.isUpdatingLoading).toBe(false);
+    expect(component.assignTasks.map((option) => option.id)).toStrictEqual([mockTask.id]);
+  });
+
+  it('should still show the reloaded agent when the assignable tasks fail to load', async () => {
+    agentRoleServiceSpy.hasRole.mockImplementation((role: string) => role === 'update' || role === 'readAssignment');
+    vi.spyOn(console, 'error').mockReturnValue(undefined);
+
+    fixture = TestBed.createComponent(EditAgentComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const savedAgent = { ...mockAgent, attributes: { ...mockAgent.attributes, agentName: 'Updated Agent' } };
+    globalServiceSpy.get.mockReturnValueOnce(of(mockValidResponse(zAgentResponse, { data: savedAgent })));
+    globalServiceSpy.ghelper.mockReturnValue(throwError(() => ({ status: 500 })));
+    component.onSubmit();
+    await wait();
+
+    expect(component.pageTitle).toBe('Agent Updated Agent');
+    expect(component.assignTasks).toStrictEqual([]);
+    expect(component.isUpdatingLoading).toBe(false);
   });
 
   it('should not submit form if it is invalid', async () => {

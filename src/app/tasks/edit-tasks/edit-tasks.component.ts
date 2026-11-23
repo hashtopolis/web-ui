@@ -60,6 +60,11 @@ interface TablesToReload {
   agents: boolean;
 }
 
+interface TaskReloadOptions {
+  /** Keep what the user typed in the editable fields, for reloads after an action that does not save them. */
+  keepEdits?: boolean;
+}
+
 @Component({
   selector: 'app-edit-tasks',
   templateUrl: './edit-tasks.component.html',
@@ -177,9 +182,10 @@ export class EditTasksComponent implements OnInit, OnDestroy {
 
   /**
    * Loads the task and fills the page and the form with it. Runs on init and again after an action changed
-   * the task, so the page shows the saved state without navigating away.
+   * the task, so the page shows the saved state without navigating away. With keepEdits, the editable fields
+   * keep what the user typed and only the statistics and read-only fields are refreshed.
    */
-  private async loadTaskData(): Promise<void> {
+  private async loadTaskData(options: TaskReloadOptions = {}): Promise<void> {
     const task = await this.loadTask();
 
     this.originalValue = task;
@@ -213,7 +219,7 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       });
     }
 
-    this.updateForm.setValue({
+    this.updateForm.patchValue({
       taskId: task.id,
       forcePipe: task.forcePipe ? 'Yes' : 'No',
       staticChunks: this.getStaticChunkingLabel(task.staticChunks, task.chunkSize),
@@ -222,21 +228,26 @@ export class EditTasksComponent implements OnInit, OnDestroy {
       keyspaceProgress: task.keyspaceProgress,
       crackerBinaryId: task.crackerBinaryId,
       chunkSize: task.chunkSize,
-      totalNumberOfChunks: task.totalNumberOfChunks,
-      preprocessorCommand: task.preprocessorCommand,
-      updateData: {
-        taskName: task.taskName,
-        attackCmd: task.attackCmd,
-        notes: task.notes,
-        color: task.color,
-        chunkTime: Number(task.chunkTime),
-        statusTimer: task.statusTimer,
-        priority: task.priority,
-        maxAgents: task.maxAgents,
-        isCpuTask: task.isCpuTask,
-        isSmall: task.isSmall
-      }
+      totalNumberOfChunks: task.totalNumberOfChunks
     });
+
+    if (!options.keepEdits) {
+      this.updateForm.patchValue({
+        preprocessorCommand: task.preprocessorCommand,
+        updateData: {
+          taskName: task.taskName,
+          attackCmd: task.attackCmd,
+          notes: task.notes,
+          color: task.color,
+          chunkTime: Number(task.chunkTime),
+          statusTimer: task.statusTimer,
+          priority: task.priority,
+          maxAgents: task.maxAgents,
+          isCpuTask: task.isCpuTask,
+          isSmall: task.isSmall
+        }
+      });
+    }
 
     if (this.editedTaskIndex && this.roleService.hasRole('editTaskChunks')) {
       this.loadTaskProgressImage();
@@ -247,9 +258,9 @@ export class EditTasksComponent implements OnInit, OnDestroy {
    * Reloads the task after an action changed it and stays on the page, together with the tables the change
    * affected on the server.
    */
-  private async refreshTask(tables: TablesToReload): Promise<void> {
+  private async refreshTask(tables: TablesToReload, options: TaskReloadOptions = {}): Promise<void> {
     try {
-      await this.loadTaskData();
+      await this.loadTaskData(options);
     } catch (e: unknown) {
       // The error interceptor already told the user; the page keeps showing the last loaded task
       console.error('Error reloading task:', e);
@@ -546,7 +557,9 @@ export class EditTasksComponent implements OnInit, OnDestroy {
         const payload = { taskId: this.editedTaskIndex };
         this.gs.chelper(SERV.HELPER, 'purgeTask', payload).subscribe(() => {
           this.alertService.showSuccessMessage(`Purged task id ${this.editedTaskIndex}`);
-          void this.refreshTask({ chunks: true, agents: true });
+
+          // A purge only resets the task's progress on the server, so unsaved edits in the form stay
+          void this.refreshTask({ chunks: true, agents: true }, { keepEdits: true });
         });
       } else {
         this.alertService.showInfoMessage('Purge was cancelled');
