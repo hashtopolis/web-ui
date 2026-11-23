@@ -28,7 +28,7 @@ export class HashtypeDetectorComponent implements OnInit {
   displayedColumns: string[] = ['id', 'description', 'example'];
   dataSource: MatTableDataSource<HashTypeOption>;
 
-  private appRef = inject(ApplicationRef);
+  private readonly appRef = inject(ApplicationRef);
 
   onSearch(val: string): void {
     const result = findHashType(val);
