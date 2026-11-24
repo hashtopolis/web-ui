@@ -20,7 +20,7 @@ describe('AgentSColorPipe', () => {
     pipe = TestBed.runInInjectionContext(() => new AgentSColorPipe());
   });
 
-  it.each([false, 0])('returns no color for inactive status %s', (isActive) => {
+  it.each([false, 0])('returns no color for inactive status %s', (isActive: boolean | number) => {
     const color = pipe.transform('No data', 80, 40, ASC.GPU_UTIL, isActive, 0);
 
     expect(color).toBe('');
@@ -37,7 +37,7 @@ describe('AgentSColorPipe', () => {
       [0, 'var(--destructive)'],
       ['81', 'var(--success)'],
       ['0', 'var(--destructive)']
-    ])('returns the expected color for value %s', (value, expected) => {
+    ])('returns the expected color for value %s', (value: number | string, expected: string) => {
       const color = pipe.transform(value, 80, 40, statType, true, 0);
 
       expect(color).toBe(expected);
@@ -53,7 +53,7 @@ describe('AgentSColorPipe', () => {
       [81, 'color-mix(in oklch, var(--destructive), black 30%)'],
       [0, 'var(--destructive)'],
       ['60', 'var(--success)']
-    ])('returns the expected color for value %s', (value, expected) => {
+    ])('returns the expected color for value %s', (value: number | string, expected: string) => {
       const color = pipe.transform(value, 60, 80, ASC.GPU_TEMP, 1, 0);
 
       expect(color).toBe(expected);
@@ -66,20 +66,23 @@ describe('AgentSColorPipe', () => {
       [1, 999, 'var(--info)'],
       [true, 1000, 'var(--subtle-foreground)'],
       [true, 1001, 'var(--subtle-foreground)']
-    ])('uses the timeout for active status %s and elapsed time %s', (isActive, elapsed, expected) => {
-      vi.useFakeTimers({ toFake: ['Date'] });
-      try {
-        vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
-        vi.mocked(uiService.getUISettings, { partial: true }).mockReturnValue({ agenttimeout: 1000 });
-        const lastActivity = Date.now() - elapsed;
+    ])(
+      'uses the timeout for active status %s and elapsed time %s',
+      (isActive: boolean | number, elapsed: number, expected: string) => {
+        vi.useFakeTimers({ toFake: ['Date'] });
+        try {
+          vi.setSystemTime(new Date('2026-01-01T00:00:00Z'));
+          vi.mocked(uiService.getUISettings, { partial: true }).mockReturnValue({ agenttimeout: 1000 });
+          const lastActivity = Date.now() - elapsed;
 
-        const color = pipe.transform('No data', 80, 40, ASC.GPU_UTIL, isActive, lastActivity);
+          const color = pipe.transform('No data', 80, 40, ASC.GPU_UTIL, isActive, lastActivity);
 
-        expect(color).toBe(expected);
-      } finally {
-        vi.useRealTimers();
+          expect(color).toBe(expected);
+        } finally {
+          vi.useRealTimers();
+        }
       }
-    });
+    );
 
     it('uses a zero timeout when settings are unavailable', () => {
       uiService.getUISettings.mockReturnValue(null);

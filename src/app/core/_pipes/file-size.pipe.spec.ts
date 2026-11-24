@@ -6,7 +6,13 @@ describe('FileSizePipe', () => {
   it.each([
     [49_152, false, '48 KB'],
     [49_152, true, '48 Kilobytes'],
-    [1_234_567, false, '1205.63 KB']
+    [1_234_567, false, '1205.63 KB'],
+    [2 * 1024 ** 3, true, '2048 Megabytes'],
+    [2 * 1024 ** 4, true, '2048 Gigabytes'],
+    [2 * 1024 ** 6, true, '2048 Petabytes'],
+    [2 * 1024 ** 7, true, '2048 Exabytes'],
+    [2 * 1024 ** 8, true, '2048 Zettabytes'],
+    [2 * 1024 ** 9, true, '2048 Yottabytes']
   ])('formats %s bytes with longForm=%s', (size, longForm, expected) => {
     const result = pipe.transform(size, longForm);
 
