@@ -10,9 +10,10 @@ services:
         - CONTAINER_USER_CMD_POST
     environment:
       - HASHTOPOLIS_BACKEND_URL
-      # The dev server picks up file changes through file system events. If it
-      # misses them, as with a checkout on the Windows drive, set this to a
-      # polling interval in milliseconds, for example NG_SERVE_POLL=500.
+      # The dev server polls for file changes every 500 ms, because not every
+      # Docker runtime passes file system events into the container (Colima
+      # does not by default). If yours does, for example OrbStack or Docker on
+      # Linux, set NG_SERVE_POLL=0 to save the CPU that polling costs.
       - NG_SERVE_POLL
       # Custom themes are opt-in. Set this to the folder to scan inside the
       # container and mount your .css folder to that same path (volume below).

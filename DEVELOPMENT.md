@@ -16,7 +16,7 @@ npm start
 
 The app is served at <http://localhost:4200> and rebuilds on file changes.
 
-File changes are picked up through file system events. Where those do not arrive, for example with a checkout on the Windows drive that is mounted into the dev container, set `NG_SERVE_POLL` to an interval in milliseconds to poll for changes instead, for example `NG_SERVE_POLL=500 npm start`, or `NG_SERVE_POLL=500` in `.devcontainer/.env` for the dev container. Polling keeps the CPU busy, so it is off by default.
+The dev server polls for file changes every 500 ms, because file system events do not arrive everywhere, for example in the dev container on Colima or with a checkout on the Windows drive. Polling keeps the CPU busy, so where the events do arrive, such as `npm start` on the host or the dev container on OrbStack or Linux, turn it off with `NG_SERVE_POLL=0`: for example `NG_SERVE_POLL=0 npm start`, or `NG_SERVE_POLL=0` in `.devcontainer/.env` for the dev container. Any other value sets the polling interval in milliseconds.
 
 The frontend expects the backend at `http://localhost:8080/api/v2` by default. To use a different backend, edit `hashtopolis_backend_url` in [`src/assets/config.json`](src/assets/config.json).
 

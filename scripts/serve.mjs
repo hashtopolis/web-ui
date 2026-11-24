@@ -1,13 +1,13 @@
 /**
  * Starts the dev server for `npm start`.
  *
- * ng serve picks up file changes through native file system events. Where those do not arrive, for
- * example with a checkout on the Windows drive that is bind-mounted into the dev container, set
- * NG_SERVE_POLL to an interval in milliseconds to poll for changes instead. Polling keeps the CPU
- * busy, so it is off unless asked for.
+ * ng serve polls for file changes every 500 ms, because file system events do not reach it
+ * everywhere, for example in the dev container on Colima or with a checkout on the Windows drive.
+ * Polling keeps the CPU busy, so where the events do arrive, set NG_SERVE_POLL=0 to rely on them
+ * instead. Any other value sets the polling interval in milliseconds.
  *
  * This is a script rather than shell syntax in package.json because npm runs scripts through
- * cmd.exe on Windows, which cannot add an argument only when a variable is set.
+ * cmd.exe on Windows, which cannot leave out an argument depending on a variable.
  */
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -16,8 +16,8 @@ const ng = fileURLToPath(new URL('../node_modules/@angular/cli/bin/ng.js', impor
 
 const args = [ng, 'serve', '--host', '0.0.0.0'];
 
-const poll = process.env.NG_SERVE_POLL;
-if (poll) {
+const poll = process.env.NG_SERVE_POLL || '500';
+if (poll !== '0') {
   args.push('--poll', poll);
 }
 
