@@ -621,6 +621,27 @@ describe('NewTasksComponent', () => {
       expect(component.form.controls.preprocessorCommand.value).toBe('');
     });
 
+    it('should reject an attack command consisting only of the alias without a preprocessor', async () => {
+      await initComponent(fixture);
+
+      component.form.patchValue({ attackCmd: '#HL#', preprocessorId: 0 });
+
+      expect(component.form.controls.attackCmd.hasError('attackCommandNeedsAdditionalContent')).toBe(true);
+    });
+
+    it('should accept an attack command consisting only of the alias when a preprocessor is set', async () => {
+      await initComponent(fixture);
+
+      component.form.patchValue({ attackCmd: '#HL#' });
+      expect(component.form.controls.attackCmd.valid).toBe(false);
+
+      component.form.controls.preprocessorId.setValue(1);
+      expect(component.form.controls.attackCmd.valid).toBe(true);
+
+      component.form.controls.preprocessorId.setValue(0);
+      expect(component.form.controls.attackCmd.hasError('attackCommandNeedsAdditionalContent')).toBe(true);
+    });
+
     it('should mark form as touched when invalid and not submit', async () => {
       await initComponent(fixture);
 
