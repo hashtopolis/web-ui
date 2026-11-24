@@ -34,7 +34,7 @@ export class InputFileComponent extends AbstractInputComponent<FileList> {
   @Input() multiple = false;
   fileInfoText = '';
   @Output() filesSelected = new EventEmitter<FileList>();
-  private fs = inject(FileSizePipe);
+  private readonly fs = inject(FileSizePipe);
 
   onChangeValue(value: FileList) {
     this.value = value;
