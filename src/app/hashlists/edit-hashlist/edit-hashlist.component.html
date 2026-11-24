@@ -56,7 +56,11 @@
             </app-form-row>
 
             <grid-buttons>
-              <button-submit [name]="'Update'" [disabled]="!roleService.hasRole('update')"></button-submit>
+              <button-submit
+                [name]="'Update'"
+                [disabled]="!roleService.hasRole('update')"
+                [loading]="isUpdatingLoading"
+              ></button-submit>
             </grid-buttons>
           </form>
         </grid-main>

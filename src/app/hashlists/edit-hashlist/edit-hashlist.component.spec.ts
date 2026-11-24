@@ -1,5 +1,5 @@
 import { zGetAccessGroupsHelperApiResponse, zHashlistResponse } from '@generated/api/zod';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
 import { provideHttpClient } from '@angular/common/http';
@@ -306,6 +306,51 @@ describe('EditHashlistComponent', () => {
       expect(component.updateForm.get('updateData.name')?.value).toBe('Updated Name');
       expect(gsSpy.ghelper).toHaveBeenCalledTimes(2);
       expect(routerSpy.navigate).not.toHaveBeenCalled();
+    });
+
+    it('should keep the save spinner until the reloaded hashlist is shown', async () => {
+      initComponent();
+      respondToHashlistRequest(mockHashlistResponse());
+      await wait();
+
+      gsSpy.update.mockReturnValue(of({}));
+      component.onSubmit();
+
+      expect(component.isUpdatingLoading).toBe(true);
+
+      respondToHashlistRequest(mockHashlistResponse('Updated Name'));
+      await wait();
+
+      expect(component.isUpdatingLoading).toBe(false);
+      expect(component.editedHashlist?.name).toBe('Updated Name');
+    });
+
+    it('should stop the save spinner when saving fails', async () => {
+      initComponent();
+      respondToHashlistRequest(mockHashlistResponse());
+      await wait();
+
+      gsSpy.update.mockReturnValue(throwError(() => ({ status: 500 })));
+      component.onSubmit();
+
+      httpMock.expectNone((request) => request.url.includes('/hashlists/'));
+      expect(component.isUpdatingLoading).toBe(false);
+    });
+
+    it('should stop the save spinner and keep the form when the reload after saving fails', async () => {
+      vi.spyOn(console, 'error').mockReturnValue(undefined);
+      initComponent();
+      respondToHashlistRequest(mockHashlistResponse());
+      await wait();
+
+      component.updateForm.get('updateData.name')?.setValue('Updated Name');
+      gsSpy.update.mockReturnValue(of({}));
+      component.onSubmit();
+      respondToHashlistRequestWithError(500, 'Internal Server Error');
+      await wait();
+
+      expect(component.isUpdatingLoading).toBe(false);
+      expect(component.updateForm.get('updateData.name')?.value).toBe('Updated Name');
     });
 
     it('should mark all fields as touched on invalid form', () => {

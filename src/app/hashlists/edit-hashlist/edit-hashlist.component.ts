@@ -53,6 +53,9 @@ export class EditHashlistComponent implements OnInit, CanComponentDeactivate {
   /** Flag indicating whether data is still loading. */
   isLoading = true;
 
+  /** On form update show a spinner loading, until the saved hashlist is shown */
+  isUpdatingLoading = false;
+
   /** Form group for the Hashlist. */
   updateForm: FormGroup;
 
@@ -199,12 +202,18 @@ export class EditHashlistComponent implements OnInit, CanComponentDeactivate {
    */
   onSubmit(): void {
     if (this.updateForm.valid) {
+      this.isUpdatingLoading = true;
       this.gs
         .update(SERV.HASHLISTS, this.editedHashlistIndex, this.updateForm.value['updateData'])
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => {
-          this.alert.showSuccessMessage('Hashlist saved');
-          void this.reload();
+        .subscribe({
+          next: () => {
+            this.alert.showSuccessMessage('Hashlist saved');
+            void this.reload();
+          },
+          error: () => {
+            this.isUpdatingLoading = false;
+          }
         });
     } else {
       this.updateForm.markAllAsTouched();
@@ -213,7 +222,7 @@ export class EditHashlistComponent implements OnInit, CanComponentDeactivate {
   }
 
   /**
-   * Reloads the page after saving, staying on it.
+   * Reloads the page after saving, staying on it. The save button keeps its spinner until the saved state is shown.
    */
   private async reload(): Promise<void> {
     try {
@@ -221,6 +230,8 @@ export class EditHashlistComponent implements OnInit, CanComponentDeactivate {
     } catch (e: unknown) {
       // The error interceptor already told the user; the page keeps showing the last loaded hashlist
       console.error('Error reloading hashlist:', e);
+    } finally {
+      this.isUpdatingLoading = false;
     }
   }
 
