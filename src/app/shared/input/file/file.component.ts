@@ -31,7 +31,6 @@ import { AbstractInputComponent } from '@src/app/shared/input/abstract-input';
 })
 export class InputFileComponent extends AbstractInputComponent<FileList> {
   @Input() accept = '';
-  @Input() multiple = false;
   fileInfoText = '';
   @Output() filesSelected = new EventEmitter<FileList>();
   private readonly fs = inject(FileSizePipe);
