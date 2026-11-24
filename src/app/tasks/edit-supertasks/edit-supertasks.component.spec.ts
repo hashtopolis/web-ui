@@ -1,12 +1,16 @@
-import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod';
-import { of } from 'rxjs';
+import { zSupertaskResponse } from '@generated/api/zod';
+import { Subject, of, throwError } from 'rxjs';
+import type { MockedObject } from 'vitest';
 
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { ResponseWrapper } from '@models/response.model';
+
 import { ConfirmDialogService } from '@services/confirm/confirm-dialog.service';
 import { CrackerBinaryTypesService } from '@services/crackers/cracker-binary-types.service';
+import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
 import { SupertasksRoleService } from '@services/roles/tasks/supertasks-role.service';
 import { AlertService } from '@services/shared/alert.service';
@@ -14,35 +18,14 @@ import { AutoTitleService } from '@services/shared/autotitle.service';
 
 import { EditSupertasksComponent } from '@src/app/tasks/edit-supertasks/edit-supertasks.component';
 import { mockValidResponse } from '@src/app/testing/mock-response';
+import { wait } from '@src/app/testing/wait';
 
-const SUPERTASK = mockValidResponse(zSupertaskResponse, {
-  data: { id: 5, type: 'supertask', attributes: { supertaskName: 'BF set', crackerBinaryTypeId: 2 } }
-});
+const supertaskResponse = (supertaskName: string) =>
+  mockValidResponse(zSupertaskResponse, {
+    data: { id: 5, type: 'supertask', attributes: { supertaskName, crackerBinaryTypeId: 2 } }
+  });
 
-function pretask(id: number, taskName: string, crackerBinaryTypeId: number) {
-  return {
-    id,
-    type: 'preTask' as const,
-    attributes: {
-      taskName,
-      attackCmd: '#HL# wordlist.txt',
-      chunkTime: 600,
-      statusTimer: 5,
-      color: '',
-      isSmall: false,
-      isCpuTask: false,
-      useNewBench: true,
-      priority: 0,
-      maxAgents: 0,
-      isMaskImport: false,
-      crackerBinaryTypeId
-    }
-  };
-}
-
-const PRETASKS = mockValidResponse(zPreTaskListResponse, {
-  data: [pretask(2, 'hashcat pretask', 1), pretask(3, 'generic pretask', 2)]
-});
+const SUPERTASK = supertaskResponse('BF set');
 
 describe('EditSupertasksComponent', () => {
   let fixture: ComponentFixture<EditSupertasksComponent>;
@@ -51,13 +34,11 @@ describe('EditSupertasksComponent', () => {
   beforeEach(async () => {
     const gs = {
       get: vi.fn().mockName('GlobalService.get'),
-      getAll: vi.fn().mockName('GlobalService.getAll'),
       update: vi.fn().mockName('GlobalService.update'),
       delete: vi.fn().mockName('GlobalService.delete'),
       postRelationships: vi.fn().mockName('GlobalService.postRelationships')
     };
     gs.get.mockReturnValue(of(SUPERTASK));
-    gs.getAll.mockReturnValue(of(PRETASKS));
     const roles = {
       hasRole: vi.fn().mockName('SupertasksRoleService.hasRole')
     };
@@ -101,7 +82,7 @@ describe('EditSupertasksComponent', () => {
           }
         }
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA]
+      schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(EditSupertasksComponent);
@@ -125,6 +106,40 @@ describe('EditSupertasksComponent', () => {
     >;
     const notContained = Array.from(tables).find((table) => table.reverseQuery === true);
     expect(notContained?.crackerBinaryTypeId).toBe(2);
-    expect(component.selectPretasks?.map((option) => option.id)).toStrictEqual([3]);
+  });
+
+  it('renames the supertask and shows the reloaded supertask on the page instead of navigating', async () => {
+    const gs = TestBed.inject(GlobalService) as MockedObject<GlobalService>;
+    const router = TestBed.inject(Router) as MockedObject<Router>;
+    const reloaded$ = new Subject<ResponseWrapper>();
+    gs.update.mockReturnValue(of({}));
+    gs.get.mockReturnValue(reloaded$);
+    component.viewForm.get('supertaskName')?.setValue('Renamed');
+    component.onUpdate();
+
+    expect(gs.update).toHaveBeenCalledWith(SERV.SUPER_TASKS, 5, { supertaskName: 'Renamed' });
+    expect(component.isUpdatingSupertask).toBe(true);
+
+    reloaded$.next(supertaskResponse('Renamed'));
+    reloaded$.complete();
+    await wait();
+
+    expect(component.editName).toBe('Renamed');
+    expect(component.isUpdatingSupertask).toBe(false);
+    expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('stops the save spinner and keeps the typed name when the reload after renaming fails', async () => {
+    const gs = TestBed.inject(GlobalService) as MockedObject<GlobalService>;
+    vi.spyOn(console, 'error').mockReturnValue(undefined);
+    gs.update.mockReturnValue(of({}));
+    gs.get.mockReturnValue(throwError(() => ({ status: 500 })));
+    component.viewForm.get('supertaskName')?.setValue('Renamed');
+    component.onUpdate();
+    await wait();
+
+    expect(component.isUpdatingSupertask).toBe(false);
+    expect(component.editName).toBe('BF set');
+    expect(component.viewForm.get('supertaskName')?.value).toBe('Renamed');
   });
 });
