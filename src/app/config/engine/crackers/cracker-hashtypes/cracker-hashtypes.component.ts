@@ -38,6 +38,8 @@ export class CrackerHashtypesComponent implements OnInit {
   @Input({ required: true }) crackerBinaryId: CrackerBinaryId;
   @Input() isHashcat = false;
   @Input() canEdit = false;
+  /** Without the hashtype read permission only the rescan of a hashcat version is shown */
+  @Input() canReadHashtypes = false;
   @Input() canCreateHashtypes = false;
 
   @ViewChild('hashtypesTable') table?: CrackerHashtypesTableComponent;
@@ -64,7 +66,9 @@ export class CrackerHashtypesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    void this.loadAssignedHashtypeIds();
+    if (this.canReadHashtypes) {
+      void this.loadAssignedHashtypeIds();
+    }
   }
 
   /** Refresh the assigned ids after the table removed hashtypes */

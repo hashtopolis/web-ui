@@ -32,6 +32,8 @@ class StubCrackerHashtypesComponent {
   @Input()
   canEdit = false;
   @Input()
+  canReadHashtypes = false;
+  @Input()
   canCreateHashtypes = false;
 }
 
@@ -400,6 +402,7 @@ describe('CrackerVersionFormComponent', () => {
       expect(section?.crackerBinaryId).toBe(12);
       expect(section?.isHashcat).toBe(true);
       expect(section?.canEdit).toBe(true);
+      expect(section?.canReadHashtypes).toBe(true);
     });
 
     it('loads the binary with its type and shows the title', () => {
@@ -537,11 +540,29 @@ describe('CrackerVersionFormComponent', () => {
       routeData = { type: 'edit' };
       routeParams = { id: '12' };
       hashtypeRoles.hasRole.mockReturnValue(false);
-      gs.get.mockReturnValue(of(binaryResponse(null)));
-      await setup();
     });
 
-    it('shows no hashtypes section', () => {
+    it('shows the section of a hashcat version for the rescan, without the hashtypes', async () => {
+      gs.get.mockReturnValue(of(binaryResponse(null)));
+      await setup();
+
+      expect(hashtypesSection()?.isHashcat).toBe(true);
+      expect(hashtypesSection()?.canEdit).toBe(true);
+      expect(hashtypesSection()?.canReadHashtypes).toBe(false);
+    });
+
+    it('shows no section of a hashcat version without the update role', async () => {
+      roles.hasRole.mockReturnValue(false);
+      gs.get.mockReturnValue(of(binaryResponse(null)));
+      await setup();
+
+      expect(hashtypesSection()).toBeNull();
+    });
+
+    it('shows no section of a generic version', async () => {
+      gs.get.mockReturnValue(of(binaryResponse(null, 'generic')));
+      await setup();
+
       expect(hashtypesSection()).toBeNull();
     });
   });

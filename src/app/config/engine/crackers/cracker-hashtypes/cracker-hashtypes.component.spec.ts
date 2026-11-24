@@ -46,7 +46,12 @@ describe('CrackerHashtypesComponent', () => {
   /** Result the add dialog closes with */
   let dialogResult: boolean | undefined;
 
-  async function setup(inputs: { isHashcat: boolean; canEdit: boolean; canCreateHashtypes?: boolean }): Promise<void> {
+  async function setup(inputs: {
+    isHashcat: boolean;
+    canEdit: boolean;
+    canReadHashtypes?: boolean;
+    canCreateHashtypes?: boolean;
+  }): Promise<void> {
     await TestBed.configureTestingModule({
       imports: [CrackerHashtypesComponent],
       providers: [
@@ -67,6 +72,7 @@ describe('CrackerHashtypesComponent', () => {
     fixture.componentRef.setInput('crackerBinaryId', 12);
     fixture.componentRef.setInput('isHashcat', inputs.isHashcat);
     fixture.componentRef.setInput('canEdit', inputs.canEdit);
+    fixture.componentRef.setInput('canReadHashtypes', inputs.canReadHashtypes ?? true);
     fixture.componentRef.setInput('canCreateHashtypes', inputs.canCreateHashtypes ?? false);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -126,7 +132,9 @@ describe('CrackerHashtypesComponent', () => {
     });
 
     it('queues a rescan of the version and confirms it', async () => {
-      rescanButton()?.click();
+      const button = rescanButton();
+      expect(button).not.toBeNull();
+      button!.click();
       await fixture.whenStable();
 
       expect(gs.chelper).toHaveBeenCalledWith(SERV.HELPER, 'rescanCrackerBinary', { crackerBinaryId: 12 });
@@ -158,6 +166,27 @@ describe('CrackerHashtypesComponent', () => {
 
     it('offers no rescan', () => {
       expect(rescanButton()).toBeNull();
+    });
+  });
+
+  describe('hashcat version with update role but without hashtype read permission', () => {
+    beforeEach(async () => {
+      gs.getRelationshipLink.mockReturnValue(of(assignedResponse([])));
+      await setup({ isHashcat: true, canEdit: true, canReadHashtypes: false });
+    });
+
+    it('offers the rescan but neither loads nor shows the hashtypes', async () => {
+      expect(el().querySelector('[data-testid="hashcat-scan-note"]')).not.toBeNull();
+      expect(gs.getRelationshipLink).not.toHaveBeenCalled();
+      expect(el().querySelector('[data-testid="hashcat-scan-pending"]')).toBeNull();
+      expect(component.table).toBeUndefined();
+
+      const button = rescanButton();
+      expect(button).not.toBeNull();
+      button!.click();
+      await fixture.whenStable();
+
+      expect(gs.chelper).toHaveBeenCalledWith(SERV.HELPER, 'rescanCrackerBinary', { crackerBinaryId: 12 });
     });
   });
 
