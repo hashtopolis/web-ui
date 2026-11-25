@@ -10,6 +10,8 @@ export interface DecodeOptions {
   isWholeFile: boolean;
   /** Decompressed bytes after which decoding stops. */
   maxOutputBytes: number;
+  /** Cancels decoding, for example when the preview closes before the file has opened. */
+  signal?: AbortSignal;
 }
 
 /** What a decoder made of its input. */
@@ -36,7 +38,8 @@ export interface CompressedFormat {
   matches(head: Uint8Array): boolean;
   /**
    * Decompresses the start of a file. Being handed a prefix that stops mid-stream is the normal case
-   * and not an error: the result then holds what the prefix decoded to.
+   * and not an error: the result then holds what the prefix decoded to. Once `options.signal` is
+   * aborted, decoding stops and the promise rejects with the signal's reason, as `fetch` does.
    */
   decode(input: Uint8Array<ArrayBuffer>, options: DecodeOptions): Promise<DecodeResult>;
 }
@@ -73,13 +76,15 @@ export function detectCompression(head: Uint8Array): CompressedFormat | null {
  *
  * @param format - The stream format to decode.
  * @param input - The start of the file, or all of it.
- * @param options - Whether that is the whole file, and where to stop.
+ * @param options - Whether that is the whole file, where to stop, and what cancels decoding.
  */
 async function decodeWithBrowser(
   format: CompressionFormat,
   input: Uint8Array<ArrayBuffer>,
-  { isWholeFile, maxOutputBytes }: DecodeOptions
+  { isWholeFile, maxOutputBytes, signal }: DecodeOptions
 ): Promise<DecodeResult> {
+  signal?.throwIfAborted();
+
   let fed = 0;
   const slices = new ReadableStream<BufferSource>(
     {
@@ -99,11 +104,16 @@ async function decodeWithBrowser(
 
   const reader = slices.pipeThrough(new DecompressionStream(format)).getReader();
 
+  // Cancelling the reader settles a read that is still waiting, so the loop below notices the abort
+  // right away instead of after the decoder's next chunk.
+  const cancelReader = (): void => void reader.cancel().catch(() => undefined);
+  signal?.addEventListener('abort', cancelReader, { once: true });
+
   const chunks: Uint8Array[] = [];
   let produced = 0;
   let isStreamDone = false;
   try {
-    while (produced < maxOutputBytes) {
+    while (produced < maxOutputBytes && !signal?.aborted) {
       const { done, value } = await reader.read();
       if (done) {
         isStreamDone = true;
@@ -116,7 +126,11 @@ async function decodeWithBrowser(
   } catch {
     // A prefix that stops mid-stream ends the decoder in an error, and so does damage. Either way the
     // bytes decoded so far stand on their own.
+  } finally {
+    signal?.removeEventListener('abort', cancelReader);
   }
+
+  signal?.throwIfAborted();
 
   if (!isStreamDone) {
     await reader.cancel().catch(() => undefined);

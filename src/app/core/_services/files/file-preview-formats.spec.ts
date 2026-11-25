@@ -91,4 +91,31 @@ describe('gzip decoder', () => {
     expect(result.bytes.length).toBe(0);
     expect(result.reachedEnd).toBe(true);
   });
+
+  it('does not start decoding once it was cancelled', async () => {
+    const controller = new AbortController();
+    controller.abort();
+
+    const decoding = gzip.decode(gzipSync(numberedLines(10)), {
+      isWholeFile: true,
+      maxOutputBytes: 1_048_576,
+      signal: controller.signal
+    });
+
+    await expect(decoding).rejects.toMatchObject({ name: 'AbortError' });
+  });
+
+  it('stops decoding when cancelled while it runs', async () => {
+    const controller = new AbortController();
+    const decoding = gzip.decode(gzipSync('a\n'.repeat(4_194_304)), {
+      isWholeFile: true,
+      maxOutputBytes: 16_777_216,
+      signal: controller.signal
+    });
+
+    // The decoder is waiting on its first read by the time the call returns, so this cancels it midway.
+    controller.abort();
+
+    await expect(decoding).rejects.toMatchObject({ name: 'AbortError' });
+  });
 });

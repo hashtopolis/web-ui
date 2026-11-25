@@ -9,6 +9,7 @@ import { TestBed } from '@angular/core/testing';
 import { FilePreviewPage } from '@models/file-preview.model';
 import { JFile } from '@models/file.model';
 
+import { detectCompression } from '@services/files/file-preview-formats';
 import { PreviewSource } from '@services/files/file-preview-source';
 import { FilePreviewRequest, FilePreviewService } from '@services/files/file-preview.service';
 
@@ -246,6 +247,19 @@ describe('FilePreviewService', () => {
         .subscribe((result) => (page = result));
 
       expect(page.lines).toStrictEqual(['line1', 'line2']);
+    });
+
+    it('cancels decoding when nothing waits for the source any more, as when the dialog closes', () => {
+      const compressed = gzip(numberedLines(1_000));
+      const decodeSpy = vi.spyOn(detectCompression(compressed)!, 'decode');
+
+      const subscription = service.openSource(storedFile({ size: compressed.length })).subscribe();
+      serveRange(compressed);
+      serveRange(compressed);
+      subscription.unsubscribe();
+
+      const [, options] = decodeSpy.mock.lastCall!;
+      expect(options.signal?.aborted).toBe(true);
     });
   });
 
