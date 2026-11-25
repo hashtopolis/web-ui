@@ -11,7 +11,7 @@ import { FileRoleService } from '@services/roles/file-role.service';
 
 import { FormComponent } from '@components/forms/simple-forms/form.component';
 
-import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { requireAuth } from '@src/app/core/_guards/auth.guard';
 import { CheckRole } from '@src/app/core/_guards/permission.guard';
 import { FilesComponent } from '@src/app/files/files.component';
 import { NewFilesComponent } from '@src/app/files/new-files/new-files.component';
@@ -21,7 +21,7 @@ const roleServiceClass = FileRoleService;
 const routes: MyRoute[] = [
   {
     path: '',
-    canActivate: [IsAuth],
+    canActivate: [requireAuth],
     children: [
       {
         path: 'wordlist',

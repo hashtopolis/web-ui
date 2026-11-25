@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MyRoute } from '@models/routes.model';
 
 import { AuthComponent } from '@src/app/auth/auth.component';
-import { IsAuth } from '@src/app/core/_guards/login.guard';
+import { redirectAuthenticatedUser } from '@src/app/core/_guards/login.guard';
 
 const routes: MyRoute[] = [
   {
@@ -13,7 +13,7 @@ const routes: MyRoute[] = [
       {
         path: '',
         component: AuthComponent,
-        canActivate: [IsAuth]
+        canActivate: [redirectAuthenticatedUser]
       }
     ]
   }

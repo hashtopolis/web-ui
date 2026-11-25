@@ -11,7 +11,7 @@ import { UserRoleService } from '@services/roles/user/user-role.service';
 
 import { FormComponent } from '@components/forms/simple-forms/form.component';
 
-import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { requireAuth } from '@src/app/core/_guards/auth.guard';
 import { CheckRole } from '@src/app/core/_guards/permission.guard';
 import { AllUsersComponent } from '@src/app/users/all-users/all-users.component';
 import { EditGroupsComponent } from '@src/app/users/edit-groups/edit-groups.component';
@@ -28,7 +28,7 @@ const permissionRoleServiceClass = PermissionRoleService;
 const routes: MyRoute[] = [
   {
     path: '',
-    canActivate: [IsAuth],
+    canActivate: [requireAuth],
     children: [
       {
         path: '',

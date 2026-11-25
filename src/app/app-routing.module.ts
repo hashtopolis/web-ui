@@ -3,7 +3,7 @@ import { RouterModule } from '@angular/router';
 
 import { MyRoute } from '@models/routes.model';
 
-import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { requireAuth } from '@src/app/core/_guards/auth.guard';
 import { AppPreloadingStrategy } from '@src/app/core/app_preloading_strategy';
 import { ErrorPageComponent } from '@src/app/layout/error-page/error-page.component';
 import { PageNotFoundComponent } from '@src/app/layout/page-not-found/page-not-found.component';
@@ -53,18 +53,18 @@ const appRoutes: MyRoute[] = [
     path: 'error',
     component: ErrorPageComponent,
     data: { message: 'Page Not Found!' },
-    canActivate: [IsAuth]
+    canActivate: [requireAuth]
   },
   {
     path: 'access-denied',
     component: ErrorPageComponent,
     data: { message: 'Sorry, You are not allowed to access this page!' },
-    canActivate: [IsAuth]
+    canActivate: [requireAuth]
   },
   {
     path: 'not-found',
     component: PageNotFoundComponent,
-    canActivate: [IsAuth]
+    canActivate: [requireAuth]
   },
   { path: '**', redirectTo: 'not-found' } // Note: Always the last route. Don't change position.
 ];
