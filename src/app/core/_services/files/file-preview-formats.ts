@@ -47,9 +47,11 @@ export interface CompressedFormat {
 }
 
 /**
- * Input slice fed to a decoder at a time. A decoder turns a whole slice into output before it can be
- * stopped, and these formats expand by up to about 1000x, so the slice size bounds how far a highly
- * compressible file can overshoot the output cap.
+ * Input slice fed to a decoder at a time. The browser's gzip decoder turns a whole slice into output
+ * before it can be stopped, and deflate expands by up to about 1000x, so the slice size bounds how far
+ * a highly compressible file can overshoot the output cap. The xz decoder hands out output as the
+ * reader pulls it, and the zstd decoder is stopped from its output callback, so neither overshoots by
+ * more than a buffer or a block.
  */
 const SLICE_BYTES = 16_384;
 
@@ -61,6 +63,22 @@ const ZSTD_INPUT_PER_TURN_BYTES = 131_072;
  * anything; zstd's normal levels stay at or below 8 MiB, while `--long` and `--ultra -22` use 128 MiB.
  */
 const MAX_ZSTD_WINDOW_BYTES = 33_554_432;
+
+/**
+ * Largest xz dictionary the xz decoder accepts, which `xz -9` uses. The decoder reserves the whole
+ * dictionary inside its WebAssembly memory, which never shrinks: after an `xz -9` preview the tab holds
+ * about 70 MiB until it is reloaded.
+ */
+const MAX_XZ_DICTIONARY_BYTES = 67_108_864;
+
+/** xz integrity checks the xz decoder verifies: none, CRC32 and CRC64. */
+const SUPPORTED_XZ_CHECKS: readonly number[] = [0x00, 0x01, 0x04];
+
+/** xz check id of SHA-256, which hashcat reads but the xz decoder cannot verify. */
+const XZ_CHECK_SHA256 = 0x0a;
+
+/** xz filter id of LZMA2, the only filter the xz decoder runs. */
+const XZ_FILTER_LZMA2 = 0x21;
 
 const GZIP: CompressedFormat = {
   name: 'gzip',
@@ -75,9 +93,14 @@ const XZ: CompressedFormat = {
   matches: (head) => startsWith(head, [0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00]),
   decode: async (input, options) => {
     options.signal?.throwIfAborted();
+    assertXzSupported(input);
 
     // No browser decodes xz, so a WebAssembly build of xz-embedded does, loaded only for xz files.
     const { XzReadableStream } = await import('xz-decompress');
+
+    // A stream built after the preview closed would set up a decoder that nothing ever disposes.
+    options.signal?.throwIfAborted();
+
     return drainStream(new XzReadableStream(sliceStream(input)), options);
   }
 };
@@ -244,7 +267,15 @@ async function decodeZstd(
   const { Decompress } = await import('fzstd');
 
   const output = new OutputCollector(maxOutputBytes);
-  const decoder = new Decompress((chunk) => output.add(chunk));
+  const decoder = new Decompress((chunk) => {
+    output.add(chunk);
+
+    // One push can decode a whole slice into hundreds of megabytes of a repetitive file, so stop the
+    // decoder from inside the push as soon as output goes past the cap. The catch below ends decoding.
+    if (output.hasOverflowed) {
+      throw new Error('The preview holds as much as it shows.');
+    }
+  });
   let reachedEnd = false;
   try {
     for (let fed = 0; fed < input.length && !output.hasOverflowed && !signal?.aborted; fed += SLICE_BYTES) {
@@ -293,7 +324,7 @@ function zstdWindowBytes(input: Uint8Array): number | null {
     at += 8 + view.getUint32(at + 4, true);
   }
 
-  if (at + 6 > input.length) {
+  if (at + 6 > input.length || !startsWith(input.subarray(at), [0x28, 0xb5, 0x2f, 0xfd])) {
     return null;
   }
 
@@ -323,4 +354,131 @@ function zstdWindowBytes(input: Uint8Array): number | null {
     default:
       return Number(view.getBigUint64(contentSizeAt, true));
   }
+}
+
+/**
+ * Refuses an xz file whose integrity check, filters or dictionary the xz decoder cannot handle, which
+ * it would otherwise report as an opaque error before decoding anything. hashcat reads such files, so
+ * they are not damaged.
+ */
+function assertXzSupported(input: Uint8Array): void {
+  // The stream flags after the magic: a zero byte, then the check id in the low four bits.
+  const check = input.length > 7 ? input[7] & 0x0f : null;
+  if (check === XZ_CHECK_SHA256) {
+    throw new Error('This xz file uses a SHA-256 integrity check, which the preview cannot verify.');
+  }
+
+  if (check !== null && !SUPPORTED_XZ_CHECKS.includes(check)) {
+    throw new Error('This xz file uses an integrity check the preview does not know.');
+  }
+
+  const filters = xzFirstBlockFilters(input);
+  if (filters === null) {
+    return;
+  }
+
+  if (filters.some((filter) => filter.id !== XZ_FILTER_LZMA2)) {
+    throw new Error('This xz file uses a filter the preview cannot decode.');
+  }
+
+  const dictionaryBytes = lzma2DictionaryBytes(filters[filters.length - 1].properties);
+  if (dictionaryBytes !== null && dictionaryBytes > MAX_XZ_DICTIONARY_BYTES) {
+    throw new Error(
+      `This xz file needs ${formatFileSize(dictionaryBytes)} of memory to decode, more than the preview allows.`
+    );
+  }
+}
+
+/** One filter of an xz block. */
+interface XzFilter {
+  id: number;
+  properties: Uint8Array;
+}
+
+/**
+ * Reads the filters of an xz file's first block from the block header that follows the 12-byte
+ * stream header.
+ *
+ * @returns The filters in the order they apply, or `null` when the stream holds no block or the input
+ *   ends before the block header does.
+ */
+function xzFirstBlockFilters(input: Uint8Array): XzFilter[] | null {
+  const headerStart = 12;
+
+  // A zero byte here starts the index instead of a block, so the stream is empty.
+  if (input.length < headerStart + 2 || input[headerStart] === 0x00) {
+    return null;
+  }
+
+  const headerEnd = headerStart + (input[headerStart] + 1) * 4;
+  if (headerEnd > input.length) {
+    return null;
+  }
+
+  const flags = input[headerStart + 1];
+  let cursor = headerStart + 2;
+  const readNumber = (): number | null => {
+    const number = readXzNumber(input, cursor, headerEnd);
+    cursor = number?.next ?? headerEnd;
+    return number?.value ?? null;
+  };
+
+  // The compressed and uncompressed sizes come first, each only when the flags say so.
+  if (flags & 0x40) {
+    readNumber();
+  }
+
+  if (flags & 0x80) {
+    readNumber();
+  }
+
+  const filters: XzFilter[] = [];
+  for (let index = 0; index <= (flags & 0x03); index++) {
+    const id = readNumber();
+    const propertiesSize = readNumber();
+    if (id === null || propertiesSize === null || cursor + propertiesSize > headerEnd) {
+      return null;
+    }
+
+    filters.push({ id, properties: input.subarray(cursor, cursor + propertiesSize) });
+    cursor += propertiesSize;
+  }
+
+  return filters;
+}
+
+/**
+ * Reads an xz variable-length number: seven bits a byte, least significant first, at most nine bytes.
+ *
+ * @returns The number and the offset after it, or `null` when it runs past `end`.
+ */
+function readXzNumber(bytes: Uint8Array, at: number, end: number): { value: number; next: number } | null {
+  let value = 0;
+  for (let index = 0; index < 9 && at + index < end; index++) {
+    const byte = bytes[at + index];
+    value += (byte & 0x7f) * 2 ** (7 * index);
+    if ((byte & 0x80) === 0) {
+      return { value, next: at + index + 1 };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Decodes the dictionary size an LZMA2 filter's property byte holds: two or three times a power of
+ * two, or `null` for a value the format does not define.
+ */
+function lzma2DictionaryBytes(properties: Uint8Array): number | null {
+  const bits = properties[0];
+  if (bits === undefined || bits > 40) {
+    return null;
+  }
+
+  // 40 is the one exception to the pattern: 4 GiB less one byte.
+  if (bits === 40) {
+    return 0xffff_ffff;
+  }
+
+  return (2 | (bits & 1)) * 2 ** ((bits >> 1) + 11);
 }

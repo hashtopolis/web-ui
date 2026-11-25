@@ -28,12 +28,41 @@ interface FormatCase {
   /** The header a file of this format starts with. */
   header: number[];
   compress(sample: Sample): Uint8Array<ArrayBuffer>;
-  /** A valid start of the format followed by data its decoder rejects. */
-  damaged: Uint8Array<ArrayBuffer>;
+  /** A valid start of the format followed by bytes its decoder cannot get past. */
+  brokenAfterHeader: Uint8Array<ArrayBuffer>;
+  /** Damages a compressed file well into its data, in a way the decoder notices. */
+  damageMidway(compressed: Uint8Array<ArrayBuffer>): Uint8Array<ArrayBuffer>;
 }
 
-const xzFixture = (sample: Sample): Uint8Array<ArrayBuffer> =>
-  new Uint8Array(readFileSync(resolve('src/app/core/_services/files/testing/fixtures', `${sample}.txt.xz`)));
+const fixtureFile = (name: string): Uint8Array<ArrayBuffer> =>
+  new Uint8Array(readFileSync(resolve('src/app/core/_services/files/testing/fixtures', name)));
+
+const xzFixture = (sample: Sample): Uint8Array<ArrayBuffer> => fixtureFile(`${sample}.txt.xz`);
+
+/** A copy of `bytes` with every bit of the byte at `at` flipped. */
+const flipByte = (bytes: Uint8Array<ArrayBuffer>, at: number): Uint8Array<ArrayBuffer> => {
+  const flipped = bytes.slice();
+  flipped[at] ^= 0xff;
+
+  return flipped;
+};
+
+/**
+ * A copy of zstd `frames` whose third frame has a broken magic number. The zstd decoder does not
+ * verify checksums, so damage to compressed data could go unnoticed; a broken frame start never does.
+ */
+const breakThirdZstdFrame = (frames: Uint8Array<ArrayBuffer>): Uint8Array<ArrayBuffer> => {
+  let frameCount = 0;
+  for (let at = 0; at + 4 <= frames.length; at++) {
+    const isFrameStart =
+      frames[at] === 0x28 && frames[at + 1] === 0xb5 && frames[at + 2] === 0x2f && frames[at + 3] === 0xfd;
+    if (isFrameStart && ++frameCount === 3) {
+      return flipByte(frames, at);
+    }
+  }
+
+  throw new Error('The fixture has fewer than three zstd frames.');
+};
 
 /**
  * Compresses `text` as zstd in frames of 16 KiB of text each, as pzstd writes files. The zstd decoder
@@ -62,21 +91,28 @@ const FORMATS: FormatCase[] = [
     name: 'gzip',
     header: [0x1f, 0x8b, 0x08],
     compress: (sample) => new Uint8Array(gzipSync(SAMPLES[sample]())),
-    damaged: new Uint8Array([0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xff, 0xff, 0xff, 0xff])
+    brokenAfterHeader: new Uint8Array([
+      0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xff, 0xff, 0xff, 0xff
+    ]),
+    // The deflate data goes wrong from the middle on, and the CRC at the end fails at the latest.
+    damageMidway: (compressed) => flipByte(compressed, compressed.length >> 1)
   },
   {
     name: 'xz',
     header: [0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00],
     compress: xzFixture,
-    // A valid stream header, then a block header that cannot be one.
-    damaged: new Uint8Array([...xzFixture('numbered-10').subarray(0, 12), ...new Array(16).fill(0xff)])
+    // A valid stream header, then a block header announcing more bytes than follow.
+    brokenAfterHeader: new Uint8Array([...xzFixture('numbered-10').subarray(0, 12), ...new Array(16).fill(0xff)]),
+    // Inside the fifth of the multi-block fixture's blocks, whose check then fails.
+    damageMidway: (compressed) => flipByte(compressed, 20_000)
   },
   {
     name: 'zstd',
     header: [0x28, 0xb5, 0x2f, 0xfd],
     compress: (sample) => zstdFrames(SAMPLES[sample]()),
-    // A frame header with a 1 KiB window, then a block of the reserved type.
-    damaged: new Uint8Array([0x28, 0xb5, 0x2f, 0xfd, 0x00, 0x00, ...new Array(8).fill(0xff)])
+    // A frame header with a 1 KiB window, then a block header announcing more bytes than follow.
+    brokenAfterHeader: new Uint8Array([0x28, 0xb5, 0x2f, 0xfd, 0x00, 0x00, ...new Array(8).fill(0xff)]),
+    damageMidway: breakThirdZstdFrame
   }
 ];
 
@@ -200,10 +236,21 @@ describe.each(FORMATS)('$name decoder', (format) => {
     expect(result.reachedEnd).toBe(false);
   });
 
-  it('reports a damaged file as not reaching its end instead of failing', async () => {
-    const result = await decoder.decode(format.damaged, { isWholeFile: true, maxOutputBytes: 1_048_576 });
+  it('reports a file broken right after its header as not reaching its end instead of failing', async () => {
+    const result = await decoder.decode(format.brokenAfterHeader, { isWholeFile: true, maxOutputBytes: 1_048_576 });
 
     expect(result.reachedEnd).toBe(false);
+  });
+
+  it('keeps what it decoded before damage further into the file', async () => {
+    const damaged = format.damageMidway(format.compress('random-hex-5000'));
+
+    const result = await decoder.decode(damaged, { isWholeFile: true, maxOutputBytes: 16_777_216 });
+
+    const decoded = decode(result.bytes);
+    expect(result.reachedEnd).toBe(false);
+    expect(decoded.length).toBeGreaterThan(16_384);
+    expect(randomHexLines(5_000).startsWith(decoded.slice(0, 16_384))).toBe(true);
   });
 
   it('decodes an empty stream to nothing, reaching its end', async () => {
@@ -303,5 +350,124 @@ describe('zstd decoder', () => {
     const decoding = zstd.decode(input, { isWholeFile: true, maxOutputBytes: 1_048_576 });
 
     await expect(decoding).rejects.toThrow('This zstd file needs 128 MB of memory to decode');
+  });
+
+  it('adds the eighths a window descriptor holds on top of its power of two', async () => {
+    // 2^25 plus seven eighths of it: 60 MiB.
+    const decoding = zstd.decode(new Uint8Array(frameHeader(0x7f)), { isWholeFile: true, maxOutputBytes: 1_048_576 });
+
+    await expect(decoding).rejects.toThrow('This zstd file needs 60 MB of memory to decode');
+  });
+
+  it('skips the dictionary id to find the content size of a single-segment frame', async () => {
+    // Single segment with a one-byte dictionary id, then a four-byte content size of 48 MiB.
+    const input = new Uint8Array([0x28, 0xb5, 0x2f, 0xfd, 0xa1, 0x07, 0x00, 0x00, 0x00, 0x03]);
+
+    const decoding = zstd.decode(input, { isWholeFile: true, maxOutputBytes: 1_048_576 });
+
+    await expect(decoding).rejects.toThrow('This zstd file needs 48 MB of memory to decode');
+  });
+
+  it('reads an eight-byte content size', async () => {
+    // Single segment with an eight-byte content size of 64 MiB.
+    const input = new Uint8Array([0x28, 0xb5, 0x2f, 0xfd, 0xe0, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00]);
+
+    const decoding = zstd.decode(input, { isWholeFile: true, maxOutputBytes: 1_048_576 });
+
+    await expect(decoding).rejects.toThrow('This zstd file needs 64 MB of memory to decode');
+  });
+
+  it('leaves a frame header cut off by the end of the input to the decoder', async () => {
+    const input = new Uint8Array([0x28, 0xb5, 0x2f, 0xfd, 0xe0, 0x00, 0x00]);
+
+    const decoding = zstd.decode(input, { isWholeFile: true, maxOutputBytes: 1_048_576 });
+
+    await expect(decoding).resolves.toMatchObject({ reachedEnd: false });
+  });
+
+  it('reads no frame header where no frame starts', async () => {
+    // After the skippable frame comes something that is not a frame, whatever its bytes would say.
+    const input = new Uint8Array([...ZSTD_SKIPPABLE_FRAME, 0x00, 0x00, 0x00, 0x00, 0x00, 0x88]);
+
+    const decoding = zstd.decode(input, { isWholeFile: true, maxOutputBytes: 1_048_576 });
+
+    await expect(decoding).resolves.toMatchObject({ reachedEnd: false });
+  });
+
+  it('stops pushing input once cancelled midway, at a turn it gives the browser', async () => {
+    // Loading the library first makes the abort below land in the decode loop rather than the import.
+    const { Decompress } = await import('fzstd');
+    const push = vi.spyOn(Decompress.prototype, 'push');
+    const compressed = zstdFrames(randomHexLines(40_000));
+    const controller = new AbortController();
+
+    const decoding = zstd.decode(compressed, {
+      isWholeFile: true,
+      maxOutputBytes: 16_777_216,
+      signal: controller.signal
+    });
+
+    // Queued before the decoder's first turn to the browser, so it runs during that turn.
+    setTimeout(() => controller.abort());
+
+    await expect(decoding).rejects.toMatchObject({ name: 'AbortError' });
+    expect(push.mock.calls.length).toBeLessThan(compressed.length / 16_384);
+  });
+
+  it('stops the decoder inside a slice once the output is full, instead of letting it decode the rest', async () => {
+    const { Decompress } = await import('fzstd');
+    const push = vi.spyOn(Decompress.prototype, 'push');
+    // One frame of 8 MiB that compresses into a single slice.
+    const compressed = new Uint8Array(zstdCompressSync('a\n'.repeat(4_194_304)));
+
+    const result = await zstd.decode(compressed, { isWholeFile: true, maxOutputBytes: 65_536 });
+
+    expect(result.bytes.length).toBe(65_536);
+    expect(push.mock.results[0].type).toBe('throw');
+  });
+});
+
+describe('xz decoder', () => {
+  const xz = detectCompression(new Uint8Array([0xfd, 0x37, 0x7a, 0x58, 0x5a, 0x00]))!;
+
+  it.each([
+    ['a CRC32 check', 'crc32'],
+    ['no check', 'check-none']
+  ])('decodes a file with %s', async (unused, variant) => {
+    const result = await xz.decode(fixtureFile(`numbered-10.${variant}.txt.xz`), {
+      isWholeFile: true,
+      maxOutputBytes: 1_048_576
+    });
+
+    expect(decode(result.bytes)).toBe(numberedLines(10));
+    expect(result.reachedEnd).toBe(true);
+  });
+
+  it('refuses a file with a SHA-256 check, which its decoder cannot verify', async () => {
+    const decoding = xz.decode(fixtureFile('numbered-10.sha256.txt.xz'), {
+      isWholeFile: true,
+      maxOutputBytes: 1_048_576
+    });
+
+    await expect(decoding).rejects.toThrow(
+      'This xz file uses a SHA-256 integrity check, which the preview cannot verify.'
+    );
+  });
+
+  it('refuses a file needing a dictionary larger than 64 MiB', async () => {
+    const decoding = xz.decode(fixtureFile('numbered-10.dict-96mib.txt.xz'), {
+      isWholeFile: true,
+      maxOutputBytes: 1_048_576
+    });
+
+    await expect(decoding).rejects.toThrow(
+      'This xz file needs 96 MB of memory to decode, more than the preview allows.'
+    );
+  });
+
+  it('refuses a file with a filter besides LZMA2, such as the x86 filter for executables', async () => {
+    const decoding = xz.decode(fixtureFile('numbered-10.x86.txt.xz'), { isWholeFile: true, maxOutputBytes: 1_048_576 });
+
+    await expect(decoding).rejects.toThrow('This xz file uses a filter the preview cannot decode.');
   });
 });
