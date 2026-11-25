@@ -42,6 +42,34 @@ describe('gzip decoder', () => {
     expect(result.reachedEnd).toBe(true);
   });
 
+  it('decodes a whole file that spans many input slices to its end', async () => {
+    const text = numberedLines(50_000);
+    const compressed = gzipSync(text);
+
+    const result = await gzip.decode(compressed, { isWholeFile: true, maxOutputBytes: 16_777_216 });
+
+    expect(compressed.length, 'the fixture spans several 16 KiB slices').toBeGreaterThan(65_536);
+    expect(decode(result.bytes)).toBe(text);
+    expect(result.reachedEnd).toBe(true);
+  });
+
+  it('never claims the end of a multi-member file while showing only part of it', async () => {
+    // Browsers differ here: Chrome stops after the first member, Node decodes them all. Either is
+    // fine as long as a partial result is not passed off as the whole file.
+    const first = numberedLines(40);
+    const second = numberedLines(80);
+
+    const result = await gzip.decode(new Uint8Array([...gzipSync(first), ...gzipSync(second)]), {
+      isWholeFile: true,
+      maxOutputBytes: 1_048_576
+    });
+
+    const decoded = decode(result.bytes);
+    expect(decoded.length).toBeGreaterThan(0);
+    expect((first + second).startsWith(decoded)).toBe(true);
+    expect(result.reachedEnd).toBe(decoded === first + second);
+  });
+
   it('decodes what a cut-off prefix holds without failing', async () => {
     const text = numberedLines(50_000);
     const compressed = gzipSync(text);
