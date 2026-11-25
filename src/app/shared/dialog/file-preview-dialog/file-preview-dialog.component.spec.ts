@@ -1,3 +1,5 @@
+import { gzipSync } from 'node:zlib';
+
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -10,9 +12,12 @@ import { provideDisabledMaterialAnimations } from '@src/app/testing/material-ani
 
 /** A 30-line file, small enough that one window covers it and every page boundary is predictable. */
 const LINES = Array.from({ length: 30 }, (unused, index) => `line${index + 1}`);
-const FILE_BYTES = new TextEncoder().encode(LINES.join('\n') + '\n');
+const TEXT = LINES.join('\n') + '\n';
+const FILE_BYTES = new TextEncoder().encode(TEXT);
+/** The same lines gzipped, copied out of the shared pool a Node `Buffer` slices into. */
+const GZIP_BYTES = new Uint8Array(gzipSync(TEXT));
 
-const FILE: JFile = {
+const fileRecord = (overrides: Partial<JFile>): JFile => ({
   id: 1,
   type: 'file',
   filename: 'wordlist.txt',
@@ -21,54 +26,61 @@ const FILE: JFile = {
   fileType: 0,
   accessGroupId: 1,
   lineCount: LINES.length,
-  checksum: null
-};
+  checksum: null,
+  ...overrides
+});
 
 describe('FilePreviewDialogComponent', () => {
   let fixture: ComponentFixture<FilePreviewDialogComponent>;
   let component: FilePreviewDialogComponent;
   let httpMock: HttpTestingController;
+  /** What the mocked backend serves for the file. */
+  let stored: Uint8Array;
 
   /**
-   * Answers the pending preview request with the bytes it asked for, the way the backend's range
-   * endpoint would.
+   * Answers every pending preview request with the bytes it asked for, the way the backend's range
+   * endpoint would, including requests that answering an earlier one sets off.
    */
-  const serveRange = (): void => {
-    const request = httpMock.expectOne((candidate) => candidate.url.endsWith('/helper/getFile'));
-    const [start, end] = (request.request.headers.get('Range') ?? '').replace('bytes=', '').split('-').map(Number);
-    request.flush(FILE_BYTES.slice(start, end + 1).buffer as ArrayBuffer);
+  const serveRanges = (): void => {
+    for (;;) {
+      const pending = httpMock.match((candidate) => candidate.url.endsWith('/helper/getFile'));
+      if (pending.length === 0) {
+        break;
+      }
+
+      for (const request of pending) {
+        const [start, end] = (request.request.headers.get('Range') ?? '').replace('bytes=', '').split('-').map(Number);
+        request.flush(stored.slice(start, end + 1).buffer as ArrayBuffer);
+      }
+    }
+
     fixture.detectChanges();
   };
 
-  /** Clicks one of the navigation buttons and serves the page it requests. */
-  const navigate = (label: string): void => {
-    const button: HTMLButtonElement | null = fixture.nativeElement.querySelector(`button[aria-label="${label}"]`);
-    expect(button, `button "${label}"`).not.toBeNull();
-    expect(button!.disabled, `button "${label}" is enabled`).toBe(false);
-    button!.click();
-    fixture.detectChanges();
-    serveRange();
+  /** Serves the requests and waits until the dialog has finished loading what they started. */
+  const settle = async (): Promise<void> => {
+    serveRanges();
+    await vi.waitFor(() => {
+      fixture.detectChanges();
+      expect(component['isLoading']).toBe(false);
+    });
   };
 
-  /** The lines currently on screen, each prefixed by its gutter label. */
-  const visibleRows = (): string[] =>
-    Array.from(fixture.nativeElement.querySelectorAll('.font-mono > div') as NodeListOf<HTMLElement>).map((row) =>
-      Array.from(row.querySelectorAll('span'))
-        .map((cell) => (cell.textContent ?? '').trim())
-        .join(' ')
-    );
-
-  const isEnabled = (label: string): boolean =>
-    !(fixture.nativeElement.querySelector(`button[aria-label="${label}"]`) as HTMLButtonElement).disabled;
-
-  beforeEach(async () => {
+  /**
+   * Opens the dialog on a file and waits for its first page.
+   *
+   * @param file - The file record the dialog is opened with.
+   * @param content - The bytes the backend serves for it.
+   */
+  const openDialog = async (file: JFile, content: Uint8Array): Promise<void> => {
+    stored = content;
     await TestBed.configureTestingModule({
       imports: [FilePreviewDialogComponent],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
         provideDisabledMaterialAnimations(),
-        { provide: MAT_DIALOG_DATA, useValue: { file: FILE } },
+        { provide: MAT_DIALOG_DATA, useValue: { file } },
         { provide: MatDialogRef, useValue: { close: vi.fn().mockName('close') } }
       ]
     }).compileComponents();
@@ -80,66 +92,163 @@ describe('FilePreviewDialogComponent', () => {
     // Ten lines a page splits this file into three, so paging has somewhere to go in both directions.
     component['linesPerPage'] = 10;
     fixture.detectChanges();
-    serveRange();
-  });
+    await settle();
+  };
+
+  const button = (label: string): HTMLButtonElement =>
+    fixture.nativeElement.querySelector(`button[aria-label="${label}"]`) as HTMLButtonElement;
+
+  /** Clicks one of the navigation buttons and serves the page it requests. */
+  const navigate = async (label: string): Promise<void> => {
+    expect(button(label), `button "${label}"`).not.toBeNull();
+    expect(button(label).disabled, `button "${label}" is enabled`).toBe(false);
+    button(label).click();
+    fixture.detectChanges();
+    await settle();
+  };
+
+  /** The lines currently on screen, each prefixed by its gutter label. */
+  const visibleRows = (): string[] =>
+    Array.from(fixture.nativeElement.querySelectorAll('.font-mono > div') as NodeListOf<HTMLElement>).map((row) =>
+      Array.from(row.querySelectorAll('span'))
+        .map((cell) => (cell.textContent ?? '').trim())
+        .join(' ')
+    );
+
+  const isEnabled = (label: string): boolean => !button(label).disabled;
+
+  /** Everything the dialog shows as text, whitespace collapsed. */
+  const dialogText = (): string => (fixture.nativeElement.textContent ?? '').replace(/\s+/g, ' ');
 
   afterEach(() => {
     httpMock.verify();
   });
 
-  it('opens on the first lines of the file', () => {
-    expect(visibleRows()[0]).toBe('1 line1');
-    expect(visibleRows()[9]).toBe('10 line10');
-    expect(isEnabled('Start of file')).toBe(false);
-    expect(isEnabled('Previous page')).toBe(false);
-    expect(isEnabled('Next page')).toBe(true);
+  describe('on a plain file', () => {
+    beforeEach(async () => {
+      await openDialog(fileRecord({}), FILE_BYTES);
+    });
+
+    it('opens on the first lines of the file', () => {
+      expect(visibleRows()[0]).toBe('1 line1');
+      expect(visibleRows()[9]).toBe('10 line10');
+      expect(isEnabled('Start of file')).toBe(false);
+      expect(isEnabled('Previous page')).toBe(false);
+      expect(isEnabled('Next page')).toBe(true);
+    });
+
+    it('pages forwards and back again through the lines it already walked', async () => {
+      await navigate('Next page');
+      expect(visibleRows()[0]).toBe('11 line11');
+
+      await navigate('Previous page');
+      expect(visibleRows()[0]).toBe('1 line1');
+      expect(visibleRows()[9]).toBe('10 line10');
+    });
+
+    it('jumps to the last lines of the file', async () => {
+      await navigate('End of file');
+
+      expect(visibleRows().length).toBe(10);
+      expect(visibleRows()[9]).toContain('line30');
+      expect(isEnabled('Next page')).toBe(false);
+    });
+
+    it('steps back from the end of the file, which it was never paged to', async () => {
+      await navigate('End of file');
+      expect(isEnabled('Previous page'), 'previous is reachable from the end').toBe(true);
+
+      await navigate('Previous page');
+      expect(visibleRows()[0]).toContain('line11');
+      expect(visibleRows()[9]).toContain('line20');
+    });
+
+    it('restores real line numbers once stepping back reaches the start of the file', async () => {
+      await navigate('End of file');
+      await navigate('Previous page');
+      // Line numbering is unknowable after a jump, so the gutter holds placeholders.
+      expect(visibleRows()[0]).toBe('· line11');
+
+      await navigate('Previous page');
+      expect(visibleRows()[0]).toBe('1 line1');
+      expect(isEnabled('Previous page')).toBe(false);
+      expect(isEnabled('Start of file')).toBe(false);
+    });
+
+    it('reads pages that butt up against each other with no lines lost between them', async () => {
+      await navigate('End of file');
+      const lastPage = visibleRows();
+      await navigate('Previous page');
+      const previousPage = visibleRows();
+
+      const strip = (rows: string[]): string[] => rows.map((row) => row.replace(/^\S+ /, ''));
+      expect(strip(previousPage).concat(strip(lastPage))).toStrictEqual(LINES.slice(10));
+    });
+
+    it('labels its position in bytes of the whole file', () => {
+      expect(dialogText()).toContain('bytes 0–60 of 201 (30.3%)');
+    });
   });
 
-  it('pages forwards and back again through the lines it already walked', () => {
-    navigate('Next page');
-    expect(visibleRows()[0]).toBe('11 line11');
+  describe('on a gzip file decompressed whole', () => {
+    beforeEach(async () => {
+      await openDialog(fileRecord({ filename: 'wordlist.txt.gz', size: GZIP_BYTES.byteLength }), GZIP_BYTES);
+    });
 
-    navigate('Previous page');
-    expect(visibleRows()[0]).toBe('1 line1');
-    expect(visibleRows()[9]).toBe('10 line10');
+    it('opens on the first decompressed lines', () => {
+      expect(visibleRows()[0]).toBe('1 line1');
+      expect(visibleRows()[9]).toBe('10 line10');
+    });
+
+    it('names the compression next to the line count', () => {
+      expect(dialogText()).toContain(' · gzip · 30 lines');
+    });
+
+    it('jumps to the end of the file, which the preview reaches', async () => {
+      await navigate('End of file');
+
+      expect(visibleRows()[9]).toContain('line30');
+      expect(isEnabled('Next page')).toBe(false);
+      expect(dialogText()).not.toContain('The preview stops here');
+    });
+
+    it('labels its position in decompressed bytes of the whole file', () => {
+      expect(dialogText()).toContain('decompressed bytes 0–60 of 201 (30.3%)');
+    });
   });
 
-  it('jumps to the last lines of the file', () => {
-    navigate('End of file');
+  describe('on a gzip file only the start of which is decompressed', () => {
+    beforeEach(async () => {
+      // The record claims more than the first part holds, as for a file larger than the preview reads.
+      await openDialog(fileRecord({ filename: 'wordlist.txt.gz', size: 4_194_304 }), GZIP_BYTES);
+    });
 
-    expect(visibleRows().length).toBe(10);
-    expect(visibleRows()[9]).toContain('line30');
-    expect(isEnabled('Next page')).toBe(false);
+    it('disables the jump to the end of the file', () => {
+      expect(isEnabled('End of file')).toBe(false);
+    });
+
+    it('says the preview stops on its last page, and only there', async () => {
+      expect(dialogText()).not.toContain('The preview stops here');
+
+      await navigate('Next page');
+      await navigate('Next page');
+
+      expect(visibleRows()[9]).toBe('30 line30');
+      expect(isEnabled('Next page')).toBe(false);
+      expect(dialogText()).toContain('The preview stops here. Download the file to see the rest.');
+    });
+
+    it('labels its position without a total, which would describe the preview rather than the file', () => {
+      expect(dialogText()).toContain('decompressed bytes 0–60');
+      expect(dialogText()).not.toContain('decompressed bytes 0–60 of');
+    });
   });
 
-  it('steps back from the end of the file, which it was never paged to', () => {
-    navigate('End of file');
-    expect(isEnabled('Previous page'), 'previous is reachable from the end').toBe(true);
+  it('shows why a gzip file that decodes to nothing cannot be previewed', async () => {
+    const damaged = new Uint8Array([0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xff, 0xff, 0xff]);
 
-    navigate('Previous page');
-    expect(visibleRows()[0]).toContain('line11');
-    expect(visibleRows()[9]).toContain('line20');
-  });
+    await openDialog(fileRecord({ size: damaged.byteLength }), damaged);
 
-  it('restores real line numbers once stepping back reaches the start of the file', () => {
-    navigate('End of file');
-    navigate('Previous page');
-    // Line numbering is unknowable after a jump, so the gutter holds placeholders.
-    expect(visibleRows()[0]).toBe('· line11');
-
-    navigate('Previous page');
-    expect(visibleRows()[0]).toBe('1 line1');
-    expect(isEnabled('Previous page')).toBe(false);
-    expect(isEnabled('Start of file')).toBe(false);
-  });
-
-  it('reads pages that butt up against each other with no lines lost between them', () => {
-    navigate('End of file');
-    const lastPage = visibleRows();
-    navigate('Previous page');
-    const previousPage = visibleRows();
-
-    const strip = (rows: string[]): string[] => rows.map((row) => row.replace(/^\S+ /, ''));
-    expect(strip(previousPage).concat(strip(lastPage))).toStrictEqual(LINES.slice(10));
+    expect(dialogText()).toContain('Could not decompress the file. It may be damaged.');
   });
 });

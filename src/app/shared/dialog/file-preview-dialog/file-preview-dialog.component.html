@@ -7,7 +7,7 @@
 
 <mat-dialog-content>
   <div class="flex flex-wrap items-center justify-between gap-sm">
-    <span class="text-xs text-muted-foreground">{{ fileSizeLabel }}{{ lineCountLabel }}</span>
+    <span class="text-xs text-muted-foreground">{{ fileSizeLabel }}{{ compressionLabel }}{{ lineCountLabel }}</span>
 
     <mat-form-field subscriptSizing="dynamic" class="w-36 no-label-form-field">
       <mat-select [(ngModel)]="linesPerPage" (selectionChange)="onPageSizeChange()" aria-label="Lines per page">
@@ -47,6 +47,11 @@
             </div>
           }
         </div>
+      }
+      @if (isAtEndOfPreview) {
+        <p class="border-t border-border-faint p-xs text-2xs text-warning">
+          The preview stops here. Download the file to see the rest.
+        </p>
       }
     }
 
@@ -95,9 +100,9 @@
     <button
       matIconButton
       type="button"
-      matTooltip="End of file"
+      [matTooltip]="canJumpToEnd ? 'End of file' : 'Not available for this compressed file'"
       aria-label="End of file"
-      [disabled]="isLoading"
+      [disabled]="isLoading || !canJumpToEnd"
       (click)="showLastPage()"
     >
       <mat-icon>last_page</mat-icon>
