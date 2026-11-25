@@ -113,7 +113,9 @@ async function decodeWithBrowser(
   let produced = 0;
   let isStreamDone = false;
   try {
-    while (produced < maxOutputBytes && !signal?.aborted) {
+    // Output that exactly fills the cap gets one more read, so a stream ending right there still
+    // counts as complete; only output past the cap means the file goes on.
+    while (produced <= maxOutputBytes && !signal?.aborted) {
       const { done, value } = await reader.read();
       if (done) {
         isStreamDone = true;
