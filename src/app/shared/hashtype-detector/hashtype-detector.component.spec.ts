@@ -1,5 +1,6 @@
 import { ApplicationRef, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatTableModule } from '@angular/material/table';
 
 import { HashtypeDetectorComponent } from '@src/app/shared/hashtype-detector/hashtype-detector.component';
 
@@ -10,6 +11,7 @@ describe('HashtypeDetectorComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [HashtypeDetectorComponent],
+      imports: [MatTableModule],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
     fixture = TestBed.createComponent(HashtypeDetectorComponent);
@@ -44,7 +46,13 @@ describe('HashtypeDetectorComponent', () => {
     expect(component.dataSource.data).toStrictEqual(component.flattenData());
     expect(tick).toHaveBeenCalledExactlyOnceWith();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('mat-table')).not.toBeNull();
+    const rows = Array.from(fixture.nativeElement.querySelectorAll('mat-row')) as HTMLElement[];
+    expect(rows).toHaveLength(component.dataSource.data.length);
+    rows.forEach((row, index) => {
+      const cells = Array.from(row.querySelectorAll('mat-cell'), (cell) => cell.textContent?.trim());
+      const option = component.dataSource.data[index];
+      expect(cells).toStrictEqual([String(option.id), option.description, option.example ?? '']);
+    });
   });
 
   it.each(['', 'not a valid hash!'])('shows an error for an unmatched search: %s', (value: string) => {
