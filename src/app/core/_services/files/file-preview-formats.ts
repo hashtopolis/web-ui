@@ -144,5 +144,5 @@ async function decodeWithBrowser(
     position += part.length;
   }
 
-  return { bytes, reachedEnd: isStreamDone && isWholeFile && produced <= maxOutputBytes };
+  return { bytes, reachedEnd: isStreamDone && isWholeFile };
 }
