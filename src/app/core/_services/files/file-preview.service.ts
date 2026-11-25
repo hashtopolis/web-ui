@@ -8,7 +8,13 @@ import { FilePreviewPage } from '@models/file-preview.model';
 import { JFile } from '@models/file.model';
 import { FileId } from '@models/id.types';
 
-import { COMPRESSION_HEADER_BYTES, CompressedFormat, detectCompression } from '@services/files/file-preview-formats';
+import {
+  COMPRESSION_HEADER_BYTES,
+  CompressedFormat,
+  DecodeOptions,
+  DecodeResult,
+  detectCompression
+} from '@services/files/file-preview-formats';
 import { MemorySource, PreviewSource, RangeSource } from '@services/files/file-preview-source';
 import { SERV } from '@services/main.config';
 import { ConfigService } from '@services/shared/config.service';
@@ -118,7 +124,10 @@ export class FilePreviewService {
   private openCompressed(file: JFile, format: CompressedFormat): Observable<PreviewSource> {
     return this.fetchRange(file.id, 0, Math.min(PEEK_BYTES, file.size) - 1).pipe(
       switchMap((input) =>
-        format.decode(input, { isWholeFile: input.length >= file.size, maxOutputBytes: MAX_DECOMPRESSED_BYTES })
+        this.decodeUntilUnsubscribed(format, input, {
+          isWholeFile: input.length >= file.size,
+          maxOutputBytes: MAX_DECOMPRESSED_BYTES
+        })
       ),
       map(({ bytes, reachedEnd }) => {
         if (bytes.length === 0 && !reachedEnd) {
@@ -128,6 +137,35 @@ export class FilePreviewService {
         return new MemorySource(reachedEnd ? bytes : this.toLastWholeLine(bytes), reachedEnd, format.name);
       })
     );
+  }
+
+  /**
+   * Runs a decoder for as long as anyone listens: unsubscribing, as closing the preview does, aborts
+   * the decoding instead of leaving it to run to the output cap for nothing.
+   *
+   * @param format - The format to decode.
+   * @param input - The start of the file, or all of it.
+   * @param options - Everything the decoder needs but the signal, which this method supplies.
+   * @returns The decoder's result.
+   */
+  private decodeUntilUnsubscribed(
+    format: CompressedFormat,
+    input: Uint8Array<ArrayBuffer>,
+    options: Omit<DecodeOptions, 'signal'>
+  ): Observable<DecodeResult> {
+    return new Observable<DecodeResult>((subscriber) => {
+      const controller = new AbortController();
+      format.decode(input, { ...options, signal: controller.signal }).then(
+        (result) => {
+          subscriber.next(result);
+          subscriber.complete();
+        },
+        // After an unsubscribe this is the abort itself, which a closed subscriber ignores.
+        (error: unknown) => subscriber.error(error)
+      );
+
+      return () => controller.abort();
+    });
   }
 
   /**
