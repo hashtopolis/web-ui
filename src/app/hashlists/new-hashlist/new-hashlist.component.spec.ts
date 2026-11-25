@@ -207,6 +207,26 @@ describe('NewHashlistComponent', () => {
       expect(component.form.controls.format.value).toBe(1);
     });
 
+    it('should keep isHexSalt enabled regardless of isSalted', () => {
+      const { isSalted, isHexSalt, separator } = component.form.controls;
+
+      // Unsalted by default: separator is disabled but isHexSalt stays selectable
+      expect(isSalted.value).toBe(false);
+      expect(separator.disabled).toBe(true);
+      expect(isHexSalt.enabled).toBe(true);
+
+      isSalted.setValue(true);
+      expect(separator.enabled).toBe(true);
+      expect(isHexSalt.enabled).toBe(true);
+
+      isSalted.setValue(false);
+      expect(separator.disabled).toBe(true);
+      expect(isHexSalt.enabled).toBe(true);
+
+      isHexSalt.setValue(true);
+      expect(component.form.getRawValue().isHexSalt).toBe(true);
+    });
+
     it('onFilesSelected should set fileName and selectedFiles', () => {
       const file = new File(['content'], 'hashes.txt', { type: 'text/plain' });
       const dataTransfer = new DataTransfer();
