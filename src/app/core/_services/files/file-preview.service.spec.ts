@@ -223,6 +223,20 @@ describe('FilePreviewService', () => {
       expect(page.hasPartialLine).toBe(true);
     });
 
+    it('flags the end of a cut-off preview without a line feed as a fragment, not as the last line', async () => {
+      // The record claims more than the first part holds, as for a file larger than the preview reads.
+      const { source } = await open(gzip('a'.repeat(1_000)), { size: 4_194_304 });
+
+      let page!: FilePreviewPage;
+      service
+        .loadPage(source, { offset: 0, maxLines: 100, windowBytes: source.windowBytes(100), isLineAligned: true })
+        .subscribe((result) => (page = result));
+
+      expect(source.reachesEndOfFile).toBe(false);
+      expect(page.lines).toStrictEqual(['a'.repeat(1_000)]);
+      expect(page.hasPartialLine).toBe(true);
+    });
+
     it('opens a gzip file holding an empty stream as an empty file', async () => {
       const { source } = await open(gzip(''));
 

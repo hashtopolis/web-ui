@@ -111,7 +111,7 @@ export class FilePreviewService {
     const start = Math.min(Math.max(request.offset, 0), totalBytes - 1);
     const end = Math.min(start + request.windowBytes - 1, totalBytes - 1);
 
-    return source.read(start, end).pipe(map((bytes) => this.toPage(bytes, start, totalBytes, request)));
+    return source.read(start, end).pipe(map((bytes) => this.toPage(bytes, start, source, request)));
   }
 
   /**
@@ -221,18 +221,26 @@ export class FilePreviewService {
    *
    * @param bytes - The bytes the source returned.
    * @param start - Offset the window was read from.
-   * @param totalBytes - How many bytes the source holds.
+   * @param source - The source read from, for its size and whether that is the end of the file.
    * @param request - The request the window answers, for its alignment flag.
    * @returns The resulting page.
    */
-  private toPage(bytes: Uint8Array, start: number, totalBytes: number, request: FilePreviewRequest): FilePreviewPage {
+  private toPage(
+    bytes: Uint8Array,
+    start: number,
+    source: PreviewSource,
+    request: FilePreviewRequest
+  ): FilePreviewPage {
     const { maxLines } = request;
+    const { totalBytes } = source;
 
     if (bytes.length === 0) {
       return { ...this.emptyPage(totalBytes), startByte: start, endByte: start };
     }
 
-    const isFinalWindow = start + bytes.length >= totalBytes;
+    // Only the end of a source that holds the whole file is the end of the file. A source cut short
+    // ends wherever decoding stopped, possibly inside a line.
+    const isFinalWindow = start + bytes.length >= totalBytes && source.reachesEndOfFile;
 
     // A window that was seeked to rather than paged to usually lands mid-line; that fragment belongs
     // to the preceding page and is dropped so the first line shown is a whole one.
