@@ -18,6 +18,8 @@ import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { TasksChunksTableComponent } from '@components/tables/tasks-chunks-table/tasks-chunks-table.component';
 import { TasksChunksTableCol } from '@components/tables/tasks-chunks-table/tasks-chunks-table.constants';
 
+import { TasksChunksDataSource } from '@datasources/tasks-chunks.datasource';
+
 import { ChunkState } from '@src/app/core/_constants/chunks.config';
 
 @Component({
@@ -60,19 +62,19 @@ describe('TasksChunksTableComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [TestTasksChunksTableComponent],
       providers: [
-        provideHttpClientTesting(),
         provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: ChunkActionsService, useValue: mockChunkActionsService },
         { provide: AlertService, useValue: mockAlertService }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
 
+    vi.spyOn(TasksChunksDataSource.prototype, 'loadAll').mockResolvedValue(undefined);
     fixture = TestBed.createComponent(TestTasksChunksTableComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
 
-    vi.spyOn(component.dataSource, 'loadAll').mockResolvedValue(undefined);
     vi.spyOn(component.dataSource, 'setTaskId');
     vi.spyOn(component.dataSource, 'setIsChunksLive');
     vi.spyOn(component.dataSource, 'clearFilter').mockImplementation(() => {});
