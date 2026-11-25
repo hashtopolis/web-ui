@@ -99,26 +99,18 @@ export class FilePreviewDialogComponent implements OnInit {
   private source: PreviewSource | null = null;
 
   ngOnInit(): void {
-    this.isLoading = true;
-
-    this.previewService
-      .openSource(this.data.file)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (source) => {
-          this.source = source;
-          this.showFirstPage();
-        },
-        error: (error: unknown) => {
-          this.errorMessage = this.describeError(error);
-          this.isLoading = false;
-        }
-      });
+    this.openFile();
   }
 
   // --- Navigation ---
 
   protected showFirstPage(): void {
+    // A file that failed to open has no source yet, so starting over means opening it again.
+    if (!this.source) {
+      this.openFile();
+      return;
+    }
+
     this.trail = [];
     this.loadPage({ offset: 0, isLineAligned: true, firstLineNumber: 1 });
   }
@@ -225,6 +217,14 @@ export class FilePreviewDialogComponent implements OnInit {
     return this.source?.reachesEndOfFile ?? false;
   }
 
+  /**
+   * Tooltip of the jump to the end. It explains the jump being unavailable only for a source known to
+   * stop short of the end; while the file is opening, or failed to, nothing is known about it yet.
+   */
+  protected get endOfFileTooltip(): string {
+    return this.source && !this.source.reachesEndOfFile ? 'Not available for this compressed file' : 'End of file';
+  }
+
   /** Whether the page on screen is the last one the source holds, while the file goes on past it. */
   protected get isAtEndOfPreview(): boolean {
     return this.page !== null && this.source !== null && !this.source.reachesEndOfFile && !this.hasNextPage;
@@ -232,7 +232,12 @@ export class FilePreviewDialogComponent implements OnInit {
 
   /** Where in the file the current page sits, in bytes rather than in pages. */
   protected get positionLabel(): string {
-    if (!this.page || this.page.totalBytes === 0) {
+    // Nothing has been read while the file opens, or when opening it failed.
+    if (!this.page) {
+      return '';
+    }
+
+    if (this.page.totalBytes === 0) {
       return 'empty file';
     }
 
@@ -308,6 +313,26 @@ export class FilePreviewDialogComponent implements OnInit {
         : 'Could not reach the backend to read the file.';
     }
     return error instanceof Error ? error.message : 'Could not read the file.';
+  }
+
+  /** Has the service open the file's source, then shows its first page. */
+  private openFile(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.previewService
+      .openSource(this.data.file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (source) => {
+          this.source = source;
+          this.showFirstPage();
+        },
+        error: (error: unknown) => {
+          this.errorMessage = this.describeError(error);
+          this.isLoading = false;
+        }
+      });
   }
 
   private loadPage(position: PageTarget): void {

@@ -36,6 +36,8 @@ describe('FilePreviewDialogComponent', () => {
   let httpMock: HttpTestingController;
   /** What the mocked backend serves for the file. */
   let stored: Uint8Array;
+  /** Whether the backend answers the next preview request with a server error. */
+  let failNextRequest: boolean;
 
   /**
    * Answers every pending preview request with the bytes it asked for, the way the backend's range
@@ -49,6 +51,12 @@ describe('FilePreviewDialogComponent', () => {
       }
 
       for (const request of pending) {
+        if (failNextRequest) {
+          failNextRequest = false;
+          request.flush(new ArrayBuffer(0), { status: 500, statusText: 'Internal Server Error' });
+          continue;
+        }
+
         const [start, end] = (request.request.headers.get('Range') ?? '').replace('bytes=', '').split('-').map(Number);
         request.flush(stored.slice(start, end + 1).buffer as ArrayBuffer);
       }
@@ -120,6 +128,18 @@ describe('FilePreviewDialogComponent', () => {
   /** Everything the dialog shows as text, whitespace collapsed. */
   const dialogText = (): string => (fixture.nativeElement.textContent ?? '').replace(/\s+/g, ' ');
 
+  /** What assistive technology reads out as a button's description, which is where its tooltip goes. */
+  const accessibleDescription = (label: string): string =>
+    (button(label).getAttribute('aria-describedby') ?? '')
+      .split(' ')
+      .map((id) => document.getElementById(id)?.textContent ?? '')
+      .join(' ')
+      .trim();
+
+  beforeEach(() => {
+    failNextRequest = false;
+  });
+
   afterEach(() => {
     httpMock.verify();
   });
@@ -187,6 +207,36 @@ describe('FilePreviewDialogComponent', () => {
 
     it('labels its position in bytes of the whole file', () => {
       expect(dialogText()).toContain('bytes 0–60 of 201 (30.3%)');
+      expect(dialogText()).not.toContain('decompressed');
+    });
+
+    it('names no compression', () => {
+      expect(dialogText()).toContain(' · 30 lines');
+      expect(dialogText()).not.toContain('gzip');
+    });
+  });
+
+  describe('when the file cannot be opened', () => {
+    beforeEach(async () => {
+      failNextRequest = true;
+      await openDialog(fileRecord({}), FILE_BYTES);
+    });
+
+    it('says why, without claiming the file is empty', () => {
+      expect(dialogText()).toContain('Could not read the file (HTTP 500).');
+      expect(dialogText()).not.toContain('empty file');
+    });
+
+    it('does not describe a file whose format is still unknown as compressed', () => {
+      // The plain tooltip matches the button's label, so it adds no description at all.
+      expect(accessibleDescription('End of file')).not.toContain('compressed');
+    });
+
+    it('opens the file again from "Start of file"', async () => {
+      await navigate('Start of file');
+
+      expect(visibleRows()[0]).toBe('1 line1');
+      expect(dialogText()).not.toContain('Could not read the file');
     });
   });
 
@@ -223,8 +273,22 @@ describe('FilePreviewDialogComponent', () => {
       await openDialog(fileRecord({ filename: 'wordlist.txt.gz', size: 4_194_304 }), GZIP_BYTES);
     });
 
-    it('disables the jump to the end of the file', () => {
+    it('disables the jump to the end of the file, and says why', () => {
       expect(isEnabled('End of file')).toBe(false);
+      expect(accessibleDescription('End of file')).toBe('Not available for this compressed file');
+    });
+
+    it('stays at the end of the preview when the page size changes there', async () => {
+      await navigate('Next page');
+      await navigate('Next page');
+
+      component['linesPerPage'] = 25;
+      component['onPageSizeChange']();
+      await settle();
+
+      expect(visibleRows().length).toBe(25);
+      expect(visibleRows()[24]).toContain('line30');
+      expect(dialogText()).toContain('The preview stops here. Download the file to see the rest.');
     });
 
     it('says the preview stops on its last page, and only there', async () => {

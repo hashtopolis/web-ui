@@ -100,7 +100,7 @@
     <button
       matIconButton
       type="button"
-      [matTooltip]="canJumpToEnd ? 'End of file' : 'Not available for this compressed file'"
+      [matTooltip]="endOfFileTooltip"
       aria-label="End of file"
       [disabled]="isLoading || !canJumpToEnd"
       (click)="showLastPage()"
