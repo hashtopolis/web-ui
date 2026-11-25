@@ -132,9 +132,22 @@ describe('ReportBuilderComponent', () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     try {
       vi.setSystemTime(new Date('2024-06-15T12:00:00Z'));
+      template.cover_page = {
+        title: template.cover_page['title'],
+        info_cover_body_1: { text: 'Default cover body' },
+        location_date: template.cover_page['location_date'],
+        info_cover_footer_1: template.cover_page['info_cover_footer_1'],
+        info_cover_footer_2: template.cover_page['info_cover_footer_2'],
+        info_cover_footer_3: template.cover_page['info_cover_footer_3']
+      };
       component.templates['default'] = template;
       component.populateFormWithDefaults();
-      component.reportForm.patchValue({ info_cover_footer_2: '', project_name: 'Edited project' });
+      component.reportForm.patchValue({
+        title: 'Edited cover title',
+        info_cover_body_1: 'Edited cover body',
+        info_cover_footer_2: '',
+        project_name: 'Edited project'
+      });
       reportData.getOriginalData.mockReturnValue([
         { title: 'Summary' },
         { subtitle: 'Details', ul: [{ text: 'Item', margin: [0, 0, 0, 0] }] },
@@ -151,10 +164,12 @@ describe('ReportBuilderComponent', () => {
       const document = createPdf.mock.calls[0][0];
       expect(document.pageSize).toBe('A4');
       expect(document.pageMargins).toStrictEqual([40, 80, 40, 60]);
+      expect(document).not.toHaveProperty('background');
       expect(document.userPassword).toBe('user-secret');
       expect(document.ownerPassword).toBe('owner-secret');
       expect(document.content).toStrictEqual([
         [{ text: '\n' }, { columns: [{ text: 'Report', gapPos: 'top', gapLines: 1 }] }],
+        { columns: [{ text: 'Default cover body' }] },
         [{ columns: [{ text: 'Berlin Sat Jun 15 2024', gapPos: 'bottom', gapLines: 1 }] }, { text: '\n' }],
         [{ table: { body: [[{ text: 'First' }, { text: 'Third' }]] } }],
         { columns: [{ text: 'Edited project' }] },
@@ -200,7 +215,7 @@ describe('ReportBuilderComponent', () => {
     expect(reportData.getOriginalData).toHaveBeenCalledExactlyOnceWith();
   });
 
-  it('encodes enabled images and places the logo in the header after the cover', async () => {
+  it('renders the same image-bearing template twice with the original paths and output', async () => {
     template.cover_page['img_letterhead'] = { img_path: 'letterhead.png', enable: true };
     template.pages['img_chart'] = { img_path: 'chart.png' };
     template.settings.img_logo = { img_path: 'logo.png', enable: true, width: 40 };
@@ -213,23 +228,30 @@ describe('ReportBuilderComponent', () => {
     const encode = vi.spyOn(component, 'getBase64ImageFromURL').mockImplementation(async (url) => `encoded:${url}`);
     const createPdf = vi.spyOn(pdfMake, 'createPdf').mockReturnValue({ open: vi.fn() } as never);
 
-    await component.renderPDF(component.reportForm.value as ReportFormValues);
+    for (const renderIndex of [0, 1]) {
+      await component.renderPDF(component.reportForm.value as ReportFormValues);
 
-    expect(encode.mock.calls).toStrictEqual([
-      ['../../assets/img/letterhead.png'],
-      ['../../assets/img/chart.png'],
-      ['../../assets/img/logo.png'],
-      ['../../assets/img/background.png']
-    ]);
-    const document = createPdf.mock.calls[0][0];
-    expect(document.pageSize).toBe('A3');
-    expect(document.pageMargins).toStrictEqual([10, 20, 30, 40]);
-    expect(document.content).toContainEqual([{ image: 'encoded:../../assets/img/letterhead.png', enable: true }]);
-    expect(document.header!(1, 2)).toBeNull();
-    expect(document.header!(2, 2)).toStrictEqual([
-      { image: 'encoded:../../assets/img/logo.png', enable: true, width: 40 },
-      { text: 'Internal', startAt: 2 }
-    ]);
+      expect(encode.mock.calls.slice(renderIndex * 4)).toStrictEqual([
+        ['../../assets/img/letterhead.png'],
+        ['../../assets/img/chart.png'],
+        ['../../assets/img/logo.png'],
+        ['../../assets/img/background.png']
+      ]);
+      expect(createPdf).toHaveBeenCalledTimes(renderIndex + 1);
+      const document = createPdf.mock.calls[renderIndex][0];
+      expect(document.pageSize).toBe('A3');
+      expect(document.pageMargins).toStrictEqual([10, 20, 30, 40]);
+      expect(document.content).toContainEqual([{ image: 'encoded:../../assets/img/letterhead.png', enable: true }]);
+      expect(document.content).toContainEqual({
+        columns: [expect.objectContaining({ image: 'encoded:../../assets/img/chart.png' })]
+      });
+      expect(document).toMatchObject({ background: { image: 'encoded:../../assets/img/background.png' } });
+      expect(document.header!(1, 2)).toBeNull();
+      expect(document.header!(2, 2)).toStrictEqual([
+        { image: 'encoded:../../assets/img/logo.png', enable: true, width: 40 },
+        { text: 'Internal', startAt: 2 }
+      ]);
+    }
   });
 
   it('reports an image encoding error without creating a PDF', async () => {

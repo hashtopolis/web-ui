@@ -95,7 +95,6 @@ export class ReportBuilderComponent implements OnInit {
     try {
       const coverpage: PdfContentItem[] = [];
       const coverpage_letterhead: PdfContentItem[] = [];
-      const backgroundImage: PdfContentItem[] = [];
       const pages: PdfContentItem[] = [];
       const content: PdfContentItem[] = [];
 
@@ -108,10 +107,11 @@ export class ReportBuilderComponent implements OnInit {
         // Iterate Encode images
         for (const key of Object.keys(encodeData)) {
           if (key.startsWith('img_')) {
-            const imgElement = encodeData[key] as ReportImageConfig;
+            const imgElement: ReportImageConfig = { ...encodeData[key] };
             const imagePath = '../../assets/img/' + imgElement.img_path;
             imgElement.image = await this.getBase64ImageFromURL(imagePath);
             delete imgElement.img_path;
+            encodeData[key] = imgElement;
           }
         }
         // Construct footer
@@ -184,10 +184,11 @@ export class ReportBuilderComponent implements OnInit {
       // Encode images in pages
       for (const key of Object.keys(pagesProcess)) {
         if (key.startsWith('img_')) {
-          const imgElement = pagesProcess[key] as ReportImageConfig;
+          const imgElement: ReportImageConfig = { ...pagesProcess[key] };
           const imagePath = '../../assets/img/' + imgElement.img_path;
           imgElement.image = await this.getBase64ImageFromURL(imagePath);
           delete imgElement.img_path;
+          pagesProcess[key] = imgElement;
         }
       }
 
@@ -345,7 +346,7 @@ export class ReportBuilderComponent implements OnInit {
             ]
           };
         },
-        ...backgroundImage,
+        ...(backgroundImg.enable ? { background: backgroundImg } : {}),
         content: [...coverpage_letterhead, ...coverpage, ...pages, ...content],
         styles: {
           notesTitle: {
