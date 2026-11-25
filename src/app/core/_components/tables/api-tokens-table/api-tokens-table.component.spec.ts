@@ -298,6 +298,29 @@ describe('ApiTokensTableComponent', () => {
   });
 
   describe('row actions', () => {
+    it.each([ApiTokensRowAction.REVOKE, 'delete'])(
+      'does not modify tokens when the %s dialog is cancelled',
+      async (action) => {
+        const row = token();
+        const reload = vi.spyOn(component, 'reload').mockReturnValue(undefined as never);
+        vi.mocked(mockDialog.open, { partial: true }).mockReturnValue({
+          afterClosed: () => of(undefined)
+        });
+
+        component.rowActionClicked({ data: row, menuItem: { action, label: '' } });
+        await fixture.whenStable();
+
+        expect(mockDialog.open).toHaveBeenCalledExactlyOnceWith(
+          TableDialogComponent,
+          expect.objectContaining({ data: expect.objectContaining({ action, rows: [row] }) })
+        );
+        expect(mockGlobalService.update).not.toHaveBeenCalled();
+        expect(mockGlobalService.delete).not.toHaveBeenCalled();
+        expect(mockAlertService.showSuccessMessage).not.toHaveBeenCalled();
+        expect(reload).not.toHaveBeenCalled();
+      }
+    );
+
     it('opens a warning dialog and revokes the token after confirmation', async () => {
       const row = token();
       const reload = vi.spyOn(component, 'reload').mockReturnValue(undefined as never);
@@ -336,6 +359,25 @@ describe('ApiTokensTableComponent', () => {
       expect(mockGlobalService.delete).toHaveBeenCalledExactlyOnceWith(SERV.API_TOKENS, row.id);
       expect(mockAlertService.showSuccessMessage).toHaveBeenCalledExactlyOnceWith('Successfully deleted API key #7.');
       expect(reload).toHaveBeenCalledExactlyOnceWith();
+    });
+
+    it('reports a delete failure without showing success or reloading', async () => {
+      const row = token();
+      const reload = vi.spyOn(component, 'reload').mockReturnValue(undefined as never);
+      mockGlobalService.delete.mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 403, error: { title: 'Permission denied' } })) as never
+      );
+      confirmDialog('delete', row);
+
+      component.rowActionClicked({ data: row, menuItem: { action: 'delete', label: '' } });
+      await fixture.whenStable();
+
+      expect(mockGlobalService.delete).toHaveBeenCalledExactlyOnceWith(SERV.API_TOKENS, row.id);
+      expect(mockAlertService.showErrorMessage).toHaveBeenCalledExactlyOnceWith(
+        'Could not delete API key: Permission denied'
+      );
+      expect(mockAlertService.showSuccessMessage).not.toHaveBeenCalled();
+      expect(reload).not.toHaveBeenCalled();
     });
 
     it('reports a revoke failure without showing success', async () => {
