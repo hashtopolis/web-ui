@@ -98,6 +98,9 @@ export class FilePreviewDialogComponent implements OnInit {
   /** The bytes pages are read from, once the service has opened the file. */
   private source: PreviewSource | null = null;
 
+  /** Whether the service is opening the file right now. */
+  private isOpening = false;
+
   ngOnInit(): void {
     this.openFile();
   }
@@ -317,6 +320,14 @@ export class FilePreviewDialogComponent implements OnInit {
 
   /** Has the service open the file's source, then shows its first page. */
   private openFile(): void {
+    // A second open, as a page size change while the file opens would start, would fetch and decode
+    // the file again and could reset the reader to the first page later on. The pending open already
+    // shows the first page at whatever size is chosen by the time it finishes.
+    if (this.isOpening) {
+      return;
+    }
+
+    this.isOpening = true;
     this.isLoading = true;
     this.errorMessage = '';
 
@@ -325,10 +336,12 @@ export class FilePreviewDialogComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (source) => {
+          this.isOpening = false;
           this.source = source;
           this.showFirstPage();
         },
         error: (error: unknown) => {
+          this.isOpening = false;
           this.errorMessage = this.describeError(error);
           this.isLoading = false;
         }

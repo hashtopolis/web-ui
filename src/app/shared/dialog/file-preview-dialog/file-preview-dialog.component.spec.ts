@@ -1,7 +1,7 @@
 import { gzipSync } from 'node:zlib';
 
 import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpTestingController, TestRequest, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
@@ -39,27 +39,26 @@ describe('FilePreviewDialogComponent', () => {
   /** Whether the backend answers the next preview request with a server error. */
   let failNextRequest: boolean;
 
-  /**
-   * Answers every pending preview request with the bytes it asked for, the way the backend's range
-   * endpoint would, including requests that answering an earlier one sets off.
-   */
+  /** The preview requests waiting for an answer, taken off the backend mock's queue. */
+  const takePendingRequests = (): TestRequest[] =>
+    httpMock.match((candidate) => candidate.url.endsWith('/helper/getFile'));
+
+  /** Answers one preview request with the bytes it asked for, the way the backend's range endpoint would. */
+  const serveRange = (request: TestRequest): void => {
+    if (failNextRequest) {
+      failNextRequest = false;
+      request.flush(new ArrayBuffer(0), { status: 500, statusText: 'Internal Server Error' });
+      return;
+    }
+
+    const [start, end] = (request.request.headers.get('Range') ?? '').replace('bytes=', '').split('-').map(Number);
+    request.flush(stored.slice(start, end + 1).buffer as ArrayBuffer);
+  };
+
+  /** Answers every pending preview request, including requests that answering an earlier one sets off. */
   const serveRanges = (): void => {
-    for (;;) {
-      const pending = httpMock.match((candidate) => candidate.url.endsWith('/helper/getFile'));
-      if (pending.length === 0) {
-        break;
-      }
-
-      for (const request of pending) {
-        if (failNextRequest) {
-          failNextRequest = false;
-          request.flush(new ArrayBuffer(0), { status: 500, statusText: 'Internal Server Error' });
-          continue;
-        }
-
-        const [start, end] = (request.request.headers.get('Range') ?? '').replace('bytes=', '').split('-').map(Number);
-        request.flush(stored.slice(start, end + 1).buffer as ArrayBuffer);
-      }
+    for (let pending = takePendingRequests(); pending.length > 0; pending = takePendingRequests()) {
+      pending.forEach(serveRange);
     }
 
     fixture.detectChanges();
@@ -75,12 +74,17 @@ describe('FilePreviewDialogComponent', () => {
   };
 
   /**
-   * Opens the dialog on a file and waits for its first page.
+   * Opens the dialog on a file and, unless told otherwise, waits for its first page.
    *
    * @param file - The file record the dialog is opened with.
    * @param content - The bytes the backend serves for it.
+   * @param options - Whether to serve the requests and wait for the first page.
    */
-  const openDialog = async (file: JFile, content: Uint8Array): Promise<void> => {
+  const openDialog = async (
+    file: JFile,
+    content: Uint8Array,
+    { waitForFirstPage = true }: { waitForFirstPage?: boolean } = {}
+  ): Promise<void> => {
     stored = content;
     await TestBed.configureTestingModule({
       imports: [FilePreviewDialogComponent],
@@ -100,7 +104,10 @@ describe('FilePreviewDialogComponent', () => {
     // Ten lines a page splits this file into three, so paging has somewhere to go in both directions.
     component['linesPerPage'] = 10;
     fixture.detectChanges();
-    await settle();
+
+    if (waitForFirstPage) {
+      await settle();
+    }
   };
 
   const button = (label: string): HTMLButtonElement =>
@@ -213,6 +220,22 @@ describe('FilePreviewDialogComponent', () => {
     it('names no compression', () => {
       expect(dialogText()).toContain(' · 30 lines');
       expect(dialogText()).not.toContain('gzip');
+    });
+  });
+
+  describe('while the file is still opening', () => {
+    it('opens it only once when the page size changes meanwhile, and shows the first page at the new size', async () => {
+      await openDialog(fileRecord({}), FILE_BYTES, { waitForFirstPage: false });
+      component['linesPerPage'] = 25;
+      component['onPageSizeChange']();
+
+      const headerRequests = takePendingRequests();
+      headerRequests.forEach(serveRange);
+      await settle();
+
+      expect(headerRequests.length).toBe(1);
+      expect(visibleRows().length).toBe(25);
+      expect(visibleRows()[0]).toBe('1 line1');
     });
   });
 
