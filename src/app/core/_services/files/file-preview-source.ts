@@ -33,6 +33,12 @@ export interface PreviewSource {
 export type RangeFetcher = (start: number, end: number) => Observable<Uint8Array>;
 
 /**
+ * Most bytes one page reads, whatever the source. A file whose lines are longer than this shows a
+ * fragment of a line, flagged as such, rather than rendering megabytes of text in one go.
+ */
+const MAX_WINDOW_BYTES = 1_048_576;
+
+/**
  * A plain stored file, read a byte range at a time from the backend.
  *
  * Its windows are sized from the file's own average line length so a single range request normally
@@ -42,7 +48,6 @@ export class RangeSource implements PreviewSource {
   /** Headroom over the file's average line length, so one request usually fills a whole page. */
   private static readonly WINDOW_SLACK = 1.4;
   private static readonly MIN_WINDOW_BYTES = 4_096;
-  private static readonly MAX_WINDOW_BYTES = 1_048_576;
   /** Average line length assumed for a file whose lines the backend has not counted. */
   private static readonly FALLBACK_LINE_BYTES = 64;
 
@@ -70,7 +75,7 @@ export class RangeSource implements PreviewSource {
     const averageLineBytes = lineCount > 0 ? size / lineCount : RangeSource.FALLBACK_LINE_BYTES;
     const estimate = Math.ceil(lines * averageLineBytes * RangeSource.WINDOW_SLACK);
 
-    return Math.min(Math.max(estimate, RangeSource.MIN_WINDOW_BYTES), RangeSource.MAX_WINDOW_BYTES);
+    return Math.min(Math.max(estimate, RangeSource.MIN_WINDOW_BYTES), MAX_WINDOW_BYTES);
   }
 }
 
@@ -95,8 +100,11 @@ export class MemorySource implements PreviewSource {
     return of(this.bytes.subarray(start, end + 1));
   }
 
-  /** Reads cost nothing here, so a window can span everything the source holds. */
+  /**
+   * Reads cost nothing here, so a window can span everything the source holds, up to the ceiling
+   * every page shares.
+   */
   windowBytes(): number {
-    return this.totalBytes;
+    return Math.min(this.totalBytes, MAX_WINDOW_BYTES);
   }
 }
