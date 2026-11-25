@@ -6,6 +6,7 @@ import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { AuthService } from '@services/access/auth.service';
+import { isIncorrectOldPassword } from '@services/api/password-error';
 import { AlertService } from '@services/shared/alert.service';
 
 import { ErrorModalComponent } from '@src/app/shared/alert/error/error.component';
@@ -71,6 +72,9 @@ export class HttpResInterceptor implements HttpInterceptor {
       showAlert = true;
     } else if (error.status === HttpStatus.NOT_FOUND && !req.url.includes('config.json')) {
       errmsg = `The requested URL was not found.`;
+    } else if (req.url.endsWith('/helper/changeOwnPassword') && isIncorrectOldPassword(error)) {
+      errmsg = 'Old password is incorrect';
+      showAlert = true;
     } else if (error.status === HttpStatus.CONFLICT && req.url.includes('crackertypes')) {
       errmsg = error.error.title;
       showAlert = true;

@@ -12,6 +12,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { JUser } from '@models/user.model';
 
 import { AuthService } from '@services/access/auth.service';
+import { isIncorrectOldPassword } from '@services/api/password-error';
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { UIConfigService } from '@services/shared/storage.service';
@@ -86,7 +87,7 @@ export class AccountSettingsComponent implements OnInit {
   showNewPassword: boolean = false;
   showConfirmNewPassword: boolean = false;
 
-  private destroyRef = inject(DestroyRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   /**
    * FormControl reference for easier access to form controls.
@@ -96,12 +97,12 @@ export class AccountSettingsComponent implements OnInit {
 
   showPasswordForm: boolean = true;
 
-  private titleService = inject(AutoTitleService);
-  private datePipe = inject(uiDatePipe);
-  private alert = inject(AlertService);
-  private gs = inject(GlobalService);
-  private uicService = inject(UIConfigService);
-  private authService = inject(AuthService);
+  private readonly titleService = inject(AutoTitleService);
+  private readonly datePipe = inject(uiDatePipe);
+  private readonly alert = inject(AlertService);
+  private readonly gs = inject(GlobalService);
+  private readonly uicService = inject(UIConfigService);
+  private readonly authService = inject(AuthService);
 
   constructor() {
     this.titleService.set(['Account Settings']);
@@ -298,8 +299,13 @@ export class AccountSettingsComponent implements OnInit {
           this.isUpdatingPassLoading = false;
           this.resetPasswordForm();
         },
-        error: () => {
+        error: (error: unknown) => {
           this.isUpdatingPassLoading = false;
+          const oldPassword = this.changepasswordFormGroup.controls.oldPassword;
+          if (isIncorrectOldPassword(error) && oldPassword.value === payload.oldPassword) {
+            oldPassword.setErrors({ ...oldPassword.errors, incorrectPassword: true });
+            oldPassword.markAsTouched();
+          }
         }
       });
   }

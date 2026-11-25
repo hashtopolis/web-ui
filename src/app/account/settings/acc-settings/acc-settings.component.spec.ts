@@ -1,9 +1,9 @@
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import type { Mock, MockedObject } from 'vitest';
 
 import { CommonModule } from '@angular/common';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpErrorResponse, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -500,6 +500,61 @@ describe('AccountSettingsComponent', () => {
       });
       expect(component['alert'].showSuccessMessage).toHaveBeenCalledExactlyOnceWith('Password changed successfully');
       expect(resetSpy).toHaveBeenCalled();
+      expect(component.isUpdatingPassLoading).toBe(false);
+    });
+
+    it('marks the old password invalid after the server rejects it and clears the error on edit', () => {
+      vi.spyOn(component['gs'], 'chelper').mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 400, error: { title: 'Your old password is wrong!' } }))
+      );
+      component.changepasswordFormGroup.patchValue({
+        oldPassword: 'wrong',
+        newPassword: 'newPass456',
+        confirmNewPassword: 'newPass456'
+      });
+
+      component.onSubmitPass();
+      fixture.detectChanges();
+
+      const host = fixture.debugElement.query(By.css('[data-testid="input-oldPassword"]'));
+      expect(host.query(By.css('.field-stack')).nativeElement.classList).toContain('is-invalid');
+      expect(host.nativeElement.textContent).toContain('Old password is incorrect');
+      expect(component.isUpdatingPassLoading).toBe(false);
+
+      const input = host.query(By.css('input')).nativeElement as HTMLInputElement;
+      input.value = 'corrected';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+      expect(host.query(By.css('.field-stack')).nativeElement.classList).not.toContain('is-invalid');
+    });
+
+    it('does not mark the old password invalid for unrelated server errors', () => {
+      vi.spyOn(component['gs'], 'chelper').mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 500, error: { title: 'Server failure' } }))
+      );
+      component.changepasswordFormGroup.patchValue({
+        oldPassword: 'oldPass123',
+        newPassword: 'newPass456',
+        confirmNewPassword: 'newPass456'
+      });
+      component.onSubmitPass();
+      expect(component.changepasswordFormGroup.controls.oldPassword.valid).toBe(true);
+      expect(component.isUpdatingPassLoading).toBe(false);
+    });
+
+    it('does not mark a corrected old password invalid when an earlier request fails', () => {
+      const response = new Subject<never>();
+      vi.spyOn(component['gs'], 'chelper').mockReturnValue(response);
+      component.changepasswordFormGroup.patchValue({
+        oldPassword: 'wrong',
+        newPassword: 'newPass456',
+        confirmNewPassword: 'newPass456'
+      });
+      component.onSubmitPass();
+      component.changepasswordFormGroup.controls.oldPassword.setValue('corrected');
+      response.error(new HttpErrorResponse({ status: 400, error: { title: 'Your old password is wrong!' } }));
+
+      expect(component.changepasswordFormGroup.controls.oldPassword.valid).toBe(true);
       expect(component.isUpdatingPassLoading).toBe(false);
     });
 
