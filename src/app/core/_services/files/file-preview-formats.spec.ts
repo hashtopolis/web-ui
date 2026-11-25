@@ -95,6 +95,13 @@ describe('gzip decoder', () => {
     expect(result.reachedEnd).toBe(false);
   });
 
+  it('reaches the end of a file whose output exactly fills the cap', async () => {
+    const result = await gzip.decode(gzipSync('a\n'.repeat(32_768)), { isWholeFile: true, maxOutputBytes: 65_536 });
+
+    expect(result.bytes.length).toBe(65_536);
+    expect(result.reachedEnd).toBe(true);
+  });
+
   it('does not claim the end of a file it was only given the start of', async () => {
     // The prefix happens to hold a complete stream, but the file goes on after it.
     const result = await gzip.decode(gzipSync(numberedLines(10)), { isWholeFile: false, maxOutputBytes: 1_048_576 });
