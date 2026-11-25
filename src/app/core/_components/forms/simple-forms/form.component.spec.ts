@@ -125,6 +125,7 @@ describe('FormComponent', () => {
     info.titlePrefix = 'Wordlist';
     info.titleField = ['name', 'missing', 'version'];
     const schema = z.any();
+    const safeParse = vi.spyOn(schema, 'safeParse');
     data.next({
       kind: FormRouteKind.EditWordlist,
       type: FormRouteType.Edit,
@@ -133,6 +134,9 @@ describe('FormComponent', () => {
     });
     const component = create();
     expect(component.responseSchema).toBe(schema);
+    expect(safeParse).toHaveBeenCalledExactlyOnceWith(
+      mockResponse({ data: { type: 'items', id: '42', attributes: { name: 'alpha', version: '2' } } })
+    );
     expect(component.title).toBe('Wordlist alpha 2');
     expect(title.set).toHaveBeenNthCalledWith(2, ['Wordlist alpha 2']);
   });
@@ -148,7 +152,7 @@ describe('FormComponent', () => {
   it.each([
     [403, '/forbidden'],
     [404, '/not-found']
-  ])('routes status %i to %s', (status, url) => {
+  ])('routes status %i to %s', (status: number, url: string) => {
     global.get.mockReturnValue(throwError(() => new HttpErrorResponse({ status })));
     edit();
     const component = create();
@@ -160,7 +164,7 @@ describe('FormComponent', () => {
   it.each([
     [500, 'Error loading data (server returned 500).'],
     [0, 'Error loading data.']
-  ])('reports loading error %i', (status, message) => {
+  ])('reports loading error %i', (status: number, message: string) => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     global.get.mockReturnValue(throwError(() => new HttpErrorResponse({ status })));
     edit();
