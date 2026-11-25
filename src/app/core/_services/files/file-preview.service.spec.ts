@@ -12,6 +12,7 @@ import { JFile } from '@models/file.model';
 import { detectCompression } from '@services/files/file-preview-formats';
 import { PreviewSource } from '@services/files/file-preview-source';
 import { FilePreviewRequest, FilePreviewService } from '@services/files/file-preview.service';
+import { numberedLines, randomHexLines } from '@services/files/testing/preview-text';
 
 const encode = (text: string): Uint8Array<ArrayBuffer> => new TextEncoder().encode(text);
 
@@ -19,24 +20,6 @@ const decode = (bytes: Uint8Array): string => new TextDecoder().decode(bytes);
 
 /** Gzips `text` into a plain byte array (a Node `Buffer` slices into a shared pool, not a copy). */
 const gzip = (text: string): Uint8Array<ArrayBuffer> => new Uint8Array(gzipSync(text));
-
-/** Text of `count` numbered lines, each terminated by a line feed. */
-const numberedLines = (count: number): string =>
-  Array.from({ length: count }, (unused, index) => `line${index + 1}\n`).join('');
-
-/** Lines of pseudo-random hex, which gzip can barely shrink, so a little text makes a large file. */
-const randomHexLines = (count: number): string => {
-  let state = 1;
-  const next = (): string => {
-    state ^= state << 13;
-    state ^= state >>> 17;
-    state ^= state << 5;
-    state >>>= 0;
-    return state.toString(16).padStart(8, '0');
-  };
-
-  return Array.from({ length: count }, () => `${next()}${next()}\n`).join('');
-};
 
 const storedFile = (overrides: Partial<JFile>): JFile => ({
   id: 1,
