@@ -11,6 +11,7 @@ import { JApiToken } from '@models/api-token.model';
 
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { PermissionService } from '@services/permission/permission.service';
 import { ApiTokensRoleService } from '@services/roles/user/api-tokens-role.service';
 import { AlertService } from '@services/shared/alert.service';
 
@@ -24,6 +25,8 @@ import {
 } from '@components/tables/api-tokens-table/api-tokens-table.constants';
 import { HTTableColumn } from '@components/tables/ht-table/ht-table.models';
 import { TableDialogComponent } from '@components/tables/table-dialog/table-dialog.component';
+
+import { ApiTokensDataSource } from '@datasources/api-tokens.datasource';
 
 @Component({
   template: '',
@@ -79,7 +82,7 @@ describe('ApiTokensTableComponent', () => {
     mockRoleService.hasRole.mockReturnValue(true);
 
     await TestBed.configureTestingModule({
-      declarations: [TestApiTokensTableComponent],
+      declarations: [TestApiTokensTableComponent, ApiTokensTableComponent],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -89,7 +92,9 @@ describe('ApiTokensTableComponent', () => {
         { provide: ApiTokensRoleService, useValue: mockRoleService }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
-    }).compileComponents();
+    })
+      .overrideComponent(ApiTokensTableComponent, { set: { template: '' } })
+      .compileComponents();
 
     fixture = TestBed.createComponent(TestApiTokensTableComponent);
     component = fixture.componentInstance;
@@ -110,6 +115,56 @@ describe('ApiTokensTableComponent', () => {
     expect(component.tableColumns.map((item) => item.id)).toStrictEqual(
       Object.keys(ApiTokensTableColumnLabel).map(Number)
     );
+  });
+
+  it('initializes the real lifecycle, loads once, and forwards filter errors until destroyed', async () => {
+    vi.useFakeTimers();
+    vi.spyOn(TestBed.inject(PermissionService), 'hasAllPermissionsSync').mockReturnValue(true);
+    const setColumns = vi.spyOn(ApiTokensDataSource.prototype, 'setColumns');
+    const loadAll = vi.spyOn(ApiTokensDataSource.prototype, 'loadAll').mockImplementation(() => undefined);
+    const lifecycleFixture = TestBed.createComponent(ApiTokensTableComponent);
+    const lifecycleComponent = lifecycleFixture.componentInstance;
+
+    expect(lifecycleComponent.dataSource).toBeUndefined();
+    expect(loadAll).not.toHaveBeenCalled();
+
+    lifecycleFixture.detectChanges();
+
+    expect(lifecycleComponent.dataSource).toBeInstanceOf(ApiTokensDataSource);
+    expect(lifecycleComponent.tableColumns.map((item) => item.id)).toStrictEqual(
+      Object.keys(ApiTokensTableColumnLabel).map(Number)
+    );
+    expect(lifecycleComponent['columnLabels']).toStrictEqual(ApiTokensTableColumnLabel);
+    expect(setColumns).toHaveBeenCalledExactlyOnceWith(lifecycleComponent.tableColumns);
+    expect(setColumns.mock.instances[0]).toBe(lifecycleComponent.dataSource);
+    expect(lifecycleComponent['contextMenuService'].getMenuItems()).toStrictEqual([
+      expect.objectContaining({
+        menuItem: expect.objectContaining({ action: ApiTokensRowAction.REVOKE }),
+        condition: { key: 'isActive', value: true }
+      }),
+      expect.objectContaining({
+        menuItem: expect.objectContaining({ action: 'delete' }),
+        condition: { key: 'isExpired', value: true }
+      })
+    ]);
+    expect(loadAll).toHaveBeenCalledExactlyOnceWith();
+    expect(loadAll.mock.instances[0]).toBe(lifecycleComponent.dataSource);
+
+    lifecycleFixture.detectChanges();
+    expect(loadAll).toHaveBeenCalledTimes(1);
+
+    const setFilterError = vi.fn().mockName('HTTableComponent.setFilterError');
+    lifecycleComponent.table = { setFilterError } as unknown as typeof lifecycleComponent.table;
+    lifecycleComponent.dataSource.filterError$.next('Invalid token filter');
+    await vi.advanceTimersByTimeAsync(100);
+
+    expect(setFilterError).toHaveBeenCalledExactlyOnceWith('Invalid token filter');
+
+    lifecycleFixture.destroy();
+    lifecycleComponent.dataSource.filterError$.next('Error after destruction');
+    await vi.advanceTimersByTimeAsync(100);
+
+    expect(setFilterError).toHaveBeenCalledTimes(1);
   });
 
   describe('token name column', () => {
