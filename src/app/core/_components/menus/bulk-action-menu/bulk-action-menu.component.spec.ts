@@ -68,11 +68,11 @@ describe('BulkActionMenuComponent', () => {
       index: 0,
       menuItem: { label: 'Available after reload' }
     };
-    contextMenuServiceSpy.getBulkMenuItems.mockReturnValueOnce([]).mockReturnValueOnce([item]);
+    contextMenuServiceSpy.getBulkMenuItems.mockReturnValue([item]);
     fixture.componentRef.setInput('contextMenuService', contextMenuServiceSpy);
     fixture.detectChanges();
 
-    expect(component.actionMenuItems).toStrictEqual([]);
+    expect(component.actionMenuItems).toStrictEqual([[item.menuItem]]);
 
     component.reload();
 
