@@ -1,8 +1,10 @@
 /**
- * One page of a file's contents, decoded from a single HTTP range request.
+ * One page of a file's contents, cut from a single window of bytes read from the preview's source:
+ * the stored file itself for a plain file, the decompressed start of it for a compressed one.
  *
- * A page is always cut on line boundaries, so `endByte` can be fed straight back in as the next
- * page's offset without a line ever being split across two pages.
+ * Offsets count bytes of that source, so for a compressed file they are decompressed bytes. A page
+ * is always cut on line boundaries, so `endByte` can be fed straight back in as the next page's
+ * offset without a line ever being split across two pages.
  */
 export interface FilePreviewPage {
   /** Complete lines held by the page, line terminators stripped. */
@@ -11,11 +13,14 @@ export interface FilePreviewPage {
   startByte: number;
   /** Byte offset one past the last byte the page consumed, i.e. where the next page starts. */
   endByte: number;
-  /** Total size of the file in bytes, as reported by the file record. */
+  /**
+   * How many bytes the source holds: the file's size for a plain file, the length of the
+   * decompressed part for a compressed one.
+   */
   totalBytes: number;
   /**
-   * True when the fetched window held no line terminator at all, so the file's lines are longer than
-   * the window and what is shown is a fragment rather than a whole line.
+   * True when the window held no line terminator at all, so the file's lines are longer than the
+   * window and what is shown is a fragment rather than a whole line.
    */
   hasPartialLine: boolean;
   /**
