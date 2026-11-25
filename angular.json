@@ -32,7 +32,8 @@
               "includePaths": ["node_modules", "."]
             },
             "scripts": ["src/assets/optparse/optparse.1.1.1.js", "src/assets/optparse/optparse.hashtopolis.1.1.1.js"],
-            "browser": "src/main.ts"
+            "browser": "src/main.ts",
+            "allowedCommonJsDependencies": ["xz-decompress"]
           },
           "configurations": {
             "production": {

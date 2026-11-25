@@ -43,6 +43,7 @@
     "@types/echarts": "^4.9.18",
     "echarts": "^6.1.0",
     "exceljs": "^3.4.0",
+    "fzstd": "^0.1.1",
     "hashtype-detector": "^0.0.6",
     "jsona": "1.12.1",
     "jspdf": "^4.2.1",
@@ -55,6 +56,7 @@
     "tslib": "^2.6.0",
     "tus-js-client": "^3.1.1",
     "wordpolis": "^0.0.3",
+    "xz-decompress": "^0.2.3",
     "zod": "^4.3.6",
     "zone.js": "~0.15.0"
   },
