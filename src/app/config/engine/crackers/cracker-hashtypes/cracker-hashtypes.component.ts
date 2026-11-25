@@ -132,7 +132,7 @@ export class CrackerHashtypesComponent implements OnInit {
         this.gs.chelper(SERV.HELPER, 'rescanCrackerBinary', { crackerBinaryId: this.crackerBinaryId })
       );
       this.alert.showSuccessMessage(
-        'Rescan queued. The supported hashtypes update once the background job has finished.'
+        'Rescan queued. Check Background Jobs for completion, then reload this page to see the supported hashtypes.'
       );
     } catch (error) {
       console.error('Failed to queue the rescan of the cracker version', error);
