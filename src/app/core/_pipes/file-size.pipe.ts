@@ -20,7 +20,8 @@ const FILE_SIZE_UNITS_LONG = [
   'Kilobytes',
   'Megabytes',
   'Gigabytes',
-  'Pettabytes',
+  'Terrabytes',
+  'Petabytes',
   'Exabytes',
   'Zettabytes',
   'Yottabytes'
