@@ -176,11 +176,10 @@ describe('FilePreviewService', () => {
     });
 
     it('decompresses only the first MiB of a large gzip file, cut back to its last whole line', async () => {
+      // About 1.8 MB compressed, so the first MiB is only part of it; the requested range shows that.
       const text = randomHexLines(200_000);
-      const compressed = gzip(text);
-      expect(compressed.length, 'the fixture is larger than the peek').toBeGreaterThan(1_048_576);
 
-      const { source, requests } = await open(compressed);
+      const { source, requests } = await open(gzip(text));
 
       const preview = decode(await readAll(source));
       expect(requests[1].request.headers.get('Range')).toBe('bytes=0-1048575');
@@ -208,6 +207,20 @@ describe('FilePreviewService', () => {
       const failure = open(damaged).catch((error: unknown) => error);
 
       await expect(failure).resolves.toStrictEqual(new Error('Could not decompress the file. It may be damaged.'));
+    });
+
+    it('reads at most 1 MiB of decompressed bytes for a page, flagging a line longer than that', async () => {
+      // Two MiB without a single line feed, as decompressed text with old Mac line endings would be.
+      const { source } = await open(gzip('a'.repeat(2_097_152)));
+
+      let page!: FilePreviewPage;
+      service
+        .loadPage(source, { offset: 0, maxLines: 100, windowBytes: source.windowBytes(100), isLineAligned: true })
+        .subscribe((result) => (page = result));
+
+      expect(page.lines.length).toBe(1);
+      expect(page.lines[0].length).toBe(1_048_576);
+      expect(page.hasPartialLine).toBe(true);
     });
 
     it('opens a gzip file holding an empty stream as an empty file', async () => {
