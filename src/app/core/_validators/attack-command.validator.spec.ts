@@ -6,10 +6,8 @@ describe('attackCommandWithAliasValidator', () => {
   const validate = (value: unknown, allowAliasOnly?: () => boolean) =>
     attackCommandWithAliasValidator(undefined, allowAliasOnly)(new FormControl(value));
 
-  it('should leave empty values to Validators.required', () => {
-    expect(validate('')).toBeNull();
-    expect(validate('   ')).toBeNull();
-    expect(validate(null)).toBeNull();
+  it.each([null, '', '  ', 123])('leaves empty or non-string value %s to required validation', (value) => {
+    expect(validate(new FormControl(value))).toBeNull();
   });
 
   it('should report a missing hashlist alias', () => {
@@ -19,6 +17,7 @@ describe('attackCommandWithAliasValidator', () => {
   it('should require additional content besides the alias by default', () => {
     expect(validate('#HL#')).toStrictEqual({ attackCommandNeedsAdditionalContent: true });
     expect(validate('  #HL#  ')).toStrictEqual({ attackCommandNeedsAdditionalContent: true });
+    expect(validate(' #HL#  #HL# ')).toStrictEqual({ attackCommandNeedsAdditionalContent: true });
   });
 
   it('should accept an alias-only command when allowAliasOnly returns true', () => {
