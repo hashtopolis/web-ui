@@ -168,8 +168,8 @@ describe('ReportBuilderComponent', () => {
       expect(document.userPassword).toBe('user-secret');
       expect(document.ownerPassword).toBe('owner-secret');
       expect(document.content).toStrictEqual([
-        [{ text: '\n' }, { columns: [{ text: 'Report', gapPos: 'top', gapLines: 1 }] }],
-        { columns: [{ text: 'Default cover body' }] },
+        [{ text: '\n' }, { columns: [{ text: 'Edited cover title', gapPos: 'top', gapLines: 1 }] }],
+        { columns: [{ text: 'Edited cover body' }] },
         [{ columns: [{ text: 'Berlin Sat Jun 15 2024', gapPos: 'bottom', gapLines: 1 }] }, { text: '\n' }],
         [{ table: { body: [[{ text: 'First' }, { text: 'Third' }]] } }],
         { columns: [{ text: 'Edited project' }] },

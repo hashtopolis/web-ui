@@ -151,9 +151,8 @@ export class ReportBuilderComponent implements OnInit {
             (typeof formData === 'string' || typeof formData === 'number') &&
             key !== 'userpassword' &&
             key !== 'ownerpassword' &&
-            key.startsWith('img_')
+            !key.startsWith('img_')
           ) {
-            // If formData is a string or number and key is not 'userpassword' or 'ownerpassword', use it for text
             (textData as PdfCoverTextElement).text = String(formData);
           }
 
