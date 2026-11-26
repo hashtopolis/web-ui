@@ -55,6 +55,21 @@
               </div>
             </app-form-row>
 
+            @if (editedHashlist?.isSalted) {
+              <app-form-row [columns]="2">
+                <input-text
+                  title="Salt separator"
+                  [value]="editedHashlist.separator ?? ''"
+                  [readonly]="true"
+                ></input-text>
+                <input-text
+                  title="Hex salt"
+                  [value]="editedHashlist.isHexSalt ? 'Yes' : 'No'"
+                  [readonly]="true"
+                ></input-text>
+              </app-form-row>
+            }
+
             <grid-buttons>
               <button-submit
                 [name]="'Update'"
