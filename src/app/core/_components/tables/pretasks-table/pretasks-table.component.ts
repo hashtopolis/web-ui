@@ -241,12 +241,12 @@ export class PretasksTableComponent extends BaseTableComponent implements OnInit
         isNumeric: true,
         dataKey: 'supertaskPriority',
         isSortable: false,
-        export: async (pretask: JPretask) => (pretask.supertaskPriority ?? '') + '',
+        export: async (pretask: JPretask) => (pretask.supertaskPriority?.toString() ?? '') + '',
         ...(this.supertasksRoleService.hasRole('editSupertaskPretaskPriority') && {
           editable: (pretask: JPretask) => {
             return {
               data: pretask,
-              value: (pretask.supertaskPriority ?? '') + '',
+              value: (pretask.supertaskPriority?.toString() ?? '') + '',
               action: PretasksTableEditableAction.CHANGE_SUPERTASK_PRIORITY
             };
           }

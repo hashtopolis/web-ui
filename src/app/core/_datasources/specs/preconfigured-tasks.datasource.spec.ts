@@ -347,6 +347,23 @@ describe('PreTasksDataSource', () => {
       expect(row.priority).toBe(MOCK_PRETASK.priority);
     });
 
+    it('should copy each association onto its own row', async () => {
+      const otherPretask = { ...MOCK_PRETASK, id: 2 };
+      const otherAssociation = { ...MOCK_ASSOCIATION, id: 11, pretaskId: otherPretask.id, priority: 7 };
+      deserializeSpy.mockImplementation((_body: unknown, schema?: unknown) => {
+        if (schema === zSupertaskResponse) return MOCK_SUPERTASK;
+        if (schema === zPreTaskListResponse) return [{ ...MOCK_PRETASK }, otherPretask];
+        if (schema === zSupertaskPretaskListResponse) return [otherAssociation, MOCK_ASSOCIATION];
+        return [];
+      });
+
+      await dataSource.loadAll();
+
+      const [first, second] = dataSource.getOriginalData();
+      expect(first.supertaskPriority).toBe(MOCK_ASSOCIATION.priority);
+      expect(second.supertaskPriority).toBe(otherAssociation.priority);
+    });
+
     it('should scope the association request to the supertask and the rows of the page', async () => {
       await dataSource.loadAll();
       const [, params] = callArgsFor(SERV.SUPER_TASK_PRETASKS)!;

@@ -182,6 +182,20 @@ describe('PretasksTableComponent', () => {
       expect(priorityColumn?.editable).toBeDefined();
     });
 
+    it('should edit the priority of the association inside a supertask', () => {  
+      component.supertTaskId = 3;  
+      vi.when(mockSupertasksRoleService.hasRole).calledWith('editSupertaskPretaskPriority').thenReturn(true);  
+      const row = { id: 1, taskName: 'Test', priority: 5, supertaskPretaskId: 7, supertaskPriority: 42 } as JPretask;  
+
+      const priorityColumn = component.getColumns().find((col) => col.id === PretasksTableCol.PRIORITY);  
+
+      expect(priorityColumn?.editable?.(row)).toStrictEqual({  
+        data: row,  
+        value: '42',  
+        action: PretasksTableEditableAction.CHANGE_SUPERTASK_PRIORITY  
+      });  
+});  
+
     it('should leave the priority column of a supertask read-only without the permission', () => {
       component.supertTaskId = 3;
       mockSupertasksRoleService.hasRole.mockReturnValue(false);
