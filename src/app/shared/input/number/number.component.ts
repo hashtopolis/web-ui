@@ -49,7 +49,7 @@ export class InputNumberComponent extends AbstractInputComponent<number> {
 
   onValueChange(event: Event): void {
     const target = event.target as HTMLInputElement;
-    const numValue = target.value ? parseFloat(target.value) : null;
+    const numValue = target.value ? Number.parseFloat(target.value) : null;
     this.value = numValue as number;
     this.onChange(this.value);
   }

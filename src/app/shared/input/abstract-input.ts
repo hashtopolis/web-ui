@@ -51,7 +51,7 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
   onTouched = () => {};
 
   protected cdr = inject(ChangeDetectorRef);
-  private injector = inject(Injector);
+  private readonly injector = inject(Injector);
 
   // Track previous state for change detection
   private previousTouched = false;
@@ -71,13 +71,12 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
     }
   }
 
+  /**
+   * Generate an ID when none is supplied, using up to nine random base-36 digits.
+   */
   ngOnInit(): void {
     if (!this.inputId) {
-      this.inputId = 'input_' + Math.random().toString(36).substr(2, 9);
-      // console.warn(
-      //   'Input ID not provided. Generated a unique ID:',
-      //   this.inputId
-      // );
+      this.inputId = 'input_' + Math.random().toString(36).slice(2, 11);
     }
   }
 
@@ -115,7 +114,7 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
       const shouldShowValidation = currentTouched;
 
       // Update error state properties for template binding
-      const newHasError = !!(control && control.invalid && shouldShowValidation);
+      const newHasError = control.invalid && shouldShowValidation;
       const newIsTouched = shouldShowValidation;
       const newErrors = control.errors || null;
 
@@ -143,7 +142,7 @@ export class AbstractInputComponent<T> implements OnInit, DoCheck, ControlValueA
   }
 
   focus() {
-    if (this.inputField && this.inputField.nativeElement) {
+    if (this.inputField?.nativeElement) {
       this.inputField.nativeElement.focus();
     }
   }
