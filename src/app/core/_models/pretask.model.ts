@@ -1,6 +1,6 @@
 import { BaseModel } from '@models/base.model';
 import { JFile } from '@models/file.model';
-import { CrackerBinaryTypeId } from '@models/id.types';
+import { CrackerBinaryTypeId, SupertaskPretaskId } from '@models/id.types';
 
 /**
  * Interface definition for a pretask
@@ -20,6 +20,10 @@ export interface JPretask extends BaseModel {
   statusTimer: number;
   taskName: string;
   useNewBench: boolean;
+  // Association fields, copied onto the row by PreTasksDataSource when the pretasks of a
+  // supertask are listed: the priority there belongs to that supertask, not to the pretask.
+  supertaskPretaskId?: SupertaskPretaskId;
+  supertaskPriority?: number;
   // Aggregate field `auxiliaryKeyspace` is intentionally NOT here — see JPretaskAggregates / JPretaskWith below.
 }
 

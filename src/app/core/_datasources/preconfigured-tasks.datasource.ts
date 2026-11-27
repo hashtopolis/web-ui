@@ -1,6 +1,6 @@
 // typescript
 import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
-import { zPreTaskListResponse, zSupertaskResponse } from '@generated/api/zod';
+import { zPreTaskListResponse, zSupertaskPretaskListResponse, zSupertaskResponse } from '@generated/api/zod';
 import { catchError, lastValueFrom } from 'rxjs';
 
 import { HttpHeaders } from '@angular/common/http';
@@ -8,6 +8,7 @@ import { HttpHeaders } from '@angular/common/http';
 import { JPretask } from '@models/pretask.model';
 import { Filter, FilterType, RequestParams } from '@models/request-params.model';
 import { ResponseWrapper } from '@models/response.model';
+import { JSupertaskPretask } from '@models/supertask-pretask.model';
 import { JSuperTask } from '@models/supertask.model';
 
 import { SERV } from '@services/main.config';
@@ -77,6 +78,9 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
 
         if (superTaskPreTaskIds && superTaskPreTaskIds.length > 0) {
           const pretaskFiles = await this.loadPretaskFiles(superTaskPreTaskIds, activeFilter, query);
+          if (!this._reverseQuery) {
+            await this.mergeAssociations(pretaskFiles);
+          }
           this.setData(pretaskFiles);
         } else {
           // No pretasks assigned to the supertask.
@@ -222,6 +226,41 @@ export class PreTasksDataSource extends BaseDataSource<JPretask> {
       }
     }
     return [];
+  }
+
+  /**
+   * Copies the priority a pretask has within the supertask, and the ID of the association holding
+   * it, onto the given rows. The request is scoped to the rows of the current page, so it cannot be
+   * cut short by the page size. A row without an association keeps its own priority.
+   * @param pretasks
+   * @private
+   */
+  private async mergeAssociations(pretasks: JPretask[]): Promise<void> {
+    if (pretasks.length === 0) {
+      return;
+    }
+    const pretaskIds = pretasks.map((pretask) => pretask.id);
+    const params = new RequestParamBuilder()
+      .addFilter({ field: 'supertaskId', operator: FilterType.EQUAL, value: this._superTaskId })
+      .addFilter({ field: 'pretaskId', operator: FilterType.IN, value: pretaskIds })
+      .setPageSize(pretaskIds.length)
+      .create();
+    const httpOptions = { headers: new HttpHeaders(HTTP_SKIP_ERROR_HEADER_CONFIG) };
+    try {
+      const response = await lastValueFrom<ResponseWrapper>(
+        this.service.getAll(SERV.SUPER_TASK_PRETASKS, params, httpOptions)
+      );
+      const associations: JSupertaskPretask[] = this.serializer.deserialize(response, zSupertaskPretaskListResponse);
+      for (const pretask of pretasks) {
+        const association = associations.find((candidate) => candidate.pretaskId === pretask.id);
+        if (association) {
+          pretask.supertaskPretaskId = association.id;
+          pretask.supertaskPriority = association.priority;
+        }
+      }
+    } catch {
+      // the rows stay usable without the association, the priority column then shows nothing
+    }
   }
 
   /**
