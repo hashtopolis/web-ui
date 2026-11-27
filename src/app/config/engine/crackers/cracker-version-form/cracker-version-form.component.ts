@@ -133,6 +133,14 @@ export class CrackerVersionFormComponent implements OnInit {
     return this.hashtypesRoleService.hasRole('read');
   }
 
+  /**
+   * The section shows the hashtypes to users with the hashtype read permission. The rescan of a hashcat version only
+   * needs the update role, so it is offered without the read permission, too.
+   */
+  get showHashtypesSection(): boolean {
+    return this.canReadHashtypes || (this.isHashcat && this.canEdit);
+  }
+
   /** Generic versions offer creating hashtypes to users with the hashtype create permission */
   get canCreateHashtypes(): boolean {
     return this.hashtypesRoleService.hasRole('create');

@@ -5,13 +5,26 @@
       The hashtypes of hashcat versions are determined by a background scan of the archive. Changing the download URL
       triggers a new scan.
     </p>
-    @if (assignedHashtypeIds?.length === 0) {
+    @if (canRescan) {
+      <div class="mb-3">
+        <button-submit
+          data-testid="rescan-button"
+          [name]="'Rescan'"
+          [loading]="isRescanning"
+          (click)="rescan()"
+        ></button-submit>
+      </div>
+    }
+    @if (canReadHashtypes && assignedHashtypeIds?.length === 0) {
       <p class="text-sm mb-3" data-testid="hashcat-scan-pending">
         No hashtypes yet. The scan of this version is pending or has failed, see
         <a routerLink="/config/background-jobs">Background Jobs</a>.
+        @if (canRescan) {
+          If it has failed, fix the cause and rescan the version.
+        }
       </p>
     }
-  } @else if (editable) {
+  } @else if (editable && canReadHashtypes) {
     <div class="mt-2 mb-3">
       <button-submit
         data-testid="open-add-hashtypes"
@@ -21,10 +34,12 @@
     </div>
   }
 
-  <app-cracker-hashtypes-table
-    #hashtypesTable
-    [crackerBinaryId]="crackerBinaryId"
-    [editable]="editable"
-    (hashtypesRemoved)="onHashtypesRemoved()"
-  ></app-cracker-hashtypes-table>
+  @if (canReadHashtypes) {
+    <app-cracker-hashtypes-table
+      #hashtypesTable
+      [crackerBinaryId]="crackerBinaryId"
+      [editable]="editable"
+      (hashtypesRemoved)="onHashtypesRemoved()"
+    ></app-cracker-hashtypes-table>
+  }
 </app-table>

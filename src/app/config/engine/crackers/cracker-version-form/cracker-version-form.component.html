@@ -159,11 +159,12 @@
         }
       </form>
     </grid-main>
-    @if (mode === 'edit' && binary && binaryId !== null && canReadHashtypes) {
+    @if (mode === 'edit' && binary && binaryId !== null && showHashtypesSection) {
       <app-cracker-hashtypes
         [crackerBinaryId]="binaryId"
         [isHashcat]="isHashcat"
         [canEdit]="canEdit"
+        [canReadHashtypes]="canReadHashtypes"
         [canCreateHashtypes]="canCreateHashtypes"
       ></app-cracker-hashtypes>
     }

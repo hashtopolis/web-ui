@@ -194,6 +194,144 @@ export const zCrackerBinaryResponse = z.object({
     .optional()
 });
 
+export const zCrackerBinarySingleResponse = z.object({
+  jsonapi: z.object({
+    version: z.string().default('1.1'),
+    ext: z.array(z.string()).optional().default(['https://jsonapi.org/profiles/ethanresnick/cursor-pagination'])
+  }),
+  links: z.object({
+    self: z.string().default('/api/v2/ui/crackers/1')
+  }),
+  data: z.object({
+    id: z.int(),
+    type: z.literal('crackerBinary'),
+    attributes: z.object({
+      crackerBinaryTypeId: z.int(),
+      version: z.string(),
+      downloadUrl: z.string().nullable(),
+      binaryName: z.string(),
+      filename: z.string().nullable(),
+      accessGroupId: z.int()
+    }),
+    links: z.object({
+      self: z.string().default('/api/v2/ui/crackers/1')
+    }),
+    relationships: z.object({
+      accessGroup: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/crackers/relationships/accessGroup'),
+          related: z.string().default('/api/v2/ui/crackers/accessGroup')
+        }),
+        data: z
+          .object({
+            type: z.literal('accessGroup'),
+            id: z.int()
+          })
+          .nullish()
+      }),
+      crackerBinaryType: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/crackers/relationships/crackerBinaryType'),
+          related: z.string().default('/api/v2/ui/crackers/crackerBinaryType')
+        }),
+        data: z
+          .object({
+            type: z.literal('crackerBinaryType'),
+            id: z.int()
+          })
+          .nullish()
+      }),
+      hashtypes: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/crackers/relationships/hashtypes'),
+          related: z.string().default('/api/v2/ui/crackers/hashtypes')
+        }),
+        data: z
+          .array(
+            z.object({
+              type: z.literal('hashType'),
+              id: z.int()
+            })
+          )
+          .optional()
+      }),
+      tasks: z.object({
+        links: z.object({
+          self: z.string().default('/api/v2/ui/crackers/relationships/tasks'),
+          related: z.string().default('/api/v2/ui/crackers/tasks')
+        }),
+        data: z
+          .array(
+            z.object({
+              type: z.literal('task'),
+              id: z.int()
+            })
+          )
+          .optional()
+      })
+    })
+  }),
+  included: z
+    .array(
+      z.union([
+        z.object({
+          id: z.int(),
+          type: z.literal('crackerBinaryType'),
+          attributes: z.object({
+            typeName: z.string(),
+            isChunkingAvailable: z.boolean().nullable()
+          })
+        }),
+        z.object({
+          id: z.int(),
+          type: z.literal('accessGroup'),
+          attributes: z.object({
+            groupName: z.string()
+          })
+        }),
+        z.object({
+          id: z.int(),
+          type: z.literal('task'),
+          attributes: z.object({
+            taskName: z.string(),
+            attackCmd: z.string(),
+            chunkTime: z.int(),
+            statusTimer: z.int(),
+            keyspace: z.number(),
+            keyspaceProgress: z.number(),
+            priority: z.int(),
+            maxAgents: z.int(),
+            color: z.string().nullable(),
+            isSmall: z.boolean(),
+            isCpuTask: z.boolean(),
+            useNewBench: z.boolean(),
+            skipKeyspace: z.number(),
+            crackerBinaryId: z.int(),
+            crackerBinaryTypeId: z.int().nullable(),
+            taskWrapperId: z.int(),
+            isArchived: z.boolean(),
+            notes: z.string(),
+            staticChunks: z.int(),
+            chunkSize: z.number(),
+            forcePipe: z.boolean(),
+            preprocessorId: z.int(),
+            preprocessorCommand: z.string()
+          })
+        }),
+        z.object({
+          id: z.int(),
+          type: z.literal('hashType'),
+          attributes: z.object({
+            description: z.string(),
+            isSalted: z.boolean(),
+            isSlowHash: z.boolean()
+          })
+        })
+      ])
+    )
+    .optional()
+});
+
 export const zCrackerBinaryPostPatchResponse = z.object({
   jsonapi: z.object({
     version: z.string().default('1.1'),
