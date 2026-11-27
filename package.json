@@ -44,6 +44,7 @@
     "echarts": "^6.1.0",
     "exceljs": "^3.4.0",
     "hashtype-detector": "^0.0.6",
+    "htp-decompress": "^0.1.2",
     "jsona": "1.12.1",
     "jspdf": "^4.2.1",
     "jszip": "^3.10.1",

@@ -1,5 +1,14 @@
+import {
+  DETECT_FORMAT_BYTES,
+  type DecompressionFormat,
+  HtpDecompressionError,
+  type HtpDecompressionErrorCode,
+  HtpDecompressionStream,
+  detectFormat
+} from 'htp-decompress';
+
 /** How many leading bytes of a file are enough to tell every supported format apart, as in hashcat. */
-export const COMPRESSION_HEADER_BYTES = 8;
+export const COMPRESSION_HEADER_BYTES = DETECT_FORMAT_BYTES;
 
 /** Limits for one run of a decoder. */
 export interface DecodeOptions {
@@ -28,81 +37,88 @@ export interface DecodeResult {
 /**
  * A compressed format the preview can read.
  *
- * Decoders are async so that a format needing a decoder library can load it with a dynamic
- * `import()` only when such a file is opened, keeping it out of the main bundle.
+ * Decoders are async because their WebAssembly is loaded with a dynamic `import()` only when such a
+ * file is opened, keeping it out of the main bundle.
  */
 export interface CompressedFormat {
   /** Name shown in the preview's header. */
-  name: string;
-  /** Whether the file's first bytes (up to {@link COMPRESSION_HEADER_BYTES}) carry this format's header. */
-  matches(head: Uint8Array): boolean;
+  name: DecompressionFormat;
   /**
    * Decompresses the start of a file. Being handed a prefix that stops mid-stream is the normal case
-   * and not an error: the result then holds what the prefix decoded to. Once `options.signal` is
-   * aborted, decoding stops and the promise rejects with the signal's reason, as `fetch` does.
+   * and not an error: the result then holds what the prefix decoded to.
+   *
+   * Damage ends the result about where the decoder notices it: gzip, and zstd without checksums, may
+   * hand out some wrong bytes before that, and xz may stop up to one 64 KiB decode pass short of it.
+   *
+   * When the decoder fails to load, or the file needs a feature or more memory than the decoder
+   * supports, the promise rejects with a message saying why, unless some of the file was decoded
+   * first: the result then ends there instead.
+   *
+   * Once `options.signal` is aborted, decoding stops and the promise rejects with the signal's reason,
+   * as `fetch` does.
    */
   decode(input: Uint8Array<ArrayBuffer>, options: DecodeOptions): Promise<DecodeResult>;
 }
 
 /**
- * Input slice fed to the browser's decoder at a time. The decoder turns a whole slice into output
- * before the reader gets a chance to stop it, and deflate expands by up to about 1000x, so the slice
- * size bounds how far a highly compressible file can overshoot the output cap.
+ * Largest zstd window or xz dictionary a file may declare, in bytes: the most the decoder can address.
+ * Its memory follows the decoded output, which the preview caps, rather than what a file declares, so
+ * no file needs refusing for its window or dictionary.
  */
-const BROWSER_DECODER_SLICE_BYTES = 16_384;
-
-const GZIP: CompressedFormat = {
-  name: 'gzip',
-  // The method byte is checked too, as hashcat does: deflate is the only method gzip defines.
-  matches: (head) => head.length >= 3 && head[0] === 0x1f && head[1] === 0x8b && head[2] === 0x08,
-  decode: (input, options) => decodeWithBrowser('gzip', input, options)
-};
-
-/** Formats the preview can decompress, checked in order against a file's first bytes. */
-const COMPRESSION_FORMATS: readonly CompressedFormat[] = [GZIP];
+const MEMORY_LIMIT_BYTES = 4_294_967_295;
 
 /**
- * Finds the compressed format a file's first bytes belong to.
+ * Decoder errors after which the output so far is all there is to show of the file: it is cut off,
+ * damaged, or followed by bytes that start no further stream.
+ */
+const DAMAGE_CODES: readonly HtpDecompressionErrorCode[] = ['truncated', 'corrupt', 'trailing-data'];
+
+/** The formats the preview can decompress: those hashcat reads natively. */
+const COMPRESSION_FORMATS: Record<DecompressionFormat, CompressedFormat> = {
+  gzip: compressedFormat('gzip'),
+  xz: compressedFormat('xz'),
+  zstd: compressedFormat('zstd')
+};
+
+/**
+ * Finds the compressed format a file's first bytes belong to, by the magic numbers hashcat checks.
  *
  * @param head - The file's first bytes, up to {@link COMPRESSION_HEADER_BYTES} of them.
  * @returns The format, or `null` for a file that is not compressed in a supported format.
  */
 export function detectCompression(head: Uint8Array): CompressedFormat | null {
-  return COMPRESSION_FORMATS.find((format) => format.matches(head)) ?? null;
+  const format = detectFormat(head);
+  return format === null ? null : COMPRESSION_FORMATS[format];
+}
+
+function compressedFormat(name: DecompressionFormat): CompressedFormat {
+  return { name, decode: (input, options) => decode(name, input, options) };
 }
 
 /**
- * Decompresses with the browser's built-in `DecompressionStream`.
+ * Decompresses with htp-decompress, which hands out everything decoded before a cut-off or damage and
+ * only then the error saying why it stopped.
  *
  * @param format - The stream format to decode.
  * @param input - The start of the file, or all of it.
  * @param options - Whether that is the whole file, where to stop, and what cancels decoding.
  */
-async function decodeWithBrowser(
-  format: CompressionFormat,
+async function decode(
+  format: DecompressionFormat,
   input: Uint8Array<ArrayBuffer>,
   { isWholeFile, maxOutputBytes, signal }: DecodeOptions
 ): Promise<DecodeResult> {
   signal?.throwIfAborted();
 
-  let fed = 0;
-  const slices = new ReadableStream<BufferSource>(
-    {
-      pull(controller) {
-        if (fed >= input.length) {
-          controller.close();
-          return;
-        }
+  const stream = new HtpDecompressionStream(format, { memoryLimit: MEMORY_LIMIT_BYTES });
 
-        controller.enqueue(input.subarray(fed, fed + BROWSER_DECODER_SLICE_BYTES));
-        fed += BROWSER_DECODER_SLICE_BYTES;
-      }
-    },
-    // Hand out a slice only when the decoder asks for one, so stopping the reader stops the feed.
-    { highWaterMark: 0 }
-  );
+  // The decoder takes the input only as fast as the reader below pulls output. The writer's promises
+  // settle once it has, and fail with the reader's error or cancel when decoding ends early.
+  const writer = stream.writable.getWriter();
+  writer.write(input).catch(() => undefined);
+  writer.close().catch(() => undefined);
 
-  const reader = slices.pipeThrough(new DecompressionStream(format)).getReader();
+  const reader = stream.readable.getReader();
 
   // Cancelling the reader settles a read that is still waiting, so the loop below notices the abort
   // right away instead of after the decoder's next chunk.
@@ -112,6 +128,7 @@ async function decodeWithBrowser(
   const chunks: Uint8Array[] = [];
   let produced = 0;
   let isStreamDone = false;
+  let failure: unknown;
   try {
     // Output that exactly fills the cap gets one more read, so a stream ending right there still
     // counts as complete; only output past the cap means the file goes on.
@@ -125,17 +142,21 @@ async function decodeWithBrowser(
       chunks.push(value);
       produced += value.length;
     }
-  } catch {
-    // A prefix that stops mid-stream ends the decoder in an error, and so does damage. Either way the
-    // bytes decoded so far stand on their own.
+  } catch (error) {
+    failure = error;
   } finally {
     signal?.removeEventListener('abort', cancelReader);
   }
 
-  signal?.throwIfAborted();
-
+  // Past the cap, this stops the decoder and frees its memory.
   if (!isStreamDone) {
     await reader.cancel().catch(() => undefined);
+  }
+
+  signal?.throwIfAborted();
+
+  if (failure !== undefined && produced === 0 && !isDamage(failure)) {
+    throw new Error(`Could not decompress the ${format} file (${messageOf(failure)}).`);
   }
 
   const bytes = new Uint8Array(Math.min(produced, maxOutputBytes));
@@ -147,4 +168,12 @@ async function decodeWithBrowser(
   }
 
   return { bytes, reachedEnd: isStreamDone && isWholeFile };
+}
+
+function isDamage(error: unknown): boolean {
+  return error instanceof HtpDecompressionError && DAMAGE_CODES.includes(error.code);
+}
+
+function messageOf(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
