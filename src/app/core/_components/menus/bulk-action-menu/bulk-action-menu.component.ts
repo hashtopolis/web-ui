@@ -31,6 +31,7 @@ export class BulkActionMenuComponent extends BaseMenuComponent implements OnInit
   }
 
   private loadMenu(): void {
+    this.actionMenuItems = [];
     if (this.contextMenuService) {
       this.contextMenuService.getBulkMenuItems().forEach((item) => {
         this.conditionallyAddMenuItem(item, this.data);

@@ -2,7 +2,7 @@ import { HttpStatus } from '@constants/http.config';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faApple, faLinux, faWindows } from '@fortawesome/free-brands-svg-icons';
 import { zAgentResponse, zGetBestTasksAgentResponse, zUserListResponse } from '@generated/api/zod';
-import { lastValueFrom } from 'rxjs';
+import { Observable, catchError, lastValueFrom, map, of, switchMap } from 'rxjs';
 
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject } from '@angular/core';
@@ -11,7 +11,7 @@ import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { JAgentAssignment } from '@models/agent-assignment.model';
-import { JAgentWith, ThinJAgent } from '@models/agent.model';
+import { JAgentWith } from '@models/agent.model';
 import { AccessGroupId, TaskId, UserId } from '@models/id.types';
 import { ResponseWrapper } from '@models/response.model';
 import { zIdRouteParams } from '@models/routes.schema';
@@ -118,17 +118,21 @@ export class EditAgentComponent implements OnInit {
     }
 
     try {
-      await this.loadAgent();
-      this.loadSelectTasks();
-      this.loadSelectUsers();
-
-      this.initForm();
+      await this.load();
     } catch (error) {
       this.handleLoadError(error);
-      return;
     } finally {
       this.isLoading = false;
     }
+  }
+
+  /**
+   * Loads the agent and the select options and fills the forms. Used when the page opens and after saving, so both
+   * show the same data; it returns once all of them are loaded.
+   */
+  private async load(): Promise<void> {
+    await Promise.all([this.loadAgent(), this.loadSelectTasks(), this.loadSelectUsers()]);
+    this.initForm();
   }
 
   /**
@@ -166,87 +170,74 @@ export class EditAgentComponent implements OnInit {
     if (this.agentRoleService.hasRole('readAssignment')) {
       includes.push('assignments');
     }
-    try {
-      const response = await lastValueFrom<ResponseWrapper>(
-        this.gs.get(SERV.AGENTS, this.editedAgentIndex, {
-          include: includes,
-          aggregate: [{ field: 'agent', values: ['crackingTime'] }]
-        })
-      );
 
-      const typingParams = new RequestParamBuilder()
-        .addInclude('agentStats')
-        .addInclude('accessGroups')
-        .addInclude('assignments')
-        .addAggregate({ field: 'agent', values: ['crackingTime'] as const })
-        .create();
-      const agent: ShownAgent = this.serializer.deserialize(response, zAgentResponse, typingParams);
-      this.showagent = agent;
-      this.selectUserAgps = transformSelectOptions(agent.accessGroups ?? [], ACCESS_GROUP_FIELD_MAPPING);
-      if (this.agentRoleService.hasRole('readAssignment')) {
-        if ((agent.assignments ?? []).length) {
-          const firstAssignment = (agent.assignments ?? [])[0];
-          this.assignNew = !!firstAssignment.taskId;
-          this.assignId = firstAssignment.id;
-          this.currentAssignment = firstAssignment;
-        } else {
-          this.currentAssignment = null;
-          this.assignId = null;
-          this.assignNew = false;
-        }
+    const response = await lastValueFrom<ResponseWrapper>(
+      this.gs.get(SERV.AGENTS, this.editedAgentIndex, {
+        include: includes,
+        aggregate: [{ field: 'agent', values: ['crackingTime'] }]
+      })
+    );
+
+    const typingParams = new RequestParamBuilder()
+      .addInclude('agentStats')
+      .addInclude('accessGroups')
+      .addInclude('assignments')
+      .addAggregate({ field: 'agent', values: ['crackingTime'] as const })
+      .create();
+    const agent: ShownAgent = this.serializer.deserialize(response, zAgentResponse, typingParams);
+    this.showagent = agent;
+    this.selectUserAgps = transformSelectOptions(agent.accessGroups ?? [], ACCESS_GROUP_FIELD_MAPPING);
+
+    if (this.agentRoleService.hasRole('readAssignment')) {
+      if ((agent.assignments ?? []).length) {
+        const firstAssignment = (agent.assignments ?? [])[0];
+        this.assignNew = !!firstAssignment.taskId;
+        this.assignId = firstAssignment.id;
+        this.currentAssignment = firstAssignment;
+      } else {
+        this.currentAssignment = null;
+        this.assignId = null;
+        this.assignNew = false;
       }
-    } catch (err) {
-      const httpErr = err as HttpErrorResponse;
-
-      // If the server fails while resolving included relations (500+),
-      // try once more without the `include` params so the primary resource can still load.
-      if (httpErr?.status && httpErr.status >= HttpStatus.INTERNAL_SERVER_ERROR) {
-        const response = await lastValueFrom<ResponseWrapper>(this.gs.get(SERV.AGENTS, this.editedAgentIndex));
-
-        // Degraded fallback: no includes loaded due to server error
-        const agent: ThinJAgent = this.serializer.deserialize(response, zAgentResponse);
-        this.showagent = agent as ShownAgent;
-        this.selectUserAgps = [];
-        return;
-      }
-
-      // Non-500 errors are rethrown and will be handled by the caller
-      throw err;
     }
   }
 
   /**
-   * Load assignable task for the select element (All tasks not yet completed and not running)
+   * Load assignable task for the select element (All tasks not yet completed and not running). If that fails, the
+   * select keeps its options; the error interceptor already told the user.
    * @private
    */
-  private loadSelectTasks(): void {
+  private async loadSelectTasks(): Promise<void> {
     if (!this.agentRoleService.hasRole('readAssignment')) {
       return;
     }
 
-    this.gs
-      .ghelper(SERV.HELPER, 'getBestTasksAgent', { agent: this.editedAgentIndex })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((response: ResponseWrapper) => {
-        const tasks = this.serializer.deserialize(response, zGetBestTasksAgentResponse);
-        this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
-      });
+    try {
+      const response = await lastValueFrom<ResponseWrapper>(
+        this.gs.ghelper(SERV.HELPER, 'getBestTasksAgent', { agent: this.editedAgentIndex })
+      );
+      const tasks = this.serializer.deserialize(response, zGetBestTasksAgentResponse);
+      this.assignTasks = transformSelectOptions(tasks, TASKS_FIELD_MAPPING);
+    } catch (error) {
+      console.error('Error loading assignable tasks:', error);
+    }
   }
 
   /**
-   * Load all users for the select element
+   * Load all users for the select element. If that fails, the select keeps its options; the error interceptor
+   * already told the user.
    * @private
    */
-  private loadSelectUsers(): void {
-    this.gs
-      .getAll(SERV.USERS)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((response: ResponseWrapper) => {
-        this.selectUsers = transformSelectOptions(
-          this.serializer.deserialize(response, zUserListResponse),
-          DEFAULT_FIELD_MAPPING
-        );
-      });
+  private async loadSelectUsers(): Promise<void> {
+    try {
+      const response = await lastValueFrom<ResponseWrapper>(this.gs.getAll(SERV.USERS));
+      this.selectUsers = transformSelectOptions(
+        this.serializer.deserialize(response, zUserListResponse),
+        DEFAULT_FIELD_MAPPING
+      );
+    } catch (error) {
+      console.error('Error loading users:', error);
+    }
   }
 
   /**
@@ -282,7 +273,8 @@ export class EditAgentComponent implements OnInit {
   }
 
   /**
-   * Handles the form submission for updating an agent.
+   * Handles the form submission for updating an agent: saves the agent, then a changed assignment, then reloads
+   * the agent on this page.
    */
   onSubmit(): void {
     if (this.updateForm.invalid) {
@@ -291,20 +283,26 @@ export class EditAgentComponent implements OnInit {
       return;
     }
 
-    if (this.updateAssignForm.valid && this.updateAssignForm.value.taskId !== this.currentAssignment?.taskId) {
-      this.onUpdateAssign(this.updateAssignForm.value.taskId ?? null);
-    }
-
+    const assignmentSaved$ = this.saveAssignment();
     this.isUpdatingLoading = true;
 
+    // Assign only after the agent is saved, so the server checks the assignment against the saved settings (e.g.
+    // trust or access groups)
     this.gs
       .update(SERV.AGENTS, this.editedAgentIndex, this.updateForm.value)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        switchMap(() => assignmentSaved$),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
-        next: () => {
-          this.alert.showSuccessMessage('Agent saved');
-          this.isUpdatingLoading = false;
-          this.router.navigate(['agents/show-agents']);
+        next: (assignmentSaved) => {
+          if (assignmentSaved) {
+            this.alert.showSuccessMessage('Agent saved');
+          } else {
+            this.alert.showErrorMessage('Agent saved, but its assignment could not be changed');
+          }
+
+          void this.reload();
         },
         error: () => {
           this.isUpdatingLoading = false;
@@ -314,25 +312,54 @@ export class EditAgentComponent implements OnInit {
   }
 
   /**
-   * Updates agent assignment based on the provided value.
-   * Assigns the agent to the provided taskID or removes a current assignment
-   * @param taskId The task ID.
+   * Saves the assignment chosen in the form when it differs from the current one. Emits whether the assignment now
+   * matches the form; a failed assignment does not fail the save, since the agent itself is saved by then.
    */
-  onUpdateAssign(taskId: number | null): void {
-    let request$;
-
-    if (taskId) {
-      const payload = {
-        taskId,
-        agentId: this.editedAgentIndex
-      };
-      request$ = this.gs.chelper(SERV.HELPER, 'assignAgent', payload);
-    } else if (this.assignId) {
-      request$ = this.gs.delete(SERV.AGENT_ASSIGN, this.assignId);
+  private saveAssignment(): Observable<boolean> {
+    if (!this.updateAssignForm.valid || this.updateAssignForm.value.taskId === this.currentAssignment?.taskId) {
+      return of(true);
     }
 
-    if (request$) {
-      request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+    const request$ = this.assignmentRequest(this.updateAssignForm.value.taskId ?? null);
+
+    if (!request$) {
+      return of(true);
+    }
+
+    return request$.pipe(
+      map(() => true),
+      catchError(() => of(false))
+    );
+  }
+
+  /**
+   * The request that assigns the agent to the given task, or removes its current assignment when no task is
+   * given; undefined when there is nothing to remove.
+   * @param taskId The task ID.
+   */
+  assignmentRequest(taskId: number | null): Observable<unknown> | undefined {
+    if (taskId) {
+      return this.gs.chelper(SERV.HELPER, 'assignAgent', { taskId, agentId: this.editedAgentIndex });
+    }
+
+    if (this.assignId) {
+      return this.gs.delete(SERV.AGENT_ASSIGN, this.assignId);
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Reloads the page after saving, staying on it. The save button keeps its spinner until the saved state is shown.
+   */
+  private async reload(): Promise<void> {
+    try {
+      await this.load();
+    } catch (error) {
+      // The error interceptor already told the user; the page keeps showing the last loaded agent
+      console.error('Error reloading agent:', error);
+    } finally {
+      this.isUpdatingLoading = false;
     }
   }
 

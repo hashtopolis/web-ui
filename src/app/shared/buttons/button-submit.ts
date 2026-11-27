@@ -74,7 +74,7 @@ export type ButtonSubmitType = (typeof ButtonSubmitType)[keyof typeof ButtonSubm
 export class ButtonSubmitComponent {
   protected readonly ButtonSubmitType = ButtonSubmitType;
 
-  private location = inject(Location);
+  private readonly location = inject(Location);
 
   @Input() name: string;
   @Input() disabled: boolean;

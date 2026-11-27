@@ -13,8 +13,8 @@ import { HorizontalNav } from '@src/app/core/_models/horizontalnav.model';
 })
 export class HorizontalNavComponent implements OnDestroy {
   @Input() menuItems: HorizontalNav[] = [];
-  private unsubscribe$: Subject<void> = new Subject<void>();
-  private router = inject(Router);
+  private readonly unsubscribe$: Subject<void> = new Subject<void>();
+  private readonly router = inject(Router);
 
   /**
    * Whether a route is currently active (used to drive [checked] on the
@@ -30,7 +30,7 @@ export class HorizontalNavComponent implements OnDestroy {
    * @param routeName The name of the route to navigate to.
    */
   navigateTo(routeName: string): void {
-    this.router.navigate([`${routeName}`]);
+    void this.router.navigate([`${routeName}`]);
   }
 
   /**

@@ -9,12 +9,10 @@ import { AuthService } from '@services/access/auth.service';
   providedIn: 'root'
 })
 class AuthGuard {
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+  canActivate(_route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
     return this.authService.user.pipe(
       take(1),
       map((user) => {
@@ -23,14 +21,17 @@ class AuthGuard {
           return true;
         }
         this.authService.redirectUrl = state.url;
-        this.router.navigate(['/auth']);
+        void this.router.navigate(['/auth']);
         return false;
       })
     );
   }
 }
 
-export const IsAuth: CanActivateFn = (
+/**
+ * Allows authenticated users; otherwise saves the requested URL and redirects to log in.
+ */
+export const requireAuth: CanActivateFn = (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot
 ): Observable<boolean> => {

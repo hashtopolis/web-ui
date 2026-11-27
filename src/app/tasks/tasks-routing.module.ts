@@ -10,7 +10,7 @@ import { TasksRoleService } from '@services/roles/tasks/tasks-role.service';
 
 import { NewSupertasksComponent } from '@components/forms/custom-forms/task/new-supertasks/new-supertasks.component';
 
-import { IsAuth } from '@src/app/core/_guards/auth.guard';
+import { requireAuth } from '@src/app/core/_guards/auth.guard';
 import { PendingChangesGuard } from '@src/app/core/_guards/pendingchanges.guard';
 import { CheckRole } from '@src/app/core/_guards/permission.guard';
 import { ChunkDetailComponent } from '@src/app/tasks/chunk-detail/chunk-detail.component';
@@ -35,7 +35,7 @@ const pretaskRoleServiceClass = PreconfiguredTasksRoleService;
 const routes: MyRoute[] = [
   {
     path: '',
-    canActivate: [IsAuth],
+    canActivate: [requireAuth],
     children: [
       {
         path: 'show-tasks',

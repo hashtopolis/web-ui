@@ -115,26 +115,21 @@ export class NewHashlistComponent implements OnInit {
     this.loadData();
 
     const isSaltedCtrl = this.form.controls.isSalted;
-    const isHexSaltCtrl = this.form.controls.isHexSalt;
     const separatorCtrl = this.form.controls.separator;
 
     // Disable separator if not salted
     if (isSaltedCtrl.value) {
       separatorCtrl.enable();
-      isHexSaltCtrl.enable();
     } else {
       separatorCtrl.disable();
-      isHexSaltCtrl.disable();
     }
 
     // Check for changes and enable/disable
     isSaltedCtrl.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((val: boolean) => {
       if (val) {
         separatorCtrl.enable();
-        isHexSaltCtrl.enable();
       } else {
         separatorCtrl.disable();
-        isHexSaltCtrl.disable();
       }
     });
 
