@@ -86,6 +86,9 @@
         @if (errors['passwordMismatch']) {
           <span>Passwords do not match</span>
         }
+        @if (errors['incorrectPassword']) {
+          <span>Old password is incorrect</span>
+        }
       </mat-hint>
     }
   </mat-form-field>

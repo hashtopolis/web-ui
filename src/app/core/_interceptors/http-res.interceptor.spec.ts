@@ -84,6 +84,8 @@ describe('HttpResInterceptor', () => {
     [404, '/data', {}, 'The requested URL was not found.'],
     [404, '/config.json', { title: 'Missing configuration' }, 'Missing configuration'],
     [500, '/data', { title: 'Server failure' }, 'Server failure'],
+    [400, '/api/v2/helper/changeOwnPassword', { title: 'Another error' }, 'Another error'],
+    [400, '/other', { title: 'Your old password is wrong!' }, 'Your old password is wrong!'],
     [500, '/data', {}, 'An unknown error occurred.'],
     [
       0,
@@ -92,7 +94,7 @@ describe('HttpResInterceptor', () => {
       'Network error. Please verify the IP address (127.0.0.1:8080) and try again.'
     ],
     [0, '/data', {}, 'Network error. Please verify the IP address (unknown IP and port) and try again.']
-  ])('opens a modal for status %s and URL %s', async (status, url, body, message) => {
+  ])('opens a modal for status %s and URL %s', async (status: number, url: string, body: object, message: string) => {
     await fail(status, url, body);
     expect(open).toHaveBeenCalledExactlyOnceWith(ErrorModalComponent, { data: { status, message } });
     expect(showErrorMessage).not.toHaveBeenCalled();
@@ -101,8 +103,9 @@ describe('HttpResInterceptor', () => {
   it.each([
     [403, '/data', { title: 'Denied' }, 'Denied'],
     [403, '/data', {}, "You don't have permissions. Please contact your Administrator."],
-    [409, '/crackertypes', { title: 'Already exists' }, 'Already exists']
-  ])('shows an alert for status %s and URL %s', async (status, url, body, message) => {
+    [409, '/crackertypes', { title: 'Already exists' }, 'Already exists'],
+    [400, '/api/v2/helper/changeOwnPassword', { title: 'Your old password is wrong!' }, 'Old password is incorrect']
+  ])('shows an alert for status %s and URL %s', async (status: number, url: string, body: object, message: string) => {
     await fail(status, url, body);
     expect(showErrorMessage).toHaveBeenCalledExactlyOnceWith(message);
     expect(open).not.toHaveBeenCalled();
