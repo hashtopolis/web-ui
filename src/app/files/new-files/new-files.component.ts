@@ -1,6 +1,6 @@
 import { HttpMethod } from '@constants/http.config';
 import { zGetAccessGroupsHelperApiResponse } from '@generated/api/zod';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { firstValueFrom, forkJoin, last, lastValueFrom, tap } from 'rxjs';
 
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -35,6 +35,36 @@ const NewFileTab = {
   SERVER_IMPORT: 'tab3'
 } as const;
 type NewFileTab = (typeof NewFileTab)[keyof typeof NewFileTab];
+
+/** Highest progress shown while a batch is in flight; 100 is reserved for the forkJoin success handler. */
+const MAX_INTERMEDIATE_PROGRESS = 99;
+
+/**
+ * Aggregates per-file upload percentages into one batch percentage, weighted by file size so that a
+ * finished tiny file does not dominate a large one still in flight. If every file is empty (total size 0),
+ * each file counts equally. Non-finite progress values (e.g. NaN from a zero-byte TUS upload) count as 0.
+ * The result is floored and capped at {@link MAX_INTERMEDIATE_PROGRESS}, so the UI only reaches 100%
+ * (and shows "Upload completed!") once every upload has actually completed.
+ *
+ * @param progressPerFile - Upload percentage (0-100) for each file
+ * @param fileSizes - Size in bytes for each file, same order as `progressPerFile`
+ * @returns Batch progress in the range 0-99
+ */
+export function computeBatchUploadProgress(progressPerFile: readonly number[], fileSizes: readonly number[]): number {
+  const totalBytes = fileSizes.reduce((sum, size) => sum + size, 0);
+  const weights = totalBytes > 0 ? fileSizes : fileSizes.map(() => 1);
+  const totalWeight = totalBytes > 0 ? totalBytes : fileSizes.length;
+  if (totalWeight === 0) {
+    return 0;
+  }
+
+  // UploadTUSService computes bytesUploaded / bytesTotal, which is NaN for a zero-byte file. NaN * 0 is still
+  // NaN, so normalize non-finite values before weighting or one empty file poisons the whole batch.
+  const weighted =
+    progressPerFile.reduce((sum, progress, i) => sum + (Number.isFinite(progress) ? progress : 0) * weights[i], 0) /
+    totalWeight;
+  return Math.min(MAX_INTERMEDIATE_PROGRESS, Math.floor(weighted));
+}
 
 /**
  * Represents the NewFilesComponent responsible for creating and uploading files
@@ -332,28 +362,42 @@ export class NewFilesComponent implements OnInit {
       this.alert.showErrorMessage('Please select a file to upload.');
       return;
     }
-    const form = this.onBeforeSubmit(this.form.value as FormGroup<NewFilesForm>['value'], false);
+    const baseForm = this.onBeforeSubmit(this.form.value as FormGroup<NewFilesForm>['value'], false).update;
+    const fileList = Array.from(files);
+    const progressPerFile = fileList.map(() => 0);
+    const fileSizes = fileList.map((file) => file.size);
     this.isCreatingLoading = true;
-    for (let i = 0; i < files.length; i++) {
+    this.uploadProgress = 0;
+
+    // Upload each file with its own payload; redirect is handled once all uploads have finished.
+    const uploads = fileList.map((file, index) =>
       this.uploadService
-        .uploadFile(files[0], files[0].name, SERV.FILES, form.update, ['/files', this.redirect])
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (progress) => {
-            this.uploadProgress = progress;
+        .uploadFile(file, file.name, SERV.FILES, { ...baseForm, filename: file.name, sourceData: file.name }, null)
+        .pipe(
+          tap((progress) => {
+            progressPerFile[index] = progress;
+            this.uploadProgress = computeBatchUploadProgress(progressPerFile, fileSizes);
             this.changeDetectorRef.detectChanges();
-            if (this.uploadProgress === 100) {
-              this.isCreatingLoading = false;
-            }
-          },
-          error: (error) => {
-            this.uploadProgress = 0;
-            this.isCreatingLoading = false;
-            this.alert.showErrorMessage(this.buildUploadErrorMessage(error));
-            this.changeDetectorRef.detectChanges();
-          }
-        });
-    }
+          }),
+          last()
+        )
+    );
+
+    forkJoin(uploads)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.uploadProgress = 100;
+          this.isCreatingLoading = false;
+          void this.router.navigate(['/files', this.redirect]);
+        },
+        error: (error) => {
+          this.uploadProgress = 0;
+          this.isCreatingLoading = false;
+          this.alert.showErrorMessage(this.buildUploadErrorMessage(error));
+          this.changeDetectorRef.detectChanges();
+        }
+      });
   }
 
   private buildUploadErrorMessage(error: unknown): string {
