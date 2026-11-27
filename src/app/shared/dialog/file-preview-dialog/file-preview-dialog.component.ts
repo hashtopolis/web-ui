@@ -19,6 +19,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { FILE_PREVIEW_DEFAULT_PAGE_SIZE, FILE_PREVIEW_PAGE_SIZES, FilePreviewPage } from '@models/file-preview.model';
 
+import { PreviewSource } from '@services/files/file-preview-source';
 import { FilePreviewService } from '@services/files/file-preview.service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
@@ -49,6 +50,10 @@ interface PageTarget extends VisitedPage {
  * Files here can be hundreds of gigabytes, so there is deliberately no page count and no jump to an
  * arbitrary page: the dialog walks forwards and backwards a window at a time, and can jump to the
  * two offsets that are knowable without reading the file — its start and its end.
+ *
+ * The dialog reads from whatever source the service opens for the file and never asks whether the
+ * file is compressed. A compressed file's source holds only its decompressed start, and says so: the
+ * jump to the end is then unavailable, and the last page notes that the file goes on.
  */
 @Component({
   selector: 'app-file-preview-dialog',
@@ -69,13 +74,6 @@ interface PageTarget extends VisitedPage {
   templateUrl: './file-preview-dialog.component.html'
 })
 export class FilePreviewDialogComponent implements OnInit {
-  /** Headroom over the file's average line length, so one request usually fills a whole page. */
-  private static readonly WINDOW_SLACK = 1.4;
-  private static readonly MIN_WINDOW_BYTES = 4_096;
-  private static readonly MAX_WINDOW_BYTES = 1_048_576;
-  /** Average line length assumed for a file whose lines the backend has not counted. */
-  private static readonly FALLBACK_LINE_BYTES = 64;
-
   protected readonly data: FilePreviewDialogData = inject(MAT_DIALOG_DATA);
   protected readonly pageSizes = FILE_PREVIEW_PAGE_SIZES;
 
@@ -97,13 +95,25 @@ export class FilePreviewDialogComponent implements OnInit {
   /** Pages walked through, oldest first, so "previous" can step back exactly. */
   private trail: VisitedPage[] = [];
 
+  /** The bytes pages are read from, once the service has opened the file. */
+  private source: PreviewSource | null = null;
+
+  /** Whether the service is opening the file right now. */
+  private isOpening = false;
+
   ngOnInit(): void {
-    this.showFirstPage();
+    this.openFile();
   }
 
   // --- Navigation ---
 
   protected showFirstPage(): void {
+    // A file that failed to open has no source yet, so starting over means opening it again.
+    if (!this.source) {
+      this.openFile();
+      return;
+    }
+
     this.trail = [];
     this.loadPage({ offset: 0, isLineAligned: true, firstLineNumber: 1 });
   }
@@ -156,7 +166,7 @@ export class FilePreviewDialogComponent implements OnInit {
 
   protected showLastPage(): void {
     this.trail = [];
-    const offset = Math.max(0, this.data.file.size - this.windowBytes);
+    const offset = Math.max(0, (this.source?.totalBytes ?? 0) - this.windowBytes);
     this.loadPage({
       offset,
       isLineAligned: offset === 0,
@@ -205,18 +215,57 @@ export class FilePreviewDialogComponent implements OnInit {
     return this.page !== null && this.page.startByte === 0;
   }
 
+  /** Whether the source holds the file through to its end, which the jump to the end needs. */
+  protected get canJumpToEnd(): boolean {
+    return this.source?.reachesEndOfFile ?? false;
+  }
+
+  /**
+   * Tooltip of the jump to the end. It explains the jump being unavailable only for a source known to
+   * stop short of the end; while the file is opening, or failed to, nothing is known about it yet.
+   */
+  protected get endOfFileTooltip(): string {
+    return this.source && !this.source.reachesEndOfFile ? 'Not available for this compressed file' : 'End of file';
+  }
+
+  /** Whether the page on screen is the last one the source holds, while the file goes on past it. */
+  protected get isAtEndOfPreview(): boolean {
+    return this.page !== null && this.source !== null && !this.source.reachesEndOfFile && !this.hasNextPage;
+  }
+
   /** Where in the file the current page sits, in bytes rather than in pages. */
   protected get positionLabel(): string {
-    if (!this.page || this.page.totalBytes === 0) {
+    // Nothing has been read while the file opens, or when opening it failed.
+    if (!this.page) {
+      return '';
+    }
+
+    if (this.page.totalBytes === 0) {
       return 'empty file';
     }
+
     const { startByte, endByte, totalBytes } = this.page;
+    const unit = this.source?.compression ? 'decompressed bytes' : 'bytes';
+    const range = `${unit} ${startByte.toLocaleString()}–${Math.max(endByte - 1, startByte).toLocaleString()}`;
+
+    // A source that stops short of the end of the file would give a total and a percentage of the
+    // preview, not of the file.
+    if (!this.source?.reachesEndOfFile) {
+      return range;
+    }
+
     const percentage = ((endByte / totalBytes) * 100).toFixed(1);
-    return `bytes ${startByte.toLocaleString()}–${Math.max(endByte - 1, startByte).toLocaleString()} of ${totalBytes.toLocaleString()} (${percentage}%)`;
+    return `${range} of ${totalBytes.toLocaleString()} (${percentage}%)`;
   }
 
   protected get fileSizeLabel(): string {
     return formatFileSize(this.data.file.size, 'short');
+  }
+
+  /** Name of the compression the file is decoded from, or an empty string for a plain file. */
+  protected get compressionLabel(): string {
+    const compression = this.source?.compression;
+    return compression ? ` · ${compression}` : '';
   }
 
   /** Line total of the file, or an empty string when the backend has not counted its lines. */
@@ -255,19 +304,9 @@ export class FilePreviewDialogComponent implements OnInit {
 
   // --- Internals ---
 
-  /**
-   * Byte window to request for one page, sized from the file's own average line length so a single
-   * range request normally covers the whole page.
-   */
+  /** Byte window to read for one page, as the source estimates it. */
   private get windowBytes(): number {
-    const { size, lineCount } = this.data.file;
-    const averageLineBytes = lineCount > 0 ? size / lineCount : FilePreviewDialogComponent.FALLBACK_LINE_BYTES;
-    const estimate = Math.ceil(this.linesPerPage * averageLineBytes * FilePreviewDialogComponent.WINDOW_SLACK);
-
-    return Math.min(
-      Math.max(estimate, FilePreviewDialogComponent.MIN_WINDOW_BYTES),
-      FilePreviewDialogComponent.MAX_WINDOW_BYTES
-    );
+    return this.source?.windowBytes(this.linesPerPage) ?? 0;
   }
 
   private describeError(error: unknown): string {
@@ -279,17 +318,49 @@ export class FilePreviewDialogComponent implements OnInit {
     return error instanceof Error ? error.message : 'Could not read the file.';
   }
 
-  private loadPage(position: PageTarget): void {
+  /** Has the service open the file's source, then shows its first page. */
+  private openFile(): void {
+    // A second open, as a page size change while the file opens would start, would fetch and decode
+    // the file again and could reset the reader to the first page later on. The pending open already
+    // shows the first page at whatever size is chosen by the time it finishes.
+    if (this.isOpening) {
+      return;
+    }
+
+    this.isOpening = true;
     this.isLoading = true;
     this.errorMessage = '';
 
     this.previewService
-      .loadPage({
-        fileId: this.data.file.id,
+      .openSource(this.data.file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (source) => {
+          this.isOpening = false;
+          this.source = source;
+          this.showFirstPage();
+        },
+        error: (error: unknown) => {
+          this.isOpening = false;
+          this.errorMessage = this.describeError(error);
+          this.isLoading = false;
+        }
+      });
+  }
+
+  private loadPage(position: PageTarget): void {
+    if (!this.source) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.previewService
+      .loadPage(this.source, {
         offset: position.offset,
         maxLines: this.linesPerPage,
         windowBytes: position.windowBytes ?? this.windowBytes,
-        totalBytes: this.data.file.size,
         isLineAligned: position.isLineAligned,
         takeLastLines: position.takeLastLines ?? false
       })

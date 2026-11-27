@@ -1,32 +1,44 @@
 import { HTTP_SKIP_CACHE_HEADER_CONFIG, HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
-import { Observable, mergeMap, of, throwError } from 'rxjs';
+import { Observable, map, of, switchMap } from 'rxjs';
 
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
 import { FilePreviewPage } from '@models/file-preview.model';
+import { JFile } from '@models/file.model';
 import { FileId } from '@models/id.types';
 
+import {
+  COMPRESSION_HEADER_BYTES,
+  CompressedFormat,
+  DecodeOptions,
+  DecodeResult,
+  detectCompression
+} from '@services/files/file-preview-formats';
+import { MemorySource, PreviewSource, RangeSource } from '@services/files/file-preview-source';
 import { SERV } from '@services/main.config';
 import { ConfigService } from '@services/shared/config.service';
 
 /** Byte value of the line terminator pages are cut on. */
 const LINE_FEED = 0x0a;
 
+/** Compressed bytes fetched from the start of a compressed file, the only part of it the preview shows. */
+const PEEK_BYTES = 1_048_576;
+
+/** Decompressed bytes after which decoding stops, so a highly compressible file cannot exhaust memory. */
+const MAX_DECOMPRESSED_BYTES = 16_777_216;
+
 /** Options for a single preview page request. */
 export interface FilePreviewRequest {
-  fileId: FileId;
   /** Byte offset to start reading at. */
   offset: number;
   /** How many lines the page should hold at most. */
   maxLines: number;
   /**
-   * How many bytes to ask the backend for. Sized by the caller from the file's average line length,
-   * so one request normally covers `maxLines` lines; a window that falls short simply yields fewer.
+   * How many bytes to read. Sized by the caller from the source's own estimate, so one read normally
+   * covers `maxLines` lines; a window that falls short simply yields fewer.
    */
   windowBytes: number;
-  /** Total file size, taken from the file record rather than a header the browser cannot read. */
-  totalBytes: number;
   /**
    * Whether `offset` is known to sit at the start of a line. Sequential paging keeps this true; a
    * seek to an arbitrary offset does not, and the leading fragment is then dropped.
@@ -40,11 +52,13 @@ export interface FilePreviewRequest {
 }
 
 /**
- * Reads slices of a stored file through the backend's range-capable download helper.
+ * Reads stored files for the preview without downloading them.
  *
  * Wordlists in a Hashtopolis instance routinely run to tens of gigabytes, so the preview never
- * downloads a file: it asks for one window of bytes at a time via the `Range` header that
- * `GET /helper/getFile` honours, and trims each window back to whole lines.
+ * downloads a file. A plain file is read one window of bytes at a time via the `Range` header that
+ * `GET /helper/getFile` honours. A compressed file cannot be entered anywhere but at its first byte,
+ * so only its first part is fetched and decompressed. Either way each window is trimmed back to whole
+ * lines.
  */
 @Injectable({
   providedIn: 'root'
@@ -57,22 +71,122 @@ export class FilePreviewService {
   private readonly decoder = new TextDecoder('utf-8', { fatal: false });
 
   /**
-   * Loads one page of a file.
+   * Opens the source a file's pages are read from. The file's first bytes decide whether it is read
+   * as it is stored or decompressed, the way hashcat decides.
    *
-   * @param request - Which file, where to read, and how much to read.
-   * @returns The whole lines the requested window yielded.
+   * @param file - The file to preview.
+   * @returns The source, once the file's format is known and, for a compressed file, its first part
+   *   decompressed.
    */
-  loadPage(request: FilePreviewRequest): Observable<FilePreviewPage> {
-    const { fileId, totalBytes, windowBytes } = request;
+  openSource(file: JFile): Observable<PreviewSource> {
+    const plain = new RangeSource(file, (start, end) => this.fetchRange(file.id, start, end));
 
     // An empty file has no range to request; the backend answers 416 for `bytes=0-0` on it.
+    if (file.size <= 0) {
+      return of(plain);
+    }
+
+    return this.fetchRange(file.id, 0, Math.min(COMPRESSION_HEADER_BYTES, file.size) - 1).pipe(
+      switchMap((head) => {
+        const format = detectCompression(head);
+        return format ? this.openCompressed(file, format) : of(plain);
+      })
+    );
+  }
+
+  /**
+   * Loads one page from a source.
+   *
+   * @param source - The bytes to read, as opened by {@link openSource}.
+   * @param request - Where to read, and how much to read.
+   * @returns The whole lines the requested window yielded.
+   */
+  loadPage(source: PreviewSource, request: FilePreviewRequest): Observable<FilePreviewPage> {
+    const { totalBytes } = source;
+
     if (totalBytes <= 0) {
       return of(this.emptyPage(totalBytes));
     }
 
     const start = Math.min(Math.max(request.offset, 0), totalBytes - 1);
-    const end = Math.min(start + windowBytes - 1, totalBytes - 1);
+    const end = Math.min(start + request.windowBytes - 1, totalBytes - 1);
 
+    return source.read(start, end).pipe(map((bytes) => this.toPage(bytes, start, source, request)));
+  }
+
+  /**
+   * Fetches the first part of a compressed file and decompresses it into memory.
+   *
+   * @param file - The compressed file.
+   * @param format - The format its first bytes carry.
+   * @returns A source over the decompressed bytes.
+   */
+  private openCompressed(file: JFile, format: CompressedFormat): Observable<PreviewSource> {
+    return this.fetchRange(file.id, 0, Math.min(PEEK_BYTES, file.size) - 1).pipe(
+      switchMap((input) =>
+        this.decodeUntilUnsubscribed(format, input, {
+          isWholeFile: input.length >= file.size,
+          maxOutputBytes: MAX_DECOMPRESSED_BYTES
+        })
+      ),
+      map(({ bytes, reachedEnd }) => {
+        if (bytes.length === 0 && !reachedEnd) {
+          throw new Error('Could not decompress the file. It may be damaged.');
+        }
+
+        return new MemorySource(reachedEnd ? bytes : this.toLastWholeLine(bytes), reachedEnd, format.name);
+      })
+    );
+  }
+
+  /**
+   * Runs a decoder for as long as anyone listens: unsubscribing, as closing the preview does, aborts
+   * the decoding instead of leaving it to run to the output cap for nothing.
+   *
+   * @param format - The format to decode.
+   * @param input - The start of the file, or all of it.
+   * @param options - Everything the decoder needs but the signal, which this method supplies.
+   * @returns The decoder's result.
+   */
+  private decodeUntilUnsubscribed(
+    format: CompressedFormat,
+    input: Uint8Array<ArrayBuffer>,
+    options: Omit<DecodeOptions, 'signal'>
+  ): Observable<DecodeResult> {
+    return new Observable<DecodeResult>((subscriber) => {
+      const controller = new AbortController();
+      format.decode(input, { ...options, signal: controller.signal }).then(
+        (result) => {
+          subscriber.next(result);
+          subscriber.complete();
+        },
+        // After an unsubscribe this is the abort itself, which a closed subscriber ignores.
+        (error: unknown) => subscriber.error(error)
+      );
+
+      return () => controller.abort();
+    });
+  }
+
+  /**
+   * Cuts decompressed bytes that stop short of the end of the file back to just after their last line
+   * feed, so a line cut off by the end of the peek never shows as a whole one. Bytes without any line
+   * feed are kept as they are, since there would otherwise be nothing to show.
+   */
+  private toLastWholeLine(bytes: Uint8Array): Uint8Array {
+    const lastBreak = bytes.lastIndexOf(LINE_FEED);
+    return lastBreak === -1 ? bytes : bytes.subarray(0, lastBreak + 1);
+  }
+
+  /**
+   * Fetches one byte range of a stored file.
+   *
+   * @param fileId - File to read.
+   * @param start - First byte of the range.
+   * @param end - Last byte of the range, inclusive.
+   * @returns The bytes of the range.
+   */
+  private fetchRange(fileId: FileId, start: number, end: number): Observable<Uint8Array<ArrayBuffer>> {
     const headers = new HttpHeaders({
       ...HTTP_SKIP_CACHE_HEADER_CONFIG,
       ...HTTP_SKIP_ERROR_HEADER_CONFIG,
@@ -86,14 +200,15 @@ export class FilePreviewService {
         responseType: 'arraybuffer'
       })
       .pipe(
-        mergeMap((buffer) => {
+        map((buffer) => {
           const bytes = new Uint8Array(buffer);
           // A cache that answers a conditional range request with the whole representation instead of
           // the requested slice would shift every line number silently; refuse it rather than show it.
           if (bytes.length > end - start + 1) {
-            return throwError(() => new Error('The server returned more bytes than the requested range.'));
+            throw new Error('The server returned more bytes than the requested range.');
           }
-          return of(this.toPage(bytes, start, request));
+
+          return bytes;
         })
       );
   }
@@ -104,19 +219,28 @@ export class FilePreviewService {
    * Lines are split on raw bytes before decoding: a `0x0A` byte is unambiguous in UTF-8, so cutting
    * there cannot corrupt a multi-byte character the way cutting on an arbitrary byte would.
    *
-   * @param bytes - The bytes the backend returned.
+   * @param bytes - The bytes the source returned.
    * @param start - Offset the window was read from.
-   * @param request - The request the window answers, for its total size and alignment flag.
+   * @param source - The source read from, for its size and whether that is the end of the file.
+   * @param request - The request the window answers, for its alignment flag.
    * @returns The resulting page.
    */
-  private toPage(bytes: Uint8Array, start: number, request: FilePreviewRequest): FilePreviewPage {
-    const { totalBytes, maxLines } = request;
+  private toPage(
+    bytes: Uint8Array,
+    start: number,
+    source: PreviewSource,
+    request: FilePreviewRequest
+  ): FilePreviewPage {
+    const { maxLines } = request;
+    const { totalBytes } = source;
 
     if (bytes.length === 0) {
       return { ...this.emptyPage(totalBytes), startByte: start, endByte: start };
     }
 
-    const isFinalWindow = start + bytes.length >= totalBytes;
+    // Only the end of a source that holds the whole file is the end of the file. A source cut short
+    // ends wherever decoding stopped, possibly inside a line.
+    const isFinalWindow = start + bytes.length >= totalBytes && source.reachesEndOfFile;
 
     // A window that was seeked to rather than paged to usually lands mid-line; that fragment belongs
     // to the preceding page and is dropped so the first line shown is a whole one.
