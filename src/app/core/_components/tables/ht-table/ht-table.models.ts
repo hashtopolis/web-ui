@@ -145,7 +145,7 @@ export interface HTTableColumn {
    */
   cssClass?: string;
   render?(data: BaseModel): SafeHtml;
-  async?(data: BaseModel): Promise<SafeHtml>;
+  async?(data: BaseModel): Promise<SafeHtml> | Observable<SafeHtml>;
   export?(data: BaseModel): Promise<string>;
   truncate?: HTTableTruncate;
   editable?(data: BaseModel): HTTableEditable<BaseModel>;
