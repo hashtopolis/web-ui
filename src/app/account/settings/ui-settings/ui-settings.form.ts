@@ -14,6 +14,7 @@ export type UiSettingsForm = {
   theme: FormControl<Theme>;
   refreshPage: FormControl<boolean>;
   refreshInterval: FormControl<number>;
+  agentOnlineThreshold: FormControl<number>;
 };
 
 /**
@@ -22,6 +23,8 @@ export type UiSettingsForm = {
 export class UiSettingsFormGroup extends FormGroup<UiSettingsForm> {
   static readonly REFRESH_INTERVAL_MIN = 5; // 5 seconds
   static readonly REFRESH_INTERVAL_MAX = 300; // 5 minutes
+  static readonly AGENT_ONLINE_THRESHOLD_MIN = 1;
+  static readonly AGENT_ONLINE_THRESHOLD_MAX = 86400;
 
   constructor() {
     super({
@@ -30,6 +33,15 @@ export class UiSettingsFormGroup extends FormGroup<UiSettingsForm> {
       layout: new FormControl<Layout>('fixed', { nonNullable: true }),
       theme: new FormControl<Theme>('light', { nonNullable: true }),
       refreshPage: new FormControl<boolean>(false, { nonNullable: true }),
+      agentOnlineThreshold: new FormControl<number>(120, {
+        nonNullable: true,
+        validators: [
+          Validators.required,
+          Validators.min(UiSettingsFormGroup.AGENT_ONLINE_THRESHOLD_MIN),
+          Validators.max(UiSettingsFormGroup.AGENT_ONLINE_THRESHOLD_MAX),
+          Validators.pattern(/^[0-9]+$/)
+        ]
+      }),
       refreshInterval: new FormControl<number>(UiSettingsFormGroup.REFRESH_INTERVAL_MIN, {
         nonNullable: true,
         validators: [

@@ -1,7 +1,7 @@
-import { catchError, forkJoin } from 'rxjs';
+import { Observable, catchError, distinctUntilChanged, forkJoin, map, merge, of, switchMap, timer } from 'rxjs';
 
-import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AfterViewInit, ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { SafeHtml } from '@angular/platform-browser';
 
 import { AgentMenuService } from '@services/context-menu/agents/agent-menu.service';
@@ -50,6 +50,11 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   tableColumns: HTTableColumn[] = [];
   dataSource: AgentsDataSource;
   selectedFilterColumn: HTTableColumn;
+
+  private readonly connectivityByAgent = new WeakMap<JAgent, Observable<SafeHtml>>();
+  private readonly connectivityThreshold$ = toObservable(
+    computed(() => this.uiSettings.getSetting('agentOnlineThreshold'))
+  );
 
   ngOnInit(): void {
     this.setColumnLabels(AgentsStatusTableColumnLabel);
@@ -118,6 +123,13 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
         isSortable: false,
         icon: (agent: JAgent) => this.renderActiveAgentIcon(agent),
         export: async (agent: JAgent) => this.renderActiveAgent(agent)
+      },
+      {
+        id: AgentsStatusTableCol.CONNECTIVITY,
+        dataKey: 'lastTime',
+        isSortable: false,
+        async: (agent: JAgent) => this.connectivity(agent),
+        export: async (agent: JAgent) => (this.hasRecentActivity(agent.lastTime) ? 'Online' : 'Offline')
       },
       {
         id: AgentsStatusTableCol.AGENT_STATUS,
@@ -392,23 +404,61 @@ export class AgentsStatusTableComponent extends BaseTableComponent implements On
   private isRunningTask(agent: JAgent): boolean {
     const isReportingProgress = agent.lastAct === 'sendProgress';
     const hasAssignedTask = !!agent.taskId;
-    const hasRecentActivity = this.hasRecentActivity(agent.lastTime);
+    const hasRecentTaskActivity = this.hasRecentTaskActivity(agent.lastTime);
 
-    return agent.isActive && hasAssignedTask && isReportingProgress && hasRecentActivity;
+    return agent.isActive && hasAssignedTask && isReportingProgress && hasRecentTaskActivity;
+  }
+
+  // Task-running state is governed by the server's agent timeout, not the browser's
+  // separately configurable connectivity display threshold.
+  private hasRecentTaskActivity(lastTime: number): boolean {
+    if (!lastTime) {
+      return false;
+    }
+    const timeout = this.uiService.getUISettings()?.agenttimeout ?? 0;
+    const timeoutSeconds = timeout > 0 ? timeout : 120;
+    const elapsed = Math.max(0, Math.floor(Date.now() / 1000) - lastTime);
+    return elapsed <= timeoutSeconds;
   }
 
   // Determine if the last server interaction is recent enough to consider the agent online.
-  private hasRecentActivity(lastTime: number): boolean {
-    if (!lastTime) {
+  private hasRecentActivity(lastTime: number, threshold = this.uiSettings.getSetting('agentOnlineThreshold')): boolean {
+    if (!Number.isFinite(lastTime) || lastTime <= 0) {
       return false;
     }
 
     const nowInSeconds = Math.floor(Date.now() / 1000);
-    const elapsedSeconds = Math.max(0, nowInSeconds - lastTime);
-    const configuredTimeout = this.uiService.getUISettings()?.agenttimeout ?? 0;
-    const timeoutSeconds = configuredTimeout > 0 ? configuredTimeout : 120;
+    const elapsedSeconds = nowInSeconds - lastTime;
+    return elapsedSeconds >= 0 && elapsedSeconds <= threshold;
+  }
 
-    return elapsedSeconds <= timeoutSeconds;
+  private connectivity(agent: JAgent): Observable<SafeHtml> {
+    const existing = this.connectivityByAgent.get(agent);
+    if (existing) {
+      return existing;
+    }
+
+    const status$ = this.connectivityThreshold$.pipe(
+      switchMap((threshold) => {
+        const lastContact = agent.lastTime;
+        const now = Date.now();
+        const changes =
+          Number.isFinite(lastContact) && lastContact > 0
+            ? [lastContact * 1000, (lastContact + threshold + 1) * 1000]
+                .filter((deadline) => deadline > now)
+                .map((deadline) => timer(deadline - now))
+            : [];
+        return merge(of(0), ...changes).pipe(map(() => this.hasRecentActivity(lastContact, threshold)));
+      }),
+      distinctUntilChanged(),
+      map((online) =>
+        this.sanitize(
+          online ? '<span class="pill pill-active">Online</span>' : '<span class="pill pill-inactive">Offline</span>'
+        )
+      )
+    );
+    this.connectivityByAgent.set(agent, status$);
+    return status$;
   }
 
   /**

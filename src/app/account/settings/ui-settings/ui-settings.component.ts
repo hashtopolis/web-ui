@@ -73,7 +73,8 @@ export class UiSettingsComponent implements OnInit {
       layout: config.layout,
       theme: config.theme,
       refreshPage: config.refreshPage,
-      refreshInterval: config.refreshInterval
+      refreshInterval: config.refreshInterval,
+      agentOnlineThreshold: config.agentOnlineThreshold
     });
   }
 
@@ -82,6 +83,10 @@ export class UiSettingsComponent implements OnInit {
    * Updates the settings and shows an alert message.
    */
   onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
     this.isUpdatingLoading = true;
 
     const changedValues = this.util.updateSettings(this.form.value);

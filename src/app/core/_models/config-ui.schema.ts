@@ -108,6 +108,7 @@ export const sortingSchema = z.object({
  */
 export const tableConfigSchema = z.object({
   columns: z.array(z.coerce.number()),
+  columnsVersion: z.number().int().nonnegative().optional(),
   start: z.union([z.coerce.number(), z.string()]).optional(),
   order: z.union([sortingSchema, z.array(sortingSchema)]).optional(),
   page: z.coerce.number(),
@@ -137,9 +138,26 @@ export const tableSettingsSchema = z.preprocess(
     }
     const result: Record<string, unknown> = { ...uiConfigDefault.tableSettings };
     for (const [k, v] of Object.entries(val)) {
-      if (tableEntrySchema.safeParse(v).success) {
-        result[k] = v;
+      const parsed = tableEntrySchema.safeParse(v);
+      if (!parsed.success) {
+        continue;
       }
+
+      const defaults = uiConfigDefault.tableSettings[k];
+      if (defaults && !Array.isArray(defaults) && defaults.columnsVersion !== undefined) {
+        const entry = Array.isArray(parsed.data)
+          ? { ...defaults, columns: parsed.data, columnsVersion: 0 }
+          : parsed.data;
+        if ((entry.columnsVersion ?? 0) < defaults.columnsVersion) {
+          result[k] = {
+            ...entry,
+            columns: [...new Set([...entry.columns, ...(defaults.addedColumns ?? [])])],
+            columnsVersion: defaults.columnsVersion
+          };
+          continue;
+        }
+      }
+      result[k] = parsed.data;
     }
     return result;
   },
@@ -158,5 +176,6 @@ export const uiConfigSchema = z.object({
   dateFmt: z.enum(DateFormat).default(uiConfigDefault.dateFmt),
   timeFmt: z.enum(TimeFormat).default(uiConfigDefault.timeFmt),
   refreshPage: z.boolean().default(uiConfigDefault.refreshPage),
-  refreshInterval: z.coerce.number().default(uiConfigDefault.refreshInterval)
+  refreshInterval: z.coerce.number().default(uiConfigDefault.refreshInterval),
+  agentOnlineThreshold: z.coerce.number().int().min(1).max(86400).default(uiConfigDefault.agentOnlineThreshold)
 });

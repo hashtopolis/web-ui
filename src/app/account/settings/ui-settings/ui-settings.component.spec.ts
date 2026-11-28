@@ -96,6 +96,20 @@ describe('UiSettingsComponent', () => {
     expect(component.form.controls.theme).toBeDefined();
     expect(component.form.controls.refreshPage).toBeDefined();
     expect(component.form.controls.refreshInterval).toBeDefined();
+    expect(component.form.controls.agentOnlineThreshold.value).toBe(120);
+  });
+
+  it('rejects invalid connectivity thresholds without saving or reloading', () => {
+    const control = component.form.controls.agentOnlineThreshold;
+    for (const invalid of [0, -1, 1.5, 86401]) {
+      control.setValue(invalid);
+      expect(component.form.valid).toBe(false);
+    }
+    component.onSubmit();
+    expect(mockLocalStorageService.setItem).not.toHaveBeenCalled();
+    expect(mockReloadService.reloadPage).not.toHaveBeenCalled();
+    control.setValue(120);
+    expect(component.form.valid).toBe(true);
   });
 
   it('should call updateForm and patch form values', () => {

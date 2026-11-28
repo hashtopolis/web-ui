@@ -71,6 +71,9 @@ export interface TableSettings {
  */
 export interface TableConfig {
   columns: number[];
+  columnsVersion?: number | undefined;
+  /** Columns introduced by the current default version, for migration of saved layouts. */
+  addedColumns?: number[];
   start?: number | string | undefined;
   order?: Sorting | Sorting[] | undefined;
   page: number;
@@ -97,6 +100,8 @@ export interface UIConfig {
   timeFmt: TimeFormat;
   refreshPage: boolean;
   refreshInterval: number;
+  /** Seconds since the agent's last server contact before it is considered offline. */
+  agentOnlineThreshold: number;
 }
 
 export type UIConfigKeys = keyof UIConfig;
@@ -249,11 +254,14 @@ const _uiConfigDefault = {
       search: ''
     },
     agentStatusTable: {
+      columnsVersion: 1,
+      addedColumns: [AgentsStatusTableCol.CONNECTIVITY],
       page: DEFAULT_PAGE_SIZE,
       columns: [
         AgentsStatusTableCol.ID,
         AgentsStatusTableCol.NAME,
         AgentsStatusTableCol.AGENT_STATUS,
+        AgentsStatusTableCol.CONNECTIVITY,
         AgentsStatusTableCol.STATUS,
         AgentsStatusTableCol.WORKING_ON,
         AgentsStatusTableCol.ASSIGNED,
@@ -867,7 +875,8 @@ const _uiConfigDefault = {
     }
   },
   refreshPage: false,
-  refreshInterval: 10
+  refreshInterval: 10,
+  agentOnlineThreshold: 120
 } as const satisfies UIConfig;
 
 export type TableSettingsKey = keyof (typeof _uiConfigDefault)['tableSettings'];

@@ -102,6 +102,16 @@
         />
       </div>
 
+      <div class="form-field">
+        <label for="agentOnlineThreshold">Agent online threshold (seconds)</label>
+        <p>Agents with no server contact for longer than this are shown as offline, regardless of activation status.</p>
+        <input-number
+          [min]="UiSettingsFormGroup.AGENT_ONLINE_THRESHOLD_MIN"
+          [max]="UiSettingsFormGroup.AGENT_ONLINE_THRESHOLD_MAX"
+          formControlName="agentOnlineThreshold"
+        />
+      </div>
+
       <grid-buttons>
         <button-submit data-testid="button-submit" name="Save Settings" [loading]="isUpdatingLoading"></button-submit>
       </grid-buttons>
