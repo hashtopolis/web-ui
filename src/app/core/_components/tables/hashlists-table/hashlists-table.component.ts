@@ -1,3 +1,4 @@
+import { Perm } from '@constants/userpermissions.config';
 import { Observable, catchError, of } from 'rxjs';
 
 import { AfterViewInit, ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
@@ -44,6 +45,7 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
     this.dataSource = new HashlistsDataSource(this.injector);
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
+    this.dataSource.setIncludeTaskCount(!this.shashlistId && this.permissionService.hasPermissionSync(Perm.Task.READ));
 
     this.contextMenuService = new HashListContextMenuService(this.permissionService).addContextMenu();
     if (this.shashlistId) {
@@ -131,6 +133,16 @@ export class HashlistsTableComponent extends BaseTableComponent implements OnIni
         export: async (hashlist: JHashlist) => HashListFormatLabels[hashlist.format!]
       }
     ];
+
+    if (!this.shashlistId && this.permissionService.hasPermissionSync(Perm.Task.READ)) {
+      tableColumns.push({
+        id: HashlistsTableCol.TASK_COUNT,
+        isNumeric: true,
+        isSortable: false,
+        render: (hashlist: JHashlist) => this.sanitize(String(hashlist.taskCount ?? '—')),
+        export: async (hashlist: JHashlist) => String(hashlist.taskCount ?? '—')
+      });
+    }
 
     if (!this.shashlistId) {
       tableColumns.push({

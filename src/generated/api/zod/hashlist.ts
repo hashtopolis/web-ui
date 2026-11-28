@@ -92,7 +92,8 @@ export const zHashlistResponse = z.object({
       notes: z.string(),
       useBrain: z.boolean(),
       brainFeatures: z.int(),
-      isArchived: z.boolean()
+      isArchived: z.boolean(),
+      taskCount: z.int().optional()
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/hashlists/1')
@@ -278,7 +279,8 @@ export const zHashlistSingleResponse = z.object({
       notes: z.string(),
       useBrain: z.boolean(),
       brainFeatures: z.int(),
-      isArchived: z.boolean()
+      isArchived: z.boolean(),
+      taskCount: z.int().optional()
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/hashlists/1')
@@ -464,7 +466,8 @@ export const zHashlistPostPatchResponse = z.object({
       notes: z.string(),
       useBrain: z.boolean(),
       brainFeatures: z.int(),
-      isArchived: z.boolean()
+      isArchived: z.boolean(),
+      taskCount: z.int().optional()
     }),
     links: z.object({
       self: z.string().default('/api/v2/ui/hashlists/1')
@@ -675,7 +678,8 @@ export const zHashlistListResponse = z.object({
         notes: z.string(),
         useBrain: z.boolean(),
         brainFeatures: z.int(),
-        isArchived: z.boolean()
+        isArchived: z.boolean(),
+        taskCount: z.int().optional()
       }),
       links: z.object({
         self: z.string().default('/api/v2/ui/hashlists/1')
@@ -957,7 +961,8 @@ export const zGetHashlistsQuery = z.object({
     .max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
     .optional(),
   filter: z.record(z.string(), z.string()).optional(),
-  include: z.array(z.enum(['accessGroup', 'hashType', 'hashes', 'hashlists', 'tasks'])).optional()
+  include: z.array(z.enum(['accessGroup', 'hashType', 'hashes', 'hashlists', 'tasks'])).optional(),
+  aggregate: z.record(z.string(), z.string()).optional()
 });
 
 /**

@@ -12,6 +12,7 @@ import { Filter, FilterType, RequestParams } from '@models/request-params.model'
 import { JsonAPISerializer } from '@services/api/serializer-service';
 import { SERV } from '@services/main.config';
 import { GlobalService } from '@services/main.service';
+import { PermissionService } from '@services/permission/permission.service';
 import { HttpCacheService } from '@services/shared/http-cache.service';
 import { AutoRefreshService } from '@services/shared/refresh/auto-refresh.service';
 import { UIConfigService } from '@services/shared/storage.service';
@@ -75,6 +76,7 @@ describe('HashlistsDataSource', () => {
   let dataSource: HashlistsDataSource;
   let gsSpy: MockedObject<GlobalService>;
   let deserializeSpy: Mock;
+  let hasPermission: Mock;
 
   beforeEach(() => {
     gsSpy = {
@@ -116,9 +118,11 @@ describe('HashlistsDataSource', () => {
         return [];
       });
 
+    hasPermission = vi.fn().mockReturnValue(true);
     TestBed.configureTestingModule({
       providers: [
         { provide: GlobalService, useValue: gsSpy },
+        { provide: PermissionService, useValue: { hasPermissionSync: hasPermission } },
         { provide: ChangeDetectorRef, useValue: cdrSpy },
         { provide: UIConfigService, useValue: uiServiceSpy },
         { provide: AutoRefreshService, useValue: autoRefreshSpy },
@@ -181,6 +185,21 @@ describe('HashlistsDataSource', () => {
       dataSource.loadAll();
       const [serviceConfig] = gsSpy.getAll.mock.lastCall!;
       expect(serviceConfig).toStrictEqual(SERV.HASHLISTS);
+    });
+
+    it('requests a count aggregate only with task-read permission', () => {
+      dataSource.setIncludeTaskCount(true);
+      dataSource.loadAll();
+      let [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).include).not.toContain('tasks');
+      expect((params as RequestParams).aggregate).toStrictEqual([{ field: 'hashlist', values: ['taskCount'] }]);
+
+      hasPermission.mockReturnValue(false);
+      dataSource.setIncludeTaskCount(true);
+      dataSource.loadAll();
+      [, params] = gsSpy.getAll.mock.lastCall!;
+      expect((params as RequestParams).include).not.toContain('tasks');
+      expect((params as RequestParams).aggregate ?? []).toStrictEqual([]);
     });
 
     it('should include hashType and accessGroup', () => {

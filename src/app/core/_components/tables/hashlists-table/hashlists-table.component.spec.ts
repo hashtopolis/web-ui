@@ -1,3 +1,4 @@
+import { Perm } from '@constants/userpermissions.config';
 import { Subject, of } from 'rxjs';
 import type { MockedObject } from 'vitest';
 
@@ -9,6 +10,10 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 
 import { BaseModel } from '@models/base.model';
+import { TableConfig, uiConfigDefault } from '@models/config-ui.model';
+import { uiConfigSchema } from '@models/config-ui.schema';
+
+import { PermissionService } from '@services/permission/permission.service';
 
 import { ActionMenuEvent } from '@components/menus/action-menu/action-menu.model';
 import { BulkActionMenuAction } from '@components/menus/bulk-action-menu/bulk-action-menu.constants';
@@ -33,6 +38,7 @@ class MockDataSource {
   setIsArchived = vi.fn().mockName('setIsArchived');
   reset = vi.fn().mockName('reset');
   setSuperHashListID = vi.fn().mockName('setSuperHashListID');
+  setIncludeTaskCount = vi.fn().mockName('setIncludeTaskCount');
   filterError$ = new Subject<string>();
 }
 
@@ -45,6 +51,7 @@ class TestHashlistsTableComponent extends HashlistsTableComponent {
     this.dataSource = this.mockDataSource as unknown as typeof this.dataSource;
     this.dataSource.setColumns(this.tableColumns);
     this.dataSource.setIsArchived(this.isArchived);
+    this.dataSource.setIncludeTaskCount(!this.shashlistId && this.permissionService.hasPermissionSync(Perm.Task.READ));
 
     if (this.shashlistId) {
       this.dataSource.setSuperHashListID(this.shashlistId);
@@ -93,7 +100,8 @@ describe('HashlistsTableComponent', () => {
         { provide: MatDialog, useValue: mockDialog },
         { provide: Router, useValue: mockRouter },
         { provide: GlobalService, useValue: mockGlobalService },
-        { provide: ExportService, useValue: mockExportService }
+        { provide: ExportService, useValue: mockExportService },
+        { provide: PermissionService, useValue: { hasPermissionSync: vi.fn().mockReturnValue(true) } }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       imports: [MatDialogModule]
@@ -126,6 +134,23 @@ describe('HashlistsTableComponent', () => {
       expect(columnIds).toContain(HashlistsTableCol.NAME);
       expect(columnIds).toContain(HashlistsTableCol.CRACKED);
       expect(columnIds).toContain(HashlistsTableCol.FORMAT);
+    });
+
+    it('exports aggregate counts and distinguishes zero from an unavailable count', async () => {
+      const column = component.getColumns().find((col) => col.id === HashlistsTableCol.TASK_COUNT);
+      expect(column).toBeDefined();
+      expect(column?.isSortable).toBe(false);
+      expect(await column?.export?.({ taskCount: 0 } as JHashlist)).toBe('0');
+      expect(await column?.export?.({ taskCount: 2 } as JHashlist)).toBe('2');
+      expect(await column?.export?.({} as JHashlist)).toBe('—');
+    });
+
+    it('does not expose task counts when task-read permission is missing', () => {
+      vi.spyOn(
+        (component as unknown as { permissionService: PermissionService }).permissionService,
+        'hasPermissionSync'
+      ).mockReturnValue(false);
+      expect(component.getColumns().some((col) => col.id === HashlistsTableCol.TASK_COUNT)).toBe(false);
     });
 
     it('should include ID column with correct properties', () => {
@@ -422,4 +447,18 @@ describe('HashlistsTableComponent', () => {
       expect(component.mockDataSource.clearFilter).toHaveBeenCalled();
     });
   });
+});
+
+it('shows the new column after loading a pre-upgrade saved table configuration', () => {
+  const fresh = uiConfigDefault.tableSettings['hashlistsTable'] as TableConfig;
+  const legacyColumns = fresh.columns.filter((column) => column !== HashlistsTableCol.TASK_COUNT);
+  const stored = { ...fresh, columns: legacyColumns, columnsVersion: undefined };
+  const config = uiConfigSchema.parse({ tableSettings: { hashlistsTable: stored } });
+  const upgraded = config.tableSettings['hashlistsTable'] as TableConfig;
+  expect(upgraded.columns).toStrictEqual([...legacyColumns, HashlistsTableCol.TASK_COUNT]);
+  const hidden = { ...upgraded, columns: legacyColumns };
+  const restored = uiConfigSchema.parse({ tableSettings: { hashlistsTable: hidden } });
+  expect(restored.tableSettings['hashlistsTable']).toStrictEqual(hidden);
+  const fromLegacyArray = uiConfigSchema.parse({ tableSettings: { hashlistsTable: legacyColumns } });
+  expect((fromLegacyArray.tableSettings['hashlistsTable'] as TableConfig).columns).toStrictEqual(upgraded.columns);
 });

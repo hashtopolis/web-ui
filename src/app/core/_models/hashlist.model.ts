@@ -31,4 +31,5 @@ export interface JHashlist extends BaseModel {
   sourceData?: string;
   hashlists?: JHashlist[];
   tasks?: JTask[];
+  taskCount?: number | undefined;
 }

@@ -5,7 +5,8 @@ export enum HashlistsTableCol {
   HASHTYPE,
   FORMAT,
   CRACKED,
-  HASH_COUNT
+  HASH_COUNT,
+  TASK_COUNT
 }
 
 export const HashlistsTableColumnLabel = {
@@ -15,5 +16,6 @@ export const HashlistsTableColumnLabel = {
   [HashlistsTableCol.HASHTYPE]: 'Hash Type',
   [HashlistsTableCol.FORMAT]: 'Format',
   [HashlistsTableCol.CRACKED]: 'Cracked',
-  [HashlistsTableCol.HASH_COUNT]: 'Hash Count'
+  [HashlistsTableCol.HASH_COUNT]: 'Hash Count',
+  [HashlistsTableCol.TASK_COUNT]: 'Tasks'
 };

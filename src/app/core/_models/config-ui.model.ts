@@ -71,6 +71,9 @@ export interface TableSettings {
  */
 export interface TableConfig {
   columns: number[];
+  columnsVersion?: number | undefined;
+  /** Columns introduced by the current default version, for migration of saved layouts. */
+  addedColumns?: number[];
   start?: number | string | undefined;
   order?: Sorting | Sorting[] | undefined;
   page: number;
@@ -313,6 +316,8 @@ const _uiConfigDefault = {
       search: ''
     },
     hashlistsTable: {
+      columnsVersion: 1,
+      addedColumns: [HashlistsTableCol.TASK_COUNT],
       page: DEFAULT_PAGE_SIZE,
       columns: [
         HashlistsTableCol.ID,
@@ -320,7 +325,8 @@ const _uiConfigDefault = {
         HashlistsTableCol.HASHTYPE,
         HashlistsTableCol.FORMAT,
         HashlistsTableCol.CRACKED,
-        HashlistsTableCol.HASH_COUNT
+        HashlistsTableCol.HASH_COUNT,
+        HashlistsTableCol.TASK_COUNT
       ],
       order: {
         id: HashlistsTableCol.ID,

@@ -88,6 +88,7 @@ export type HashlistResponse = {
       useBrain: boolean;
       brainFeatures: number;
       isArchived: boolean;
+      taskCount?: number;
     };
     links: {
       self: string;
@@ -254,6 +255,7 @@ export type HashlistSingleResponse = {
       useBrain: boolean;
       brainFeatures: number;
       isArchived: boolean;
+      taskCount?: number;
     };
     links: {
       self: string;
@@ -420,6 +422,7 @@ export type HashlistPostPatchResponse = {
       useBrain: boolean;
       brainFeatures: number;
       isArchived: boolean;
+      taskCount?: number;
     };
     links: {
       self: string;
@@ -595,6 +598,7 @@ export type HashlistListResponse = {
       useBrain: boolean;
       brainFeatures: number;
       isArchived: boolean;
+      taskCount?: number;
     };
     links: {
       self: string;
@@ -903,6 +907,12 @@ export type GetHashlistsData = {
      * Relationships to include in the response, comma seperated. Possible options: accessGroup, hashType, hashes, hashlists, tasks
      */
     include?: Array<'accessGroup' | 'hashType' | 'hashes' | 'hashlists' | 'tasks'>;
+    /**
+     * Aggregated fields to include by type (comma separated values). Possible options: hashlist: taskCount
+     */
+    aggregate?: {
+      [key: string]: string;
+    };
   };
   url: '/api/v2/ui/hashlists';
 };

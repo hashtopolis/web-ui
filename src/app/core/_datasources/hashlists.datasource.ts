@@ -1,4 +1,5 @@
 import { HTTP_SKIP_ERROR_HEADER_CONFIG } from '@constants/http.config';
+import { Perm } from '@constants/userpermissions.config';
 import { zHashlistListResponse, zHashlistResponse } from '@generated/api/zod';
 import { catchError, finalize, of } from 'rxjs';
 
@@ -18,6 +19,11 @@ import { HashListFormat } from '@src/app/core/_constants/hashlist.config';
 export class HashlistsDataSource extends BaseDataSource<JHashlist> {
   private isArchived = false;
   private superHashListID = 0;
+  private includeTaskCount = false;
+
+  setIncludeTaskCount(includeTaskCount: boolean): void {
+    this.includeTaskCount = includeTaskCount && this.permissionService.hasPermissionSync(Perm.Task.READ);
+  }
   setIsArchived(isArchived: boolean): void {
     this.isArchived = isArchived;
     this.reset(true);
@@ -71,9 +77,12 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
         params.addFilter(query);
       }
 
+      const requestParams = this.includeTaskCount
+        ? params.addAggregate({ field: 'hashlist', values: ['taskCount'] }).create()
+        : params.create();
       this.subscriptions.push(
         this.service
-          .getAll(SERV.HASHLISTS, params.create(), httpOptions)
+          .getAll(SERV.HASHLISTS, requestParams, httpOptions)
           .pipe(
             catchError((error: HttpErrorResponse) => {
               this.handleFilterError(error);
@@ -85,7 +94,11 @@ export class HashlistsDataSource extends BaseDataSource<JHashlist> {
             if (!response) {
               return; // Don't update data if there was an error
             }
-            const deserialized: JHashlist[] = this.serializer.deserialize(response, zHashlistListResponse);
+            const deserialized: JHashlist[] = this.serializer.deserialize(
+              response,
+              zHashlistListResponse,
+              requestParams
+            );
             if (!deserialized || !Array.isArray(deserialized)) {
               return; // Safety check: if deserialize returns null or non-array, exit
             }
